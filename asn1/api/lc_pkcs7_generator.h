@@ -121,15 +121,18 @@ int lc_pkcs7_set_certificate(struct lc_pkcs7_message *pkcs7,
  *			    not met.
  * @param [in] auth_attribute Specify which authenticated attributes are to be
  *			      generated. When set to 0, no authenticated
- *			      attributes are generated.
+ *			      attributes are generated. RFC8419, RFC9814 and
+ *			      RFC9882 mandate the use of authenticated
+ *			      attributes which impplies that in order to be
+ *			      compliant to CMS, this field needs to be set.
  *			      \note When authenticated attributes are to be
- *			      generated, the caller MUST provide a
- *			      \p signing_hash as RFC5652 section 5.3 requres
- *			      the presence of the message digest attribute.
+ *			      generated, the caller may provide a
+ *			      \p signing_hash. If none is provided, the default
+ *			      hash type for the given signature mechanism is
+ *			      applied.
  *			      The following attributes are allowed:
  *			      \p sinfo_has_content_type - set content type
  *			      \p sinfo_has_signing_time - set signing time
- *			      \p sinfo_has_message_digest - set message digest
  *
  * @return 0 on success, < 0 on error
  */

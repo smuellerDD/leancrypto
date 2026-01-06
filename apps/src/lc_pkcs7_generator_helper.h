@@ -87,6 +87,7 @@ struct pkcs7_generator_opts {
 	unsigned int signer_set : 1;
 	unsigned int verify_rules_set : 1;
 	unsigned int pem_format_output : 1;
+	unsigned int skip_signature_verification : 1;
 
 	struct pkcs7_x509 *x509;
 };

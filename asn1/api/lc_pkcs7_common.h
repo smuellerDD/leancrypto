@@ -60,12 +60,19 @@ struct lc_pkcs7_signed_info {
 	const uint8_t *authattrs;
 	size_t authattrs_len;
 
+	/* Flags defining the authenticated attributes */
 	unsigned long aa_set;
+	/** Record the content type (e.g. the OID for signed data) */
 #define sinfo_has_content_type (1 << 0)
+	/** Record the time stamp of the signature */
 #define sinfo_has_signing_time (1 << 1)
+	/** Store the message digest of the actual message */
 #define sinfo_has_message_digest (1 << 2)
+	/** Currently unused */
 #define sinfo_has_smime_caps (1 << 3)
+	/** Currently unused */
 #define sinfo_has_ms_opus_info (1 << 4)
+	/** Currently unused */
 #define sinfo_has_ms_statement_type (1 << 5)
 
 	unsigned int index;

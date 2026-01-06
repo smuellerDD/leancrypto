@@ -168,7 +168,7 @@ int pkcs7_dump_file(struct pkcs7_generator_opts *opts)
 	 * (i.e. perform a signature verification).
 	 */
 	ret = lc_pkcs7_get_content_data(pkcs7_msg, &avail_data, &avail_datalen);
-	if (!ret) {
+	if (!ret && !opts->skip_signature_verification) {
 		CKINT_LOG(lc_pkcs7_verify(
 				  pkcs7_msg,
 				  opts->use_trust_store ? &opts->trust_store :

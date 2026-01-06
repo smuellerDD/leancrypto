@@ -137,6 +137,9 @@ int main(int argc, char **argv)
 	 * to the library. But then, NIAP with their, well, statement in CNSA
 	 * 2.0 to not allow SHA3 would be violated. Thus, we leave SHA2-512 here
 	 * for now.
+	 *
+	 * Furthermore, RFC9882 section 3.3 suggests the use of SHA2-512 as a
+	 * default.
 	 */
 	parsed_opts.hash = lc_sha512;
 	parsed_opts.pkcs7 = pkcs7_msg;

@@ -1,0 +1,2534 @@
+
+<!DOCTYPE html>
+
+
+
+
+
+
+
+<html data-bs-theme="auto" lang="en">
+    <head>
+        
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>
+            
+                RFC 7468 - Textual Encodings of PKIX, PKCS, and CMS Structures
+            
+        </title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="https://static.ietf.org/fonts/inter/import.css" rel="stylesheet">
+        <link href="https://static.ietf.org/fonts/noto-sans-mono/import.css" rel="stylesheet">
+        
+            <link rel="stylesheet" href="https://static.ietf.org/dt/12.55.0/ietf/css/document_html_referenced.css">
+            
+            <script type="module" crossorigin="" src="https://static.ietf.org/dt/12.55.0/assets/embedded-5dc07bd3.js"></script>
+<link href="https://static.ietf.org/dt/12.55.0/assets/create-pinia-singleton-d2c53c22.js" type="text/javascript" crossorigin="anonymous" rel="modulepreload" as="script" />
+<link href="https://static.ietf.org/dt/12.55.0/assets/Scrollbar-b4d4acff.js" type="text/javascript" crossorigin="anonymous" rel="modulepreload" as="script" />
+            <script src="https://static.ietf.org/dt/12.55.0/ietf/js/document_html.js"></script>
+            <script src="https://static.ietf.org/dt/12.55.0/ietf/js/theme.js"></script>
+        
+        <link rel="alternate" type="application/atom+xml" title="Document changes" href="/feed/document-changes/rfc7468/">
+        <meta name="description"
+            
+                content="Textual Encodings of PKIX, PKCS, and CMS Structures (RFC 7468, )"
+            >
+        
+
+<link rel="apple-touch-icon"
+      sizes="180x180"
+      href="https://static.ietf.org/dt/12.55.0/ietf/images/ietf-logo-nor-180.png">
+<link rel="icon"
+      sizes="32x32"
+      href="https://static.ietf.org/dt/12.55.0/ietf/images/ietf-logo-nor-32.png">
+<link rel="icon"
+      sizes="16x16"
+      href="https://static.ietf.org/dt/12.55.0/ietf/images/ietf-logo-nor-16.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="mask-icon"
+      href="https://static.ietf.org/dt/12.55.0/ietf/images/ietf-logo-nor-mask.svg"
+      color="#ffffff">
+<meta name="msapplication-TileColor"
+      content="#ffffff">
+<meta name="theme-color"
+      content="#ffffff">
+        
+
+
+
+
+<meta property="og:title" content="RFC 7468: Textual Encodings of PKIX, PKCS, and CMS Structures">
+<meta property="og:url" content="https://datatracker.ietf.org/doc/html/rfc7468">
+<link rel="canonical" href="https://datatracker.ietf.org/doc/html/rfc7468">
+<meta property="og:site_name" content="IETF Datatracker">
+<meta property="og:description" content="This document describes and discusses the textual encodings of the Public-Key Infrastructure X.509 (PKIX), Public-Key Cryptography Standards (PKCS), and Cryptographic Message Syntax (CMS). The textual encodings are well-known, are implemented by several applications and libraries, and are widely deployed. This document articulates the de facto rules by which existing implementations operate and defines them so that future implementations can interoperate.">
+<meta property="og:type" content="article">
+
+<meta property="og:image" content="https://static.ietf.org/dt/12.55.0/ietf/images/ietf-logo-card.png">
+<meta property="og:image:alt" content="Logo of the IETF">
+<meta property="article:section" content="IETF - Internet Engineering Task Force">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+
+<meta property="article:author" content="Simon Josefsson">
+<meta property="article:author" content="Sean Leonard">
+
+
+
+        
+        <style>
+            
+            .diff-form .select2-selection__rendered {
+                direction: rtl;
+                text-align: left;
+            }
+        </style>
+    </head>
+    <body>
+        
+        <noscript><iframe class="status" title="Site status" src="/status/latest"></iframe></noscript>
+<div class="vue-embed" data-component="Status"></div>
+        <div class="btn-toolbar sidebar-toolbar position-fixed top-0 end-0 m-2 m-lg-3 d-print-none">
+            <div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm me-1 dropdown-toggle d-flex align-items-center"
+                    id="bd-theme" type="button" aria-expanded="false" data-bs-toggle="dropdown"
+                    aria-label="Toggle theme">
+                        <i class="theme-icon-active bi bi-circle-half"></i>
+                </button>
+
+                <ul class="dropdown-menu" aria-labelledby="bd-theme">
+                    <li>
+                        <button type="button" class="dropdown-item d-flex align-items-center"
+                            data-bs-theme-value="light" aria-pressed="false">
+                            <i class="me-2 opacity-50 theme-icon bi bi-sun-fill"></i>
+                            Light<i class="bi bi-check2 ms-auto d-none"></i>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="dropdown-item d-flex align-items-center"
+                            data-bs-theme-value="dark" aria-pressed="false">
+                            <i class="me-2 opacity-50 theme-icon bi bi-moon-stars-fill"></i>
+                            Dark<i class="bi bi-check2 ms-auto d-none"></i>
+                        </button>
+                    </li>
+                    <li>
+                        <button type="button" class="dropdown-item d-flex align-items-center active"
+                            data-bs-theme-value="auto" aria-pressed="true">
+                            <i class="me-2 opacity-50 theme-icon bi bi-circle-half"></i>
+                            Auto<i class="bi bi-check2 ms-auto d-none"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <button class="btn btn-outline-secondary btn-sm sidebar-toggle"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#sidebar"
+                    aria-expanded="true"
+                    aria-controls="sidebar"
+                    aria-label="Toggle metadata sidebar"
+                    title="Toggle metadata sidebar">
+            <i class="bi bi-arrow-bar-left sidebar-shown"></i>
+            <i class="bi bi-arrow-bar-right sidebar-collapsed"></i>
+            </button>
+        </div>
+        <nav class="navbar bg-light-subtle px-1 fixed-top d-print-none d-md-none">
+            <a class="nav-link ps-1"
+               href="/doc/rfc7468/">
+                
+                    RFC 7468
+                
+                <br class="d-sm-none">
+
+                <span class="ms-sm-3 badge rounded-pill badge-ps">
+                    
+                        Proposed Standard
+                    
+                </span>
+            </a>
+            <button class="navbar-toggler p-1"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#docinfo-collapse"
+                    aria-controls="docinfo-collapse"
+                    aria-expanded="false"
+                    aria-label="Show document information">
+                <span class="navbar-toggler-icon small"></span>
+            </button>
+            <div class="navbar-nav navbar-nav-scroll overscroll-none collapse pt-1" id="docinfo-collapse">
+                <div class="bg-light-subtle p-0">
+                    <table class="table table-sm table-borderless small">
+                        <tbody class="meta align-top">
+                            <tr>
+                                <th scope="row"></th>
+                                <th scope="row">Title</th>
+                                <td class="edit"></td>
+                                <td>Textual Encodings of PKIX, PKCS, and CMS Structures</td>
+                            </tr>
+                        </tbody>
+                        
+
+
+
+
+
+
+
+<tbody class="meta align-top ">
+    <tr>
+        <th scope="row">Document</th>
+        <th scope="row">Document type</th>
+        <td class="edit"></td>
+        <td>
+            
+
+
+
+
+
+<span class="text-success">RFC
+    
+    - Proposed Standard
+    
+</span>
+
+            
+                
+                    <br>April 2015
+                
+                <br>
+                
+                    <a class="btn btn-primary btn-sm my-1"
+                       href="https://www.rfc-editor.org/errata_search.php?rfc=7468" title="Click to view errata." rel="nofollow">
+                        View errata
+                    </a>
+                
+                
+                    <a class="btn btn-sm btn-warning"
+                       title="Click to report an error in the document."
+                       href="https://www.rfc-editor.org/errata.php#reportnew"
+                       target="_blank">
+                        Report errata
+                    </a>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                    <div>
+                        Was
+                        <a href="/doc/draft-josefsson-pkix-textual/10/">draft-josefsson-pkix-textual</a>
+                        (individual)
+                    </div>
+                
+            
+            
+            
+                
+
+
+
+
+    
+
+
+            
+        </td>
+    </tr>
+    
+        <tr>
+            <td></td>
+            <th scope="row">Select version</th>
+            <td class="edit"></td>
+            <td>
+                
+
+
+
+    <ul class="revision-list pagination pagination-sm text-center flex-wrap my-0">
+        
+            
+            
+                
+                    <li class="page-item">
+                        <a class="page-link"
+                        href="/doc/html/draft-josefsson-pkix-textual-00"
+                        rel="nofollow">
+                            00
+                        </a>
+                    </li>
+                
+                    <li class="page-item">
+                        <a class="page-link"
+                        href="/doc/html/draft-josefsson-pkix-textual-01"
+                        rel="nofollow">
+                            01
+                        </a>
+                    </li>
+                
+                    <li class="page-item">
+                        <a class="page-link"
+                        href="/doc/html/draft-josefsson-pkix-textual-02"
+                        rel="nofollow">
+                            02
+                        </a>
+                    </li>
+                
+                    <li class="page-item">
+                        <a class="page-link"
+                        href="/doc/html/draft-josefsson-pkix-textual-03"
+                        rel="nofollow">
+                            03
+                        </a>
+                    </li>
+                
+                    <li class="page-item">
+                        <a class="page-link"
+                        href="/doc/html/draft-josefsson-pkix-textual-04"
+                        rel="nofollow">
+                            04
+                        </a>
+                    </li>
+                
+                    <li class="page-item">
+                        <a class="page-link"
+                        href="/doc/html/draft-josefsson-pkix-textual-05"
+                        rel="nofollow">
+                            05
+                        </a>
+                    </li>
+                
+                    <li class="page-item">
+                        <a class="page-link"
+                        href="/doc/html/draft-josefsson-pkix-textual-06"
+                        rel="nofollow">
+                            06
+                        </a>
+                    </li>
+                
+                    <li class="page-item">
+                        <a class="page-link"
+                        href="/doc/html/draft-josefsson-pkix-textual-07"
+                        rel="nofollow">
+                            07
+                        </a>
+                    </li>
+                
+                    <li class="page-item">
+                        <a class="page-link"
+                        href="/doc/html/draft-josefsson-pkix-textual-08"
+                        rel="nofollow">
+                            08
+                        </a>
+                    </li>
+                
+                    <li class="page-item">
+                        <a class="page-link"
+                        href="/doc/html/draft-josefsson-pkix-textual-09"
+                        rel="nofollow">
+                            09
+                        </a>
+                    </li>
+                
+                    <li class="page-item">
+                        <a class="page-link"
+                        href="/doc/html/draft-josefsson-pkix-textual-10"
+                        rel="nofollow">
+                            10
+                        </a>
+                    </li>
+                
+            
+            
+            <li class="page-item rfc active">
+                <a class="page-link"
+                href="/doc/html/rfc7468">
+                    RFC 7468
+                </a>
+            </li>
+        
+    </ul>
+
+            </td>
+        </tr>
+        
+            <tr>
+                <td></td>
+                <th scope="row">Compare versions</th>
+                <td class="edit"></td>
+                <td>
+                    
+
+
+
+<form class="form-horizontal diff-form"
+      action="https://author-tools.ietf.org/iddiff"
+      method="get"
+      target="_blank">
+
+            <select class="form-select form-select-sm mb-1 select2-field"
+                    data-max-entries="1"
+                    data-width="resolve"
+                    data-allow-clear="false"
+                    data-minimum-input-length="0"
+                    aria-label="From revision"
+                    name="url1">
+                
+                    <option value="rfc7468">
+                        RFC 7468
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-10" selected>
+                        draft-josefsson-pkix-textual-10
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-09">
+                        draft-josefsson-pkix-textual-09
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-08">
+                        draft-josefsson-pkix-textual-08
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-07">
+                        draft-josefsson-pkix-textual-07
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-06">
+                        draft-josefsson-pkix-textual-06
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-05">
+                        draft-josefsson-pkix-textual-05
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-04">
+                        draft-josefsson-pkix-textual-04
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-03">
+                        draft-josefsson-pkix-textual-03
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-02">
+                        draft-josefsson-pkix-textual-02
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-01">
+                        draft-josefsson-pkix-textual-01
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-00">
+                        draft-josefsson-pkix-textual-00
+                        
+                    </option>
+                
+                
+            </select>
+
+            <select class="form-select form-select-sm mb-1 select2-field"
+                    data-max-entries="1"
+                    data-width="resolve"
+                    data-allow-clear="false"
+                    data-minimum-input-length="0"
+                    aria-label="To revision"
+                    name="url2">
+                
+                    <option value="rfc7468" selected>
+                        RFC 7468
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-10">
+                        draft-josefsson-pkix-textual-10
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-09">
+                        draft-josefsson-pkix-textual-09
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-08">
+                        draft-josefsson-pkix-textual-08
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-07">
+                        draft-josefsson-pkix-textual-07
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-06">
+                        draft-josefsson-pkix-textual-06
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-05">
+                        draft-josefsson-pkix-textual-05
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-04">
+                        draft-josefsson-pkix-textual-04
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-03">
+                        draft-josefsson-pkix-textual-03
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-02">
+                        draft-josefsson-pkix-textual-02
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-01">
+                        draft-josefsson-pkix-textual-01
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-00">
+                        draft-josefsson-pkix-textual-00
+                        
+                    </option>
+                
+                
+            </select>
+
+            <button type="submit"
+                    class="btn btn-primary btn-sm"
+                    value="--html"
+                    name="difftype">
+                Side-by-side
+            </button>
+            
+            <button type="submit"
+                    class="btn btn-primary btn-sm"
+                    value="--hwdiff"
+                    name="difftype">
+                Inline
+            </button>
+
+</form>
+                </td>
+            </tr>
+        
+    
+    <tr>
+        <td></td>
+        <th scope="row">Authors</th>
+        <td class="edit">
+            
+        </td>
+        <td>
+            
+            
+                <span ><a 
+           title="Datatracker profile of Simon Josefsson"
+            href="/person/simon@josefsson.org" >Simon Josefsson</a> <a 
+               href="mailto:simon%40josefsson.org"
+               aria-label="Compose email to simon@josefsson.org"
+               title="Compose email to simon@josefsson.org">
+                <i class="bi bi-envelope"></i></a></span>,
+            
+                <span ><a 
+           title="Datatracker profile of Sean Leonard"
+            href="/person/dev+ietf@seantek.com" >Sean Leonard</a> <a 
+               href="mailto:dev%2Bietf%40seantek.com"
+               aria-label="Compose email to dev+ietf@seantek.com"
+               title="Compose email to dev+ietf@seantek.com">
+                <i class="bi bi-envelope"></i></a></span>
+            
+            
+                <br>
+                <a class="btn btn-primary btn-sm mt-1" href="mailto:rfc7468@ietf.org?subject=rfc7468" title="Send email to the document authors">Email authors</a>
+            
+        </td>
+    </tr>
+    
+    
+    <tr>
+        <td></td>
+        <th scope="row">
+            RFC stream
+        </th>
+        <td class="edit">
+            
+        </td>
+        <td >
+            
+                
+                
+                    
+                        
+
+
+
+<img alt="IETF Logo"
+     class="d-lm-none w-25 mt-1"
+     
+     
+        
+             src="https://static.ietf.org/dt/12.55.0/ietf/images/ietf-logo-nor-white.svg"
+        
+     
+     >
+
+<img alt="IETF Logo"
+     class="d-dm-none w-25 mt-1"
+     
+     
+        
+             src="https://static.ietf.org/dt/12.55.0/ietf/images/ietf-logo-nor.svg"
+        
+     
+     >
+                    
+                
+                
+            
+        </td>
+    </tr>
+    
+    <tr>
+        <td></td>
+        <th scope="row">
+            Other formats
+        </th>
+        <td class="edit">
+        </td>
+        <td>
+            
+                
+    <div class="buttonlist">
+    
+        
+        <a class="btn btn-primary btn-sm"
+          
+          target="_blank"
+          href="https://www.rfc-editor.org/rfc/rfc7468.txt">
+            
+                <i class="bi bi-file-text"></i> txt
+            
+        </a>
+        
+    
+        
+        <a class="btn btn-primary btn-sm"
+          
+          target="_blank"
+          href="https://www.rfc-editor.org/rfc/rfc7468.html">
+            
+                <i class="bi bi-file-code"></i> html
+            
+        </a>
+        
+    
+        
+        <a class="btn btn-primary btn-sm"
+          
+            download="rfc7468.pdf"
+          
+         
+          target="_blank"
+          href="https://www.rfc-editor.org/rfc/pdfrfc/rfc7468.txt.pdf">
+            
+                <i class="bi bi-file-pdf"></i> pdf
+            
+        </a>
+        
+    
+        
+    
+        
+        <a class="btn btn-primary btn-sm"
+          
+          target="_blank"
+          href="https://www.rfc-editor.org/rfc/inline-errata/rfc7468.html">
+            
+                <i class="bi bi-file-diff"></i> w/errata
+            
+        </a>
+        
+    
+        
+        <a class="btn btn-primary btn-sm"
+          
+          target="_blank"
+          href="/doc/rfc7468/bibtex/">
+            
+                <i class="bi bi-file-ruled"></i> bibtex
+            
+        </a>
+        
+    
+</div>
+
+            
+        </td>
+    </tr>
+    
+    
+        
+    
+</tbody>
+                        <tr>
+                            <th scope="row"></th>
+                            <th scope="row"></th>
+                            <td class="edit"></td>
+                            <td>
+                                <a class="btn btn-sm btn-warning mb-3"
+                                target="_blank"
+                                href="https://github.com/ietf-tools/datatracker/issues/new/choose">
+                                    Report a bug
+                                    <i class="bi bi-bug"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </nav>
+        <div class="row g-0">
+            <div class="col-md-9 d-flex justify-content-center lh-sm"
+                 data-bs-spy="scroll"
+                 data-bs-target="#toc-nav"
+                 data-bs-smooth-scroll="true"
+                 tabindex="0"
+                 id="content">
+                
+                    <div class="rfcmarkup">
+                        <br class="noprint">
+                        <!-- [html-validate-disable-block attr-quotes, void-style, element-permitted-content, heading-level -- FIXME: rfcmarkup/rfc2html generates HTML with issues] -->
+                        <div class="rfcmarkup"><pre>Internet Engineering Task Force (IETF)                      S. Josefsson
+Request for Comments: 7468                                        SJD AB
+Category: Standards Track                                     S. Leonard
+ISSN: 2070-1721                                            Penango, Inc.
+                                                              April 2015
+
+
+          <span class="h1">Textual Encodings of PKIX, PKCS, and CMS Structures</span>
+
+Abstract
+
+   This document describes and discusses the textual encodings of the
+   Public-Key Infrastructure X.509 (PKIX), Public-Key Cryptography
+   Standards (PKCS), and Cryptographic Message Syntax (CMS).  The
+   textual encodings are well-known, are implemented by several
+   applications and libraries, and are widely deployed.  This document
+   articulates the de facto rules by which existing implementations
+   operate and defines them so that future implementations can
+   interoperate.
+
+Status of This Memo
+
+   This is an Internet Standards Track document.
+
+   This document is a product of the Internet Engineering Task Force
+   (IETF).  It represents the consensus of the IETF community.  It has
+   received public review and has been approved for publication by the
+   Internet Engineering Steering Group (IESG).  Further information on
+   Internet Standards is available in <a href="/doc/html/rfc5741#section-2">Section&nbsp;2 of RFC 5741</a>.
+
+   Information about the current status of this document, any errata,
+   and how to provide feedback on it may be obtained at
+   <a href="http://www.rfc-editor.org/info/rfc7468">http://www.rfc-editor.org/info/rfc7468</a>.
+
+Copyright Notice
+
+   Copyright (c) 2015 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to <a href="/doc/html/bcp78">BCP 78</a> and the IETF Trust&#x27;s Legal
+   Provisions Relating to IETF Documents
+   (<a href="http://trustee.ietf.org/license-info">http://trustee.ietf.org/license-info</a>) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.  Code Components extracted from this document must
+   include Simplified BSD License text as described in Section 4.e of
+   the Trust Legal Provisions and are provided without warranty as
+   described in the Simplified BSD License.
+
+
+
+<span class="grey">Josefsson &amp; Leonard          Standards Track                    [Page 1]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-2" ></span>
+<span class="grey"><a href="/doc/html/rfc7468">RFC 7468</a>                 PKIX Textual Encodings               April 2015</span>
+
+
+Table of Contents
+
+   <a href="#section-1">1</a>.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   <a href="#page-2">2</a>
+   <a href="#section-2">2</a>.  General Considerations  . . . . . . . . . . . . . . . . . . .   <a href="#page-3">3</a>
+   <a href="#section-3">3</a>.  ABNF  . . . . . . . . . . . . . . . . . . . . . . . . . . . .   <a href="#page-5">5</a>
+   <a href="#section-4">4</a>.  Guide . . . . . . . . . . . . . . . . . . . . . . . . . . . .   <a href="#page-7">7</a>
+   <a href="#section-5">5</a>.  Textual Encoding of Certificates  . . . . . . . . . . . . . .   <a href="#page-8">8</a>
+     <a href="#section-5.1">5.1</a>.  Encoding  . . . . . . . . . . . . . . . . . . . . . . . .   <a href="#page-8">8</a>
+     <a href="#section-5.2">5.2</a>.  Explanatory Text  . . . . . . . . . . . . . . . . . . . .   <a href="#page-9">9</a>
+     <a href="#section-5.3">5.3</a>.  File Extension  . . . . . . . . . . . . . . . . . . . . .   <a href="#page-9">9</a>
+   <a href="#section-6">6</a>.  Textual Encoding of Certificate Revocation Lists  . . . . . .  <a href="#page-10">10</a>
+   <a href="#section-7">7</a>.  Textual Encoding of PKCS #10 Certification Request Syntax . .  <a href="#page-11">11</a>
+   <a href="#section-8">8</a>.  Textual Encoding of PKCS #7 Cryptographic Message Syntax  . .  <a href="#page-11">11</a>
+   <a href="#section-9">9</a>.  Textual Encoding of Cryptographic Message Syntax  . . . . . .  <a href="#page-12">12</a>
+   10. One Asymmetric Key and the Textual Encoding of PKCS #8
+       Private Key Info  . . . . . . . . . . . . . . . . . . . . . .  <a href="#page-12">12</a>
+   <a href="#section-11">11</a>. Textual Encoding of PKCS #8 Encrypted Private Key Info  . . .  <a href="#page-13">13</a>
+   <a href="#section-12">12</a>. Textual Encoding of Attribute Certificates  . . . . . . . . .  <a href="#page-13">13</a>
+   <a href="#section-13">13</a>. Textual Encoding of Subject Public Key Info . . . . . . . . .  <a href="#page-14">14</a>
+   <a href="#section-14">14</a>. Security Considerations . . . . . . . . . . . . . . . . . . .  <a href="#page-14">14</a>
+   <a href="#section-15">15</a>. References  . . . . . . . . . . . . . . . . . . . . . . . . .  <a href="#page-14">14</a>
+     <a href="#section-15.1">15.1</a>.  Normative References . . . . . . . . . . . . . . . . . .  <a href="#page-14">14</a>
+     <a href="#section-15.2">15.2</a>.  Informative References . . . . . . . . . . . . . . . . .  <a href="#page-15">15</a>
+   <a href="#appendix-A">Appendix A</a>.  Non-conforming Examples  . . . . . . . . . . . . . .  <a href="#page-17">17</a>
+   <a href="#appendix-B">Appendix B</a>.  DER Expectations . . . . . . . . . . . . . . . . . .  <a href="#page-18">18</a>
+   Acknowledgements  . . . . . . . . . . . . . . . . . . . . . . . .  <a href="#page-19">19</a>
+   Authors&#x27; Addresses  . . . . . . . . . . . . . . . . . . . . . . .  <a href="#page-20">20</a>
+
+<span class="h2"><a class="selflink" id="section-1" href="#section-1">1</a>.  Introduction</span>
+
+   Several security-related standards used on the Internet define ASN.1
+   data formats that are normally encoded using the Basic Encoding Rules
+   (BER) or Distinguished Encoding Rules (DER) [<a href="#ref-X.690" title="&quot;Information Technology - ASN.1 encoding rules: Specification of Basic Encoding Rules (BER), Canonical Encoding Rules (CER) and Distinguished Encoding Rules (DER)&quot;">X.690</a>], which are
+   binary, octet-oriented encodings.  This document is about the textual
+   encodings of the following formats:
+
+   1.  Certificates, Certificate Revocation Lists (CRLs), and Subject
+       Public Key Info structures in the Internet X.509 Public Key
+       Infrastructure Certificate and Certificate Revocation List (CRL)
+       Profile [<a href="/doc/html/rfc5280" title="&quot;Internet X.509 Public Key Infrastructure Certificate and Certificate Revocation List (CRL) Profile&quot;">RFC5280</a>].
+
+   2.  PKCS #10: Certification Request Syntax [<a href="/doc/html/rfc2986" title="&quot;PKCS #10: Certification Request Syntax Specification Version 1.7&quot;">RFC2986</a>].
+
+   3.  PKCS #7: Cryptographic Message Syntax [<a href="/doc/html/rfc2315" title="&quot;PKCS #7: Cryptographic Message Syntax Version 1.5&quot;">RFC2315</a>].
+
+   4.  Cryptographic Message Syntax [<a href="/doc/html/rfc5652" title="&quot;Cryptographic Message Syntax (CMS)&quot;">RFC5652</a>].
+
+
+
+
+
+<span class="grey">Josefsson &amp; Leonard          Standards Track                    [Page 2]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-3" ></span>
+<span class="grey"><a href="/doc/html/rfc7468">RFC 7468</a>                 PKIX Textual Encodings               April 2015</span>
+
+
+   5.  PKCS #8: Private-Key Information Syntax [<a href="/doc/html/rfc5208" title="&quot;Public-Key Cryptography Standards (PKCS) #8: Private-Key Information Syntax Specification Version 1.2&quot;">RFC5208</a>], renamed to One
+       Asymmetric Key in Asymmetric Key Package [<a href="/doc/html/rfc5958" title="&quot;Asymmetric Key Packages&quot;">RFC5958</a>], and Encrypted
+       Private-Key Information Syntax in the same documents.
+
+   6.  Attribute Certificates in An Internet Attribute Certificate
+       Profile for Authorization [<a href="/doc/html/rfc5755" title="&quot;An Internet Attribute Certificate Profile for Authorization&quot;">RFC5755</a>].
+
+   A disadvantage of a binary data format is that it cannot be
+   interchanged in textual transports, such as email or text documents.
+   One advantage with text-based encodings is that they are easy to
+   modify using common text editors; for example, a user may concatenate
+   several certificates to form a certificate chain with copy-and-paste
+   operations.
+
+   The tradition within the RFC series can be traced back to Privacy-
+   Enhanced Mail (PEM) [<a href="/doc/html/rfc1421" title="&quot;Privacy Enhancement for Internet Electronic Mail: Part I: Message Encryption and Authentication Procedures&quot;">RFC1421</a>], based on a proposal by Marshall Rose
+   in Message Encapsulation [<a href="/doc/html/rfc934" title="&quot;Proposed standard for message encapsulation&quot;">RFC934</a>].  Originally called &quot;PEM
+   encapsulation mechanism&quot;, &quot;encapsulated PEM message&quot;, or (arguably)
+   &quot;PEM printable encoding&quot;, today the format is sometimes referred to
+   as &quot;PEM encoding&quot;.  Variations include OpenPGP ASCII armor [<a href="/doc/html/rfc4880" title="&quot;OpenPGP Message Format&quot;">RFC4880</a>]
+   and OpenSSH key file format [<a href="/doc/html/rfc4716" title="&quot;The Secure Shell (SSH) Public Key File Format&quot;">RFC4716</a>].
+
+   For reasons that basically boil down to non-coordination or
+   inattention, many PKIX, PKCS, and CMS libraries implement a text-
+   based encoding that is similar to -- but not identical with -- PEM
+   encoding.  This document specifies the _textual encoding_ format,
+   articulates the de facto rules that most implementations operate by,
+   and provides recommendations that will promote interoperability going
+   forward.  This document also provides common nomenclature for syntax
+   elements, reflecting the evolution of this de facto standard format.
+   Peter Gutmann&#x27;s &quot;X.509 Style Guide&quot; [<a href="#ref-X.509SG" title="&quot;X.509 Style Guide&quot;">X.509SG</a>] contains a section
+   &quot;base64 Encoding&quot; that describes the formats and contains suggestions
+   similar to what is in this document.  All figures are real,
+   functional examples, with key lengths and inner contents chosen to be
+   as small as practicable.
+
+   The key words &quot;MUST&quot;, &quot;MUST NOT&quot;, &quot;REQUIRED&quot;, &quot;SHALL&quot;, &quot;SHALL NOT&quot;,
+   &quot;SHOULD&quot;, &quot;SHOULD NOT&quot;, &quot;RECOMMENDED&quot;, &quot;NOT RECOMMENDED&quot;, &quot;MAY&quot;, and
+   &quot;OPTIONAL&quot; in this document are to be interpreted as described in <a href="/doc/html/rfc2119">RFC</a>
+   <a href="/doc/html/rfc2119">2119</a> [<a href="/doc/html/rfc2119" title="&quot;Key words for use in RFCs to Indicate Requirement Levels&quot;">RFC2119</a>].
+
+<span class="h2"><a class="selflink" id="section-2" href="#section-2">2</a>.  General Considerations</span>
+
+   Textual encoding begins with a line comprising &quot;-----BEGIN &quot;, a
+   label, and &quot;-----&quot;, and ends with a line comprising &quot;-----END &quot;, a
+   label, and &quot;-----&quot;.  Between these lines, or &quot;encapsulation
+   boundaries&quot;, are base64-encoded data according to <a href="/doc/html/rfc4648#section-4">Section&nbsp;4 of
+   [RFC4648]</a>.  (PEM [<a href="/doc/html/rfc1421" title="&quot;Privacy Enhancement for Internet Electronic Mail: Part I: Message Encryption and Authentication Procedures&quot;">RFC1421</a>] referred to this data as the &quot;encapsulated
+
+
+
+<span class="grey">Josefsson &amp; Leonard          Standards Track                    [Page 3]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-4" ></span>
+<span class="grey"><a href="/doc/html/rfc7468">RFC 7468</a>                 PKIX Textual Encodings               April 2015</span>
+
+
+   text portion&quot;.)  Data before the encapsulation boundaries are
+   permitted, and parsers MUST NOT malfunction when processing such
+   data.  Furthermore, parsers SHOULD ignore whitespace and other non-
+   base64 characters and MUST handle different newline conventions.
+
+   The type of data encoded is labeled depending on the type label in
+   the &quot;-----BEGIN &quot; line (pre-encapsulation boundary).  For example,
+   the line may be &quot;-----BEGIN CERTIFICATE-----&quot; to indicate that the
+   content is a PKIX certificate (see further below).  Generators MUST
+   put the same label on the &quot;-----END &quot; line (post-encapsulation
+   boundary) as the corresponding &quot;-----BEGIN &quot; line.  Labels are
+   formally case-sensitive, uppercase, and comprised of zero or more
+   characters; they do not contain consecutive spaces or hyphen-minuses,
+   nor do they contain spaces or hyphen-minuses at either end.  Parsers
+   MAY disregard the label in the post-encapsulation boundary instead of
+   signaling an error if there is a label mismatch: some extant
+   implementations require the labels to match; others do not.
+
+   There is exactly one space character (SP) separating the &quot;BEGIN&quot; or
+   &quot;END&quot; from the label.  There are exactly five hyphen-minus (also
+   known as dash) characters (&quot;-&quot;) on both ends of the encapsulation
+   boundaries, no more, no less.
+
+   The label type implies that the encoded data follows the specified
+   syntax.  Parsers MUST handle non-conforming data gracefully.
+   However, not all parsers or generators prior to this document behave
+   consistently.  A conforming parser MAY interpret the contents as
+   another label type but ought to be aware of the security implications
+   discussed in the Security Considerations section.  The labels
+   described in this document identify container formats that are not
+   specific to any particular cryptographic algorithm, a property
+   consistent with algorithm agility.  These formats use the ASN.1
+   AlgorithmIdentifier structure as described in <a href="/doc/html/rfc5280#section-4.1.1.2">Section&nbsp;4.1.1.2 of
+   [RFC5280]</a>.
+
+   Unlike legacy PEM encoding [<a href="/doc/html/rfc1421" title="&quot;Privacy Enhancement for Internet Electronic Mail: Part I: Message Encryption and Authentication Procedures&quot;">RFC1421</a>], OpenPGP ASCII armor, and the
+   OpenSSH key file format, textual encoding does *not* define or permit
+   headers to be encoded alongside the data.  Empty space can appear
+   between the pre-encapsulation boundary and the base64, but generators
+   SHOULD NOT emit such any such spacing.  (The provision for this empty
+   area is a throwback to PEM, which defined an &quot;encapsulated header
+   portion&quot;.)
+
+   Implementers need to be aware that extant parsers diverge
+   considerably on the handling of whitespace.  In this document,
+   &quot;whitespace&quot; means any character or series of characters that
+   represent horizontal or vertical space in typography.  In US-ASCII,
+   whitespace means HT (0x09), VT (0x0B), FF (0x0C), SP (0x20), CR
+
+
+
+<span class="grey">Josefsson &amp; Leonard          Standards Track                    [Page 4]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-5" ></span>
+<span class="grey"><a href="/doc/html/rfc7468">RFC 7468</a>                 PKIX Textual Encodings               April 2015</span>
+
+
+   (0x0D), and LF (0x0A); &quot;blank&quot; means HT and SP; lines are divided
+   with CRLF, CR, or LF.  The common ABNF production WSP is congruent
+   with &quot;blank&quot;; a new production W is used for &quot;whitespace&quot;.  The ABNF
+   in <a href="#section-3">Section 3</a> is specific to US-ASCII.  As these textual encodings can
+   be used on many different systems as well as on long-term archival
+   storage media such as paper or engravings, an implementer ought to
+   use the spirit rather than the letter of the rules when generating or
+   parsing these formats in environments that are not strictly limited
+   to US-ASCII.
+
+   Most extant parsers ignore blanks at the ends of lines; blanks at the
+   beginnings of lines or in the middle of the base64-encoded data are
+   far less compatible.  These observations are codified in Figure 1.
+   The most lax parser implementations are not line-oriented at all and
+   will accept any mixture of whitespace outside of the encapsulation
+   boundaries (see Figure 2).  Such lax parsing may run the risk of
+   accepting text that was not intended to be accepted in the first
+   place (e.g., because the text was a snippet or sample).
+
+   Generators MUST wrap the base64-encoded lines so that each line
+   consists of exactly 64 characters except for the final line, which
+   will encode the remainder of the data (within the 64-character line
+   boundary), and they MUST NOT emit extraneous whitespace.  Parsers MAY
+   handle other line sizes.  These requirements are consistent with PEM
+   [<a href="/doc/html/rfc1421" title="&quot;Privacy Enhancement for Internet Electronic Mail: Part I: Message Encryption and Authentication Procedures&quot;">RFC1421</a>].
+
+   Files MAY contain multiple textual encoding instances.  This is used,
+   for example, when a file contains several certificates.  Whether the
+   instances are ordered or unordered depends on the context.
+
+<span class="h2"><a class="selflink" id="section-3" href="#section-3">3</a>.  ABNF</span>
+
+   The ABNF [<a href="/doc/html/rfc5234" title="&quot;Augmented BNF for Syntax Specifications: ABNF&quot;">RFC5234</a>] of the textual encoding is:
+
+  textualmsg = preeb *WSP eol
+               *eolWSP
+               base64text
+               posteb *WSP [eol]
+
+  preeb      = &quot;-----BEGIN &quot; label &quot;-----&quot; ; unlike [<a href="/doc/html/rfc1421" title="&quot;Privacy Enhancement for Internet Electronic Mail: Part I: Message Encryption and Authentication Procedures&quot;">RFC1421</a>] (A)BNF,
+                                           ; eol is not required (but
+  posteb     = &quot;-----END &quot; label &quot;-----&quot;   ; see <a href="/doc/html/rfc1421#section-4.4">[RFC1421], Section&nbsp;4.4</a>)
+
+  base64char = ALPHA / DIGIT / &quot;+&quot; / &quot;/&quot;
+
+  base64pad  = &quot;=&quot;
+
+  base64line = 1*base64char *WSP eol
+
+
+
+<span class="grey">Josefsson &amp; Leonard          Standards Track                    [Page 5]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-6" ></span>
+<span class="grey"><a href="/doc/html/rfc7468">RFC 7468</a>                 PKIX Textual Encodings               April 2015</span>
+
+
+  base64finl = *base64char (base64pad *WSP eol base64pad /
+                            *2base64pad) *WSP eol
+                       ; ...AB= &lt;EOL&gt; = &lt;EOL&gt; is not good, but is valid
+
+  base64text = *base64line base64finl
+         ; we could also use &lt;encbinbody&gt; from <a href="/doc/html/rfc1421">RFC 1421</a>, which requires
+         ; 16 groups of 4 chars, which means exactly 64 chars per
+         ; line, except the final line, but this is more accurate
+
+  labelchar  = %x21-2C / %x2E-7E    ; any printable character,
+                                    ; except hyphen-minus
+
+  label      = [ labelchar *( [&quot;-&quot; / SP] labelchar ) ]       ; empty ok
+
+  eol        = CRLF / CR / LF
+
+  eolWSP     = WSP / CR / LF                        ; compare with LWSP
+
+                         Figure 1: ABNF (Standard)
+
+   laxtextualmsg    = *W preeb
+                      laxbase64text
+                      posteb *W
+
+   W                = WSP / CR / LF / %x0B / %x0C           ; whitespace
+
+   laxbase64text    = *(W / base64char) [base64pad *W [base64pad *W]]
+
+                           Figure 2: ABNF (Lax)
+
+   stricttextualmsg = preeb eol
+                      strictbase64text
+                      posteb eol
+
+   strictbase64finl = *15(4base64char) (4base64char / 3base64char
+                        base64pad / 2base64char 2base64pad) eol
+
+   base64fullline   = 64base64char eol
+
+   strictbase64text = *base64fullline strictbase64finl
+
+                          Figure 3: ABNF (Strict)
+
+   New implementations SHOULD emit the strict format (Figure 3)
+   specified above.  The choice of parsing strategy depends on the
+   context of use.
+
+
+
+
+
+<span class="grey">Josefsson &amp; Leonard          Standards Track                    [Page 6]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-7" ></span>
+<span class="grey"><a href="/doc/html/rfc7468">RFC 7468</a>                 PKIX Textual Encodings               April 2015</span>
+
+
+<span class="h2"><a class="selflink" id="section-4" href="#section-4">4</a>.  Guide</span>
+
+   For convenience, these figures summarize the structures, encodings,
+   and references in the following sections:
+
+Sec. Label                  ASN.1 Type              Reference Module
+----+----------------------+-----------------------+---------+----------
+  5  CERTIFICATE            Certificate             [<a href="/doc/html/rfc5280" title="&quot;Internet X.509 Public Key Infrastructure Certificate and Certificate Revocation List (CRL) Profile&quot;">RFC5280</a>] id-pkix1-e
+  6  X509 CRL               CertificateList         [<a href="/doc/html/rfc5280" title="&quot;Internet X.509 Public Key Infrastructure Certificate and Certificate Revocation List (CRL) Profile&quot;">RFC5280</a>] id-pkix1-e
+  7  CERTIFICATE REQUEST    CertificationRequest    [<a href="/doc/html/rfc2986" title="&quot;PKCS #10: Certification Request Syntax Specification Version 1.7&quot;">RFC2986</a>] id-pkcs10
+  8  PKCS7                  ContentInfo             [<a href="/doc/html/rfc2315" title="&quot;PKCS #7: Cryptographic Message Syntax Version 1.5&quot;">RFC2315</a>] id-pkcs7*
+  9  CMS                    ContentInfo             [<a href="/doc/html/rfc5652" title="&quot;Cryptographic Message Syntax (CMS)&quot;">RFC5652</a>] id-cms2004
+ 10  PRIVATE KEY            PrivateKeyInfo ::=      [<a href="/doc/html/rfc5208" title="&quot;Public-Key Cryptography Standards (PKCS) #8: Private-Key Information Syntax Specification Version 1.2&quot;">RFC5208</a>] id-pkcs8
+                            OneAsymmetricKey        [<a href="/doc/html/rfc5958" title="&quot;Asymmetric Key Packages&quot;">RFC5958</a>] id-aKPV1
+ 11  ENCRYPTED PRIVATE KEY  EncryptedPrivateKeyInfo [<a href="/doc/html/rfc5958" title="&quot;Asymmetric Key Packages&quot;">RFC5958</a>] id-aKPV1
+ 12  ATTRIBUTE CERTIFICATE  AttributeCertificate    [<a href="/doc/html/rfc5755" title="&quot;An Internet Attribute Certificate Profile for Authorization&quot;">RFC5755</a>] id-acv2
+ 13  PUBLIC KEY             SubjectPublicKeyInfo    [<a href="/doc/html/rfc5280" title="&quot;Internet X.509 Public Key Infrastructure Certificate and Certificate Revocation List (CRL) Profile&quot;">RFC5280</a>] id-pkix1-e
+
+                        Figure 4: Convenience Guide
+
+ -----------------------------------------------------------------------
+ id-pkixmod OBJECT IDENTIFIER ::= {iso(1) identified-organization(3)
+            dod(6) internet(1) security(5) mechanisms(5) pkix(7) mod(0)}
+ id-pkix1-e OBJECT IDENTIFIER ::= {id-pkixmod pkix1-explicit(18)}
+ id-acv2    OBJECT IDENTIFIER ::= {id-pkixmod mod-attribute-cert-v2(61)}
+ id-pkcs    OBJECT IDENTIFIER ::= {iso(1) member-body(2) us(840)
+                                   rsadsi(113549) pkcs(1)}
+ id-pkcs10  OBJECT IDENTIFIER ::= {id-pkcs 10 modules(1) pkcs-10(1)}
+ id-pkcs7   OBJECT IDENTIFIER ::= {id-pkcs 7 modules(0) pkcs-7(1)}
+ id-pkcs8   OBJECT IDENTIFIER ::= {id-pkcs 8 modules(1) pkcs-8(1)}
+ id-sm-mod  OBJECT IDENTIFIER ::= {id-pkcs 9 smime(16) modules(0)}
+ id-aKPV1   OBJECT IDENTIFIER ::= {id-sm-mod mod-asymmetricKeyPkgV1(50)}
+ id-cms2004 OBJECT IDENTIFIER ::= {id-sm-mod cms-2004(24)}
+
+   * This OID does not actually appear in PKCS #7 v1.5 [<a href="/doc/html/rfc2315" title="&quot;PKCS #7: Cryptographic Message Syntax Version 1.5&quot;">RFC2315</a>].  It
+   was defined in the ASN.1 module to PKCS #7 v1.6 [<a href="#ref-P7v1.6" title="&quot;Extensions and Revisions to PKCS #7 (Version 1.6 Bulletin)&quot;">P7v1.6</a>], and has
+   been carried forward through PKCS #12 [<a href="/doc/html/rfc7292" title="&quot;PKCS #12: Personal Information Exchange Syntax v1.1&quot;">RFC7292</a>].
+
+        Figure 5: ASN.1 Module Object Identifier Value Assignments
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="grey">Josefsson &amp; Leonard          Standards Track                    [Page 7]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-8" ></span>
+<span class="grey"><a href="/doc/html/rfc7468">RFC 7468</a>                 PKIX Textual Encodings               April 2015</span>
+
+
+<span class="h2"><a class="selflink" id="section-5" href="#section-5">5</a>.  Textual Encoding of Certificates</span>
+
+<span class="h3"><a class="selflink" id="section-5.1" href="#section-5.1">5.1</a>.  Encoding</span>
+
+   Public-key certificates are encoded using the &quot;CERTIFICATE&quot; label.
+   The encoded data MUST be a BER (DER strongly preferred; see
+   <a href="#appendix-B">Appendix B</a>) encoded ASN.1 Certificate structure as described in
+   <a href="/doc/html/rfc5280#section-4">Section&nbsp;4 of [RFC5280]</a>.
+
+-----BEGIN CERTIFICATE-----
+MIICLDCCAdKgAwIBAgIBADAKBggqhkjOPQQDAjB9MQswCQYDVQQGEwJCRTEPMA0G
+A1UEChMGR251VExTMSUwIwYDVQQLExxHbnVUTFMgY2VydGlmaWNhdGUgYXV0aG9y
+aXR5MQ8wDQYDVQQIEwZMZXV2ZW4xJTAjBgNVBAMTHEdudVRMUyBjZXJ0aWZpY2F0
+ZSBhdXRob3JpdHkwHhcNMTEwNTIzMjAzODIxWhcNMTIxMjIyMDc0MTUxWjB9MQsw
+CQYDVQQGEwJCRTEPMA0GA1UEChMGR251VExTMSUwIwYDVQQLExxHbnVUTFMgY2Vy
+dGlmaWNhdGUgYXV0aG9yaXR5MQ8wDQYDVQQIEwZMZXV2ZW4xJTAjBgNVBAMTHEdu
+dVRMUyBjZXJ0aWZpY2F0ZSBhdXRob3JpdHkwWTATBgcqhkjOPQIBBggqhkjOPQMB
+BwNCAARS2I0jiuNn14Y2sSALCX3IybqiIJUvxUpj+oNfzngvj/Niyv2394BWnW4X
+uQ4RTEiywK87WRcWMGgJB5kX/t2no0MwQTAPBgNVHRMBAf8EBTADAQH/MA8GA1Ud
+DwEB/wQFAwMHBgAwHQYDVR0OBBYEFPC0gf6YEr+1KLlkQAPLzB9mTigDMAoGCCqG
+SM49BAMCA0gAMEUCIDGuwD1KPyG+hRf88MeyMQcqOFZD0TbVleF+UsAGQ4enAiEA
+l4wOuDwKQa+upc8GftXE2C//4mKANBC6It01gUaTIpo=
+-----END CERTIFICATE-----
+
+                       Figure 6: Certificate Example
+
+   Historically, the label &quot;X509 CERTIFICATE&quot; and also less commonly
+   &quot;X.509 CERTIFICATE&quot; have been used.  Generators conforming to this
+   document MUST generate &quot;CERTIFICATE&quot; labels and MUST NOT generate
+   &quot;X509 CERTIFICATE&quot; or &quot;X.509 CERTIFICATE&quot; labels.  Parsers SHOULD NOT
+   treat &quot;X509 CERTIFICATE&quot; or &quot;X.509 CERTIFICATE&quot; as equivalent to
+   &quot;CERTIFICATE&quot;, but a valid exception may be for backwards
+   compatibility (potentially together with a warning).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="grey">Josefsson &amp; Leonard          Standards Track                    [Page 8]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-9" ></span>
+<span class="grey"><a href="/doc/html/rfc7468">RFC 7468</a>                 PKIX Textual Encodings               April 2015</span>
+
+
+<span class="h3"><a class="selflink" id="section-5.2" href="#section-5.2">5.2</a>.  Explanatory Text</span>
+
+   Many tools are known to emit explanatory text before the BEGIN and
+   after the END lines for PKIX certificates, more than any other type.
+   If emitted, such text SHOULD be related to the certificate, such as
+   providing a textual representation of key data elements in the
+   certificate.
+
+Subject: CN=Atlantis
+Issuer: CN=Atlantis
+Validity: from 7/9/2012 3:10:38 AM UTC to 7/9/2013 3:10:37 AM UTC
+-----BEGIN CERTIFICATE-----
+MIIBmTCCAUegAwIBAgIBKjAJBgUrDgMCHQUAMBMxETAPBgNVBAMTCEF0bGFudGlz
+MB4XDTEyMDcwOTAzMTAzOFoXDTEzMDcwOTAzMTAzN1owEzERMA8GA1UEAxMIQXRs
+YW50aXMwXDANBgkqhkiG9w0BAQEFAANLADBIAkEAu+BXo+miabDIHHx+yquqzqNh
+Ryn/XtkJIIHVcYtHvIX+S1x5ErgMoHehycpoxbErZmVR4GCq1S2diNmRFZCRtQID
+AQABo4GJMIGGMAwGA1UdEwEB/wQCMAAwIAYDVR0EAQH/BBYwFDAOMAwGCisGAQQB
+gjcCARUDAgeAMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDAzA1BgNVHQEE
+LjAsgBA0jOnSSuIHYmnVryHAdywMoRUwEzERMA8GA1UEAxMIQXRsYW50aXOCASow
+CQYFKw4DAh0FAANBAKi6HRBaNEL5R0n56nvfclQNaXiDT174uf+lojzA4lhVInc0
+ILwpnZ1izL4MlI9eCSHhVQBHEp2uQdXJB+d5Byg=
+-----END CERTIFICATE-----
+
+            Figure 7: Certificate Example with Explanatory Text
+
+<span class="h3"><a class="selflink" id="section-5.3" href="#section-5.3">5.3</a>.  File Extension</span>
+
+   Although textual encodings of PKIX structures can occur anywhere,
+   many tools are known to offer an option to output this encoding when
+   serializing PKIX structures.  To promote interoperability and to
+   separate DER encodings from textual encodings, the extension &quot;.crt&quot;
+   SHOULD be used for the textual encoding of a certificate.
+   Implementations should be aware that in spite of this recommendation,
+   many tools still default to encode certificates in this textual
+   encoding with the extension &quot;.cer&quot;.
+
+   This section does not disturb the official application/pkix-cert
+   registration [<a href="/doc/html/rfc2585" title="&quot;Internet X.509 Public Key Infrastructure Operational Protocols: FTP and HTTP&quot;">RFC2585</a>] in any way (which states that &quot;each &#x27;.cer&#x27;
+   file contains exactly one certificate, encoded in DER format&quot;), but
+   merely articulates a widespread, de facto alternative.
+
+
+
+
+
+
+
+
+
+
+
+<span class="grey">Josefsson &amp; Leonard          Standards Track                    [Page 9]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-10" ></span>
+<span class="grey"><a href="/doc/html/rfc7468">RFC 7468</a>                 PKIX Textual Encodings               April 2015</span>
+
+
+<span class="h2"><a class="selflink" id="section-6" href="#section-6">6</a>.  Textual Encoding of Certificate Revocation Lists</span>
+
+   Certificate Revocation Lists (CRLs) are encoded using the &quot;X509 CRL&quot;
+   label.  The encoded data MUST be a BER (DER strongly preferred; see
+   <a href="#appendix-B">Appendix B</a>) encoded ASN.1 CertificateList structure as described in
+   <a href="/doc/html/rfc5280#section-5">Section&nbsp;5 of [RFC5280]</a>.
+
+-----BEGIN X509 CRL-----
+MIIB9DCCAV8CAQEwCwYJKoZIhvcNAQEFMIIBCDEXMBUGA1UEChMOVmVyaVNpZ24s
+IEluYy4xHzAdBgNVBAsTFlZlcmlTaWduIFRydXN0IE5ldHdvcmsxRjBEBgNVBAsT
+PXd3dy52ZXJpc2lnbi5jb20vcmVwb3NpdG9yeS9SUEEgSW5jb3JwLiBieSBSZWYu
+LExJQUIuTFREKGMpOTgxHjAcBgNVBAsTFVBlcnNvbmEgTm90IFZhbGlkYXRlZDEm
+MCQGA1UECxMdRGlnaXRhbCBJRCBDbGFzcyAxIC0gTmV0c2NhcGUxGDAWBgNVBAMU
+D1NpbW9uIEpvc2Vmc3NvbjEiMCAGCSqGSIb3DQEJARYTc2ltb25Aam9zZWZzc29u
+Lm9yZxcNMDYxMjI3MDgwMjM0WhcNMDcwMjA3MDgwMjM1WjAjMCECEC4QNwPfRoWd
+elUNpllhhTgXDTA2MTIyNzA4MDIzNFowCwYJKoZIhvcNAQEFA4GBAD0zX+J2hkcc
+Nbrq1Dn5IKL8nXLgPGcHv1I/le1MNo9t1ohGQxB5HnFUkRPAY82fR6Epor4aHgVy
+b+5y+neKN9Kn2mPF4iiun+a4o26CjJ0pArojCL1p8T0yyi9Xxvyc/ezaZ98HiIyP
+c3DGMNR+oUmSjKZ0jIhAYmeLxaPHfQwR
+-----END X509 CRL-----
+
+                           Figure 8: CRL Example
+
+   Historically, the label &quot;CRL&quot; has rarely been used.  Today, it is not
+   common and many popular tools do not understand the label.
+   Therefore, this document standardizes &quot;X509 CRL&quot; in order to promote
+   interoperability and backwards-compatibility.  Generators conforming
+   to this document MUST generate &quot;X509 CRL&quot; labels and MUST NOT
+   generate &quot;CRL&quot; labels.  Parsers SHOULD NOT treat &quot;CRL&quot; as equivalent
+   to &quot;X509 CRL&quot;.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="grey">Josefsson &amp; Leonard          Standards Track                   [Page 10]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-11" ></span>
+<span class="grey"><a href="/doc/html/rfc7468">RFC 7468</a>                 PKIX Textual Encodings               April 2015</span>
+
+
+<span class="h2"><a class="selflink" id="section-7" href="#section-7">7</a>.  Textual Encoding of PKCS #10 Certification Request Syntax</span>
+
+   PKCS #10 Certification Requests are encoded using the
+   &quot;CERTIFICATE REQUEST&quot; label.  The encoded data MUST be a BER (DER
+   strongly preferred; see <a href="#appendix-B">Appendix B</a>) encoded ASN.1
+   CertificationRequest structure as described in [<a href="/doc/html/rfc2986" title="&quot;PKCS #10: Certification Request Syntax Specification Version 1.7&quot;">RFC2986</a>].
+
+-----BEGIN CERTIFICATE REQUEST-----
+MIIBWDCCAQcCAQAwTjELMAkGA1UEBhMCU0UxJzAlBgNVBAoTHlNpbW9uIEpvc2Vm
+c3NvbiBEYXRha29uc3VsdCBBQjEWMBQGA1UEAxMNam9zZWZzc29uLm9yZzBOMBAG
+ByqGSM49AgEGBSuBBAAhAzoABLLPSkuXY0l66MbxVJ3Mot5FCFuqQfn6dTs+9/CM
+EOlSwVej77tj56kj9R/j9Q+LfysX8FO9I5p3oGIwYAYJKoZIhvcNAQkOMVMwUTAY
+BgNVHREEETAPgg1qb3NlZnNzb24ub3JnMAwGA1UdEwEB/wQCMAAwDwYDVR0PAQH/
+BAUDAwegADAWBgNVHSUBAf8EDDAKBggrBgEFBQcDATAKBggqhkjOPQQDAgM/ADA8
+AhxBvfhxPFfbBbsE1NoFmCUczOFApEuQVUw3ZP69AhwWXk3dgSUsKnuwL5g/ftAY
+dEQc8B8jAcnuOrfU
+-----END CERTIFICATE REQUEST-----
+
+                        Figure 9: PKCS #10 Example
+
+   The label &quot;NEW CERTIFICATE REQUEST&quot; is also in wide use.  Generators
+   conforming to this document MUST generate &quot;CERTIFICATE REQUEST&quot;
+   labels.  Parsers MAY treat &quot;NEW CERTIFICATE REQUEST&quot; as equivalent to
+   &quot;CERTIFICATE REQUEST&quot;.
+
+<span class="h2"><a class="selflink" id="section-8" href="#section-8">8</a>.  Textual Encoding of PKCS #7 Cryptographic Message Syntax</span>
+
+   PKCS #7 Cryptographic Message Syntax structures are encoded using the
+   &quot;PKCS7&quot; label.  The encoded data MUST be a BER-encoded ASN.1
+   ContentInfo structure as described in [<a href="/doc/html/rfc2315" title="&quot;PKCS #7: Cryptographic Message Syntax Version 1.5&quot;">RFC2315</a>].
+
+-----BEGIN PKCS7-----
+MIHjBgsqhkiG9w0BCRABF6CB0zCB0AIBADFho18CAQCgGwYJKoZIhvcNAQUMMA4E
+CLfrI6dr0gUWAgITiDAjBgsqhkiG9w0BCRADCTAUBggqhkiG9w0DBwQIZpECRWtz
+u5kEGDCjerXY8odQ7EEEromZJvAurk/j81IrozBSBgkqhkiG9w0BBwEwMwYLKoZI
+hvcNAQkQAw8wJDAUBggqhkiG9w0DBwQI0tCBcU09nxEwDAYIKwYBBQUIAQIFAIAQ
+OsYGYUFdAH0RNc1p4VbKEAQUM2Xo8PMHBoYdqEcsbTodlCFAZH4=
+-----END PKCS7-----
+
+                        Figure 10: PKCS #7 Example
+
+   The label &quot;CERTIFICATE CHAIN&quot; has been in use to denote a degenerate
+   PKCS #7 structure that contains only a list of certificates (see
+   <a href="/doc/html/rfc2315#section-9">Section&nbsp;9 of [RFC2315]</a>).  Several modern tools do not support this
+   label.  Generators MUST NOT generate the &quot;CERTIFICATE CHAIN&quot; label.
+   Parsers SHOULD NOT treat &quot;CERTIFICATE CHAIN&quot; as equivalent to
+   &quot;PKCS7&quot;.
+
+
+
+
+<span class="grey">Josefsson &amp; Leonard          Standards Track                   [Page 11]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-12" ></span>
+<span class="grey"><a href="/doc/html/rfc7468">RFC 7468</a>                 PKIX Textual Encodings               April 2015</span>
+
+
+   PKCS #7 is an old specification that has long been superseded by CMS
+   [<a href="/doc/html/rfc5652" title="&quot;Cryptographic Message Syntax (CMS)&quot;">RFC5652</a>].  Implementations SHOULD NOT generate PKCS #7 when CMS is
+   an alternative.
+
+<span class="h2"><a class="selflink" id="section-9" href="#section-9">9</a>.  Textual Encoding of Cryptographic Message Syntax</span>
+
+   Cryptographic Message Syntax structures are encoded using the &quot;CMS&quot;
+   label.  The encoded data MUST be a BER-encoded ASN.1 ContentInfo
+   structure as described in [<a href="/doc/html/rfc5652" title="&quot;Cryptographic Message Syntax (CMS)&quot;">RFC5652</a>].
+
+-----BEGIN CMS-----
+MIGDBgsqhkiG9w0BCRABCaB0MHICAQAwDQYLKoZIhvcNAQkQAwgwXgYJKoZIhvcN
+AQcBoFEET3icc87PK0nNK9ENqSxItVIoSa0o0S/ISczMs1ZIzkgsKk4tsQ0N1nUM
+dvb05OXi5XLPLEtViMwvLVLwSE0sKlFIVHAqSk3MBkkBAJv0Fx0=
+-----END CMS-----
+
+                          Figure 11: CMS Example
+
+   CMS is the IETF successor to PKCS #7.  <a href="/doc/html/rfc5652#section-1.1.1">Section&nbsp;1.1.1 of [RFC5652]</a>
+   describes the changes since PKCS #7 v1.5.  Implementations SHOULD
+   generate CMS when it is an alternative, promoting interoperability
+   and forwards-compatibility.
+
+<span class="h2"><a class="selflink" id="section-10" href="#section-10">10</a>.  One Asymmetric Key and the Textual Encoding of PKCS #8 Private Key</span>
+<span class="h2">     Info</span>
+
+   Unencrypted PKCS #8 Private Key Information Syntax structures
+   (PrivateKeyInfo), renamed to Asymmetric Key Packages
+   (OneAsymmetricKey), are encoded using the &quot;PRIVATE KEY&quot; label.  The
+   encoded data MUST be a BER (DER preferred; see <a href="#appendix-B">Appendix B</a>) encoded
+   ASN.1 PrivateKeyInfo structure as described in PKCS #8 [<a href="/doc/html/rfc5208" title="&quot;Public-Key Cryptography Standards (PKCS) #8: Private-Key Information Syntax Specification Version 1.2&quot;">RFC5208</a>], or
+   a OneAsymmetricKey structure as described in [<a href="/doc/html/rfc5958" title="&quot;Asymmetric Key Packages&quot;">RFC5958</a>].  The two are
+   semantically identical and can be distinguished by version number.
+
+-----BEGIN PRIVATE KEY-----
+MIGEAgEAMBAGByqGSM49AgEGBSuBBAAKBG0wawIBAQQgVcB/UNPxalR9zDYAjQIf
+jojUDiQuGnSJrFEEzZPT/92hRANCAASc7UJtgnF/abqWM60T3XNJEzBv5ez9TdwK
+H0M6xpM2q+53wmsN/eYLdgtjgBd3DBmHtPilCkiFICXyaA8z9LkJ
+-----END PRIVATE KEY-----
+
+       Figure 12: PKCS #8 PrivateKeyInfo (OneAsymmetricKey) Example
+
+
+
+
+
+
+
+
+
+
+<span class="grey">Josefsson &amp; Leonard          Standards Track                   [Page 12]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-13" ></span>
+<span class="grey"><a href="/doc/html/rfc7468">RFC 7468</a>                 PKIX Textual Encodings               April 2015</span>
+
+
+<span class="h2"><a class="selflink" id="section-11" href="#section-11">11</a>.  Textual Encoding of PKCS #8 Encrypted Private Key Info</span>
+
+   Encrypted PKCS #8 Private Key Information Syntax structures
+   (EncryptedPrivateKeyInfo), called the same in [<a href="/doc/html/rfc5958" title="&quot;Asymmetric Key Packages&quot;">RFC5958</a>], are encoded
+   using the &quot;ENCRYPTED PRIVATE KEY&quot; label.  The encoded data MUST be a
+   BER (DER preferred; see <a href="#appendix-B">Appendix B</a>) encoded ASN.1
+   EncryptedPrivateKeyInfo structure as described in PKCS #8 [<a href="/doc/html/rfc5208" title="&quot;Public-Key Cryptography Standards (PKCS) #8: Private-Key Information Syntax Specification Version 1.2&quot;">RFC5208</a>]
+   and [<a href="/doc/html/rfc5958" title="&quot;Asymmetric Key Packages&quot;">RFC5958</a>].
+
+-----BEGIN ENCRYPTED PRIVATE KEY-----
+MIHNMEAGCSqGSIb3DQEFDTAzMBsGCSqGSIb3DQEFDDAOBAghhICA6T/51QICCAAw
+FAYIKoZIhvcNAwcECBCxDgvI59i9BIGIY3CAqlMNBgaSI5QiiWVNJ3IpfLnEiEsW
+Z0JIoHyRmKK/+cr9QPLnzxImm0TR9s4JrG3CilzTWvb0jIvbG3hu0zyFPraoMkap
+8eRzWsIvC5SVel+CSjoS2mVS87cyjlD+txrmrXOVYDE+eTgMLbrLmsWh3QkCTRtF
+QC7k0NNzUHTV9yGDwfqMbw==
+-----END ENCRYPTED PRIVATE KEY-----
+
+            Figure 13: PKCS #8 EncryptedPrivateKeyInfo Example
+
+<span class="h2"><a class="selflink" id="section-12" href="#section-12">12</a>.  Textual Encoding of Attribute Certificates</span>
+
+   Attribute certificates are encoded using the &quot;ATTRIBUTE CERTIFICATE&quot;
+   label.  The encoded data MUST be a BER (DER strongly preferred; see
+   <a href="#appendix-B">Appendix B</a>) encoded ASN.1 AttributeCertificate structure as described
+   in [<a href="/doc/html/rfc5755" title="&quot;An Internet Attribute Certificate Profile for Authorization&quot;">RFC5755</a>].
+
+-----BEGIN ATTRIBUTE CERTIFICATE-----
+MIICKzCCAZQCAQEwgZeggZQwgYmkgYYwgYMxCzAJBgNVBAYTAlVTMREwDwYDVQQI
+DAhOZXcgWW9yazEUMBIGA1UEBwwLU3RvbnkgQnJvb2sxDzANBgNVBAoMBkNTRTU5
+MjE6MDgGA1UEAwwxU2NvdHQgU3RhbGxlci9lbWFpbEFkZHJlc3M9c3N0YWxsZXJA
+aWMuc3VueXNiLmVkdQIGARWrgUUSoIGMMIGJpIGGMIGDMQswCQYDVQQGEwJVUzER
+MA8GA1UECAwITmV3IFlvcmsxFDASBgNVBAcMC1N0b255IEJyb29rMQ8wDQYDVQQK
+DAZDU0U1OTIxOjA4BgNVBAMMMVNjb3R0IFN0YWxsZXIvZW1haWxBZGRyZXNzPXNz
+dGFsbGVyQGljLnN1bnlzYi5lZHUwDQYJKoZIhvcNAQEFBQACBgEVq4FFSjAiGA8z
+OTA3MDIwMTA1MDAwMFoYDzM5MTEwMTMxMDUwMDAwWjArMCkGA1UYSDEiMCCGHmh0
+dHA6Ly9pZGVyYXNobi5vcmcvaW5kZXguaHRtbDANBgkqhkiG9w0BAQUFAAOBgQAV
+M9axFPXXozEFcer06bj9MCBBCQLtAM7ZXcZjcxyva7xCBDmtZXPYUluHf5OcWPJz
+5XPus/xS9wBgtlM3fldIKNyNO8RsMp6Ocx+PGlICc7zpZiGmCYLl64lAEGPO/bsw
+Smluak1aZIttePeTAHeJJs8izNJ5aR3Wcd3A5gLztQ==
+-----END ATTRIBUTE CERTIFICATE-----
+
+                 Figure 14: Attribute Certificate Example
+
+
+
+
+
+
+
+
+
+<span class="grey">Josefsson &amp; Leonard          Standards Track                   [Page 13]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-14" ></span>
+<span class="grey"><a href="/doc/html/rfc7468">RFC 7468</a>                 PKIX Textual Encodings               April 2015</span>
+
+
+<span class="h2"><a class="selflink" id="section-13" href="#section-13">13</a>.  Textual Encoding of Subject Public Key Info</span>
+
+   Public keys are encoded using the &quot;PUBLIC KEY&quot; label.  The encoded
+   data MUST be a BER (DER preferred; see <a href="#appendix-B">Appendix B</a>) encoded ASN.1
+   SubjectPublicKeyInfo structure as described in <a href="/doc/html/rfc5280#section-4.1.2.7">Section&nbsp;4.1.2.7 of
+   [RFC5280]</a>.
+
+-----BEGIN PUBLIC KEY-----
+MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEn1LlwLN/KBYQRVH6HfIMTzfEqJOVztLe
+kLchp2hi78cCaMY81FBlYs8J9l7krc+M4aBeCGYFjba+hiXttJWPL7ydlE+5UG4U
+Nkn3Eos8EiZByi9DVsyfy9eejh+8AXgp
+-----END PUBLIC KEY-----
+
+                Figure 15: Subject Public Key Info Example
+
+<span class="h2"><a class="selflink" id="section-14" href="#section-14">14</a>.  Security Considerations</span>
+
+   Data in this format often originates from untrusted sources, thus
+   parsers must be prepared to handle unexpected data without causing
+   security vulnerabilities.
+
+   Implementers building implementations that rely on canonical
+   representation or the ability to fingerprint a particular data object
+   need to understand that this document does not define canonical
+   encodings.  The first ambiguity is introduced by permitting the text-
+   encoded representation instead of the binary BER or DER encodings,
+   but further ambiguities arise when multiple labels are treated as
+   similar.  Variations of whitespace and non-base64 alphabetic
+   characters can create further ambiguities.  Data encoding ambiguities
+   also create opportunities for side channels.  If canonical encodings
+   are desired, the encoded structure must be decoded and processed into
+   a canonical form (namely, DER encoding).
+
+<span class="h2"><a class="selflink" id="section-15" href="#section-15">15</a>.  References</span>
+
+<span class="h3"><a class="selflink" id="section-15.1" href="#section-15.1">15.1</a>.  Normative References</span>
+
+   [<a id="ref-RFC2119">RFC2119</a>]  Bradner, S., &quot;Key words for use in RFCs to Indicate
+              Requirement Levels&quot;, <a href="/doc/html/bcp14">BCP 14</a>, <a href="/doc/html/rfc2119">RFC 2119</a>, March 1997,
+              &lt;<a href="http://www.rfc-editor.org/info/rfc2119">http://www.rfc-editor.org/info/rfc2119</a>&gt;.
+
+   [<a id="ref-RFC2315">RFC2315</a>]  Kaliski, B., &quot;PKCS #7: Cryptographic Message Syntax
+              Version 1.5&quot;, <a href="/doc/html/rfc2315">RFC 2315</a>, March 1998,
+              &lt;<a href="http://www.rfc-editor.org/info/rfc2315">http://www.rfc-editor.org/info/rfc2315</a>&gt;.
+
+   [<a id="ref-RFC2986">RFC2986</a>]  Nystrom, M. and B. Kaliski, &quot;PKCS #10: Certification
+              Request Syntax Specification Version 1.7&quot;, <a href="/doc/html/rfc2986">RFC 2986</a>,
+              November 2000, &lt;<a href="http://www.rfc-editor.org/info/rfc2986">http://www.rfc-editor.org/info/rfc2986</a>&gt;.
+
+
+
+<span class="grey">Josefsson &amp; Leonard          Standards Track                   [Page 14]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-15" ></span>
+<span class="grey"><a href="/doc/html/rfc7468">RFC 7468</a>                 PKIX Textual Encodings               April 2015</span>
+
+
+   [<a id="ref-RFC4648">RFC4648</a>]  Josefsson, S., &quot;The Base16, Base32, and Base64 Data
+              Encodings&quot;, <a href="/doc/html/rfc4648">RFC 4648</a>, October 2006,
+              &lt;<a href="http://www.rfc-editor.org/info/rfc4648">http://www.rfc-editor.org/info/rfc4648</a>&gt;.
+
+   [<a id="ref-RFC5280">RFC5280</a>]  Cooper, D., Santesson, S., Farrell, S., Boeyen, S.,
+              Housley, R., and W. Polk, &quot;Internet X.509 Public Key
+              Infrastructure Certificate and Certificate Revocation List
+              (CRL) Profile&quot;, <a href="/doc/html/rfc5280">RFC 5280</a>, May 2008,
+              &lt;<a href="http://www.rfc-editor.org/info/rfc5280">http://www.rfc-editor.org/info/rfc5280</a>&gt;.
+
+   [<a id="ref-RFC5234">RFC5234</a>]  Crocker, D., Ed. and P. Overell, &quot;Augmented BNF for Syntax
+              Specifications: ABNF&quot;, STD 68, <a href="/doc/html/rfc5234">RFC 5234</a>, January 2008,
+              &lt;<a href="http://www.rfc-editor.org/info/rfc5234">http://www.rfc-editor.org/info/rfc5234</a>&gt;.
+
+   [<a id="ref-RFC5652">RFC5652</a>]  Housley, R., &quot;Cryptographic Message Syntax (CMS)&quot;, STD 70,
+              <a href="/doc/html/rfc5652">RFC 5652</a>, September 2009,
+              &lt;<a href="http://www.rfc-editor.org/info/rfc5652">http://www.rfc-editor.org/info/rfc5652</a>&gt;.
+
+   [<a id="ref-RFC5755">RFC5755</a>]  Farrell, S., Housley, R., and S. Turner, &quot;An Internet
+              Attribute Certificate Profile for Authorization&quot;, <a href="/doc/html/rfc5755">RFC</a>
+              <a href="/doc/html/rfc5755">5755</a>, January 2010,
+              &lt;<a href="http://www.rfc-editor.org/info/rfc5755">http://www.rfc-editor.org/info/rfc5755</a>&gt;.
+
+   [<a id="ref-RFC5958">RFC5958</a>]  Turner, S., &quot;Asymmetric Key Packages&quot;, <a href="/doc/html/rfc5958">RFC 5958</a>, August
+              2010, &lt;<a href="http://www.rfc-editor.org/info/rfc5958">http://www.rfc-editor.org/info/rfc5958</a>&gt;.
+
+   [<a id="ref-X.690">X.690</a>]    International Telecommunications Union, &quot;Information
+              Technology - ASN.1 encoding rules: Specification of Basic
+              Encoding Rules (BER), Canonical Encoding Rules (CER) and
+              Distinguished Encoding Rules (DER)&quot;, ITU-T Recommendation
+              X.690, ISO/IEC 8825-1:2008, November 2008.
+
+<span class="h3"><a class="selflink" id="section-15.2" href="#section-15.2">15.2</a>.  Informative References</span>
+
+   [<a id="ref-RFC934">RFC934</a>]   Rose, M. and E. Stefferud, &quot;Proposed standard for message
+              encapsulation&quot;, <a href="/doc/html/rfc934">RFC 934</a>, January 1985,
+              &lt;<a href="http://www.rfc-editor.org/info/rfc934">http://www.rfc-editor.org/info/rfc934</a>&gt;.
+
+   [<a id="ref-RFC1421">RFC1421</a>]  Linn, J., &quot;Privacy Enhancement for Internet Electronic
+              Mail: Part I: Message Encryption and Authentication
+              Procedures&quot;, <a href="/doc/html/rfc1421">RFC 1421</a>, February 1993,
+              &lt;<a href="http://www.rfc-editor.org/info/rfc1421">http://www.rfc-editor.org/info/rfc1421</a>&gt;.
+
+   [<a id="ref-RFC2585">RFC2585</a>]  Housley, R. and P. Hoffman, &quot;Internet X.509 Public Key
+              Infrastructure Operational Protocols: FTP and HTTP&quot;, <a href="/doc/html/rfc2585">RFC</a>
+              <a href="/doc/html/rfc2585">2585</a>, May 1999, &lt;<a href="http://www.rfc-editor.org/info/rfc2585">http://www.rfc-editor.org/info/rfc2585</a>&gt;.
+
+
+
+
+
+<span class="grey">Josefsson &amp; Leonard          Standards Track                   [Page 15]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-16" ></span>
+<span class="grey"><a href="/doc/html/rfc7468">RFC 7468</a>                 PKIX Textual Encodings               April 2015</span>
+
+
+   [<a id="ref-RFC4716">RFC4716</a>]  Galbraith, J. and R. Thayer, &quot;The Secure Shell (SSH)
+              Public Key File Format&quot;, <a href="/doc/html/rfc4716">RFC 4716</a>, November 2006,
+              &lt;<a href="http://www.rfc-editor.org/info/rfc4716">http://www.rfc-editor.org/info/rfc4716</a>&gt;.
+
+   [<a id="ref-RFC4880">RFC4880</a>]  Callas, J., Donnerhacke, L., Finney, H., Shaw, D., and R.
+              Thayer, &quot;OpenPGP Message Format&quot;, <a href="/doc/html/rfc4880">RFC 4880</a>, November 2007,
+              &lt;<a href="http://www.rfc-editor.org/info/rfc4880">http://www.rfc-editor.org/info/rfc4880</a>&gt;.
+
+   [<a id="ref-RFC5208">RFC5208</a>]  Kaliski, B., &quot;Public-Key Cryptography Standards (PKCS) #8:
+              Private-Key Information Syntax Specification Version 1.2&quot;,
+              <a href="/doc/html/rfc5208">RFC 5208</a>, May 2008,
+              &lt;<a href="http://www.rfc-editor.org/info/rfc5208">http://www.rfc-editor.org/info/rfc5208</a>&gt;.
+
+   [<a id="ref-RFC7292">RFC7292</a>]  Moriarty, K., Ed., Nystrom, M., Parkinson, S., Rusch, A.,
+              and M. Scott, &quot;PKCS #12: Personal Information Exchange
+              Syntax v1.1&quot;, <a href="/doc/html/rfc7292">RFC 7292</a>, July 2014,
+              &lt;<a href="http://www.rfc-editor.org/info/rfc7292">http://www.rfc-editor.org/info/rfc7292</a>&gt;.
+
+   [<a id="ref-P7v1.6">P7v1.6</a>]   Kaliski, B. and K. Kingdon, &quot;Extensions and Revisions to
+              PKCS #7 (Version 1.6 Bulletin)&quot;, May 1997,
+              &lt;<a href="http://www.emc.com/emc-plus/rsa-labs/standards-initiatives/pkcs-7-cryptographic-message-syntax-standar.htm">http://www.emc.com/emc-plus/rsa-labs/</a>
+              <a href="http://www.emc.com/emc-plus/rsa-labs/standards-initiatives/pkcs-7-cryptographic-message-syntax-standar.htm">standards-initiatives/pkcs-7-cryptographic-message-</a>
+              <a href="http://www.emc.com/emc-plus/rsa-labs/standards-initiatives/pkcs-7-cryptographic-message-syntax-standar.htm">syntax-standar.htm</a>&gt;.
+
+   [<a id="ref-X.509SG">X.509SG</a>]  Gutmann, P., &quot;X.509 Style Guide&quot;, October 2000,
+              &lt;<a href="http://www.cs.auckland.ac.nz/~pgut001/pubs/x509guide.txt">http://www.cs.auckland.ac.nz/~pgut001/pubs/</a>
+              <a href="http://www.cs.auckland.ac.nz/~pgut001/pubs/x509guide.txt">x509guide.txt</a>&gt;.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="grey">Josefsson &amp; Leonard          Standards Track                   [Page 16]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-17" ></span>
+<span class="grey"><a href="/doc/html/rfc7468">RFC 7468</a>                 PKIX Textual Encodings               April 2015</span>
+
+
+<span class="h2"><a class="selflink" id="appendix-A" href="#appendix-A">Appendix A</a>.  Non-conforming Examples</span>
+
+   This appendix contains examples for the non-recommended label
+   variants described earlier in this document.  As discussed earlier,
+   supporting these is not required and is sometimes discouraged.
+   Still, they can be useful for interoperability testing and for easy
+   reference.
+
+-----BEGIN X509 CERTIFICATE-----
+MIIBHDCBxaADAgECAgIcxzAJBgcqhkjOPQQBMBAxDjAMBgNVBAMUBVBLSVghMB4X
+DTE0MDkxNDA2MTU1MFoXDTI0MDkxNDA2MTU1MFowEDEOMAwGA1UEAxQFUEtJWCEw
+WTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATwoQSr863QrR0PoRIYQ96H7WykDePH
+Wa0eVAE24bth43wCNc+U5aZ761dhGhSSJkVWRgVH5+prLIr+nzfIq+X4oxAwDjAM
+BgNVHRMBAf8EAjAAMAkGByqGSM49BAEDRwAwRAIfMdKS5F63lMnWVhi7uaKJzKCs
+NnY/OKgBex6MIEAv2AIhAI2GdvfL+mGvhyPZE+JxRxWChmggb5/9eHdUcmW/jkOH
+-----END X509 CERTIFICATE-----
+
+            Figure 16: Non-standard &#x27;X509&#x27; Certificate Example
+
+-----BEGIN X.509 CERTIFICATE-----
+MIIBHDCBxaADAgECAgIcxzAJBgcqhkjOPQQBMBAxDjAMBgNVBAMUBVBLSVghMB4X
+DTE0MDkxNDA2MTU1MFoXDTI0MDkxNDA2MTU1MFowEDEOMAwGA1UEAxQFUEtJWCEw
+WTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATwoQSr863QrR0PoRIYQ96H7WykDePH
+Wa0eVAE24bth43wCNc+U5aZ761dhGhSSJkVWRgVH5+prLIr+nzfIq+X4oxAwDjAM
+BgNVHRMBAf8EAjAAMAkGByqGSM49BAEDRwAwRAIfMdKS5F63lMnWVhi7uaKJzKCs
+NnY/OKgBex6MIEAv2AIhAI2GdvfL+mGvhyPZE+JxRxWChmggb5/9eHdUcmW/jkOH
+-----END X.509 CERTIFICATE-----
+
+            Figure 17: Non-standard &#x27;X.509&#x27; Certificate Example
+
+-----BEGIN NEW CERTIFICATE REQUEST-----
+MIIBWDCCAQcCAQAwTjELMAkGA1UEBhMCU0UxJzAlBgNVBAoTHlNpbW9uIEpvc2Vm
+c3NvbiBEYXRha29uc3VsdCBBQjEWMBQGA1UEAxMNam9zZWZzc29uLm9yZzBOMBAG
+ByqGSM49AgEGBSuBBAAhAzoABLLPSkuXY0l66MbxVJ3Mot5FCFuqQfn6dTs+9/CM
+EOlSwVej77tj56kj9R/j9Q+LfysX8FO9I5p3oGIwYAYJKoZIhvcNAQkOMVMwUTAY
+BgNVHREEETAPgg1qb3NlZnNzb24ub3JnMAwGA1UdEwEB/wQCMAAwDwYDVR0PAQH/
+BAUDAwegADAWBgNVHSUBAf8EDDAKBggrBgEFBQcDATAKBggqhkjOPQQDAgM/ADA8
+AhxBvfhxPFfbBbsE1NoFmCUczOFApEuQVUw3ZP69AhwWXk3dgSUsKnuwL5g/ftAY
+dEQc8B8jAcnuOrfU
+-----END NEW CERTIFICATE REQUEST-----
+
+              Figure 18: Non-standard &#x27;NEW&#x27; PKCS #10 Example
+
+
+
+
+
+
+
+
+
+<span class="grey">Josefsson &amp; Leonard          Standards Track                   [Page 17]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-18" ></span>
+<span class="grey"><a href="/doc/html/rfc7468">RFC 7468</a>                 PKIX Textual Encodings               April 2015</span>
+
+
+-----BEGIN CERTIFICATE CHAIN-----
+MIHjBgsqhkiG9w0BCRABF6CB0zCB0AIBADFho18CAQCgGwYJKoZIhvcNAQUMMA4E
+CLfrI6dr0gUWAgITiDAjBgsqhkiG9w0BCRADCTAUBggqhkiG9w0DBwQIZpECRWtz
+u5kEGDCjerXY8odQ7EEEromZJvAurk/j81IrozBSBgkqhkiG9w0BBwEwMwYLKoZI
+hvcNAQkQAw8wJDAUBggqhkiG9w0DBwQI0tCBcU09nxEwDAYIKwYBBQUIAQIFAIAQ
+OsYGYUFdAH0RNc1p4VbKEAQUM2Xo8PMHBoYdqEcsbTodlCFAZH4=
+-----END CERTIFICATE CHAIN-----
+
+            Figure 19: Non-standard &#x27;CERTIFICATE CHAIN&#x27; Example
+
+<span class="h2"><a class="selflink" id="appendix-B" href="#appendix-B">Appendix B</a>.  DER Expectations</span>
+
+   This appendix is informative.  Consult the respective standards for
+   the normative rules.
+
+   DER is a restricted profile of BER [<a href="#ref-X.690" title="&quot;Information Technology - ASN.1 encoding rules: Specification of Basic Encoding Rules (BER), Canonical Encoding Rules (CER) and Distinguished Encoding Rules (DER)&quot;">X.690</a>]; thus, all DER encodings
+   of data values are BER encodings, but just one of the BER encodings
+   is the DER encoding for a data value.  Canonical encoding matters
+   when performing cryptographic operations; additionally, canonical
+   encoding has certain efficiency advantages for parsers.  There are
+   three principal reasons to encode with DER:
+
+   1.  A digital signature is (supposed to be) computed over the DER
+       encoding of the semantic content, so providing anything other
+       than the DER encoding is senseless.  (In practice, an implementer
+       might choose to have an implementation parse and digest the data
+       as is, but this practice amounts to guesswork.)
+
+   2.  In practice, cryptographic hashes are computed over the DER
+       encoding for identification.
+
+   3.  In practice, the content is small.  DER always encodes data
+       values in definite-length form (where the length is stated at the
+       beginning of the encoding); thus, a parser can anticipate memory
+       or resource usage up front.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="grey">Josefsson &amp; Leonard          Standards Track                   [Page 18]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-19" ></span>
+<span class="grey"><a href="/doc/html/rfc7468">RFC 7468</a>                 PKIX Textual Encodings               April 2015</span>
+
+
+   Figure 20 matches the structures in this document with the particular
+   reasons for DER encoding:
+
+                    Sec. Label                  Reasons
+                    ----+----------------------+-------
+                      5  CERTIFICATE            1  2 ~3
+                      6  X509 CRL               1
+                      7  CERTIFICATE REQUEST    1    ~3
+                      8  PKCS7                  *
+                      9  CMS                    *
+                     10  PRIVATE KEY                  3
+                     11  ENCRYPTED PRIVATE KEY        3
+                     12  ATTRIBUTE CERTIFICATE  1    ~3
+                     13  PUBLIC KEY                2  3
+
+                     Figure 20: Guide for DER Encoding
+
+   * Cryptographic Message Syntax is designed for content of any length;
+     indefinite-length encoding enables one-pass processing (streaming)
+     when generating the encoding.  Only certain parts -- namely, signed
+     and authenticated attributes -- need to be DER encoded.
+
+   ~ Although not always &quot;small&quot;, these encoded structures should not be
+     particularly &quot;large&quot; (e.g., more than 16 kilobytes).  The parser
+     ought to be informed of large things up front in any event; this is
+     yet another reason to DER encode these things in the first place.
+
+                     Figure 20: Guide for DER Encoding
+
+Acknowledgements
+
+   Peter Gutmann suggested to document labels for Attribute Certificates
+   and PKCS #7 messages, and to add examples for the non-standard
+   variants.  Dr. Stephen Henson suggested distinguishing when BER
+   versus DER is appropriate or necessary.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="grey">Josefsson &amp; Leonard          Standards Track                   [Page 19]</span></pre>
+<hr class='noprint'/><!--NewPage--><pre class='newpage'><span id="page-20" ></span>
+<span class="grey"><a href="/doc/html/rfc7468">RFC 7468</a>                 PKIX Textual Encodings               April 2015</span>
+
+
+Authors&#x27; Addresses
+
+   Simon Josefsson
+   SJD AB
+   Johan Olof Wallins Vaeg 13
+   Solna  171 64
+   Sweden
+
+   EMail: simon@josefsson.org
+   URI:   <a href="http://josefsson.org/">http://josefsson.org/</a>
+
+
+   Sean Leonard
+   Penango, Inc.
+   5900 Wilshire Boulevard
+   21st Floor
+   Los Angeles, CA  90036
+   United States
+
+   EMail: dev+ietf@seantek.com
+   URI:   <a href="http://www.penango.com/">http://www.penango.com/</a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Josefsson &amp; Leonard          Standards Track                   [Page 20]
+</pre></div>
+                    </div>
+                
+            </div>
+            <div class="d-print-none col-md-3 bg-light-subtle collapse show" id="sidebar">
+                <div class="position-fixed border-start sidebar overflow-scroll overscroll-none no-scrollbar">
+                    <div class="d-flex flex-column vh-100 pt-2 pt-lg-3 ps-3 pl-md-2 pl-lg-3">
+                        <div>
+                            <a class="btn btn-primary btn-sm" href="/doc/rfc7468/">Datatracker</a>
+                            <p class="fw-bold pt-2">
+                                
+                                    RFC 7468
+                                
+                                <br>
+                                
+
+
+
+
+
+<span class="text-success">RFC
+    
+    - Proposed Standard
+    
+</span>
+
+                            </p>
+                        </div>
+                        
+                        <ul class="nav nav-tabs nav-fill small me-2" role="tablist">
+                            <li class="nav-item" role="presentation" title="Document information">
+                                <button class="nav-link px-2"
+                                        id="docinfo-tab"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#docinfo-tab-pane"
+                                        type="button"
+                                        role="tab"
+                                        aria-controls="docinfo-tab-pane"
+                                        aria-selected="true">
+                                    <i class="bi bi-info-circle"></i><span class="d-none d-md-block d-xl-inline ms-xl-1">Info</span>
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation" title="Table of contents">
+                                <button class="nav-link px-2"
+                                        id="toc-tab"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#toc-tab-pane"
+                                        type="button"
+                                        role="tab"
+                                        aria-controls="toc-tab-pane"
+                                        aria-selected="false">
+                                    <i class="bi bi-list-ol"></i><span class="d-none d-md-block d-xl-inline ms-xl-1">Contents</span>
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation" title="Preferences">
+                                <button class="nav-link px-2"
+                                        id="pref-tab"
+                                        data-bs-toggle="tab"
+                                        data-bs-target="#pref-tab-pane"
+                                        type="button"
+                                        role="tab"
+                                        aria-controls="pref-tab-pane"
+                                        aria-selected="false">
+                                    <i class="bi bi-gear"></i><span class="d-none d-md-block d-xl-inline ms-xl-1">Prefs</span>
+                                </button>
+                            </li>
+                        </ul>
+                        <div class="overflow-auto tab-content pt-2 me-2">
+                            <div class="tab-pane"
+                                 id="docinfo-tab-pane"
+                                 role="tabpanel"
+                                 aria-labelledby="docinfo-tab"
+                                 tabindex="0">
+                                <table class="table table-sm table-borderless">
+                                    
+
+
+
+
+
+
+
+<tbody class="meta align-top ">
+    <tr>
+        <th scope="row">Document</th>
+        <th scope="row">Document type</th>
+        <td class="edit"></td>
+        <td>
+            
+
+
+
+
+
+<span class="text-success">RFC
+    
+    - Proposed Standard
+    
+</span>
+
+            
+                
+                    <br>April 2015
+                
+                <br>
+                
+                    <a class="btn btn-primary btn-sm my-1"
+                       href="https://www.rfc-editor.org/errata_search.php?rfc=7468" title="Click to view errata." rel="nofollow">
+                        View errata
+                    </a>
+                
+                
+                    <a class="btn btn-sm btn-warning"
+                       title="Click to report an error in the document."
+                       href="https://www.rfc-editor.org/errata.php#reportnew"
+                       target="_blank">
+                        Report errata
+                    </a>
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                    <div>
+                        Was
+                        <a href="/doc/draft-josefsson-pkix-textual/10/">draft-josefsson-pkix-textual</a>
+                        (individual)
+                    </div>
+                
+            
+            
+            
+                
+
+
+
+
+    
+
+
+            
+        </td>
+    </tr>
+    
+        <tr>
+            <td></td>
+            <th scope="row">Select version</th>
+            <td class="edit"></td>
+            <td>
+                
+
+
+
+    <ul class="revision-list pagination pagination-sm text-center flex-wrap my-0">
+        
+            
+            
+                
+                    <li class="page-item">
+                        <a class="page-link"
+                        href="/doc/html/draft-josefsson-pkix-textual-00"
+                        rel="nofollow">
+                            00
+                        </a>
+                    </li>
+                
+                    <li class="page-item">
+                        <a class="page-link"
+                        href="/doc/html/draft-josefsson-pkix-textual-01"
+                        rel="nofollow">
+                            01
+                        </a>
+                    </li>
+                
+                    <li class="page-item">
+                        <a class="page-link"
+                        href="/doc/html/draft-josefsson-pkix-textual-02"
+                        rel="nofollow">
+                            02
+                        </a>
+                    </li>
+                
+                    <li class="page-item">
+                        <a class="page-link"
+                        href="/doc/html/draft-josefsson-pkix-textual-03"
+                        rel="nofollow">
+                            03
+                        </a>
+                    </li>
+                
+                    <li class="page-item">
+                        <a class="page-link"
+                        href="/doc/html/draft-josefsson-pkix-textual-04"
+                        rel="nofollow">
+                            04
+                        </a>
+                    </li>
+                
+                    <li class="page-item">
+                        <a class="page-link"
+                        href="/doc/html/draft-josefsson-pkix-textual-05"
+                        rel="nofollow">
+                            05
+                        </a>
+                    </li>
+                
+                    <li class="page-item">
+                        <a class="page-link"
+                        href="/doc/html/draft-josefsson-pkix-textual-06"
+                        rel="nofollow">
+                            06
+                        </a>
+                    </li>
+                
+                    <li class="page-item">
+                        <a class="page-link"
+                        href="/doc/html/draft-josefsson-pkix-textual-07"
+                        rel="nofollow">
+                            07
+                        </a>
+                    </li>
+                
+                    <li class="page-item">
+                        <a class="page-link"
+                        href="/doc/html/draft-josefsson-pkix-textual-08"
+                        rel="nofollow">
+                            08
+                        </a>
+                    </li>
+                
+                    <li class="page-item">
+                        <a class="page-link"
+                        href="/doc/html/draft-josefsson-pkix-textual-09"
+                        rel="nofollow">
+                            09
+                        </a>
+                    </li>
+                
+                    <li class="page-item">
+                        <a class="page-link"
+                        href="/doc/html/draft-josefsson-pkix-textual-10"
+                        rel="nofollow">
+                            10
+                        </a>
+                    </li>
+                
+            
+            
+            <li class="page-item rfc active">
+                <a class="page-link"
+                href="/doc/html/rfc7468">
+                    RFC 7468
+                </a>
+            </li>
+        
+    </ul>
+
+            </td>
+        </tr>
+        
+            <tr>
+                <td></td>
+                <th scope="row">Compare versions</th>
+                <td class="edit"></td>
+                <td>
+                    
+
+
+
+<form class="form-horizontal diff-form"
+      action="https://author-tools.ietf.org/iddiff"
+      method="get"
+      target="_blank">
+
+            <select class="form-select form-select-sm mb-1 select2-field"
+                    data-max-entries="1"
+                    data-width="resolve"
+                    data-allow-clear="false"
+                    data-minimum-input-length="0"
+                    aria-label="From revision"
+                    name="url1">
+                
+                    <option value="rfc7468">
+                        RFC 7468
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-10" selected>
+                        draft-josefsson-pkix-textual-10
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-09">
+                        draft-josefsson-pkix-textual-09
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-08">
+                        draft-josefsson-pkix-textual-08
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-07">
+                        draft-josefsson-pkix-textual-07
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-06">
+                        draft-josefsson-pkix-textual-06
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-05">
+                        draft-josefsson-pkix-textual-05
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-04">
+                        draft-josefsson-pkix-textual-04
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-03">
+                        draft-josefsson-pkix-textual-03
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-02">
+                        draft-josefsson-pkix-textual-02
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-01">
+                        draft-josefsson-pkix-textual-01
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-00">
+                        draft-josefsson-pkix-textual-00
+                        
+                    </option>
+                
+                
+            </select>
+
+            <select class="form-select form-select-sm mb-1 select2-field"
+                    data-max-entries="1"
+                    data-width="resolve"
+                    data-allow-clear="false"
+                    data-minimum-input-length="0"
+                    aria-label="To revision"
+                    name="url2">
+                
+                    <option value="rfc7468" selected>
+                        RFC 7468
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-10">
+                        draft-josefsson-pkix-textual-10
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-09">
+                        draft-josefsson-pkix-textual-09
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-08">
+                        draft-josefsson-pkix-textual-08
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-07">
+                        draft-josefsson-pkix-textual-07
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-06">
+                        draft-josefsson-pkix-textual-06
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-05">
+                        draft-josefsson-pkix-textual-05
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-04">
+                        draft-josefsson-pkix-textual-04
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-03">
+                        draft-josefsson-pkix-textual-03
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-02">
+                        draft-josefsson-pkix-textual-02
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-01">
+                        draft-josefsson-pkix-textual-01
+                        
+                    </option>
+                
+                    <option value="draft-josefsson-pkix-textual-00">
+                        draft-josefsson-pkix-textual-00
+                        
+                    </option>
+                
+                
+            </select>
+
+            <button type="submit"
+                    class="btn btn-primary btn-sm"
+                    value="--html"
+                    name="difftype">
+                Side-by-side
+            </button>
+            
+            <button type="submit"
+                    class="btn btn-primary btn-sm"
+                    value="--hwdiff"
+                    name="difftype">
+                Inline
+            </button>
+
+</form>
+                </td>
+            </tr>
+        
+    
+    <tr>
+        <td></td>
+        <th scope="row">Authors</th>
+        <td class="edit">
+            
+        </td>
+        <td>
+            
+            
+                <span ><a 
+           title="Datatracker profile of Simon Josefsson"
+            href="/person/simon@josefsson.org" >Simon Josefsson</a> <a 
+               href="mailto:simon%40josefsson.org"
+               aria-label="Compose email to simon@josefsson.org"
+               title="Compose email to simon@josefsson.org">
+                <i class="bi bi-envelope"></i></a></span>,
+            
+                <span ><a 
+           title="Datatracker profile of Sean Leonard"
+            href="/person/dev+ietf@seantek.com" >Sean Leonard</a> <a 
+               href="mailto:dev%2Bietf%40seantek.com"
+               aria-label="Compose email to dev+ietf@seantek.com"
+               title="Compose email to dev+ietf@seantek.com">
+                <i class="bi bi-envelope"></i></a></span>
+            
+            
+                <br>
+                <a class="btn btn-primary btn-sm mt-1" href="mailto:rfc7468@ietf.org?subject=rfc7468" title="Send email to the document authors">Email authors</a>
+            
+        </td>
+    </tr>
+    
+    
+    <tr>
+        <td></td>
+        <th scope="row">
+            RFC stream
+        </th>
+        <td class="edit">
+            
+        </td>
+        <td >
+            
+                
+                
+                    
+                        
+
+
+
+<img alt="IETF Logo"
+     class="d-lm-none w-25 mt-1"
+     
+     
+        
+             src="https://static.ietf.org/dt/12.55.0/ietf/images/ietf-logo-nor-white.svg"
+        
+     
+     >
+
+<img alt="IETF Logo"
+     class="d-dm-none w-25 mt-1"
+     
+     
+        
+             src="https://static.ietf.org/dt/12.55.0/ietf/images/ietf-logo-nor.svg"
+        
+     
+     >
+                    
+                
+                
+            
+        </td>
+    </tr>
+    
+    <tr>
+        <td></td>
+        <th scope="row">
+            Other formats
+        </th>
+        <td class="edit">
+        </td>
+        <td>
+            
+                
+    <div class="buttonlist">
+    
+        
+        <a class="btn btn-primary btn-sm"
+          
+          target="_blank"
+          href="https://www.rfc-editor.org/rfc/rfc7468.txt">
+            
+                <i class="bi bi-file-text"></i> txt
+            
+        </a>
+        
+    
+        
+        <a class="btn btn-primary btn-sm"
+          
+          target="_blank"
+          href="https://www.rfc-editor.org/rfc/rfc7468.html">
+            
+                <i class="bi bi-file-code"></i> html
+            
+        </a>
+        
+    
+        
+        <a class="btn btn-primary btn-sm"
+          
+            download="rfc7468.pdf"
+          
+         
+          target="_blank"
+          href="https://www.rfc-editor.org/rfc/pdfrfc/rfc7468.txt.pdf">
+            
+                <i class="bi bi-file-pdf"></i> pdf
+            
+        </a>
+        
+    
+        
+    
+        
+        <a class="btn btn-primary btn-sm"
+          
+          target="_blank"
+          href="https://www.rfc-editor.org/rfc/inline-errata/rfc7468.html">
+            
+                <i class="bi bi-file-diff"></i> w/errata
+            
+        </a>
+        
+    
+        
+        <a class="btn btn-primary btn-sm"
+          
+          target="_blank"
+          href="/doc/rfc7468/bibtex/">
+            
+                <i class="bi bi-file-ruled"></i> bibtex
+            
+        </a>
+        
+    
+</div>
+
+            
+        </td>
+    </tr>
+    
+    
+        
+    
+</tbody>
+                                </table>
+                                <a class="btn btn-sm btn-warning mb-3"
+                                target="_blank"
+                                href="https://github.com/ietf-tools/datatracker/issues/new/choose">
+                                    Report a datatracker bug
+                                    <i class="bi bi-bug"></i>
+                                </a>
+                            </div>
+                            <div class="tab-pane mb-5"
+                                 id="toc-tab-pane"
+                                 role="tabpanel"
+                                 aria-labelledby="toc-tab"
+                                 tabindex="0">
+                                <nav class="nav nav-pills flex-column small" id="toc-nav">
+                                </nav>
+                            </div>
+                            <div class="tab-pane mb-5 small"
+                                 id="pref-tab-pane"
+                                 role="tabpanel"
+                                 aria-labelledby="pref-tab"
+                                 tabindex="0">
+                                <label class="form-label fw-bold mb-2">Show sidebar by default</label>
+                                <div class="btn-group-vertical btn-group-sm d-flex" role="group">
+                                    <input type="radio" class="btn-check" name="sidebar" id="on-radio">
+                                    <label class="btn btn-outline-primary" for="on-radio">Yes</label>
+                                    <input type="radio" class="btn-check" name="sidebar" id="off-radio">
+                                    <label class="btn btn-outline-primary" for="off-radio">No</label>
+                                </div>
+                                <label class="form-label fw-bold mt-4 mb-2">Tab to show by default</label>
+                                <div class="btn-group-vertical btn-group-sm d-flex" role="group">
+                                    <input type="radio" class="btn-check" name="deftab" id="docinfo-radio">
+                                    <label class="btn btn-outline-primary" for="docinfo-radio">
+                                        <i class="bi bi-info-circle me-1"></i>Info
+                                    </label>
+                                    <input type="radio" class="btn-check" name="deftab" id="toc-radio">
+                                    <label class="btn btn-outline-primary" for="toc-radio">
+                                        <i class="bi bi-list-ol me-1"></i>Contents
+                                    </label>
+                                </div>
+                                <label class="form-label fw-bold mt-4 mb-2">HTMLization configuration</label>
+                                <div class="btn-group-vertical btn-group-sm d-flex" role="group">
+                                    <input type="radio" class="btn-check" name="htmlconf" id="txt-radio">
+                                    <label class="btn btn-outline-primary" for="txt-radio" title="This is the traditional HTMLization method.">
+                                        <i class="bi bi-badge-sd me-1"></i>HTMLize the plaintext
+                                    </label>
+                                    <input type="radio" class="btn-check" name="htmlconf" id="html-radio">
+                                    <label class="btn btn-outline-primary" for="html-radio" title="This is the modern HTMLization method.">
+                                        <i class="bi bi-badge-hd me-1"></i>Plaintextify the HTML
+                                    </label>
+                                </div>
+                                <label class="form-label fw-bold mt-4 mb-2" for="ptsize">Maximum font size</label>
+                                <input type="range" class="form-range" min="7" max="16" id="ptsize" oninput="ptdemo.value = ptsize.value">
+                                <label class="form-label fw-bold mt-4 mb-2">Page dependencies</label>
+                                <div class="btn-group-vertical btn-group-sm d-flex" role="group">
+                                    <input type="radio" class="btn-check" name="pagedeps" id="inline-radio">
+                                    <label class="btn btn-outline-primary" for="inline-radio" title="Generate larger, standalone web pages that do not require network access to render.">
+                                        <i class="bi bi-box me-1"></i>Inline
+                                    </label>
+                                    <input type="radio" class="btn-check" name="pagedeps" id="reference-radio">
+                                    <label class="btn btn-outline-primary" for="reference-radio" title="Generate regular web pages that require network access to render.">
+                                        <i class="bi bi-link-45deg me-1"></i>Reference
+                                    </label>
+                                </div>
+                                <label class="form-label fw-bold mt-4 mb-2">Citation links</label>
+                                <div class="btn-group-vertical btn-group-sm d-flex" role="group">
+                                    <input type="radio" class="btn-check" name="reflinks" id="refsection-radio">
+                                    <label class="btn btn-outline-primary" for="refsection-radio" title="Citation links go to the reference section.">
+                                        <i class="bi bi-arrow-clockwise"></i> Go to reference section
+                                    </label>
+                                    <input type="radio" class="btn-check" name="reflinks" id="citation-radio">
+                                    <label class="btn btn-outline-primary" for="citation-radio" title="Citation links go directly to the cited document.">
+                                        <i class="bi bi-link-45deg me-1"></i>Go to linked document
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+<script>
+  var _paq = window._paq || [];
+  
+  _paq.push(['disableCookies']);
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="//analytics.ietf.org/";
+    _paq.push(['setTrackerUrl', u+'matomo.php']);
+    _paq.push(['setSiteId', 7]);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+<noscript><p><img src="//analytics.ietf.org/matomo.php?idsite=7" style="border:0;" alt="" /></p></noscript>
+
+    <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9b6b07568dbd339b',t:'MTc2NzE5NzIzMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

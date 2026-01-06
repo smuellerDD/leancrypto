@@ -83,6 +83,9 @@ static void pkcs7_generator_usage(void)
 		"\t   --print-pkcs7 <FILE>\t\tParse the PKCS#7 message,\n");
 	fprintf(stderr, "\t\t\t\t\tverify protected data, and\n");
 	fprintf(stderr, "\t\t\t\t\tprint its contents\n");
+	fprintf(stderr,
+		"\t   --print-pkcs7-noverify <FILE>\tParse the PKCS#7 message,\n");
+	fprintf(stderr, "\t\t\t\t\tand print its contents\n");
 	fprintf(stderr, "\t   --noout\t\t\tNo generation of output files\n");
 	fprintf(stderr,
 		"\t   --trust-anchor <FILE>\tTrust anchor X.509 certificate\n");
@@ -139,6 +142,7 @@ int main(int argc, char *argv[])
 					      { "print", 0, 0, 0 },
 					      { "noout", 0, 0, 0 },
 					      { "print-pkcs7", 1, 0, 0 },
+					      { "print-pkcs7-noverify", 1, 0, 0 },
 					      { "trust-anchor", 1, 0, 0 },
 
 					      { "expected-keyusage", 1, 0, 0 },
@@ -236,84 +240,90 @@ int main(int argc, char *argv[])
 				parsed_opts.pkcs7_msg = optarg;
 				parsed_opts.print_pkcs7 = 1;
 				break;
-			/* trust-anchor */
+			/* print-pkcs7-noverify */
 			case 11:
+				parsed_opts.pkcs7_msg = optarg;
+				parsed_opts.print_pkcs7 = 1;
+				parsed_opts.skip_signature_verification = 1;
+				break;
+			/* trust-anchor */
+			case 12:
 				parsed_opts.trust_anchor = optarg;
 				CKINT(pkcs7_collect_trust(&parsed_opts));
 				break;
 
 			/* expected-keyusage */
-			case 12:
+			case 13:
 				CKINT(lc_x509_name_to_keyusage(
 					optarg,
 					&verify_rules->required_keyusage));
 				parsed_opts.verify_rules_set = 1;
 				break;
 			/* expected-eku */
-			case 13:
+			case 14:
 				CKINT(lc_x509_name_to_eku(
 					optarg, &verify_rules->required_eku));
 				parsed_opts.verify_rules_set = 1;
 				break;
 
 			/* check-ca */
-			case 14:
+			case 15:
 				checker_opts->check_ca = 1;
 				parsed_opts.checker = 1;
 				break;
 			/* check-ca-conformant */
-			case 15:
+			case 16:
 				checker_opts->check_ca_conformant = 1;
 				parsed_opts.checker = 1;
 				break;
 			/* check-issuer-cn */
-			case 16:
+			case 17:
 				checker_opts->issuer_cn = optarg;
 				parsed_opts.checker = 1;
 				break;
 			/* check-subject-cn */
-			case 17:
+			case 18:
 				checker_opts->subject_cn = optarg;
 				parsed_opts.checker = 1;
 				break;
 			/* check-noselfsigned */
-			case 18:
+			case 19:
 				checker_opts->check_no_selfsigned = 1;
 				parsed_opts.checker = 1;
 				break;
 			/* check-eku */
-			case 19:
+			case 20:
 				checker_opts->eku =
 					(unsigned int)strtoul(optarg, NULL, 10);
 				parsed_opts.checker = 1;
 				break;
 			/* check-noca */
-			case 20:
+			case 21:
 				checker_opts->check_no_ca = 1;
 				parsed_opts.checker = 1;
 				break;
 			/* check-selfsigned */
-			case 21:
+			case 22:
 				checker_opts->check_selfsigned = 1;
 				parsed_opts.checker = 1;
 				break;
 			/* check-rootca */
-			case 22:
+			case 23:
 				checker_opts->check_root_ca = 1;
 				parsed_opts.checker = 1;
 				break;
 			/* check-keyusage */
-			case 23:
+			case 24:
 				checker_opts->keyusage =
 					(unsigned int)strtoul(optarg, NULL, 10);
 				parsed_opts.checker = 1;
 				break;
 			/* verify-pkcs7 */
-			case 24:
+			case 25:
 				parsed_opts.pkcs7_msg = optarg;
 				break;
 			/* pem-output */
-			case 25:
+			case 26:
 				parsed_opts.pem_format_output = 1;
 				break;
 			}

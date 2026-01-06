@@ -182,7 +182,7 @@ enum OID {
 	OID_id_rsassa_pkcs1_v1_5_with_sha3_384, /* 2.16.840.1.101.3.4.3.15 */
 	OID_id_rsassa_pkcs1_v1_5_with_sha3_512, /* 2.16.840.1.101.3.4.3.16 */
 
-	/* OIDs from https://github.com/IETF-Hackathon/pqc-certificates/blob/master/docs/oid_mapping.md */
+	/* OIDs from RFC9882 */
 	OID_id_MLDSA44, /* 2.16.840.1.101.3.4.3.17 */
 	OID_id_MLDSA65, /* 2.16.840.1.101.3.4.3.18 */
 	OID_id_MLDSA87, /* 2.16.840.1.101.3.4.3.19 */

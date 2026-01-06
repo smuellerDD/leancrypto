@@ -89,6 +89,21 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_set_signer, struct lc_pkcs7_message *pkcs7,
 	/* Also set the certificate as signer */
 	sinfo->signer = x509_with_sk;
 
+	/*
+	 * Safety measure: If authenticated attributes are created, a message
+	 * digest of the actual data must be created according to
+	 * RFC5652 section 5.3. This is a safety measure, because
+	 * lc_pkcs7_external_aa_enc forces the creation of a digest in any
+	 * case.
+	 *
+	 * Also, at a minimum, the  content type must be set if authenticated
+	 * attributes are set.
+	 */
+	if (auth_attribute) {
+		auth_attribute |= sinfo_has_message_digest |
+				  sinfo_has_content_type;
+	}
+
 	/* Set the authenticated attributes to be generated */
 	sinfo->aa_set = auth_attribute;
 
