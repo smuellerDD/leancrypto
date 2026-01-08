@@ -455,7 +455,7 @@ static inline void drbg_ctr_inc(struct lc_drbg_ctr_state *drbg)
 	if ((drbg->ctr.V[LC_DRBG_CTR_BLOCKLEN - 1] &
 	     LC_DRBG_CTR_SMALL_CTR_MASK) == LC_DRBG_CTR_SMALL_CTR_MASK) {
 		drbg->ctr.V[LC_DRBG_CTR_BLOCKLEN - 1] &=
-			~LC_DRBG_CTR_SMALL_CTR_MASK;
+			(uint8_t)~LC_DRBG_CTR_SMALL_CTR_MASK;
 	} else {
 		drbg->ctr.V[LC_DRBG_CTR_BLOCKLEN - 1]++;
 	}
