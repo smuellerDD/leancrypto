@@ -13,22 +13,25 @@ enum x509_san_actions {
 	ACT_lc_x509_extract_name_segment = 0,
 	ACT_lc_x509_san_OID = 1,
 	ACT_lc_x509_san_dns = 2,
-	ACT_lc_x509_san_ip = 3,
-	NR__x509_san_actions = 4
+	ACT_lc_x509_san_email = 3,
+	ACT_lc_x509_san_ip = 4,
+	NR__x509_san_actions = 5
 };
 
 static const asn1_action_t x509_san_action_table[NR__x509_san_actions] = {
 	[   0] = lc_x509_extract_name_segment,
 	[   1] = lc_x509_san_OID,
 	[   2] = lc_x509_san_dns,
-	[   3] = lc_x509_san_ip,
+	[   3] = lc_x509_san_email,
+	[   4] = lc_x509_san_ip,
 };
 
 static const asn1_action_enc_t x509_san_action_table_enc[NR__x509_san_actions] = {
 	[   0] = lc_x509_extract_name_segment_enc,
 	[   1] = lc_x509_san_OID_enc,
 	[   2] = lc_x509_san_dns_enc,
-	[   3] = lc_x509_san_ip_enc,
+	[   3] = lc_x509_san_email_enc,
+	[   4] = lc_x509_san_ip_enc,
 };
 
 static const unsigned char x509_san_machine[] = {
@@ -40,82 +43,83 @@ static const unsigned char x509_san_machine[] = {
 	// OtherName
 	[   2] =  ASN1_OP_MATCH_JUMP_OR_SKIP,		// otherName
 	[   3] =  _tagn(CONT, CONS,  0),
-	[   4] =  _jump_target(30),		// --> OtherName
-	[   5] =  ASN1_OP_COND_MATCH_OR_SKIP,		// rfc822Name
+	[   4] =  _jump_target(31),		// --> OtherName
+	[   5] =  ASN1_OP_COND_MATCH_ACT_OR_SKIP,		// rfc822Name
 	[   6] =  _tagn(CONT, PRIM,  1),
-	[   7] =  ASN1_OP_COND_MATCH_ACT_OR_SKIP,		// dNSName
-	[   8] =  _tagn(CONT, PRIM,  2),
-	[   9] =  _action(ACT_lc_x509_san_dns),
-	[  10] =  ASN1_OP_COND_MATCH_JUMP_OR_SKIP,		// x400Address
-	[  11] =  _tagn(CONT, CONS,  3),
-	[  12] =  _jump_target(38),
-	[  13] =  ASN1_OP_COND_MATCH_JUMP_OR_SKIP,		// directoryName
-	[  14] =  _tagn(CONT, CONS,  4),
-	[  15] =  _jump_target(41),
+	[   7] =  _action(ACT_lc_x509_san_email),
+	[   8] =  ASN1_OP_COND_MATCH_ACT_OR_SKIP,		// dNSName
+	[   9] =  _tagn(CONT, PRIM,  2),
+	[  10] =  _action(ACT_lc_x509_san_dns),
+	[  11] =  ASN1_OP_COND_MATCH_JUMP_OR_SKIP,		// x400Address
+	[  12] =  _tagn(CONT, CONS,  3),
+	[  13] =  _jump_target(39),
+	[  14] =  ASN1_OP_COND_MATCH_JUMP_OR_SKIP,		// directoryName
+	[  15] =  _tagn(CONT, CONS,  4),
+	[  16] =  _jump_target(42),
 	// EDIPartyName
-	[  16] =  ASN1_OP_COND_MATCH_JUMP_OR_SKIP,		// ediPartyName
-	[  17] =  _tagn(CONT, CONS,  5),
-	[  18] =  _jump_target(59),		// --> EDIPartyName
-	[  19] =  ASN1_OP_COND_MATCH_OR_SKIP,		// uniformResourceIdentifier
-	[  20] =  _tagn(CONT, PRIM,  6),
-	[  21] =  ASN1_OP_COND_MATCH_ACT_OR_SKIP,		// iPAddress
-	[  22] =  _tagn(CONT, PRIM,  7),
-	[  23] =  _action(ACT_lc_x509_san_ip),
-	[  24] =  ASN1_OP_COND_MATCH_OR_SKIP,		// registeredID
-	[  25] =  _tagn(CONT, PRIM,  8),
-	[  26] =  ASN1_OP_COND_FAIL,
-	[  27] = ASN1_OP_END_SEQ_OF,
-	[  28] = _jump_target(2),
-	[  29] = ASN1_OP_COMPLETE,
+	[  17] =  ASN1_OP_COND_MATCH_JUMP_OR_SKIP,		// ediPartyName
+	[  18] =  _tagn(CONT, CONS,  5),
+	[  19] =  _jump_target(60),		// --> EDIPartyName
+	[  20] =  ASN1_OP_COND_MATCH_OR_SKIP,		// uniformResourceIdentifier
+	[  21] =  _tagn(CONT, PRIM,  6),
+	[  22] =  ASN1_OP_COND_MATCH_ACT_OR_SKIP,		// iPAddress
+	[  23] =  _tagn(CONT, PRIM,  7),
+	[  24] =  _action(ACT_lc_x509_san_ip),
+	[  25] =  ASN1_OP_COND_MATCH_OR_SKIP,		// registeredID
+	[  26] =  _tagn(CONT, PRIM,  8),
+	[  27] =  ASN1_OP_COND_FAIL,
+	[  28] = ASN1_OP_END_SEQ_OF,
+	[  29] = _jump_target(2),
+	[  30] = ASN1_OP_COMPLETE,
 
-	[  30] =  ASN1_OP_MATCH,		// type-id
-	[  31] =  _tag(UNIV, PRIM, OID),
-	[  32] =  ASN1_OP_MATCH,		// value
-	[  33] =  _tagn(CONT, CONS,  0),
-	[  34] =   ASN1_OP_MATCH_ANY,		// value
-	[  35] =  ASN1_OP_END_SEQ,
-	[  36] = ASN1_OP_END_SEQ,
-	[  37] = ASN1_OP_RETURN,
+	[  31] =  ASN1_OP_MATCH,		// type-id
+	[  32] =  _tag(UNIV, PRIM, OID),
+	[  33] =  ASN1_OP_MATCH,		// value
+	[  34] =  _tagn(CONT, CONS,  0),
+	[  35] =   ASN1_OP_MATCH_ANY,		// value
+	[  36] =  ASN1_OP_END_SEQ,
+	[  37] = ASN1_OP_END_SEQ,
+	[  38] = ASN1_OP_RETURN,
 
-	[  38] =  ASN1_OP_MATCH_ANY,		// x400Address
-	[  39] = ASN1_OP_END_SEQ,
-	[  40] = ASN1_OP_RETURN,
+	[  39] =  ASN1_OP_MATCH_ANY,		// x400Address
+	[  40] = ASN1_OP_END_SEQ,
+	[  41] = ASN1_OP_RETURN,
 
 	// Name
-	[  41] =  ASN1_OP_MATCH,
-	[  42] =  _tag(UNIV, CONS, SEQ),
+	[  42] =  ASN1_OP_MATCH,
+	[  43] =  _tag(UNIV, CONS, SEQ),
 	// RelativeDistinguishedName
-	[  43] =   ASN1_OP_MATCH,
-	[  44] =   _tag(UNIV, CONS, SET),
+	[  44] =   ASN1_OP_MATCH,
+	[  45] =   _tag(UNIV, CONS, SET),
 	// AttributeValueAssertion
-	[  45] =    ASN1_OP_MATCH,
-	[  46] =    _tag(UNIV, CONS, SEQ),
-	[  47] =     ASN1_OP_MATCH_ACT,		// attributeType
-	[  48] =     _tag(UNIV, PRIM, OID),
-	[  49] =     _action(ACT_lc_x509_san_OID),
-	[  50] =     ASN1_OP_MATCH_ANY_ACT,		// attributeValue
-	[  51] =     _action(ACT_lc_x509_extract_name_segment),
-	[  52] =    ASN1_OP_END_SEQ,
-	[  53] =   ASN1_OP_END_SET_OF,
-	[  54] =   _jump_target(45),
-	[  55] =  ASN1_OP_END_SEQ_OF,
-	[  56] =  _jump_target(43),
-	[  57] = ASN1_OP_END_SEQ,
-	[  58] = ASN1_OP_RETURN,
+	[  46] =    ASN1_OP_MATCH,
+	[  47] =    _tag(UNIV, CONS, SEQ),
+	[  48] =     ASN1_OP_MATCH_ACT,		// attributeType
+	[  49] =     _tag(UNIV, PRIM, OID),
+	[  50] =     _action(ACT_lc_x509_san_OID),
+	[  51] =     ASN1_OP_MATCH_ANY_ACT,		// attributeValue
+	[  52] =     _action(ACT_lc_x509_extract_name_segment),
+	[  53] =    ASN1_OP_END_SEQ,
+	[  54] =   ASN1_OP_END_SET_OF,
+	[  55] =   _jump_target(46),
+	[  56] =  ASN1_OP_END_SEQ_OF,
+	[  57] =  _jump_target(44),
+	[  58] = ASN1_OP_END_SEQ,
+	[  59] = ASN1_OP_RETURN,
 
-	[  59] =  ASN1_OP_MATCH_JUMP_OR_SKIP,		// nameAssigner
-	[  60] =  _tagn(CONT, CONS,  0),
-	[  61] =  _jump_target(68),
-	[  62] =  ASN1_OP_MATCH,		// partyName
-	[  63] =  _tagn(CONT, CONS,  1),
-	[  64] =   ASN1_OP_MATCH_ANY,		// partyName
-	[  65] =  ASN1_OP_END_SEQ,
-	[  66] = ASN1_OP_END_SEQ,
-	[  67] = ASN1_OP_RETURN,
+	[  60] =  ASN1_OP_MATCH_JUMP_OR_SKIP,		// nameAssigner
+	[  61] =  _tagn(CONT, CONS,  0),
+	[  62] =  _jump_target(69),
+	[  63] =  ASN1_OP_MATCH,		// partyName
+	[  64] =  _tagn(CONT, CONS,  1),
+	[  65] =   ASN1_OP_MATCH_ANY,		// partyName
+	[  66] =  ASN1_OP_END_SEQ,
+	[  67] = ASN1_OP_END_SEQ,
+	[  68] = ASN1_OP_RETURN,
 
-	[  68] =  ASN1_OP_MATCH_ANY,		// nameAssigner
-	[  69] = ASN1_OP_END_SEQ,
-	[  70] = ASN1_OP_RETURN,
+	[  69] =  ASN1_OP_MATCH_ANY,		// nameAssigner
+	[  70] = ASN1_OP_END_SEQ,
+	[  71] = ASN1_OP_RETURN,
 };
 
 const struct lc_asn1_decoder lc_x509_san_decoder = {

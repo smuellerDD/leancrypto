@@ -226,7 +226,7 @@ out:
 }
 
 int lc_x509_name_unprocessed(const struct lc_x509_certificate_name *name,
-			     uint8_t processed)
+			     uint16_t processed)
 {
 	if (name->c.size && !(processed & X509_C_PROCESSED))
 		return 1;
@@ -245,7 +245,7 @@ int lc_x509_name_unprocessed(const struct lc_x509_certificate_name *name,
 }
 
 int lc_x509_name_OID_enc(const struct lc_x509_certificate_name *name,
-			 uint8_t processed, uint8_t *data,
+			 uint16_t processed, uint8_t *data,
 			 size_t *avail_datalen)
 {
 	const uint8_t *oid_data = NULL;
@@ -304,7 +304,7 @@ int lc_x509_san_OID_enc(void *context, uint8_t *data, size_t *avail_datalen,
 }
 
 int lc_x509_name_segment_enc(const struct lc_x509_certificate_name *name,
-			     uint8_t *processed, uint8_t *data,
+			     uint16_t *processed, uint8_t *data,
 			     size_t *avail_datalen)
 {
 	const char *name_data = NULL;
@@ -388,12 +388,41 @@ static int x509_san_unprocessed(struct x509_generate_context *ctx)
 {
 	const struct lc_x509_certificate *cert = ctx->cert;
 
+	if (cert->san_email_len &&
+	    !(ctx->san_processed & X509_SAN_EMAIL_PROCESSED))
+		return 1;
 	if (cert->san_dns_len && !(ctx->san_processed & X509_SAN_DNS_PROCESSED))
 		return 1;
 	if (cert->san_ip_len && !(ctx->san_processed & X509_SAN_IP_PROCESSED))
 		return 1;
 	return lc_x509_name_unprocessed(&cert->san_directory_name_segments,
 					ctx->san_processed);
+}
+
+/*
+ * Set the subject alternative name - email parameter
+ */
+int lc_x509_san_email_enc(void *context, uint8_t *data, size_t *avail_datalen,
+			  uint8_t *tag)
+{
+	struct x509_generate_context *ctx = context;
+	const struct lc_x509_certificate *cert = ctx->cert;
+	int ret = 0;
+
+	(void)tag;
+
+	if (cert->san_email_len &&
+	    !(ctx->san_processed & X509_SAN_EMAIL_PROCESSED)) {
+		CKRET(*avail_datalen < cert->san_email_len, -EOVERFLOW);
+
+		memcpy(data, cert->san_email, cert->san_email_len);
+		*avail_datalen -= cert->san_email_len;
+
+		ctx->san_processed |= X509_SAN_EMAIL_PROCESSED;
+	}
+
+out:
+	return ret;
 }
 
 /*
@@ -982,7 +1011,7 @@ static int x509_attribute_value_unprocessed(struct x509_generate_context *ctx)
 {
 	const struct lc_x509_certificate *cert = ctx->cert;
 	const struct lc_x509_certificate_name *name = &cert->issuer_segments;
-	uint8_t processed = ctx->issuer_attrib_processed;
+	uint16_t processed = ctx->issuer_attrib_processed;
 
 	if (ctx->subject_attribute_processing) {
 		name = &cert->subject_segments;
@@ -1002,7 +1031,7 @@ int lc_x509_extract_attribute_name_segment_enc(void *context, uint8_t *data,
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
 	const struct lc_x509_certificate_name *name = &cert->issuer_segments;
-	uint8_t *processed = &ctx->issuer_attrib_processed;
+	uint16_t *processed = &ctx->issuer_attrib_processed;
 
 	*tag = ASN1_UTF8STR;
 
@@ -1020,7 +1049,7 @@ int lc_x509_note_attribute_type_OID_enc(void *context, uint8_t *data,
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
 	const struct lc_x509_certificate_name *name = &cert->issuer_segments;
-	uint8_t processed = ctx->issuer_attrib_processed;
+	uint16_t processed = ctx->issuer_attrib_processed;
 
 	(void)tag;
 

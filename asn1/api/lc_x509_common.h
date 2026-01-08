@@ -321,6 +321,8 @@ struct lc_x509_certificate {
 	size_t san_dns_len;
 	const uint8_t *san_ip; /* Subject Alternative Name IP */
 	size_t san_ip_len;
+	const char *san_email; /* Subject Alternative Name email */
+	size_t san_email_len;
 	time64_t valid_from; /* Time since EPOCH in UTC */
 	time64_t valid_to; /* Time since EPOCH in UTC */
 	const uint8_t *tbs; /* Signed data */

@@ -245,6 +245,45 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 		}
 	}
 
+	if (parsed_opts->san_email) {
+		struct lc_x509_certificate_name
+			search_name = { .cn = {
+						.value = parsed_opts->san_email,
+						.size = (uint8_t)strlen(
+							parsed_opts->san_email),
+					} };
+
+		if (lc_x509_policy_cert_subject_match(
+			    x509, &search_name,
+			    lc_x509_policy_cert_subject_match_san_email_only) ==
+		    LC_X509_POL_FALSE) {
+			printf("SAN Email: names mismatch (expected %s, actual %s)\n",
+			       parsed_opts->san_email, x509->san_email);
+			return -EINVAL;
+		} else {
+			printf("SAN Email match\n");
+		}
+	}
+
+	if (parsed_opts->san_email) {
+		struct lc_x509_certificate_name
+			search_name = { .cn = {
+						.value = parsed_opts->san_email,
+						.size = (uint8_t)strlen(
+							parsed_opts->san_email),
+					} };
+
+		if (lc_x509_policy_cert_subject_match(
+			    x509, &search_name,
+			    lc_x509_policy_cert_subject_match_san_email_only) ==
+		    LC_X509_POL_FALSE) {
+			printf("SAN Email: names mismatch (expected %s, actual %s)\n",
+			       parsed_opts->san_email, x509->san_email);
+			return -EINVAL;
+		} else {
+			printf("SAN Email match\n");
+		}
+	}
 	if (parsed_opts->san_dns) {
 		struct lc_x509_certificate_name
 			search_name = { .cn = {

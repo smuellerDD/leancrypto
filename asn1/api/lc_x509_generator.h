@@ -296,6 +296,21 @@ int lc_x509_cert_check_issuer_ca(struct lc_x509_certificate *cert);
 
 /**
  * @ingroup X509Gen
+ * @brief Get the Email DNS name
+ *
+ * \note The caller must keep the input data available for the lifetime of
+ * \p cert.
+ *
+ * @param [in] cert Certificate data structure to be filled with the data
+ * @param [in] san_email_name SAN email name to add to the certificate
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_cert_set_san_email(struct lc_x509_certificate *cert,
+			       const char *san_email_name);
+
+/**
+ * @ingroup X509Gen
  * @brief Get the SAN DNS name
  *
  * \note The caller must keep the input data available for the lifetime of

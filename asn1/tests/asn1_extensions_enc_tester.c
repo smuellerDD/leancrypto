@@ -69,6 +69,8 @@ static int x509_gen_cert_extensions(struct x509_checker_options *opts)
 	printf("In-Key Usage: %u\n", gcert->pub.key_usage);
 	printf("In-EKU: %u\n", gcert->pub.key_eku);
 	printf("In-CA: %u\n", gcert->pub.ca_pathlen);
+	printf("In-SAN-Email: %s\n", gcert->san_email ? gcert->san_email :
+							"(unset)");
 	printf("In-SAN-DNS: %s\n", gcert->san_dns ? gcert->san_dns : "(unset)");
 	if (gcert->san_ip) {
 		bin2print(gcert->san_ip, gcert->san_ip_len, stdout,
@@ -131,6 +133,21 @@ static int x509_gen_cert_extensions(struct x509_checker_options *opts)
 		ret = -EINVAL;
 	}
 
+	if (ws->pcert.san_email_len != gcert->san_email_len) {
+		printf("SAN email name length mismatch (original %zu, received %zu)\n",
+		       gcert->san_email_len, ws->pcert.san_email_len);
+		ret = -EINVAL;
+	} else {
+		if (memcmp(ws->pcert.san_email, gcert->san_email,
+			   gcert->san_email_len)) {
+			printf("SAN email name mismatch (original %s, received %s)\n",
+			       gcert->san_email, ws->pcert.san_email);
+			ret = -EINVAL;
+		} else {
+			printf("SAN email name matches\n");
+		}
+	}
+
 	if (ws->pcert.san_dns_len != gcert->san_dns_len) {
 		printf("SAN DNS name length mismatch (original %zu, received %zu)\n",
 		       gcert->san_dns_len, ws->pcert.san_dns_len);
@@ -145,6 +162,7 @@ static int x509_gen_cert_extensions(struct x509_checker_options *opts)
 			printf("SAN DNS name matches\n");
 		}
 	}
+
 
 	if (ws->pcert.san_ip_len != gcert->san_ip_len) {
 		printf("SAN IP name length mismatch (original %zu, received %zu)\n",
@@ -237,6 +255,18 @@ static int x509_enc_ca(struct x509_checker_options *opts)
 {
 	opts->cert.pub.basic_constraint =
 		LC_KEY_CA | LC_KEY_BASIC_CONSTRAINT_CRITICAL;
+
+	return 0;
+}
+
+static int x509_enc_san_email(struct x509_checker_options *opts,
+			      const char *opt_optarg)
+{
+	if (!opt_optarg)
+		return -EINVAL;
+
+	opts->cert.san_email = opt_optarg;
+	opts->cert.san_email_len = strlen(opt_optarg);
 
 	return 0;
 }
@@ -429,7 +459,8 @@ static void asn1_usage(void)
 	fprintf(stderr,
 		"\t   --keyusage\t\tencode key usage (use LC_KEY_USAGE* flags)\n");
 	fprintf(stderr,
-		"\t   --ca\t\tencode CA basic constraint with criticality\n");
+		"\t   --ca\t\t\tencode CA basic constraint with criticality\n");
+	fprintf(stderr, "\t   --san-email\t\tencode SAN Email name\n");
 	fprintf(stderr, "\t   --san-dns\t\tencode SAN DNS name\n");
 	fprintf(stderr, "\t   --san-ip\t\tencode SAN IP name\n");
 	fprintf(stderr, "\t   --skid\t\tencode SKID (in hex form)\n");
@@ -455,6 +486,7 @@ int main(int argc, char *argv[])
 
 					      { "eku", 1, 0, 0 },
 					      { "ca", 0, 0, 0 },
+					      { "san-email", 1, 0, 0 },
 					      { "san-dns", 1, 0, 0 },
 					      { "san-ip", 1, 0, 0 },
 					      { "keyusage", 1, 0, 0 },
@@ -492,51 +524,56 @@ int main(int argc, char *argv[])
 			case 2:
 				CKINT(x509_enc_ca(&ws->parsed_opts));
 				break;
-			/* san-dns */
+			/* san-email */
 			case 3:
+				CKINT(x509_enc_san_email(&ws->parsed_opts,
+							 optarg));
+				break;
+			/* san-dns */
+			case 4:
 				CKINT(x509_enc_san_dns(&ws->parsed_opts,
 						       optarg));
 				break;
 			/* san-ip */
-			case 4:
+			case 5:
 				CKINT(x509_enc_san_ip(&ws->parsed_opts,
 						      optarg));
 				break;
 			/* keyusage */
-			case 5:
+			case 6:
 				CKINT(x509_enc_keyusage(&ws->parsed_opts,
 							optarg));
 				break;
 			/* skid */
-			case 6:
+			case 7:
 				CKINT(x509_enc_skid(&ws->parsed_opts, optarg));
 				break;
 			/* akid */
-			case 7:
+			case 8:
 				CKINT(x509_enc_akid(&ws->parsed_opts, optarg));
 				break;
 			/* valid-from */
-			case 8:
+			case 9:
 				CKINT(x509_enc_valid_from(&ws->parsed_opts,
 							  optarg));
 				break;
 			/* valid-to */
-			case 9:
+			case 10:
 				CKINT(x509_enc_valid_to(&ws->parsed_opts,
 							optarg));
 				break;
 			/* subject-cn */
-			case 10:
+			case 11:
 				CKINT(x509_enc_subject_cn(&ws->parsed_opts,
 							  optarg));
 				break;
 			/* issuer-cn */
-			case 11:
+			case 12:
 				CKINT(x509_enc_issuer_cn(&ws->parsed_opts,
 							 optarg));
 				break;
 			/* serial */
-			case 12:
+			case 13:
 				CKINT(x509_enc_serial(&ws->parsed_opts,
 						      optarg));
 				break;

@@ -54,6 +54,7 @@ struct x509_checker_options {
 	unsigned int keyusage;
 	const char *issuer_cn;
 	const char *subject_cn;
+	const char *san_email;
 	const char *san_dns;
 	const char *san_ip;
 	const char *skid;

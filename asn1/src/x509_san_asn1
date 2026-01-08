@@ -11,7 +11,7 @@ GeneralNames ::= SEQUENCE OF GeneralName
 
 GeneralName ::= CHOICE {
 	otherName			[0] IMPLICIT OtherName,
-	rfc822Name			[1] IMPLICIT IA5String,
+	rfc822Name			[1] IMPLICIT IA5String ({ lc_x509_san_email }),
 	dNSName				[2] IMPLICIT IA5String ({ lc_x509_san_dns }),
 	x400Address			[3] ANY,
 	directoryName			[4] Name,

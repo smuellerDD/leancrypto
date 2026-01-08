@@ -51,7 +51,7 @@ struct pkcs7_generate_context {
 	const struct lc_pkcs7_signed_info *current_sinfo;
 
 	unsigned long aa_set_applied;
-	uint8_t subject_attrib_processed;
+	uint16_t subject_attrib_processed;
 
 	/* Authenticated Attribute data (or NULL) */
 	const struct lc_hash *authattr_hash;
@@ -736,7 +736,7 @@ int lc_pkcs7_note_attribute_type_OID_enc(void *context, uint8_t *data,
 	const struct lc_pkcs7_signed_info *sinfo = ctx->current_sinfo;
 	const struct lc_x509_certificate *x509 = sinfo->signer;
 	const struct lc_x509_certificate_name *name = &x509->subject_segments;
-	uint8_t processed = ctx->subject_attrib_processed;
+	uint16_t processed = ctx->subject_attrib_processed;
 
 	(void)tag;
 
@@ -754,7 +754,7 @@ int lc_pkcs7_extract_attribute_name_segment_enc(void *context, uint8_t *data,
 	const struct lc_pkcs7_signed_info *sinfo = ctx->current_sinfo;
 	const struct lc_x509_certificate *x509 = sinfo->signer;
 	const struct lc_x509_certificate_name *name = &x509->subject_segments;
-	uint8_t *processed = &ctx->subject_attrib_processed;
+	uint16_t *processed = &ctx->subject_attrib_processed;
 
 	*tag = ASN1_UTF8STR;
 
@@ -771,7 +771,7 @@ int lc_pkcs7_attribute_value_continue_enc(void *context, uint8_t *data,
 	const struct lc_pkcs7_signed_info *sinfo = ctx->current_sinfo;
 	const struct lc_x509_certificate *x509 = sinfo->signer;
 	const struct lc_x509_certificate_name *name = &x509->subject_segments;
-	uint8_t processed = ctx->subject_attrib_processed;
+	uint16_t processed = ctx->subject_attrib_processed;
 
 	(void)data;
 	(void)avail_datalen;

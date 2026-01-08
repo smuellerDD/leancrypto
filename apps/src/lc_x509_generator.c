@@ -302,6 +302,14 @@ static int x509_enc_ca(struct x509_generator_opts *opts)
 	return lc_x509_cert_set_ca(cert);
 }
 
+static int x509_enc_san_email(struct x509_generator_opts *opts,
+			      const char *opt_optarg)
+{
+	struct lc_x509_certificate *cert = &opts->cert;
+
+	return lc_x509_cert_set_san_email(cert, opt_optarg);
+}
+
 static int x509_enc_san_dns(struct x509_generator_opts *opts,
 			    const char *opt_optarg)
 {
@@ -904,6 +912,7 @@ static void x509_generator_usage(void)
 
 	fprintf(stderr,
 		"\t   --ca\t\t\t\tSet CA basic constraint with criticality\n");
+	fprintf(stderr, "\t   --san-email <NAME> \t\tSet SAN email name\n");
 	fprintf(stderr, "\t   --san-dns <NAME> \t\tSet SAN DNS name\n");
 	fprintf(stderr,
 		"\t   --san-ip <IP> \t\tSet SAN IP address (IPv4 or IPv6)\n");
@@ -971,6 +980,7 @@ static void x509_generator_usage(void)
 	fprintf(stderr, "\t\t\t\t\tflags)\n");
 	fprintf(stderr,
 		"\t   --check-keyusage <EKU>\tmatch key usage (use KEY_USAGE_* flags)\n");
+	fprintf(stderr, "\t   --check-san-email <NAME>\tmatch SAN email\n");
 	fprintf(stderr, "\t   --check-san-dns <NAME>\tmatch SAN DNS\n");
 	fprintf(stderr, "\t   --check-san-ip <IP-Hex>\tmatch SAN IP\n");
 	fprintf(stderr, "\t   --check-skid <HEX>\t\tmatch subject key ID\n");
@@ -1020,6 +1030,7 @@ int main(int argc, char *argv[])
 		{ "keyusage", 1, 0, 0 },
 
 		{ "ca", 0, 0, 0 },
+		{ "san-email", 1, 0, 0 },
 		{ "san-dns", 1, 0, 0 },
 		{ "san-ip", 1, 0, 0 },
 		{ "skid", 1, 0, 0 },
@@ -1056,6 +1067,7 @@ int main(int argc, char *argv[])
 		{ "check-valid-from", 1, 0, 0 },
 		{ "check-valid-to", 1, 0, 0 },
 		{ "check-eku", 1, 0, 0 },
+		{ "check-san-email", 1, 0, 0 },
 		{ "check-san-dns", 1, 0, 0 },
 		{ "check-san-ip", 1, 0, 0 },
 		{ "check-skid", 1, 0, 0 },
@@ -1153,45 +1165,51 @@ int main(int argc, char *argv[])
 				CKINT_LOG(x509_enc_ca(&ws->parsed_opts),
 					  "Set CA\n");
 				break;
-			/* san-dns */
+			/* san-email */
 			case 12:
+				CKINT_LOG(x509_enc_san_email(&ws->parsed_opts,
+							     optarg),
+					  "Set SAN Email\n");
+				break;
+			/* san-dns */
+			case 13:
 				CKINT_LOG(x509_enc_san_dns(&ws->parsed_opts,
 							   optarg),
 					  "Set SAN DNS\n");
 				break;
 			/* san-ip */
-			case 13:
+			case 14:
 				CKINT_LOG(x509_enc_san_ip(&ws->parsed_opts,
 							  optarg),
 					  "Set SAN IP\n");
 				break;
 
 			/* skid */
-			case 14:
+			case 15:
 				CKINT_LOG(x509_enc_skid(&ws->parsed_opts,
 							optarg),
 					  "Set SKID\n");
 				break;
 			/* akid */
-			case 15:
+			case 16:
 				CKINT_LOG(x509_enc_akid(&ws->parsed_opts,
 							optarg),
 					  "Set AKID\n");
 				break;
 			/* valid-from */
-			case 16:
+			case 17:
 				CKINT_LOG(x509_enc_valid_from(&ws->parsed_opts,
 							      optarg),
 					  "Set valid from\n");
 				break;
 			/* valid-to */
-			case 17:
+			case 18:
 				CKINT_LOG(x509_enc_valid_to(&ws->parsed_opts,
 							    optarg),
 					  "Set valid to\n");
 				break;
 			/* valid-days */
-			case 18:
+			case 19:
 				/*
 				 * There is deliberately no control whether the
 				 * caller used valid-from/to and valid-days at
@@ -1204,196 +1222,201 @@ int main(int argc, char *argv[])
 					  "Set valid days\n");
 				break;
 			/* serial */
-			case 19:
+			case 20:
 				CKINT_LOG(x509_enc_serial(&ws->parsed_opts,
 							  optarg),
 					  "Set serial\n");
 				break;
 
 			/* subject-cn */
-			case 20:
+			case 21:
 				CKINT_LOG(x509_enc_subject_cn(&ws->parsed_opts,
 							      optarg),
 					  "Subject CN parsing error\n");
 				break;
 			/* subject-email */
-			case 21:
+			case 22:
 				CKINT_LOG(x509_enc_subject_email(
 						  &ws->parsed_opts, optarg),
 					  "Subject email parsing error\n");
 				break;
 			/* subject-ou */
-			case 22:
+			case 23:
 				CKINT_LOG(x509_enc_subject_ou(&ws->parsed_opts,
 							      optarg),
 					  "Subject OU parsing error\n");
 				break;
 			/* subject-o */
-			case 23:
+			case 24:
 				CKINT_LOG(x509_enc_subject_o(&ws->parsed_opts,
 							     optarg),
 					  "Subject O parsing error\n");
 				break;
 			/* subject-st */
-			case 24:
+			case 25:
 				CKINT(x509_enc_subject_st(&ws->parsed_opts,
 							  optarg));
 				break;
 			/* subject-c */
-			case 25:
+			case 26:
 				CKINT(x509_enc_subject_c(&ws->parsed_opts,
 							 optarg));
 				break;
 
 			/* issuer-cn */
-			case 26:
+			case 27:
 				CKINT(x509_enc_issuer_cn(&ws->parsed_opts,
 							 optarg));
 				break;
 			/* issuer-email */
-			case 27:
+			case 28:
 				CKINT(x509_enc_issuer_email(&ws->parsed_opts,
 							    optarg));
 				break;
 			/* issuer-ou */
-			case 28:
+			case 29:
 				CKINT(x509_enc_issuer_ou(&ws->parsed_opts,
 							 optarg));
 				break;
 			/* issuer-o */
-			case 29:
+			case 30:
 				CKINT(x509_enc_issuer_o(&ws->parsed_opts,
 							optarg));
 				break;
 			/* issuer-st */
-			case 30:
+			case 31:
 				CKINT(x509_enc_issuer_st(&ws->parsed_opts,
 							 optarg));
 				break;
 			/* issuer-c */
-			case 31:
+			case 32:
 				CKINT(x509_enc_issuer_c(&ws->parsed_opts,
 							optarg));
 				break;
 
 			/* print */
-			case 32:
+			case 33:
 				ws->parsed_opts.print_x509 = 1;
 				break;
 			/* noout */
-			case 33:
+			case 34:
 				ws->parsed_opts.noout = 1;
 				break;
 			/* print-x509 */
-			case 34:
+			case 35:
 				ws->parsed_opts.print_x509_cert = optarg;
 				break;
 
 			/* check-ca */
-			case 35:
+			case 36:
 				checker_opts->check_ca = 1;
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-ca-conformant */
-			case 36:
+			case 37:
 				checker_opts->check_ca_conformant = 1;
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-time */
-			case 37:
+			case 38:
 				checker_opts->check_time = 1;
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-issuer-cn */
-			case 38:
+			case 39:
 				checker_opts->issuer_cn = optarg;
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-subject-cn */
-			case 39:
+			case 40:
 				checker_opts->subject_cn = optarg;
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-noselfsigned */
-			case 40:
+			case 41:
 				checker_opts->check_no_selfsigned = 1;
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-valid-from */
-			case 41:
+			case 42:
 				checker_opts->valid_from =
 					strtoull(optarg, NULL, 10);
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-valid-to */
-			case 42:
+			case 43:
 				checker_opts->valid_to =
 					strtoull(optarg, NULL, 10);
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-eku */
-			case 43:
+			case 44:
 				checker_opts->eku =
 					(unsigned int)strtoul(optarg, NULL, 10);
 				ws->parsed_opts.checker = 1;
 				break;
+			/* check-san-email */
+			case 45:
+				checker_opts->san_email = optarg;
+				ws->parsed_opts.checker = 1;
+				break;
 			/* check-san-dns */
-			case 44:
+			case 46:
 				checker_opts->san_dns = optarg;
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-san-ip */
-			case 45:
+			case 47:
 				checker_opts->san_ip = optarg;
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-skid */
-			case 46:
+			case 48:
 				checker_opts->skid = optarg;
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-akid */
-			case 47:
+			case 49:
 				checker_opts->akid = optarg;
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-noca */
-			case 48:
+			case 50:
 				checker_opts->check_no_ca = 1;
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-selfsigned */
-			case 49:
+			case 51:
 				checker_opts->check_selfsigned = 1;
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-rootca */
-			case 50:
+			case 52:
 				checker_opts->check_root_ca = 1;
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-keyusage */
-			case 51:
+			case 53:
 				checker_opts->keyusage =
 					(unsigned int)strtoul(optarg, NULL, 10);
 				ws->parsed_opts.checker = 1;
 				break;
 
 			/* data-file */
-			case 52:
+			case 54:
 				ws->parsed_opts.data_file = optarg;
 				break;
 			/* x509-cert */
-			case 53:
+			case 55:
 				ws->parsed_opts.x509_cert_file = optarg;
 				break;
 
 			/* create-keypair-pkcs8-seed */
-			case 54:
+			case 56:
 				ws->parsed_opts.generate_sk_seed = 1;
 				fallthrough;
 			/* create-keypair-pkcs8 */
-			case 55:
+			case 57:
 				CKINT_LOG(
 					lc_x509_pkey_name_to_algorithm(
 						optarg,
@@ -1403,7 +1426,7 @@ int main(int argc, char *argv[])
 				ws->parsed_opts.sk_is_pkcs8 = 1;
 				break;
 			/* pem-output */
-			case 56:
+			case 58:
 				ws->parsed_opts.pem_format_output = 1;
 				break;
 			}

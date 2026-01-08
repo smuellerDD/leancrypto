@@ -53,7 +53,7 @@ struct x509_generate_context {
 	uint8_t pathlen_processed;
 	uint8_t basic_constraint_processed;
 
-	uint8_t san_processed;
+	uint16_t san_processed;
 #define X509_CN_PROCESSED (1 << 0)
 #define X509_O_PROCESSED (1 << 1)
 #define X509_EMAIL_PROCESSED (1 << 2)
@@ -62,6 +62,7 @@ struct x509_generate_context {
 #define X509_OU_PROCESSED (1 << 5)
 #define X509_SAN_DNS_PROCESSED (1 << 6)
 #define X509_SAN_IP_PROCESSED (1 << 7)
+#define X509_SAN_EMAIL_PROCESSED (1 << 8)
 
 	uint8_t *akid_raw_issuer;
 	size_t akid_raw_issuer_size;
@@ -76,8 +77,8 @@ struct x509_generate_context {
 	unsigned int subject_attribute_processing : 1;
 	unsigned int time_already_set : 1;
 	enum sig_algo_settings sig_algo_set;
-	uint8_t subject_attrib_processed;
-	uint8_t issuer_attrib_processed;
+	uint16_t subject_attrib_processed;
+	uint16_t issuer_attrib_processed;
 };
 
 static inline int x509_sufficient_size(size_t *avail_datalen,
@@ -99,13 +100,13 @@ int lc_x509_set_bit_string(uint8_t **dst_data, size_t *dst_avail_datalen,
 			   const uint8_t *src_data, size_t src_datalen);
 
 int lc_x509_name_segment_enc(const struct lc_x509_certificate_name *name,
-			     uint8_t *processed, uint8_t *data,
+			     uint16_t *processed, uint8_t *data,
 			     size_t *avail_datalen);
 int lc_x509_name_OID_enc(const struct lc_x509_certificate_name *name,
-			 uint8_t processed, uint8_t *data,
+			 uint16_t processed, uint8_t *data,
 			 size_t *avail_datalen);
 int lc_x509_name_unprocessed(const struct lc_x509_certificate_name *name,
-			     uint8_t processed);
+			     uint16_t processed);
 int lc_x509_signature_reserve_room(uint8_t *data, size_t *avail_datalen,
 				   size_t siglen);
 

@@ -364,6 +364,15 @@ static int x509_fabricate_name(struct x509_parse_context *ctx, size_t hdrlen,
 		return 0;
 	}
 
+	if (subject && cert->san_email_len) {
+		namesize = min_size(cert->san_email_len,
+				    LC_ASN1_MAX_ISSUER_NAME);
+		memcpy(_name, cert->san_email, namesize);
+		_name[namesize] = '\0';
+
+		return 0;
+	}
+
 	if (subject && cert->san_ip_len) {
 		if (cert->san_ip_len == 4) {
 			/* IPv4 Address */
@@ -647,6 +656,24 @@ int lc_x509_eku(void *context, size_t hdrlen, unsigned char tag,
 
 out:
 	return ret;
+}
+
+/*
+ * Extract the subject alternative name - DNS parameter
+ */
+int lc_x509_san_email(void *context, size_t hdrlen, unsigned char tag,
+		      const uint8_t *value, size_t vlen)
+{
+	struct x509_parse_context *ctx = context;
+	struct lc_x509_certificate *cert = ctx->cert;
+
+	(void)hdrlen;
+	(void)tag;
+
+	cert->san_email = (char *)value;
+	cert->san_email_len = vlen;
+
+	return x509_fabricate_name(ctx, hdrlen, tag, cert->subject, vlen, 1);
 }
 
 /*

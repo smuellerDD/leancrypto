@@ -1068,6 +1068,8 @@ enum lc_x509_policy_cert_subject_match_flag {
 	lc_x509_policy_cert_subject_match_san_ip_only,
 	/** Match SAN DNS only */
 	lc_x509_policy_cert_subject_match_san_dns_only,
+	/** Match SAN email only */
+	lc_x509_policy_cert_subject_match_san_email_only,
 	/** Match SAN name segments */
 	lc_x509_policy_cert_subject_match_san_name_only,
 	/** Match issuer only */

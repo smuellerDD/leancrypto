@@ -542,6 +542,18 @@ static lc_x509_pol_ret_t lc_x509_policy_cert_subject_match_san_dns(
 	return LC_X509_POL_FALSE;
 }
 
+static lc_x509_pol_ret_t lc_x509_policy_cert_subject_match_san_email(
+	const struct lc_x509_certificate *cert,
+	const struct lc_x509_certificate_name *search_name)
+{
+	if (cert->san_email_len && cert->san_email &&
+	    !lc_memcmp_secure(search_name->cn.value, search_name->cn.size,
+			      cert->san_email, cert->san_email_len))
+		return LC_X509_POL_TRUE;
+
+	return LC_X509_POL_FALSE;
+}
+
 LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_cert_subject_match,
 		      const struct lc_x509_certificate *cert,
 		      const struct lc_x509_certificate_name *search_name,
@@ -584,6 +596,11 @@ LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_cert_subject_match,
 		/* Check whether the SAN DNS matches */
 		return lc_x509_policy_cert_subject_match_san_dns(cert,
 								 search_name);
+
+	case lc_x509_policy_cert_subject_match_san_email_only:
+		/* Check whether the SAN DNS matches */
+		return lc_x509_policy_cert_subject_match_san_email(cert,
+								   search_name);
 
 	case lc_x509_policy_cert_subject_match_san_name_only:
 		/* Check whether the SAN name components matches */

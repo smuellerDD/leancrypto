@@ -124,6 +124,16 @@ if get_option('x509_parser').enabled()
 			'--akid', '31aad81c43a60ee696b2f97500318668ac6ffe00' ],
 			suite: regression,
 			should_fail: fips140_negative_expect_fail)
+		test('X.509 Leaf Cert', asn1_tester,
+		args: [ '-x', '-f', certdir + 'leaf-cert-rsa.der', '--check-noca',
+			'--check-noselfsigned', '--issuer-cn', 'leancrypto intermediate 2',
+			'--subject-cn', 'leancrypto@leaf.san', '--valid-from', '1729527728',
+			'--valid-to', '1761063728', '--unsupported-sig', '--eku', '16',
+			'--san-email', 'leancrypto@leaf.san',
+			'--skid', '585e7bee1e3aa0268bf72897e12816fab730b0eb',
+			'--akid', '31aad81c43a60ee696b2f97500318668ac6ffe00' ],
+			suite: regression,
+			should_fail: fips140_negative_expect_fail)
 	endif
 endif
 
@@ -334,6 +344,9 @@ if get_option('x509_generator').enabled()
 
 	test('X.509 Ext EKU CA', asn1_extensions_enc_tester,
 	     args: [ '--eku', '50', '--ca' ],
+	     suite: regression)
+	test('X.509 Ext EKU CA SANEmail', asn1_extensions_enc_tester,
+	     args: [ '--eku', '50', '--ca', '--san-email', 'smueller@a.b' ],
 	     suite: regression)
 	test('X.509 Ext EKU CA SANDNS', asn1_extensions_enc_tester,
 	     args: [ '--eku', '50', '--ca', '--san-dns', 'smueller' ],

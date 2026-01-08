@@ -218,6 +218,22 @@ out:
 	return ret;
 }
 
+LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_san_email,
+		      struct lc_x509_certificate *cert,
+		      const char *san_email_name)
+{
+	int ret = 0;
+
+	CKNULL(cert, -EINVAL);
+	CKNULL(san_email_name, -EINVAL);
+
+	cert->san_email = san_email_name;
+	cert->san_email_len = strlen(san_email_name);
+
+out:
+	return ret;
+}
+
 LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_san_dns,
 		      struct lc_x509_certificate *cert,
 		      const char *san_dns_name)

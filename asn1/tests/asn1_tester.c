@@ -162,6 +162,7 @@ static void asn1_usage(void)
 	fprintf(stderr, "\t   --print\t\tprint details\n");
 	fprintf(stderr,
 		"\t   --eku\t\tmatch estended key usage (use EKY_EKU_* flags)\n");
+	fprintf(stderr, "\t   --san-email <NAME>\t\tmatch SAN email\n");
 	fprintf(stderr, "\t   --san-dns <NAME>\t\tmatch SAN DNS\n");
 	fprintf(stderr, "\t   --san-ip <IP-Hex>\t\tmatch SAN IP\n");
 	fprintf(stderr, "\t   --skid <HEX>\t\tmatch subject key ID\n");
@@ -192,6 +193,7 @@ int main(int argc, char *argv[])
 					      { "unsupported-sig", 0, 0, 0 },
 					      { "print", 0, 0, 0 },
 					      { "eku", 1, 0, 0 },
+					      { "san-email", 1, 0, 0 },
 					      { "san-dns", 1, 0, 0 },
 					      { "san-ip", 1, 0, 0 },
 					      { "skid", 1, 0, 0 },
@@ -279,35 +281,39 @@ int main(int argc, char *argv[])
 				parsed_opts.eku =
 					(unsigned int)strtoul(optarg, NULL, 10);
 				break;
-			/* san-dns */
+			/* san-email */
 			case 15:
+				parsed_opts.san_email = optarg;
+				break;
+			/* san-dns */
+			case 16:
 				parsed_opts.san_dns = optarg;
 				break;
 			/* san-ip */
-			case 16:
+			case 17:
 				parsed_opts.san_ip = optarg;
 				break;
 			/* skid */
-			case 17:
+			case 18:
 				parsed_opts.skid = optarg;
 				break;
 			/* akid */
-			case 18:
+			case 19:
 				parsed_opts.akid = optarg;
 				break;
 
 			/* check-ca-conformant */
-			case 19:
+			case 20:
 				parsed_opts.check_ca_conformant = 1;
 				break;
 
 			/* check-time */
-			case 20:
+			case 21:
 				parsed_opts.check_time = 1;
 				break;
 
 			/* verify */
-			case 21:
+			case 22:
 				parsed_opts.asn1_type = asn1_type_verify;
 				parsed_opts.verified_file = optarg;
 				break;
