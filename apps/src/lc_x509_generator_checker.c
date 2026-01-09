@@ -685,5 +685,34 @@ int apply_checks_pkcs7(const struct lc_pkcs7_message *pkcs7_msg,
 		}
 	}
 
+	if (parsed_opts->skid) {
+		const struct lc_pkcs7_signed_info *sinfo;
+		const struct lc_asymmetric_key_id *auth_ids;
+		uint8_t exp_id_bin[LC_ASN1_MAX_SKID + LC_ASN1_MAX_ISSUER_NAME];
+		size_t exp_id_len = strlen(parsed_opts->skid);
+		int found = 0;
+
+		hex2bin(parsed_opts->skid, exp_id_len, exp_id_bin,
+			sizeof(exp_id_bin));
+
+		for (sinfo = pkcs7_msg->list_head_sinfo; sinfo;
+		     sinfo = sinfo->next) {
+			auth_ids = &sinfo->sig.auth_ids[0];
+
+			if ((exp_id_len / 2 == auth_ids->len) &&
+			    !memcmp(exp_id_bin, auth_ids->data, auth_ids->len)) {
+				found = 1;
+				break;
+			}
+		}
+
+		if (!found) {
+			printf("KID: No matching signer info found\n");
+			return -EINVAL;
+		}
+
+		printf("KID match\n");
+	}
+
 	return 0;
 }

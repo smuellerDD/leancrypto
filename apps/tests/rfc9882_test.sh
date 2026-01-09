@@ -97,7 +97,7 @@ check_one() {
 	type=${type%%.pem}
 
 	echo "=== Checking file $inputfile with Leancrypto ==="
-	$LC_PKCS7_GENERATOR --check-data "ML-DSA-${type} signed-data example with signed attributes" --print-pkcs7-noverify $inputfile
+	$LC_PKCS7_GENERATOR --check-data "ML-DSA-${type} signed-data example with signed attributes" --check-kid 159ffe6f22fd5cc42c524df6fd5e28d0de38f34e --print-pkcs7-noverify $inputfile
 	if [ $? -ne 0 ]
 	then
 		echo_fail "Parsing of file $inputfile was unsuccessful"

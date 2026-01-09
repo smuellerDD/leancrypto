@@ -116,6 +116,7 @@ static void pkcs7_generator_usage(void)
 		"\t   --check-keyusage <EKU>\tmatch key usage (use KEY_USAGE_*\n");
 	fprintf(stderr, "\t\t\t\t\tflags)\n");
 	fprintf(stderr,"\t   --check-data <DATA>\tmatch data\n");
+	fprintf(stderr,"\t   --check-kid <KID>\tmatch KID\n");
 
 	fprintf(stderr, "\n\t-h  --help\t\t\tPrint this help text\n");
 }
@@ -161,6 +162,7 @@ int main(int argc, char *argv[])
 					      { "check-rootca", 0, 0, 0 },
 					      { "check-keyusage", 1, 0, 0 },
 					      { "check-data", 1, 0, 0 },
+					      { "check-kid", 1, 0, 0 },
 
 					      { "verify-pkcs7", 1, 0, 0 },
 					      { "pem-output", 0, 0, 0 },
@@ -325,12 +327,17 @@ int main(int argc, char *argv[])
 				checker_opts->data = optarg;
 				parsed_opts.checker = 1;
 				break;
-			/* verify-pkcs7 */
+			/* check-data */
 			case 26:
+				checker_opts->skid = optarg;
+				parsed_opts.checker = 1;
+				break;
+			/* verify-pkcs7 */
+			case 27:
 				parsed_opts.pkcs7_msg = optarg;
 				break;
 			/* pem-output */
-			case 27:
+			case 28:
 				parsed_opts.pem_format_output = 1;
 				break;
 			}
