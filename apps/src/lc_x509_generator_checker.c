@@ -19,6 +19,7 @@
 
 #include "binhexbin.h"
 #include "ext_headers_internal.h"
+#include "lc_memcmp_secure.h"
 #include "lc_x509_parser.h"
 #include "math_helper.h"
 #include "ret_checkers.h"
@@ -669,6 +670,18 @@ int apply_checks_pkcs7(const struct lc_pkcs7_message *pkcs7_msg,
 		} else {
 			printf("Key usage field mismatches\n");
 			return -EINVAL;
+		}
+	}
+
+	if (parsed_opts->data) {
+		size_t exp_len = strlen(parsed_opts->data);
+
+		if (lc_memcmp_secure(parsed_opts->data, exp_len,
+				     pkcs7_msg->data, pkcs7_msg->data_len)) {
+			printf("Data mismatch\n");
+			return -EINVAL;
+		} else {
+			printf("Data match\n");
 		}
 	}
 

@@ -59,6 +59,7 @@ struct x509_checker_options {
 	const char *san_ip;
 	const char *skid;
 	const char *akid;
+	const char *data;
 	uint64_t valid_from;
 	uint64_t valid_to;
 };
