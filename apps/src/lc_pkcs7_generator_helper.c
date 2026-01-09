@@ -168,14 +168,30 @@ int pkcs7_dump_file(struct pkcs7_generator_opts *opts)
 	 * (i.e. perform a signature verification).
 	 */
 	ret = lc_pkcs7_get_content_data(pkcs7_msg, &avail_data, &avail_datalen);
-	if (!ret && !opts->skip_signature_verification) {
-		CKINT_LOG(lc_pkcs7_verify(
+	if (!ret) {
+		ret = lc_pkcs7_verify(
 				  pkcs7_msg,
 				  opts->use_trust_store ? &opts->trust_store :
 							  NULL,
 				  opts->verify_rules_set ? &opts->verify_rules :
-							   NULL),
-			  "Verification of PKCS#7 message failed\n");
+							   NULL);
+		if (!opts->skip_signature_verification) {
+			if (ret) {
+				printf("Verification of PKCS#7 message failed\n");
+				goto out;
+			}
+		} else {
+			if (ret == -EBADMSG) {
+				printf("AA: Message digest size mismatch\n");
+				goto out;
+			} else if (ret == -EKEYREJECTED) {
+				printf("AA: No message digest or digest mismatch\n");
+				goto out;
+			} else if (ret == -ENOKEY) {
+				printf("No signer found - skipping signature verification as requested\n");
+				ret = 0;
+			}
+		}
 	} else {
 		printf("Verification of PKCS#7 message skipped\n");
 	}

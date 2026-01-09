@@ -1131,12 +1131,23 @@ int lc_x509_akid_note_serial(void *context, size_t hdrlen, unsigned char tag,
 
 	bin2print_debug(value, vlen, stdout, "AKID: serial");
 
-	if (!ctx->akid_raw_issuer || auth_id->len)
+	if (auth_id->len)
 		return 0;
 
-	CKINT(lc_asymmetric_key_generate_id(auth_id, value, vlen,
-					    ctx->akid_raw_issuer,
-					    ctx->akid_raw_issuer_size));
+	/*
+	 * If we have a serial number, set it by itself.
+	 */
+	if (value) {
+		CKINT(lc_asymmetric_key_generate_id(auth_id, value, vlen,
+						    NULL, 0));
+	} else {
+		if (!ctx->akid_raw_issuer)
+			return 0;
+		CKINT(lc_asymmetric_key_generate_id(auth_id,
+						    ctx->akid_raw_issuer,
+						    ctx->akid_raw_issuer_size,
+						    NULL, 0));
+	}
 
 	bin2print_debug(auth_id->data, auth_id->len, stdout, "authkeyid");
 
