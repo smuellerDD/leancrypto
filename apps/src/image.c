@@ -515,6 +515,11 @@ reparse:
 		image->size = image->data_size;
 		image->buf = tmp_buf;
 
+		if (image->checksum_regions) {
+			free(image->checksum_regions);
+			image->checksum_regions = NULL;
+		}
+
 		goto reparse;
 	}
 
