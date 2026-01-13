@@ -293,7 +293,7 @@ static int pkcs7_gen_message_sbsign(struct pkcs7_generator_opts *opts)
 	CKINT(image_hash(&ws->image, opts->hash, ws->image_digest,
 			 &opts->aux_datalen));
 	opts->aux_data = ws->image_digest;
-	bin2print(ws->image_digest, opts->aux_datalen, stdout, "digest");
+bin2print(ws->image_digest, opts->aux_datalen, stdout, "digest");
 
 	/*
 	 * As defined in the "Windows Authenticode Portable Executable Signature

@@ -41,7 +41,7 @@
 #include "lc_hash.h"
 
 struct region {
-	const void *data;
+	const uint8_t *data;
 	size_t size;
 	const char *name;
 };
@@ -60,7 +60,7 @@ struct image {
 	union {
 		PEPAOUTHDR *opt_64;
 		PEAOUTHDR *opt_32;
-		const void *addr;
+		const uint8_t *addr;
 	} opthdr;
 	/* size of a minimal opthdr for this machine, without data
 	 * directories */
@@ -87,7 +87,7 @@ struct image {
 	unsigned int n_checksum_regions;
 
 	/* Generated signature */
-	void *sigbuf;
+	uint8_t *sigbuf;
 	size_t sigsize;
 };
 

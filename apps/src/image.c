@@ -197,15 +197,12 @@ static void image_pecoff_update_checksum(struct image *image)
 	 *
 	 * We also skip the 32-bits of checksum data in the PE/COFF header.
 	 */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-pointer-arith"
 	checksum = csum_bytes(
 		0, image->buf,
-		(size_t)((void *)image->checksum - (void *)image->buf));
+		(size_t)((uint8_t *)image->checksum - image->buf));
 	checksum = csum_bytes((uint16_t)checksum, image->checksum + 1,
-			      (size_t)((void *)(image->buf + image->data_size) -
-				       (void *)(image->checksum + 1)));
-#pragma GCC diagnostic pop
+			      (size_t)((image->buf + image->data_size) -
+				       (uint8_t *)(image->checksum + 1)));
 
 	if (is_signed) {
 		checksum = csum_bytes((uint16_t)checksum, image->sigbuf,
@@ -227,7 +224,7 @@ static int image_pecoff_parse(struct image *image)
 	size_t size = image->size;
 	unsigned int cert_table_offset;
 	int rc;
-	const void *buf = image->buf;
+	const uint8_t *buf = image->buf;
 	uint16_t magic;
 	uint32_t addr;
 
@@ -237,7 +234,7 @@ static int image_pecoff_parse(struct image *image)
 		return -1;
 	}
 
-	image->doshdr = buf;
+	image->doshdr = (const struct external_PEI_DOS_hdr *)buf;
 
 	if (image->doshdr->e_magic[0] != 0x4d ||
 	    image->doshdr->e_magic[1] != 0x5a) {
@@ -256,17 +253,14 @@ static int image_pecoff_parse(struct image *image)
 		return -1;
 	}
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-pointer-arith"
-	image->pehdr = buf + addr;
-#pragma GCC diagnostic pop
+	image->pehdr = (const struct external_PEI_IMAGE_hdr *)(buf + addr);
 	if (memcmp(image->pehdr->nt_signature, nt_sig, sizeof(nt_sig))) {
 		fprintf(stderr, "Invalid PE header signature\n");
 		return -1;
 	}
 
 	/* a.out header directly follows PE header */
-	image->opthdr.addr = image->pehdr + 1;
+	image->opthdr.addr = (uint8_t *)(image->pehdr + 1);
 	magic = pehdr_u16(image->pehdr->f_magic);
 
 	switch (magic) {
@@ -315,10 +309,7 @@ static int image_pecoff_parse(struct image *image)
 
 	image->cert_table_size = image->data_dir_sigtable->size;
 	if (image->cert_table_size) {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-pointer-arith"
-		cert_table = buf + image->data_dir_sigtable->addr;
-#pragma GCC diagnostic pop
+		cert_table = (const struct cert_table_header *)(buf + image->data_dir_sigtable->addr);
 	} else {
 		cert_table = NULL;
 	}
@@ -337,10 +328,7 @@ static int image_pecoff_parse(struct image *image)
 	}
 
 	image->sections = pehdr_u16(image->pehdr->f_nscns);
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-pointer-arith"
-	image->scnhdr = image->opthdr.addr + image->opthdr_size;
-#pragma GCC diagnostic pop
+	image->scnhdr = (const struct external_scnhdr *)(image->opthdr.addr + image->opthdr_size);
 
 	return 0;
 }
@@ -356,20 +344,17 @@ static int cmp_regions(const void *p1, const void *p2)
 	return 0;
 }
 
-static void set_region_from_range(struct region *region, const void *start,
-				  const void *end)
+static void set_region_from_range(struct region *region, const uint8_t *start,
+				  const uint8_t *end)
 {
 	region->data = start;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-pointer-arith"
 	region->size = (size_t)(end - start);
-#pragma GCC diagnostic pop
 }
 
 static int image_find_regions(struct image *image)
 {
 	struct region *regions, *r;
-	const void *buf = image->buf;
+	const uint8_t *buf = image->buf;
 	int i, gap_warn, ret = 0;
 	size_t bytes;
 
@@ -385,27 +370,24 @@ static int image_find_regions(struct image *image)
 
 	/* first region: beginning to checksum field */
 	regions = image->checksum_regions;
-	set_region_from_range(&regions[0], buf, image->checksum);
+	set_region_from_range(&regions[0], buf, (uint8_t *)image->checksum);
 	regions[0].name = "begin->cksum";
 	bytes += regions[0].size;
 
 	bytes += sizeof(*image->checksum);
 
 	/* second region: end of checksum to certificate table entry */
-	set_region_from_range(&regions[1], image->checksum + 1,
-			      image->data_dir_sigtable);
+	set_region_from_range(&regions[1], (uint8_t *)(image->checksum + 1),
+			      (uint8_t *)image->data_dir_sigtable);
 	regions[1].name = "cksum->datadir[CERT]";
 	bytes += regions[1].size;
 
 	bytes += sizeof(struct data_dir_entry);
 	/* third region: end of checksum to end of headers */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-pointer-arith"
 	set_region_from_range(&regions[2],
-			      (void *)image->data_dir_sigtable +
+			      (uint8_t *)image->data_dir_sigtable +
 				      sizeof(struct data_dir_entry),
 			      buf + image->header_size);
-#pragma GCC diagnostic pop
 	regions[2].name = "datadir[CERT]->headers";
 	bytes += regions[2].size;
 
@@ -427,10 +409,7 @@ static int image_find_regions(struct image *image)
 		CKNULL(image->checksum_regions, -ENOMEM);
 		regions = image->checksum_regions;
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-pointer-arith"
 		regions[n].data = buf + file_offset;
-#pragma GCC diagnostic pop
 		regions[n].size = file_size;
 		regions[n].name = image->scnhdr[i].s_name;
 		bytes += regions[n].size;
@@ -442,8 +421,6 @@ static int image_find_regions(struct image *image)
 				regions[n].name);
 		}
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-pointer-arith"
 		if (regions[n - 1].data + regions[n - 1].size !=
 		    regions[n].data) {
 			fprintf(stderr, "warning: gap in section table:\n");
@@ -457,7 +434,6 @@ static int image_find_regions(struct image *image)
 
 			gap_warn = 1;
 		}
-#pragma GCC diagnostic pop
 	}
 
 	if (gap_warn)
@@ -496,11 +472,8 @@ static int image_find_regions(struct image *image)
 	 * fix this by adding bytes to the end of the text section (which must
 	 * be included in the hash)
 	 */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-pointer-arith"
 	image->data_size =
-		align_up((size_t)(r->data - (void *)image->buf) + r->size, 8);
-#pragma GCC diagnostic pop
+		align_up((size_t)(r->data - image->buf) + r->size, 8);
 
 out:
 	return ret;
@@ -576,7 +549,7 @@ int image_hash(struct image *image, const struct lc_hash *hash,
 
 	for (i = 0; i < image->n_checksum_regions; i++) {
 		region = &image->checksum_regions[i];
-#if 1
+#if 0
 		printf("sum region: 0x%04lx -> 0x%04lx [0x%04zx bytes]\n",
 		       (uint8_t *)region->data - image->buf,
 		       (size_t)((uint8_t *)region->data - image->buf) - 1 +
@@ -601,7 +574,7 @@ int image_add_signature(struct image *image, void *sig, size_t size)
 	struct cert_table_header *cth;
 	size_t tot_size = size + sizeof(*cth);
 	size_t aligned_size = align_up(tot_size, 8);
-	void *start;
+	uint8_t *start;
 	int ret = 0;
 
 	if (image->sigbuf) {
@@ -614,10 +587,7 @@ int image_add_signature(struct image *image, void *sig, size_t size)
 		memcpy(tmp, image->sigbuf, image->sigsize);
 		free(image->sigbuf);
 		image->sigbuf = tmp;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-pointer-arith"
 		start = image->sigbuf + image->sigsize;
-#pragma GCC diagnostic pop
 		image->sigsize += aligned_size;
 	} else {
 		fprintf(stderr, "Signing Unsigned original image\n");
@@ -625,9 +595,7 @@ int image_add_signature(struct image *image, void *sig, size_t size)
 		CKNULL(start, ENOMEM);
 		image->sigsize = aligned_size;
 	}
-	cth = start;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-pointer-arith"
+	cth = (struct cert_table_header *)start;
 	start += sizeof(*cth);
 	memset(cth, 0, sizeof(*cth));
 	cth->size = (uint32_t)tot_size;
@@ -636,7 +604,6 @@ int image_add_signature(struct image *image, void *sig, size_t size)
 	memcpy(start, sig, size);
 	if (aligned_size != tot_size)
 		memset(start + size, 0, aligned_size - tot_size);
-#pragma GCC diagnostic pop
 
 	image->cert_table = cth;
 
@@ -648,7 +615,7 @@ int image_get_signature(struct image *image, int signum, uint8_t **buf,
 			size_t *size)
 {
 	struct cert_table_header *header;
-	void *addr = (void *)image->sigbuf;
+	uint8_t *addr = image->sigbuf;
 	int i;
 
 	if (!image->sigbuf) {
@@ -656,18 +623,15 @@ int image_get_signature(struct image *image, int signum, uint8_t **buf,
 		return -1;
 	}
 
-	header = addr;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-pointer-arith"
+	header = (struct cert_table_header *)addr;
 	for (i = 0; i < signum; i++) {
 		addr += align_up(header->size, 8);
-		header = addr;
+		header = (struct cert_table_header *)addr;
 	}
-	if (addr >= ((void *)image->sigbuf + image->sigsize))
+	if (addr >= (image->sigbuf + image->sigsize))
 		return -1;
-#pragma GCC diagnostic pop
 
-	*buf = (void *)(header + 1);
+	*buf = (uint8_t *)(header + 1);
 	*size = header->size - sizeof(*header);
 	return 0;
 }
@@ -696,12 +660,9 @@ int image_remove_signature(struct image *image, int signum)
 		}
 	} else {
 		/* sig is in the middle ... just copy the rest over it */
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-pointer-arith"
 		memmove(buf, buf + aligned_size,
-			image->sigsize - (size_t)((void *)buf - image->sigbuf) -
+			image->sigsize - (size_t)(buf - image->sigbuf) -
 				aligned_size);
-#pragma GCC diagnostic pop
 	}
 	image->sigsize -= aligned_size;
 	tmp = malloc(image->sigsize);
