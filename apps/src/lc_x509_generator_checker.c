@@ -700,7 +700,8 @@ int apply_checks_pkcs7(const struct lc_pkcs7_message *pkcs7_msg,
 			auth_ids = &sinfo->sig.auth_ids[0];
 
 			if ((exp_id_len / 2 == auth_ids->len) &&
-			    !memcmp(exp_id_bin, auth_ids->data, auth_ids->len)) {
+			    !memcmp(exp_id_bin, auth_ids->data,
+				    auth_ids->len)) {
 				found = 1;
 				break;
 			}

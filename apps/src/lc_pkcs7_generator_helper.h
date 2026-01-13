@@ -90,6 +90,9 @@ struct pkcs7_generator_opts {
 	unsigned int skip_signature_verification : 1;
 
 	struct pkcs7_x509 *x509;
+
+	void *aux_data;
+	size_t aux_datalen;
 };
 
 int pkcs7_check_file(const char *file);

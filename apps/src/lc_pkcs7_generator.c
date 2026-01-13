@@ -115,8 +115,8 @@ static void pkcs7_generator_usage(void)
 	fprintf(stderr,
 		"\t   --check-keyusage <EKU>\tmatch key usage (use KEY_USAGE_*\n");
 	fprintf(stderr, "\t\t\t\t\tflags)\n");
-	fprintf(stderr,"\t   --check-data <DATA>\tmatch data\n");
-	fprintf(stderr,"\t   --check-kid <KID>\tmatch KID\n");
+	fprintf(stderr, "\t   --check-data <DATA>\tmatch data\n");
+	fprintf(stderr, "\t   --check-kid <KID>\tmatch KID\n");
 
 	fprintf(stderr, "\n\t-h  --help\t\t\tPrint this help text\n");
 }
@@ -130,44 +130,45 @@ int main(int argc, char *argv[])
 	int ret = 0, opt_index = 0;
 
 	static const char *opts_short = "ho:i:v";
-	static const struct option opts[] = { { "help", 0, 0, 'h' },
-					      { "version", 0, 0, 'v' },
+	static const struct option opts[] = {
+		{ "help", 0, 0, 'h' },
+		{ "version", 0, 0, 'v' },
 
-					      { "outfile", 1, 0, 'o' },
-					      { "infile", 1, 0, 'i' },
+		{ "outfile", 1, 0, 'o' },
+		{ "infile", 1, 0, 'i' },
 
-					      { "md", 1, 0, 0 },
-					      { "x509-signer", 1, 0, 0 },
-					      { "signer-sk-file", 1, 0, 0 },
-					      { "x509-cert", 1, 0, 0 },
+		{ "md", 1, 0, 0 },
+		{ "x509-signer", 1, 0, 0 },
+		{ "signer-sk-file", 1, 0, 0 },
+		{ "x509-cert", 1, 0, 0 },
 
-					      { "print", 0, 0, 0 },
-					      { "noout", 0, 0, 0 },
-					      { "print-pkcs7", 1, 0, 0 },
-					      { "print-pkcs7-noverify", 1, 0, 0 },
-					      { "trust-anchor", 1, 0, 0 },
+		{ "print", 0, 0, 0 },
+		{ "noout", 0, 0, 0 },
+		{ "print-pkcs7", 1, 0, 0 },
+		{ "print-pkcs7-noverify", 1, 0, 0 },
+		{ "trust-anchor", 1, 0, 0 },
 
-					      { "expected-keyusage", 1, 0, 0 },
-					      { "expected-eku", 1, 0, 0 },
+		{ "expected-keyusage", 1, 0, 0 },
+		{ "expected-eku", 1, 0, 0 },
 
-					      { "check-ca", 0, 0, 0 },
-					      { "check-ca-conformant", 0, 0,
-						0 },
-					      { "check-issuer-cn", 1, 0, 0 },
-					      { "check-subject-cn", 1, 0, 0 },
-					      { "check-noselfsigned", 0, 0, 0 },
-					      { "check-eku", 1, 0, 0 },
-					      { "check-noca", 0, 0, 0 },
-					      { "check-selfsigned", 0, 0, 0 },
-					      { "check-rootca", 0, 0, 0 },
-					      { "check-keyusage", 1, 0, 0 },
-					      { "check-data", 1, 0, 0 },
-					      { "check-kid", 1, 0, 0 },
+		{ "check-ca", 0, 0, 0 },
+		{ "check-ca-conformant", 0, 0, 0 },
+		{ "check-issuer-cn", 1, 0, 0 },
+		{ "check-subject-cn", 1, 0, 0 },
+		{ "check-noselfsigned", 0, 0, 0 },
+		{ "check-eku", 1, 0, 0 },
+		{ "check-noca", 0, 0, 0 },
+		{ "check-selfsigned", 0, 0, 0 },
+		{ "check-rootca", 0, 0, 0 },
+		{ "check-keyusage", 1, 0, 0 },
+		{ "check-data", 1, 0, 0 },
+		{ "check-kid", 1, 0, 0 },
 
-					      { "verify-pkcs7", 1, 0, 0 },
-					      { "pem-output", 0, 0, 0 },
+		{ "verify-pkcs7", 1, 0, 0 },
+		{ "pem-output", 0, 0, 0 },
 
-					      { 0, 0, 0, 0 } };
+		{ 0, 0, 0, 0 }
+	};
 
 	parsed_opts.pkcs7 = pkcs7_msg;
 

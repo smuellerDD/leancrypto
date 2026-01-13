@@ -1,0 +1,25 @@
+-- https://download.microsoft.com/download/9/c/5/9c5b2167-8017-4bae-9fde-d599bac8184a/authenticode_pe.docx
+-- "Windows Authenticode Portable Executable Signature Format"
+
+SpcPeImageData ::= SEQUENCE {
+	flags		BIT STRING,
+	file		SpcLink
+}
+
+SpcLink ::= CHOICE {
+--	url		[0] IMPLICIT IA5String,
+--	moniker		[1] IMPLICIT SpcSerializedObject,
+	file		[2] EXPLICIT SpcString
+}
+
+SpcString ::= CHOICE {
+	unicode		[0] IMPLICIT BMPString ({ lc_spc_filename_obsolete }),
+	ascii		[1] IMPLICIT IA5String
+}
+
+SpcSerializedObject ::= SEQUENCE {
+	classId		SpcUuid,
+	serializedData	OCTET STRING
+}
+
+SpcUuid ::= OCTET STRING

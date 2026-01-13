@@ -1,0 +1,22 @@
+-- https://download.microsoft.com/download/9/c/5/9c5b2167-8017-4bae-9fde-d599bac8184a/authenticode_pe.docx
+-- "Windows Authenticode Portable Executable Signature Format"
+
+SpcIndirectDataContent ::= SEQUENCE {
+	data		SpcAttributeTypeAndOptionalValue,
+	messageDigest	DigestInfo
+}
+
+SpcAttributeTypeAndOptionalValue ::= SEQUENCE {
+	type		OBJECT IDENTIFIER ({ lc_spc_attribute_type_OID }),
+	value		[0] EXPLICIT ANY OPTIONAL ({ lc_spc_pe_image_data })
+}
+
+DigestInfo ::= SEQUENCE {
+	digestAlgorithm	AlgorithmIdentifier,
+	digest		OCTET STRING ({ lc_spc_file_digest })
+}
+
+AlgorithmIdentifier ::= SEQUENCE {
+	algorithm	OBJECT IDENTIFIER ({ lc_spc_digest_algorithm_OID }),
+	parameters	[0] EXPLICIT ANY OPTIONAL
+}

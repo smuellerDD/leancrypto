@@ -39,6 +39,10 @@ Changes 1.7.0-prerelease
 
 * Add sbsign, sbverify tool as a drop-in replacement for the one provided with http://git.kernel.org/pub/scm/linux/kernel/git/jejb/sbsigntools.git
 
+* PKCS7 generator: support altering the generation process (allow content type setting, additional authenticated attributes)
+
+* ASN.1: Make encoder and decoder available as API
+
 Changes 1.6.0
 * ASN.1: use stack for small generator for small use cases
 

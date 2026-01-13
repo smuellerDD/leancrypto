@@ -64,13 +64,13 @@ static struct option options[] = {
 static void usage(void)
 {
 	printf("Usage: %s [options] --cert <certfile> <efi-boot-image>\n"
-		"Verify a UEFI secure boot image.\n\n"
-		"Options:\n"
-		"\t--cert <certfile>  certificate (x509 certificate)\n"
-		"\t--list             list all signatures (but don't verify)\n"
-		"\t--detached <file>  read signature from <file>, instead of\n"
-		"\t                    looking for an embedded signature\n",
-		toolname);
+	       "Verify a UEFI secure boot image.\n\n"
+	       "Options:\n"
+	       "\t--cert <certfile>  certificate (x509 certificate)\n"
+	       "\t--list             list all signatures (but don't verify)\n"
+	       "\t--detached <file>  read signature from <file>, instead of\n"
+	       "\t                    looking for an embedded signature\n",
+	       toolname);
 }
 
 static void version(void)
@@ -162,8 +162,7 @@ print_certificate_store_certs(const struct pkcs7_generator_opts *parsed_opts)
 	return 0;
 }
 
-static int sbverify_dump_file(struct pkcs7_generator_opts *opts,
-			      int verbose)
+static int sbverify_dump_file(struct pkcs7_generator_opts *opts, int verbose)
 {
 	const uint8_t *avail_data;
 	uint8_t *pkcs7_data = NULL;
@@ -189,7 +188,6 @@ static int sbverify_dump_file(struct pkcs7_generator_opts *opts,
 					0));
 	}
 
-
 	/*
 	 * Now, if we have data with the PKCS7 message, attempt to verify it
 	 * (i.e. perform a signature verification).
@@ -198,11 +196,9 @@ static int sbverify_dump_file(struct pkcs7_generator_opts *opts,
 					&avail_datalen);
 	if (!ret) {
 		ret = lc_pkcs7_verify(
-				  opts->pkcs7,
-				  opts->use_trust_store ? &opts->trust_store :
-							  NULL,
-				  opts->verify_rules_set ? &opts->verify_rules :
-							   NULL);
+			opts->pkcs7,
+			opts->use_trust_store ? &opts->trust_store : NULL,
+			opts->verify_rules_set ? &opts->verify_rules : NULL);
 	} else {
 		printf("Verification of PKCS#7 message skipped\n");
 	}
@@ -293,5 +289,5 @@ int main(int argc, char **argv)
 out:
 	pkcs7_clean_opts(&parsed_opts);
 	PKCS7_FREE
-	return ret;
+	return -ret;
 }

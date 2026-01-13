@@ -128,6 +128,9 @@ if (host_machine.system() != 'windows' and
 	if get_option('sbsigntools').enabled()
 		sbsign_files = internal_src
 		sbsign_files += files([
+			'authenticode_SpcIndirectDataContent_asn1.c',
+			'authenticode_SpcPeImageData_asn1.c',
+			'image.c',
 			'lc_pkcs7_generator_helper.c',
 			'lc_x509_generator_checker.c',
 			'lc_x509_generator_file_helper.c',

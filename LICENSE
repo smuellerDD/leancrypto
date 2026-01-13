@@ -590,3 +590,21 @@ THIS SOURCE CODE IS HEREBY PLACED INTO THE PUBLIC DOMAIN FOR THE GOOD OF ALL
 This affects the following files:
 aead/src/gcm.c
 
+================================================================================
+
+The re-implementation of the sbsigntools require the integration of the
+following file which are licensed under GPLv3. The files originate from
+http://git.kernel.org/pub/scm/linux/kernel/git/jejb/sbsigntools.git.
+
+Note, this license applies ONLY to the sbsigntools implemented by leancrypto as
+this file is not otherwise used by leancrypto at all. Therefore, licensing of
+leancrypto in general is unaffected.
+
+If anyone is concerned by the license, the meson option "sbsigntools" should
+be disabled to prevent the compilation of this code and the tools using them.
+Leancrypto is unaffected by this as the tools are consumers of leancrypto.
+
+apps/src/image.c
+apps/src/image.h
+apps/src/coff/pe.h
+apps/src/coff/external.h

@@ -31,35 +31,33 @@
  * Helper code
  ******************************************************************************/
 
-static int x509_write_data(int fd, const uint8_t *data, size_t datalen)
+int x509_write_data(int fd, const uint8_t *data, size_t datalen)
 {
 	ssize_t written;
-	int ret = 0;
 
-	written = write(fd, data,
+	while (datalen) {
+		written = write(fd, data,
 #if (defined(__CYGWIN__) || defined(_WIN32))
-			(unsigned int)
+				(unsigned int)
 #endif
-			datalen);
-	if (written == -1) {
-		ret = -errno;
-		goto out;
-	}
-	if ((size_t)written != datalen) {
-		printf("Writing of X.509 certificate data failed: %zu bytes written, %zu bytes to write\n",
-		       (size_t)written, datalen);
-		ret = -EFAULT;
-		goto out;
+					datalen);
+		if (written < 0) {
+			if (errno == EINTR)
+				continue;
+			return -errno;
+		}
+		if (written == 0)
+			return -EFAULT;
+
+		datalen -= (size_t)written;
+		data += (size_t)written;
 	}
 
-out:
-	return ret;
+	return 0;
 }
 
-#if (defined(__CYGWIN__) || defined(_WIN32))
-
-int get_data(const char *filename, uint8_t **memory, size_t *memory_length,
-	     enum lc_pem_flags pem_flags)
+int get_data_memory(const char *filename, uint8_t **memory,
+		    size_t *memory_length, enum lc_pem_flags pem_flags)
 {
 	uint8_t *mem_local = NULL, *mem_decoded = NULL;
 	FILE *f = NULL;
@@ -129,14 +127,28 @@ out:
 	return ret;
 }
 
-void release_data(uint8_t *memory, size_t memory_length,
-		  enum lc_pem_flags pem_flags)
+void release_data_memory(uint8_t *memory, size_t memory_length,
+			 enum lc_pem_flags pem_flags)
 {
 	(void)pem_flags;
 	if (memory) {
 		lc_memset_secure(memory, 0, memory_length);
 		lc_free(memory);
 	}
+}
+
+#if (defined(__CYGWIN__) || defined(_WIN32))
+
+int get_data(const char *filename, uint8_t **memory, size_t *memory_length,
+	     enum lc_pem_flags pem_flags)
+{
+	return get_data_memory(filename, memory, memory_length, pem_flags);
+}
+
+void release_data(uint8_t *memory, size_t memory_length,
+		  enum lc_pem_flags pem_flags)
+{
+	release_data_memory(memory, memory_length, pem_flags);
 }
 
 static int x509_write_pem_data(int fd, const uint8_t *data, size_t datalen,
@@ -330,11 +342,13 @@ int write_data(const char *filename, const uint8_t *data, size_t datalen,
 	int fd = -1;
 	int ret = 0;
 
-	fd = open(filename, O_CREAT | O_RDWR
+	fd = open(filename,
+		  O_CREAT | O_RDWR | O_TRUNC
 #if !(defined(__CYGWIN__) || defined(_WIN32))
-			    | O_CLOEXEC
+			  | O_CLOEXEC
 #endif
-		  , 0777);
+		  ,
+		  0777);
 	if (fd < 0) {
 		ret = -errno;
 		printf("Cannot open file %s\n", filename);

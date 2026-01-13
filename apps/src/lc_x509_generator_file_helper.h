@@ -27,6 +27,15 @@
 extern "C" {
 #endif
 
+int x509_write_data(int fd, const uint8_t *data, size_t datalen);
+
+/* Load file data into local memory */
+int get_data_memory(const char *filename, uint8_t **memory,
+		    size_t *memory_length, enum lc_pem_flags pem_flags);
+void release_data_memory(uint8_t *memory, size_t memory_length,
+			 enum lc_pem_flags pem_flags);
+
+/* Windows: same as get_data_memory; others: mmaping file */
 int get_data(const char *filename, uint8_t **memory, size_t *memory_length,
 	     enum lc_pem_flags pem_flags);
 int write_data(const char *filename, const uint8_t *data, size_t datalen,
