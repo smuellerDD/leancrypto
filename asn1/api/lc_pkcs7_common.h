@@ -27,6 +27,18 @@ extern "C" {
 #endif
 
 /// \cond DO_NOT_DOCUMENT
+
+/*
+ * Maximum size of the authenticated attribute part supported by the parser.
+ * This is required because for SLH-DSA, the authenticated attribute block
+ * must be copied to change the ASN.1 tag before performing a signature
+ * generation.
+ *
+ * Also, for the PKCS#7 generator, this size defines how much room is made
+ * available.
+ */
+#define LC_PKCS7_AUTHATTRS_MAX_SIZE 500
+
 struct lc_pkcs7_trust_store {
 	struct lc_x509_certificate *anchor_cert;
 };
@@ -74,6 +86,8 @@ struct lc_pkcs7_signed_info {
 #define sinfo_has_ms_opus_info (1 << 4)
 	/** Currently unused */
 #define sinfo_has_ms_statement_type (1 << 5)
+	/** Caller-provided attribute */
+#define sinfo_has_caller_provided_aa (1 << 6)
 
 	unsigned int index;
 

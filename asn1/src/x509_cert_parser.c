@@ -365,8 +365,8 @@ static int x509_fabricate_name(struct x509_parse_context *ctx, size_t hdrlen,
 	}
 
 	if (subject && cert->san_email_len) {
-		namesize = min_size(cert->san_email_len,
-				    LC_ASN1_MAX_ISSUER_NAME);
+		namesize =
+			min_size(cert->san_email_len, LC_ASN1_MAX_ISSUER_NAME);
 		memcpy(_name, cert->san_email, namesize);
 		_name[namesize] = '\0';
 
@@ -1138,15 +1138,14 @@ int lc_x509_akid_note_serial(void *context, size_t hdrlen, unsigned char tag,
 	 * If we have a serial number, set it by itself.
 	 */
 	if (value) {
-		CKINT(lc_asymmetric_key_generate_id(auth_id, value, vlen,
-						    NULL, 0));
+		CKINT(lc_asymmetric_key_generate_id(auth_id, value, vlen, NULL,
+						    0));
 	} else {
 		if (!ctx->akid_raw_issuer)
 			return 0;
-		CKINT(lc_asymmetric_key_generate_id(auth_id,
-						    ctx->akid_raw_issuer,
-						    ctx->akid_raw_issuer_size,
-						    NULL, 0));
+		CKINT(lc_asymmetric_key_generate_id(
+			auth_id, ctx->akid_raw_issuer,
+			ctx->akid_raw_issuer_size, NULL, 0));
 	}
 
 	bin2print_debug(auth_id->data, auth_id->len, stdout, "authkeyid");

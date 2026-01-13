@@ -30,7 +30,9 @@
 
 #include "asn1.h"
 #include "ext_headers_internal.h"
+#include "lc_x509_common.h"
 #include "oid_registry.h"
+#include "visibility.h"
 #include "oid_registry_data.c"
 
 /**
@@ -209,7 +211,8 @@ int lc_sprint_OID(enum OID oid, char *buffer, size_t bufsize)
  * @param [out] data pointer to the binary OID data
  * @param [out] datalen Length of the binary OID data buffer
  */
-int lc_OID_to_data(enum OID oid, const uint8_t **data, size_t *datalen)
+LC_INTERFACE_FUNCTION(int, lc_OID_to_data, enum OID oid, const uint8_t **data,
+		      size_t *datalen)
 {
 	if (oid >= OID__NR)
 		return -EFAULT;

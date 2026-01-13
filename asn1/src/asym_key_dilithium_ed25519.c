@@ -274,8 +274,7 @@ out:
 
 static int
 public_key_dilithium_ed25519_get_data(const uint8_t **data_ptr,
-				      size_t *data_len,
-				      int *authattrs_tag,
+				      size_t *data_len, int *authattrs_tag,
 				      const struct lc_public_key_signature *sig)
 {
 	/*

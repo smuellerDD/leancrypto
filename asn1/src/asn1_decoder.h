@@ -33,16 +33,11 @@
 
 #include "asn1.h"
 #include "ext_headers_internal.h"
+#include "lc_x509_common.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-struct lc_asn1_decoder;
-
-extern int lc_asn1_ber_decoder(const struct lc_asn1_decoder *decoder,
-			       void *context, const uint8_t *data,
-			       size_t datalen);
 
 #ifdef __cplusplus
 }

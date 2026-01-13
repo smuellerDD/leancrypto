@@ -8,9 +8,9 @@ asn1/src/build_OID_registry asn1/api/lc_asn1.h asn1/src/oid_registry_data.c
 
 ```
 
-# (Re-)Generate C code from `*.asn1` Files
+# (Re-)Generate C code from `*_asn1` Files
 
-The different `*.asn1` files define the ASN.1 structure of different input data
+The different `*_asn1` files define the ASN.1 structure of different input data
 files. They need to be converted into the corresponding C / H files to be
 consumed during compilation. A (re-)generation is only needed if such `*.asn1`
 file is updated. Perform the following steps to (re-)generate the C/H files:

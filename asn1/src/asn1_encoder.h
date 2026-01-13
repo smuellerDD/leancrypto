@@ -21,22 +21,15 @@
 #define ASN1_ENCODER_H
 
 #include "asn1.h"
+#include "lc_x509_common.h"
 #include "ext_headers_internal.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-struct lc_asn1_encoder;
-
 #define LC_ASN1_RET_CONTINUE 1
 #define LC_ASN1_RET_SET_ZERO_CONTENT 2
-
-int lc_asn1_ber_encoder(const struct lc_asn1_encoder *encoder, void *context,
-			uint8_t *data, size_t *in_out_avail_datalen);
-int lc_asn1_ber_encoder_small(const struct lc_asn1_encoder *encoder,
-			      void *context, uint8_t *data,
-			      size_t *in_out_avail_datalen);
 
 #define asn1_oid_len(oid) (sizeof(oid) / sizeof(uint32_t))
 int asn1_encode_integer(uint8_t *data, size_t *datalen, int64_t integer,

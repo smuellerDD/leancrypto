@@ -29,9 +29,10 @@
  */
 
 #include "asn1_debug.h"
-#include "asn1_decoder.h"
 #include "asn1_ber_bytecode.h"
 #include "helper.h"
+#include "lc_x509_common.h"
+#include "visibility.h"
 
 /*
  * Find the length of an indefinite length object
@@ -127,33 +128,9 @@ error:
 	return -1;
 }
 
-/**
- * asn1_ber_decoder - Decoder BER/DER/CER ASN.1 according to pattern
- * @decoder: The decoder definition (produced by asn1_compiler)
- * @context: The caller's context (to be passed to the action functions)
- * @data: The encoded data
- * @datalen: The size of the encoded data
- *
- * Decode BER/DER/CER encoded ASN.1 data according to a bytecode pattern
- * produced by asn1_compiler.  Action functions are called on marked tags to
- * allow the caller to retrieve significant data.
- *
- * LIMITATIONS:
- *
- * To keep down the amount of stack used by this function, the following limits
- * have been imposed:
- *
- *  (1) This won't handle datalen > 65535 without increasing the size of the
- *	cons stack elements and length_too_long checking.
- *
- *  (2) The stack of constructed types is 10 deep.  If the depth of non-leaf
- *	constructed types exceeds this, the decode will fail.
- *
- *  (3) The SET type (not the SET OF type) isn't really supported as tracking
- *	what members of the set have been seen is a pain.
- */
-int lc_asn1_ber_decoder(const struct lc_asn1_decoder *decoder, void *context,
-			const uint8_t *data, size_t datalen)
+LC_INTERFACE_FUNCTION(int, lc_asn1_ber_decoder,
+		      const struct lc_asn1_decoder *decoder, void *context,
+		      const uint8_t *data, size_t datalen)
 {
 	const unsigned char *machine = decoder->machine;
 	const asn1_action_t *actions = decoder->actions;

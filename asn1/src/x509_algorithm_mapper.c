@@ -427,7 +427,8 @@ LC_INTERFACE_FUNCTION(int, lc_x509_hash_to_name,
 	return 0;
 }
 
-int lc_x509_hash_to_oid(const struct lc_hash *hash_algo, enum OID *oid)
+LC_INTERFACE_FUNCTION(int, lc_x509_hash_to_oid, const struct lc_hash *hash_algo,
+		      enum OID *oid)
 {
 #ifdef LC_SHA2_256
 	if (hash_algo == lc_sha256)

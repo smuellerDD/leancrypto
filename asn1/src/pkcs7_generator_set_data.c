@@ -100,8 +100,8 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_set_signer, struct lc_pkcs7_message *pkcs7,
 	 * attributes are set.
 	 */
 	if (auth_attribute) {
-		auth_attribute |= sinfo_has_message_digest |
-				  sinfo_has_content_type;
+		auth_attribute |=
+			sinfo_has_message_digest | sinfo_has_content_type;
 	}
 
 	/* Set the authenticated attributes to be generated */
@@ -154,6 +154,38 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_set_data, struct lc_pkcs7_message *pkcs7,
 		/* Do nothing */
 		break;
 	}
+
+out:
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_pkcs7_encode_ctx_set_signed_data_content_type,
+		      struct pkcs7_generate_context *ctx, const uint8_t *oid,
+		      size_t oidlen)
+{
+	int ret = 0;
+
+	CKNULL(ctx, -EINVAL);
+
+	ctx->signed_data_content_type_oid_data = oid;
+	ctx->signed_data_content_type_oid_datalen = oidlen;
+
+out:
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_pkcs7_encode_ctx_set_additional_aa,
+		      struct pkcs7_generate_context *ctx, const uint8_t *oid,
+		      size_t oidlen, const uint8_t *data, size_t datalen)
+{
+	int ret = 0;
+
+	CKNULL(ctx, -EINVAL);
+
+	ctx->caller_provided_aa_oid_data = oid;
+	ctx->caller_provided_aa_oid_datalen = oidlen;
+	ctx->caller_provided_aa_data = data;
+	ctx->caller_provided_aa_datalen = datalen;
 
 out:
 	return ret;

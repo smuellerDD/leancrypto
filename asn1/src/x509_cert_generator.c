@@ -39,6 +39,18 @@
 #include "x509_san_asn1.h"
 #include "x509_skid_asn1.h"
 
+LC_INTERFACE_FUNCTION(int, lc_x509_sufficient_size, size_t *avail_datalen,
+		      size_t requested_len)
+{
+	if (*avail_datalen < requested_len) {
+		printf_debug(
+			"Available data size (%zu) insufficient for requested size (%zu)\n",
+			*avail_datalen, requested_len);
+		return -EOVERFLOW;
+	}
+	return 0;
+}
+
 int lc_x509_concatenate_bit_string(uint8_t **dst_data,
 				   size_t *dst_avail_datalen,
 				   const uint8_t *src_data, size_t src_datalen)
@@ -47,7 +59,7 @@ int lc_x509_concatenate_bit_string(uint8_t **dst_data,
 
 	/* No BIT prefix */
 
-	CKINT(x509_sufficient_size(dst_avail_datalen, src_datalen));
+	CKINT(lc_x509_sufficient_size(dst_avail_datalen, src_datalen));
 
 	/* Set the bit string data without the prefix */
 	if (src_datalen) {
@@ -69,7 +81,7 @@ int lc_x509_set_bit_string(uint8_t **dst_data, size_t *dst_avail_datalen,
 	if (src_datalen)
 		src_datalen += 1;
 
-	CKINT(x509_sufficient_size(dst_avail_datalen, src_datalen));
+	CKINT(lc_x509_sufficient_size(dst_avail_datalen, src_datalen));
 
 	/* Set the BIT STRING metadata */
 	if (src_datalen) {
@@ -143,7 +155,7 @@ int lc_x509_eku_enc(void *context, uint8_t *data, size_t *avail_datalen,
 
 	bin2print_debug(oid_data, oid_datalen, stdout, "OID");
 
-	CKINT(x509_sufficient_size(avail_datalen, oid_datalen));
+	CKINT(lc_x509_sufficient_size(avail_datalen, oid_datalen));
 
 	memcpy(data, oid_data, oid_datalen);
 	*avail_datalen -= oid_datalen;
@@ -281,7 +293,7 @@ int lc_x509_name_OID_enc(const struct lc_x509_certificate_name *name,
 	}
 
 	if (oid_datalen) {
-		CKINT(x509_sufficient_size(avail_datalen, oid_datalen));
+		CKINT(lc_x509_sufficient_size(avail_datalen, oid_datalen));
 
 		memcpy(data, oid_data, oid_datalen);
 		*avail_datalen -= oid_datalen;
@@ -350,7 +362,7 @@ int lc_x509_name_segment_enc(const struct lc_x509_certificate_name *name,
 	}
 
 	if (name_datalen) {
-		CKINT(x509_sufficient_size(avail_datalen, name_datalen));
+		CKINT(lc_x509_sufficient_size(avail_datalen, name_datalen));
 
 		memcpy(data, name_data, name_datalen);
 		*avail_datalen -= name_datalen;
@@ -502,7 +514,7 @@ int lc_x509_keyusage_enc(void *context, uint8_t *data, size_t *avail_datalen,
 
 	(void)tag;
 
-	CKINT(x509_sufficient_size(avail_datalen, sizeof(key_usage)));
+	CKINT(lc_x509_sufficient_size(avail_datalen, sizeof(key_usage)));
 
 	/*
 	 * BIT STRING is handled as a big-endian value which implies that we
@@ -539,7 +551,8 @@ int lc_x509_skid_enc(void *context, uint8_t *data, size_t *avail_datalen,
 	(void)tag;
 
 	if (cert->raw_skid_size) {
-		CKINT(x509_sufficient_size(avail_datalen, cert->raw_skid_size));
+		CKINT(lc_x509_sufficient_size(avail_datalen,
+					      cert->raw_skid_size));
 
 		memcpy(data, cert->raw_skid, cert->raw_skid_size);
 		*avail_datalen -= cert->raw_skid_size;
@@ -548,8 +561,8 @@ int lc_x509_skid_enc(void *context, uint8_t *data, size_t *avail_datalen,
 	} else {
 		const struct lc_x509_key_data *gendata = &cert->pub_gen_data;
 
-		CKINT(x509_sufficient_size(avail_datalen,
-					   sizeof(gendata->pk_digest)));
+		CKINT(lc_x509_sufficient_size(avail_datalen,
+					      sizeof(gendata->pk_digest)));
 		memcpy(data, gendata->pk_digest, sizeof(gendata->pk_digest));
 		*avail_datalen -= sizeof(gendata->pk_digest);
 		bin2print_debug(gendata->pk_digest, sizeof(gendata->pk_digest),
@@ -585,7 +598,7 @@ int lc_x509_akid_note_kid_enc(void *context, uint8_t *data,
 
 	(void)tag;
 
-	CKINT(x509_sufficient_size(avail_datalen, cert->raw_akid_size));
+	CKINT(lc_x509_sufficient_size(avail_datalen, cert->raw_akid_size));
 
 	memcpy(data, cert->raw_akid, cert->raw_akid_size);
 	*avail_datalen -= cert->raw_akid_size;
@@ -623,7 +636,8 @@ int lc_x509_akid_note_serial_enc(void *context, uint8_t *data,
 	(void)tag;
 
 	//TODO ctx->akid_raw_issuer is not accessible from the API
-	CKINT(x509_sufficient_size(avail_datalen, ctx->akid_raw_issuer_size));
+	CKINT(lc_x509_sufficient_size(avail_datalen,
+				      ctx->akid_raw_issuer_size));
 
 	memcpy(data, ctx->akid_raw_issuer, ctx->akid_raw_issuer_size);
 	*avail_datalen -= ctx->akid_raw_issuer_size;
@@ -713,7 +727,7 @@ int lc_x509_extension_OID_enc(void *context, uint8_t *data,
 	}
 
 	if (oid_datalen) {
-		CKINT(x509_sufficient_size(avail_datalen, oid_datalen));
+		CKINT(lc_x509_sufficient_size(avail_datalen, oid_datalen));
 
 		memcpy(data, oid_data, oid_datalen);
 		*avail_datalen -= oid_datalen;
@@ -876,7 +890,7 @@ int lc_x509_note_algorithm_OID_enc(void *context, uint8_t *data,
 	bin2print_debug(oid_data, oid_datalen, stdout, alg);
 
 	if (oid_datalen) {
-		CKINT(x509_sufficient_size(avail_datalen, oid_datalen));
+		CKINT(lc_x509_sufficient_size(avail_datalen, oid_datalen));
 
 		memcpy(data, oid_data, oid_datalen);
 		*avail_datalen -= oid_datalen;
@@ -895,7 +909,7 @@ int lc_x509_signature_reserve_room(uint8_t *data, size_t *avail_datalen,
 	if (siglen)
 		datalen = siglen + 1;
 
-	CKINT(x509_sufficient_size(avail_datalen, datalen));
+	CKINT(lc_x509_sufficient_size(avail_datalen, datalen));
 
 	/* Set the BIT STRING metadata */
 	if (datalen) {
@@ -945,7 +959,7 @@ int lc_x509_note_serial_enc(void *context, uint8_t *data, size_t *avail_datalen,
 
 	(void)tag;
 
-	CKINT(x509_sufficient_size(avail_datalen, cert->raw_serial_size));
+	CKINT(lc_x509_sufficient_size(avail_datalen, cert->raw_serial_size));
 
 	memcpy(data, cert->raw_serial, cert->raw_serial_size);
 	*avail_datalen -= cert->raw_serial_size;
@@ -1098,7 +1112,7 @@ int lc_x509_set_uct_time_enc(void *context, uint8_t *data,
 	if (ctx->time_already_set)
 		return 0;
 
-	CKINT(x509_sufficient_size(avail_datalen, X509_UCTTIM_SIZE));
+	CKINT(lc_x509_sufficient_size(avail_datalen, X509_UCTTIM_SIZE));
 
 	/* First the start time is set, then the end time */
 	tmp_time = ctx->time_to_set;
@@ -1159,7 +1173,7 @@ int lc_x509_set_gen_time_enc(void *context, uint8_t *data,
 	if (ctx->time_already_set)
 		return 0;
 
-	CKINT(x509_sufficient_size(avail_datalen, X509_GENTIM_SIZE));
+	CKINT(lc_x509_sufficient_size(avail_datalen, X509_GENTIM_SIZE));
 
 	/* First the start time is set, then the end time */
 	tmp_time = ctx->time_to_set;
@@ -1259,7 +1273,7 @@ int lc_x509_extract_key_data_enc(void *context, uint8_t *data,
 	(void)tag;
 
 	/* Account for the BIT STRING prefix */
-	CKINT(x509_sufficient_size(avail_datalen, 1));
+	CKINT(lc_x509_sufficient_size(avail_datalen, 1));
 	data[0] = 0;
 	data++;
 	*avail_datalen -= 1;
@@ -1288,7 +1302,7 @@ int lc_x509_version_enc(void *context, uint8_t *data, size_t *avail_datalen,
 	(void)context;
 	(void)tag;
 
-	CKINT(x509_sufficient_size(avail_datalen, 1));
+	CKINT(lc_x509_sufficient_size(avail_datalen, 1));
 	data[0] = x509_version;
 	*avail_datalen -= 1;
 	printf_debug("Set X.509 version to %u\n", x509_version);

@@ -20,6 +20,7 @@
 #include "asn1_encoder.h"
 #include "lc_memory_support.h"
 #include "ret_checkers.h"
+#include "visibility.h"
 
 #define MAX_LEVEL_STACK_HIERARCHY 4
 #define MAX_STACK_MEM_PER_HIERARCHY (256)
@@ -36,9 +37,9 @@ struct lc_asn1_enc_stack {
 
 #include "asn1_encoder_impl.h"
 
-int lc_asn1_ber_encoder_small(const struct lc_asn1_encoder *encoder,
-			      void *context, uint8_t *data,
-			      size_t *in_out_avail_datalen)
+LC_INTERFACE_FUNCTION(int, lc_asn1_ber_encoder_small,
+		      const struct lc_asn1_encoder *encoder, void *context,
+		      uint8_t *data, size_t *in_out_avail_datalen)
 {
 	struct lc_asn1_enc_stack ws = { 0 };
 

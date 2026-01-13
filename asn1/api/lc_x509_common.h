@@ -389,7 +389,7 @@ struct lc_tm {
 };
 
 /**
- * Trivial conversion of time to human-readable time value
+ * @brief Trivial conversion of time to human-readable time value
  *
  * It only shows UTC considering that Epoch is UTC (i.e. it does not apply
  * any time-zone conversions).
@@ -402,6 +402,84 @@ struct lc_tm {
  * @return 0 on success; < 0 on error
  */
 int lc_gmtime(time64_t timeval, struct lc_tm *tm);
+
+/**
+ * @brief Conversion of OID to binary representation using an internal lookup
+ *	  table.
+ *
+ * @param [in] oid OID reference to convert
+ * @param [out] data Pointer to binary representation (reference into a
+ *		     leancrypto-internal database)
+ * @param [out] datalen Length of the binary representation
+ *
+ * @return 0 on success; < 0 on error
+ */
+int lc_OID_to_data(enum OID oid, const uint8_t **data, size_t *datalen);
+
+struct lc_asn1_encoder;
+
+/**
+ * @brief ASN.1 encoder with 10 level hierarchy
+ *
+ * See asn1_encoder_impl.h for details.
+ *
+ * @param [in] encoder Encoder definition
+ * @param [in] context Arbitrary data handed to the decoding functions
+ * @param [out] data Encoded data
+ * @param [in,out] in_out_avail_datalen Length of the encoded data
+ *
+ * @return 0 on success; < 0 on error
+ */
+int lc_asn1_ber_encoder(const struct lc_asn1_encoder *encoder, void *context,
+			uint8_t *data, size_t *in_out_avail_datalen);
+
+/**
+ * @brief ASN.1 encoder with 4 level hierarchy defined on stack
+ *
+ * See asn1_encoder_impl.h for details.
+ *
+ * @param [in] encoder Encoder definition
+ * @param [in] context Arbitrary data handed to the decoding functions
+ * @param [out] data Encoded data
+ * @param [in,out] in_out_avail_datalen Length of the encoded data
+ *
+ * @return 0 on success; < 0 on error
+ */
+int lc_asn1_ber_encoder_small(const struct lc_asn1_encoder *encoder,
+			      void *context, uint8_t *data,
+			      size_t *in_out_avail_datalen);
+
+struct lc_asn1_decoder;
+
+/**
+ * @brief Decoder BER/DER/CER ASN.1 according to pattern
+ *
+ * @param [in] decoder The decoder definition (produced by asn1_compiler)
+ * @param [in] context The caller's context (to be passed to the action
+ *			functions)
+ * @param [in] data The encoded data
+ * @param [in] datalen The size of the encoded data
+ *
+ * Decode BER/DER/CER encoded ASN.1 data according to a bytecode pattern
+ * produced by asn1_compiler.  Action functions are called on marked tags to
+ * allow the caller to retrieve significant data.
+ *
+ * LIMITATIONS:
+ *
+ * To keep down the amount of stack used by this function, the following limits
+ * have been imposed:
+ *
+ *  (1) This won't handle datalen > 65535 without increasing the size of the
+ *	cons stack elements and length_too_long checking.
+ *
+ *  (2) The stack of constructed types is 10 deep.  If the depth of non-leaf
+ *	constructed types exceeds this, the decode will fail.
+ *
+ *  (3) The SET type (not the SET OF type) isn't really supported as tracking
+ *	what members of the set have been seen is a pain.
+ */
+int lc_asn1_ber_decoder(const struct lc_asn1_decoder *decoder, void *context,
+			const uint8_t *data, size_t datalen);
 
 #ifdef __cplusplus
 }

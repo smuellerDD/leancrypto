@@ -70,7 +70,7 @@ int lc_pkcs8_note_OID_enc(void *context, uint8_t *data, size_t *avail_datalen,
 			"OID signed pkey algorithm");
 
 	if (oid_datalen) {
-		CKINT(x509_sufficient_size(avail_datalen, oid_datalen));
+		CKINT(lc_x509_sufficient_size(avail_datalen, oid_datalen));
 
 		memcpy(data, oid_data, oid_datalen);
 		*avail_datalen -= oid_datalen;
@@ -94,7 +94,7 @@ int lc_pkcs8_note_version_enc(void *context, uint8_t *data,
 	(void)context;
 	(void)tag;
 
-	CKINT(x509_sufficient_size(avail_datalen, sizeof(pkcs8_version)));
+	CKINT(lc_x509_sufficient_size(avail_datalen, sizeof(pkcs8_version)));
 
 	data[0] = pkcs8_version;
 	*avail_datalen -= sizeof(pkcs8_version);

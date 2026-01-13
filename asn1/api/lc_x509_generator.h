@@ -50,6 +50,27 @@ extern "C" {
 
 /**
  * @ingroup X509Gen
+ * @brief Helper function for checking available buffer space
+ *
+ * This service function is intended to support the encoding operation. The
+ * encoding operation uses \p avail_datalen indicating the yet available
+ * buffer space in the ASN.1 target buffer. This function return 0 when
+ * the \p requested_len still fits into \p avail_datalen. Otherwise it
+ * returns an error.
+ *
+ * @param [in] avail_datalen Length of the raw X.509 certificate buffer that
+ *			     is free (the input value must be equal to the
+ * 			     \p data buffer size, the output refers to how
+ *			     many bytes are unused)
+ * @param [in] requested_len Length of the buffer that is supposed to be added
+ *			     to the certificate buffer.
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_sufficient_size(size_t *avail_datalen, size_t requested_len);
+
+/**
+ * @ingroup X509Gen
  * @brief Encode an X.509 certificate
  *
  * The function generates an X.509 data blob from the filled X.509 data
@@ -731,6 +752,17 @@ int lc_x509_name_to_keyusage(const char *name, uint16_t *keyusage);
  * @return 0 on success or < 0 on error
  */
 int lc_x509_name_to_eku(const char *name, uint16_t *eku);
+
+/**
+ * @ingroup X509Gen
+ * @brief Helper to convert the a hash reference to an OID
+ *
+ * @param [in] hash_algo hash algorithm reference
+ * @param [out] oid OID reference
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_hash_to_oid(const struct lc_hash *hash_algo, enum OID *oid);
 
 #ifdef __cplusplus
 }

@@ -81,18 +81,6 @@ struct x509_generate_context {
 	uint16_t issuer_attrib_processed;
 };
 
-static inline int x509_sufficient_size(size_t *avail_datalen,
-				       size_t requested_len)
-{
-	if (*avail_datalen < requested_len) {
-		printf_debug(
-			"Available data size (%zu) insufficient for requested size (%zu)\n",
-			*avail_datalen, requested_len);
-		return -EOVERFLOW;
-	}
-	return 0;
-}
-
 int lc_x509_concatenate_bit_string(uint8_t **dst_data,
 				   size_t *dst_avail_datalen,
 				   const uint8_t *src_data, size_t src_datalen);

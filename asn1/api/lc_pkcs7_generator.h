@@ -26,6 +26,55 @@
 extern "C" {
 #endif
 
+/// \cond DO_NOT_DOCUMENT
+struct pkcs7_generate_context {
+	/*
+	 * Message being converted into PKCS#7 blob
+	 */
+	const struct lc_pkcs7_message *pkcs7;
+
+	/*
+	 * Iterator over the additional certificates to place their public key
+	 * information into the PKCS#7 message.
+	 */
+	const struct lc_x509_certificate *current_x509;
+
+	/*
+	 * Iterator over the signer certificates to perform the actual signature
+	 * operation.
+	 */
+	const struct lc_pkcs7_signed_info *current_sinfo;
+
+	unsigned long aa_set_applied;
+	uint16_t subject_attrib_processed;
+
+	/* Authenticated Attribute data (or NULL) */
+	const struct lc_hash *authattr_hash;
+	size_t authattrs_digest_size;
+	size_t authattrs_size;
+	uint8_t authattrs_digest[LC_SHA_MAX_SIZE_DIGEST];
+	uint8_t authattrs[LC_PKCS7_AUTHATTRS_MAX_SIZE];
+
+	/**********************************************************************
+	 * Caller-provided data
+	 **********************************************************************/
+	/*
+	 * SignedData settings
+	 */
+	/* contentType */
+	const uint8_t *signed_data_content_type_oid_data;
+	size_t signed_data_content_type_oid_datalen;
+
+	/*
+	 * Additional authenticated attribute
+	 */
+	const uint8_t *caller_provided_aa_oid_data;
+	size_t caller_provided_aa_oid_datalen;
+	const uint8_t *caller_provided_aa_data;
+	size_t caller_provided_aa_datalen;
+};
+/// \endcond
+
 /** @defgroup PKCS7Gen PKCS#7 Message Generate Handling
  *
  * Concept of PKCS#7 message generation handling in leancrypto
@@ -58,6 +107,11 @@ extern "C" {
  * The function generates a PKCS#7 data blob from the filled PKCS#7 data
  * structure.
  *
+ * Note, this is a simplified version of \p lc_pkcs7_encode_ctx where the
+ * PKCS#7 blob is generated in a standard way. \p lc_pkcs7_encode_ctx allows
+ * the caller to alter the generation process by setting information in the
+ * provided \p ctx.
+ *
  * The signature of the data using the signer is created within this call.
  *
  * @param [in] pkcs7 The data structure that is filled by the caller before this
@@ -73,6 +127,105 @@ extern "C" {
  */
 int lc_pkcs7_encode(const struct lc_pkcs7_message *pkcs7, uint8_t *data,
 		    size_t *avail_datalen);
+
+/**
+ * @ingroup PKCS7Gen
+ * @brief Initialize a context for encoding a PKCS#7 message
+ *
+ * This function initializes a context where the memory is provided by the
+ * caller. Before invoking \p lc_pkcs7_encode_ctx, the caller may invoke
+ * different lc_pkcs7_encode_ctx_* functions to alter how the PKCS#7 message
+ * is generated.
+ *
+ * When no further settings are applied on \p ctx, and \p lc_pkcs7_encode_ctx
+ * is invoked immediately after the initialization, the same behavior as
+ * \p lc_pkcs7_encode is triggered.
+ *
+ * @param [in,out] ctx The context data structure shaping the PKCS#7 message
+ *		       generation.
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_pkcs7_encode_ctx_init(struct pkcs7_generate_context *ctx);
+
+/**
+ * @ingroup PKCS7Gen
+ * @brief Set the PKCS#7 message definition
+ *
+ * The PKCS#7 message is generated based on this definition.
+ *
+ * @param [in] ctx The context data structure shaping the PKCS#7 message
+ *		   generation.
+ * @param [in] pkcs7 The data structure that is filled by the caller before this
+ *		     invocation using the various setter functions.
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_pkcs7_encode_ctx_set_pkcs7(struct pkcs7_generate_context *ctx,
+				  const struct lc_pkcs7_message *pkcs7);
+
+/**
+ * @ingroup PKCS7Gen
+ * @brief Set the SignedData ContentType OID
+ *
+ * Provide a specific OID for the PKCS#7 message field
+ * SignedData->ContentInfo->ContentType.
+ *
+ * @param [in,out] ctx The context data structure shaping the PKCS#7 message
+ *		       generation.
+ * @param [in] oid Binary version of the OID
+ * @param [in] oidlen Length of the binary OID field
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_pkcs7_encode_ctx_set_signed_data_content_type(
+	struct pkcs7_generate_context *ctx, const uint8_t *oid, size_t oidlen);
+
+/**
+ * @ingroup PKCS7Gen
+ * @brief Set an additional authenticated attribute
+ *
+ * Provide a specific OID along with the data for an additional authenticated
+ * attribute.
+ *
+ * @param [in,out] ctx The context data structure shaping the PKCS#7 message
+ *		       generation.
+ * @param [in] oid Binary version of the OID
+ * @param [in] oidlen Length of the binary OID field
+ * @param [in] data Authenticated attribute data to be set
+ * @param [in] datalen Length of the authenticated attribute data
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_pkcs7_encode_ctx_set_additional_aa(struct pkcs7_generate_context *ctx,
+					  const uint8_t *oid, size_t oidlen,
+					  const uint8_t *data, size_t datalen);
+
+/**
+ * @ingroup PKCS7Gen
+ * @brief Encode a PKCS#7 message using the provided context.
+ *
+ * The function generates a PKCS#7 data blob from the filled PKCS#7 data
+ * structure.
+ *
+ * Note, this is an enhanced version of \p lc_pkcs7_encode where the
+ * PKCS#7 message is generated by applying the settings defined with \p ctx.
+ *
+ * The signature of the data using the signer is created within this call.
+ *
+ * @param [in] ctx The context data structure shaping the PKCS#7 message
+ *		   generation.
+ * @param [in,out] data Raw PKCS#7 data blob in DER / BER format - the caller
+ *			must provide the memory
+ * @param [in,out] avail_datalen Length of the raw PKCS#7 certificate buffer that
+ *				 is free (the input value must be equal to the
+ * 				 \p data buffer size, the output refers to how
+ *				 many bytes are unused)
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_pkcs7_encode_ctx(struct pkcs7_generate_context *ctx, uint8_t *data,
+			size_t *avail_datalen);
 
 /**
  * @ingroup PKCS7Gen

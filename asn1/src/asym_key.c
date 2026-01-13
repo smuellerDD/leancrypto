@@ -25,6 +25,7 @@
 #include "asym_key_sphincs.h"
 #include "ext_headers_internal.h"
 #include "lc_hash.h"
+#include "lc_x509_generator.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
 #include "x509_algorithm_mapper.h"
@@ -253,7 +254,7 @@ int lc_public_key_extract(struct x509_generate_context *ctx, uint8_t *dst_data,
 		return -ENOPKG;
 	}
 
-	CKINT(x509_sufficient_size(available_len, pklen));
+	CKINT(lc_x509_sufficient_size(available_len, pklen));
 
 	/* Set the BIT STRING metadata */
 	if (pklen) {

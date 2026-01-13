@@ -69,8 +69,8 @@ static int x509_gen_cert_extensions(struct x509_checker_options *opts)
 	printf("In-Key Usage: %u\n", gcert->pub.key_usage);
 	printf("In-EKU: %u\n", gcert->pub.key_eku);
 	printf("In-CA: %u\n", gcert->pub.ca_pathlen);
-	printf("In-SAN-Email: %s\n", gcert->san_email ? gcert->san_email :
-							"(unset)");
+	printf("In-SAN-Email: %s\n",
+	       gcert->san_email ? gcert->san_email : "(unset)");
 	printf("In-SAN-DNS: %s\n", gcert->san_dns ? gcert->san_dns : "(unset)");
 	if (gcert->san_ip) {
 		bin2print(gcert->san_ip, gcert->san_ip_len, stdout,
@@ -162,7 +162,6 @@ static int x509_gen_cert_extensions(struct x509_checker_options *opts)
 			printf("SAN DNS name matches\n");
 		}
 	}
-
 
 	if (ws->pcert.san_ip_len != gcert->san_ip_len) {
 		printf("SAN IP name length mismatch (original %zu, received %zu)\n",

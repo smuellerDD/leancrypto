@@ -32,35 +32,6 @@
 #include "x509_cert_generator.h"
 #include "x509_cert_parser.h"
 
-struct pkcs7_generate_context {
-	/*
-	 * Message being converted into PKCS#7 blob
-	 */
-	const struct lc_pkcs7_message *pkcs7;
-
-	/*
-	 * Iterator over the additional certificates to place their public key
-	 * information into the PKCS#7 message.
-	 */
-	const struct lc_x509_certificate *current_x509;
-
-	/*
-	 * Iterator over the signer certificates to perform the actual signature
-	 * operation.
-	 */
-	const struct lc_pkcs7_signed_info *current_sinfo;
-
-	unsigned long aa_set_applied;
-	uint16_t subject_attrib_processed;
-
-	/* Authenticated Attribute data (or NULL) */
-	const struct lc_hash *authattr_hash;
-	size_t authattrs_digest_size;
-	size_t authattrs_size;
-	uint8_t authattrs_digest[LC_SHA_MAX_SIZE_DIGEST];
-	uint8_t authattrs[LC_PKCS7_AUTHATTRS_MAX_SIZE];
-};
-
 /******************************************************************************
  * ASN.1 parser support functions
  ******************************************************************************/
@@ -93,7 +64,7 @@ int lc_pkcs7_sig_note_pkey_algo_OID_enc(void *context, uint8_t *data,
 			"OID signed pkey algorithm");
 
 	if (oid_datalen) {
-		CKINT(x509_sufficient_size(avail_datalen, oid_datalen));
+		CKINT(lc_x509_sufficient_size(avail_datalen, oid_datalen));
 
 		memcpy(data, oid_data, oid_datalen);
 		*avail_datalen -= oid_datalen;
@@ -106,17 +77,25 @@ out:
 static int pkcs7_get_digest(const struct lc_hash **hash_algo,
 			    const struct lc_pkcs7_signed_info *sinfo)
 {
-	const struct lc_x509_certificate *x509 = sinfo->signer;
+	const struct lc_x509_certificate *x509;
 	const struct lc_public_key *pub;
-	const struct lc_public_key_signature *sig = &sinfo->sig;
+	const struct lc_public_key_signature *sig;
 	const struct lc_hash *tmp_algo;
 	int ret = 0;
+
+	CKNULL(hash_algo, -EINVAL);
+	CKNULL(sinfo, -EINVAL);
+
+	x509 = sinfo->signer;
+	sig = &sinfo->sig;
 
 	CKNULL(x509, -EINVAL);
 	CKNULL(sig, -EINVAL);
 
 	pub = &x509->pub;
 	tmp_algo = sig->hash_algo;
+
+	CKNULL(pub, -EINVAL);
 
 	/*
 	 * If we have no hash algorithm set externally, try the pubkey algo.
@@ -149,7 +128,6 @@ int lc_pkcs7_digest_algorithm_OID_enc(void *context, uint8_t *data,
 
 	(void)tag;
 
-	CKNULL(sinfo, -EINVAL);
 	CKINT(pkcs7_get_digest(&hash_algo, sinfo));
 
 	/*
@@ -165,7 +143,7 @@ int lc_pkcs7_digest_algorithm_OID_enc(void *context, uint8_t *data,
 			"OID signed hash algorithm");
 
 	if (oid_datalen) {
-		CKINT(x509_sufficient_size(avail_datalen, oid_datalen));
+		CKINT(lc_x509_sufficient_size(avail_datalen, oid_datalen));
 
 		memcpy(data, oid_data, oid_datalen);
 		*avail_datalen -= oid_datalen;
@@ -218,7 +196,7 @@ int lc_pkcs7_check_content_type_OID_enc(void *context, uint8_t *data,
 	bin2print_debug(oid_data, oid_datalen, stdout, "OID pkcs7_signedData");
 
 	if (oid_datalen) {
-		CKINT(x509_sufficient_size(avail_datalen, oid_datalen));
+		CKINT(lc_x509_sufficient_size(avail_datalen, oid_datalen));
 
 		memcpy(data, oid_data, oid_datalen);
 		*avail_datalen -= oid_datalen;
@@ -260,7 +238,7 @@ int lc_pkcs7_note_signeddata_version_enc(void *context, uint8_t *data,
 		}
 	}
 
-	CKINT(x509_sufficient_size(avail_datalen, 1));
+	CKINT(lc_x509_sufficient_size(avail_datalen, 1));
 
 	if (skid_present)
 		cms_version = 3;
@@ -292,7 +270,7 @@ int lc_pkcs7_note_signerinfo_version_enc(void *context, uint8_t *data,
 	CKNULL(sinfo, -EFAULT);
 	x509 = sinfo->signer;
 
-	CKINT(x509_sufficient_size(avail_datalen, 1));
+	CKINT(lc_x509_sufficient_size(avail_datalen, 1));
 
 	if (x509->raw_skid_size)
 		cms_version = 3;
@@ -399,8 +377,8 @@ int lc_pkcs7_extract_extended_cert_enc(void *context, uint8_t *data,
 		offset += len;
 	}
 
-	CKINT(x509_sufficient_size(avail_datalen,
-				   current_x509->raw_cert_size - offset));
+	CKINT(lc_x509_sufficient_size(avail_datalen,
+				      current_x509->raw_cert_size - offset));
 	memcpy(data, current_x509->raw_cert + offset,
 	       current_x509->raw_cert_size - offset);
 	*avail_datalen -= current_x509->raw_cert_size - offset;
@@ -438,21 +416,24 @@ int lc_pkcs7_note_content_enc(void *context, uint8_t *data,
 int lc_pkcs7_data_OID_enc(void *context, uint8_t *data, size_t *avail_datalen,
 			  uint8_t *tag)
 {
-	const uint8_t *oid_data = NULL;
-	size_t oid_datalen = 0;
-	int ret;
+	struct pkcs7_generate_context *ctx = context;
+	int ret = 0;
 
 	(void)context;
 	(void)tag;
 
-	CKINT(lc_OID_to_data(OID_data, &oid_data, &oid_datalen));
-	bin2print_debug(oid_data, oid_datalen, stdout, "OID pkcs7 Data");
+	bin2print_debug(ctx->signed_data_content_type_oid_data,
+			ctx->signed_data_content_type_oid_datalen, stdout,
+			"OID pkcs7 Data");
 
-	if (oid_datalen) {
-		CKINT(x509_sufficient_size(avail_datalen, oid_datalen));
+	if (ctx->signed_data_content_type_oid_datalen) {
+		CKINT(lc_x509_sufficient_size(
+			avail_datalen,
+			ctx->signed_data_content_type_oid_datalen));
 
-		memcpy(data, oid_data, oid_datalen);
-		*avail_datalen -= oid_datalen;
+		memcpy(data, ctx->signed_data_content_type_oid_data,
+		       ctx->signed_data_content_type_oid_datalen);
+		*avail_datalen -= ctx->signed_data_content_type_oid_datalen;
 	}
 
 out:
@@ -482,7 +463,7 @@ int lc_pkcs7_note_data_enc(void *context, uint8_t *data, size_t *avail_datalen,
 	if (!pkcs7->data)
 		return 0;
 
-	CKINT(x509_sufficient_size(avail_datalen, pkcs7->data_len));
+	CKINT(lc_x509_sufficient_size(avail_datalen, pkcs7->data_len));
 
 	memcpy(data, pkcs7->data, pkcs7->data_len);
 	*avail_datalen -= pkcs7->data_len;
@@ -562,10 +543,16 @@ int lc_pkcs7_external_aa_OID_enc(void *context, uint8_t *data,
 				     &oid_datalen));
 		bin2print_debug(oid_data, oid_datalen, stdout,
 				"OID message digest");
+	} else if (pkcs7_authenticated_attr_unprocessed(
+			   ctx, sinfo_has_caller_provided_aa)) {
+		oid_data = ctx->caller_provided_aa_oid_data;
+		oid_datalen = ctx->caller_provided_aa_oid_datalen;
+		bin2print_debug(oid_data, oid_datalen, stdout,
+				"OID caller-provided AA");
 	}
 
 	if (oid_datalen) {
-		CKINT(x509_sufficient_size(avail_datalen, oid_datalen));
+		CKINT(lc_x509_sufficient_size(avail_datalen, oid_datalen));
 
 		memcpy(data, oid_data, oid_datalen);
 		*avail_datalen -= oid_datalen;
@@ -609,7 +596,7 @@ static int pkcs7_set_time(uint8_t *data, size_t *avail_datalen, uint8_t *tag)
 #pragma GCC diagnostic ignored "-Wtype-limits"
 	if (timeval >= 2524608000) {
 #pragma GCC diagnostic pop
-		CKINT(x509_sufficient_size(avail_datalen, X509_GENTIM_SIZE));
+		CKINT(lc_x509_sufficient_size(avail_datalen, X509_GENTIM_SIZE));
 		snprintf(datestr, sizeof(datestr), "%.4d%.2d%.2d%.2d%.2d%.2dZ",
 			 time_detail.year, time_detail.month, time_detail.day,
 			 time_detail.hour, time_detail.min, time_detail.sec);
@@ -618,7 +605,7 @@ static int pkcs7_set_time(uint8_t *data, size_t *avail_datalen, uint8_t *tag)
 		*avail_datalen -= X509_GENTIM_SIZE;
 		*tag = ASN1_GENTIM;
 	} else {
-		CKINT(x509_sufficient_size(avail_datalen, X509_UCTTIM_SIZE));
+		CKINT(lc_x509_sufficient_size(avail_datalen, X509_UCTTIM_SIZE));
 		snprintf(datestr, sizeof(datestr), "%02d%02d%02d%02d%02d%02dZ",
 			 time_detail.year % 100, time_detail.month,
 			 time_detail.day, time_detail.hour, time_detail.min,
@@ -655,7 +642,7 @@ out:
 }
 
 /*
- * Parse authenticated attributes.
+ * Generate authenticated attributes.
  */
 int lc_pkcs7_external_aa_enc(void *context, uint8_t *data,
 			     size_t *avail_datalen, uint8_t *tag)
@@ -680,7 +667,8 @@ int lc_pkcs7_external_aa_enc(void *context, uint8_t *data,
 		bin2print_debug(oid_data, oid_datalen, stdout, "OID data type");
 
 		if (oid_datalen) {
-			CKINT(x509_sufficient_size(avail_datalen, oid_datalen));
+			CKINT(lc_x509_sufficient_size(avail_datalen,
+						      oid_datalen));
 
 			memcpy(data, oid_data, oid_datalen);
 			*avail_datalen -= oid_datalen;
@@ -719,9 +707,18 @@ int lc_pkcs7_external_aa_enc(void *context, uint8_t *data,
 		bin2print_debug(digest, digest_size, stdout,
 				"Generated messageDigest");
 
-		CKINT(x509_sufficient_size(avail_datalen, digest_size));
+		CKINT(lc_x509_sufficient_size(avail_datalen, digest_size));
 		memcpy(data, digest, digest_size);
 		*avail_datalen -= digest_size;
+	} else if (pkcs7_authenticated_attr_unprocessed(
+			   ctx, sinfo_has_caller_provided_aa)) {
+		ctx->aa_set_applied |= sinfo_has_caller_provided_aa;
+
+		CKINT(lc_x509_sufficient_size(avail_datalen,
+					      ctx->caller_provided_aa_datalen));
+		memcpy(data, ctx->caller_provided_aa_data,
+		       ctx->caller_provided_aa_datalen);
+		*avail_datalen -= ctx->caller_provided_aa_datalen;
 	}
 
 out:
@@ -871,7 +868,7 @@ int lc_pkcs7_sig_note_set_of_authattrs_enc(void *context, uint8_t *data,
 	}
 
 	/* Copy the final message into the buffer */
-	CKINT(x509_sufficient_size(avail_datalen, copy_aalen));
+	CKINT(lc_x509_sufficient_size(avail_datalen, copy_aalen));
 	memcpy(data, copy_aa, copy_aalen);
 	*avail_datalen -= copy_aalen;
 
@@ -895,7 +892,7 @@ int lc_pkcs7_sig_note_serial_enc(void *context, uint8_t *data,
 	if (x509->raw_skid)
 		return 0;
 
-	CKINT(x509_sufficient_size(avail_datalen, x509->raw_serial_size));
+	CKINT(lc_x509_sufficient_size(avail_datalen, x509->raw_serial_size));
 
 	memcpy(data, x509->raw_serial, x509->raw_serial_size);
 	*avail_datalen -= x509->raw_serial_size;
@@ -956,7 +953,7 @@ int lc_pkcs7_sig_note_skid_enc(void *context, uint8_t *data,
 	if (!x509->raw_skid)
 		return 0;
 
-	CKINT(x509_sufficient_size(avail_datalen, x509->raw_skid_size));
+	CKINT(lc_x509_sufficient_size(avail_datalen, x509->raw_skid_size));
 
 	memcpy(data, x509->raw_skid, x509->raw_skid_size);
 	*avail_datalen -= x509->raw_skid_size;
@@ -1066,8 +1063,8 @@ int lc_pkcs7_note_signed_info_enc(void *context, uint8_t *data,
  * API functions
  ******************************************************************************/
 
-static inline int pkcs7_initialize_ctx(struct pkcs7_generate_context *ctx,
-				       const struct lc_pkcs7_message *pkcs7)
+static int pkcs7_initialize_ctx(struct pkcs7_generate_context *ctx,
+				const struct lc_pkcs7_message *pkcs7)
 {
 	struct lc_pkcs7_signed_info *sinfo;
 
@@ -1075,6 +1072,9 @@ static inline int pkcs7_initialize_ctx(struct pkcs7_generate_context *ctx,
 
 	CKNULL(pkcs7->certs, -EINVAL);
 	CKNULL(pkcs7->list_head_sinfo, -EINVAL);
+
+	CKINT(lc_OID_to_data(OID_data, &ctx->signed_data_content_type_oid_data,
+			     &ctx->signed_data_content_type_oid_datalen));
 
 	ctx->pkcs7 = pkcs7;
 	ctx->current_x509 = pkcs7->certs;
@@ -1134,6 +1134,56 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_encode,
 	/* Attempt to decode the signature */
 	CKINT(lc_asn1_ber_encoder(&lc_pkcs7_encoder, &ctx, data,
 				  avail_datalen));
+
+out:
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_pkcs7_encode_ctx_init,
+		      struct pkcs7_generate_context *ctx)
+{
+	int ret = 0;
+
+	CKNULL(ctx, -EINVAL);
+
+	lc_memset_secure(ctx, 0, sizeof(ctx));
+
+out:
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_pkcs7_encode_ctx_set_pkcs7,
+		      struct pkcs7_generate_context *ctx,
+		      const struct lc_pkcs7_message *pkcs7)
+{
+	int ret;
+
+	CKNULL(ctx, -EINVAL);
+	CKNULL(pkcs7, -EINVAL);
+
+	CKINT(pkcs7_initialize_ctx(ctx, pkcs7));
+
+out:
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_pkcs7_encode_ctx,
+		      struct pkcs7_generate_context *ctx, uint8_t *data,
+		      size_t *avail_datalen)
+{
+	int ret;
+
+	CKNULL(ctx, -EINVAL);
+	CKNULL(data, -EINVAL);
+	CKNULL(avail_datalen, -EINVAL);
+	CKNULL(ctx->pkcs7, -EINVAL);
+
+	CKNULL_LOG(
+		ctx->pkcs7->data, -EINVAL,
+		"Encapsulated data missing - perhaps you want to use the detached signature API?\n");
+
+	/* Attempt to decode the signature */
+	CKINT(lc_asn1_ber_encoder(&lc_pkcs7_encoder, ctx, data, avail_datalen));
 
 out:
 	return ret;
