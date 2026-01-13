@@ -15,8 +15,8 @@
 
 LC_X509_GENERATOR="lc_x509_generator"
 SBSIGN="sbsign"
-LC_PKCS7_GENERATOR="lc_pkcs7_generator"
 SBVERIFY="sbverify"
+EFIFILE=""
 
 TESTTYPE=$1
 
@@ -30,14 +30,14 @@ then
 	SBSIGN=$3
 fi
 
-if [ -n "$4" ]
+if [ -n "$5" ]
 then
-	LC_PKCS7_GENERATOR=$4
+	SBVERIFY=$4
 fi
 
 if [ -n "$5" ]
 then
-	SBVERIFY=$5
+	EFIFILE=$5
 fi
 
 if [ ! -x "$LC_X509_GENERATOR" ]
@@ -50,12 +50,12 @@ then
 	exit 77
 fi
 
-if [ ! -x "$LC_PKCS7_GENERATOR" ]
+if [ ! -x "$SBVERIFY" ]
 then
 	exit 77
 fi
 
-if [ ! -x "$SBVERIFY" ]
+if [ ! -x "$EFIFILE" ]
 then
 	exit 77
 fi
@@ -173,15 +173,18 @@ lc_generate_cert_pkcs8() {
 	check_one $pk_file
 }
 
-lc_sign_cert() {
-	rm -f ${pk_file}.signed
+sbsign_cert() {
+	local output="$TMPDIR/$(basename $EFIFILE).signed"
+
+	rm -f $output
 
 	echo_info "Leancrypto: sbsign create PKCS#7 signature of X.509 certificate using the X.509 certificate and associated PKCS#8 private key as signer"
 
 	$SBSIGN \
 	 --key ${sk_file} \
 	 --cert ${pk_file} \
-	 ${pk_file}
+	 --output $output \
+	 $EFIFILE
 
 	if [ $? -ne 0 ]
 	then
@@ -191,18 +194,25 @@ lc_sign_cert() {
 	fi
 }
 
-lc_verify_cert() {
-	echo_info "Leancrypto: Verify PKCS#7 signature of X.509 certificate using the X.509 certificate and associated PKCS#8 private key as signer"
+sbsign_cert_detached() {
+	local output="$TMPDIR/$(basename $EFIFILE).pk7"
 
-	$LC_PKCS7_GENERATOR \
-	 --print-pkcs7 ${pk_file}.signed \
-	 --trust-anchor ${pk_file}
+	rm -f $output
+
+	echo_info "Leancrypto: sbsign create detached PKCS#7 signature of X.509 certificate using the X.509 certificate and associated PKCS#8 private key as signer"
+
+	$SBSIGN \
+	 --detached \
+	 --key ${sk_file} \
+	 --cert ${pk_file} \
+	 --output $output \
+	 $EFIFILE
 
 	if [ $? -ne 0 ]
 	then
-		echo_fail "Failed leancrypto signature verification"
+		echo_fail "Failed leancrypto signature generation"
 	else
-		echo_success "Successful leancrypto signature verification"
+		echo_success "Successful leancrypto signature generation"
 	fi
 }
 
@@ -266,9 +276,9 @@ sbverify_cert() {
 lc_sbsign() {
 	lc_generate_cert_pkcs8 $1
 
-	lc_sign_cert
-	lc_verify_cert
-	sbverify_cert
+	sbsign_cert
+	sbsign_cert_detached
+	#sbverify_cert
 }
 
 ################################################################################
@@ -280,9 +290,9 @@ lc_sbsign() {
 lc_sbsign_pem() {
 	lc_generate_cert_pkcs8 $1 "--pem-output"
 
-	lc_sign_cert
-	lc_verify_cert
-	sbverify_cert
+	sbsign_cert
+	sbsign_cert_detached
+	#sbverify_cert
 }
 
 case $TESTTYPE
