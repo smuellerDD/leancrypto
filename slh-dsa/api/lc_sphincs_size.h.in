@@ -638,7 +638,7 @@ struct lc_sphincs_ctx {
  *
  * @param [out] ctx Allocated Sphincs stream context
  *
- * @return: 0 on success, < 0 on error
+ * @return 0 on success, < 0 on error
  */
 int @sphincs_name@_ctx_alloc(struct lc_sphincs_ctx **ctx);
 
