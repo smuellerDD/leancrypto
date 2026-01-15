@@ -584,9 +584,8 @@ static int drbg_ctr_generate_internal(struct lc_drbg_ctr_state *drbg,
 	memset(buf, 0, buflen);
 
 	while (buflen) {
-		size_t todo = min_size(LC_DRBG_MAX_REQUEST_BYTES, buflen);
-
-		todo = drbg_ctr_avail_bytes(drbg, todo);
+		size_t todo2 = min_size(LC_DRBG_MAX_REQUEST_BYTES, buflen),
+		       todo = drbg_ctr_avail_bytes(drbg, todo2);
 
 		CKINT(lc_sym_setiv(ctr_ctx, drbg->ctr.V, LC_DRBG_CTR_BLOCKLEN));
 		lc_sym_encrypt(ctr_ctx, buf, buf, todo);
@@ -594,8 +593,14 @@ static int drbg_ctr_generate_internal(struct lc_drbg_ctr_state *drbg,
 
 		drbg_ctr_fixup(drbg);
 
-		/* 10.2.1.5.2 step 6 */
-		CKINT(drbg_ctr_update(drbg, NULL, 3));
+		/*
+		 * If we limited the generated data due to handling a wrap for
+		 * small counter support, there is no DRBG update.
+		 */
+		if (todo == todo2) {
+			/* 10.2.1.5.2 step 6 */
+			CKINT(drbg_ctr_update(drbg, NULL, 3));
+		}
 
 		buf += todo;
 		buflen -= todo;
