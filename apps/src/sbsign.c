@@ -363,6 +363,7 @@ out:
 		free((uint8_t *)ws->image.buf);
 	release_data_memory(image_buf, image_size, lc_pem_flag_nopem);
 	image_release(&ws->image);
+	lc_pkcs7_encode_ctx_clear(&ws->ctx);
 	LC_RELEASE_MEM(ws);
 	return ret;
 }

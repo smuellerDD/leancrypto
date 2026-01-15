@@ -43,3 +43,7 @@ The `sbsign` and `sbverify` tools are drop-in replacements for the respective to
 * ML-DSA87/ED448 hybrid
 
 The signatures are calculated over PE/COFF executables and may be embedded into the executable. That supports Secure Boot following the [Windows Authenticode Portable Executable Signature Format](https://download.microsoft.com/download/9/c/5/9c5b2167-8017-4bae-9fde-d599bac8184a/authenticode_pe.docx) as needed for the [shim bootloader](https://github.com/rhboot/shim).
+
+The following difference to the original tools exist:
+
+* Unlike OpenSSL, leancrypto's certificate parsing only supports one certificate per PEM file (OpenSSL supports multiple PEM-formatted certificate blobs in one file). Thus, if you have multiple additional certificates you want to provide with `--cert`, have one DER or PEM formatted certificate per file, but supply each file with a separate `--cert` option.

@@ -163,6 +163,14 @@ int lc_pkcs7_decode_ctx_init(struct lc_pkcs7_parse_context *ctx);
 
 /**
  * @ingroup PKCS7
+ * @brief Clear the context for decoding a PKCS#7 message
+ *
+ * @param [in] ctx Context to be cleared
+ */
+void lc_pkcs7_decode_ctx_clear(struct lc_pkcs7_parse_context *ctx);
+
+/**
+ * @ingroup PKCS7
  * @brief Set the PKCS#7 message definition
  *
  * The PKCS#7 message is parsed into this data structure.

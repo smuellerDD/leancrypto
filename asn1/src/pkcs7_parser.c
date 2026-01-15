@@ -853,6 +853,15 @@ out:
 	return ret;
 }
 
+LC_INTERFACE_FUNCTION(void, lc_pkcs7_decode_ctx_clear,
+		      struct lc_pkcs7_parse_context *ctx)
+{
+	if (!ctx)
+		return;
+
+	lc_memset_secure(ctx, 0, sizeof(struct lc_pkcs7_parse_context));
+}
+
 LC_INTERFACE_FUNCTION(int, lc_pkcs7_decode_ctx_init,
 		      struct lc_pkcs7_parse_context *ctx)
 {

@@ -387,6 +387,7 @@ out:
 	release_data(image_buf, image_size, lc_pem_flag_nopem);
 	release_data(detached_sig_buf, detached_sig_buflen, lc_pem_flag_nopem);
 	image_release(&ws->image);
+	lc_pkcs7_decode_ctx_clear(&ws->ctx);
 	LC_RELEASE_MEM(ws);
 	return ret;
 }
@@ -400,7 +401,7 @@ int main(int argc, char **argv)
 	parsed_opts.infile_flags = lc_pkcs7_set_data_embed;
 	parsed_opts.pkcs7 = pkcs7_msg;
 
-	/* Should that be turned into an option? */
+	/* To comply with RFC9882, we use authenticated attributes. */
 	parsed_opts.aa_set = sinfo_has_content_type | sinfo_has_signing_time |
 			     sinfo_has_message_digest;
 

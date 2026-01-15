@@ -141,6 +141,14 @@ int lc_pkcs7_encode_ctx_init(struct lc_pkcs7_generate_context *ctx);
 
 /**
  * @ingroup PKCS7Gen
+ * @brief Clear the context for encoding a PKCS#7 message
+ *
+ * @param [in] ctx Context to be cleared
+ */
+void lc_pkcs7_encode_ctx_clear(struct lc_pkcs7_generate_context *ctx);
+
+/**
+ * @ingroup PKCS7Gen
  * @brief Set the PKCS#7 message definition
  *
  * The PKCS#7 message is generated based on this definition.
