@@ -172,25 +172,26 @@ print_certificate_store_certs(const struct pkcs7_generator_opts *parsed_opts)
 	return 0;
 }
 
+/* Verify the authenticated attribute OID */
 int lc_spc_attribute_type_OID(void *context, size_t hdrlen, unsigned char tag,
 			      const uint8_t *value, size_t vlen)
 {
-	/* SPC_PE_IMAGE_DATAOBJ OID (1.3.6.1.4.1.311.2.1.15) */
-	static const uint8_t spc_indirect_data_objid[] = {
-		0x2b, 0x6, 0x1, 0x4, 0x1, 0x82, 0x37, 0x2, 0x1, 0xf,
-	};
+	enum OID oid;
 
 	(void)context;
 	(void)hdrlen;
 	(void)tag;
 
-	if (lc_memcmp_secure(value, vlen, spc_indirect_data_objid,
-			     sizeof(spc_indirect_data_objid)))
+	oid = lc_look_up_OID(value, vlen);
+
+	/* SPC_PE_IMAGE_DATAOBJ OID (1.3.6.1.4.1.311.2.1.15) */
+	if (oid != OID_msPeImageDataObjId)
 		return -EINVAL;
 
 	return 0;
 }
 
+/* No parsing and verification of the SpcPeImageData */
 int lc_spc_pe_image_data(void *context, size_t hdrlen, unsigned char tag,
 			 const uint8_t *value, size_t vlen)
 {
@@ -200,12 +201,10 @@ int lc_spc_pe_image_data(void *context, size_t hdrlen, unsigned char tag,
 	(void)value;
 	(void)vlen;
 
-	/*
-	 * We are not decoding lc_authenticode_SpcPeImageData_encoder
-	 */
 	return 0;
 }
 
+/* Retrieve message digest hash type */
 int lc_spc_digest_algorithm_OID(void *context, size_t hdrlen, unsigned char tag,
 				const uint8_t *value, size_t vlen)
 {
@@ -228,6 +227,7 @@ out:
 	return ret;
 }
 
+/* Retrieve the image message digest from the PKCS#7 message */
 int lc_spc_file_digest(void *context, size_t hdrlen, unsigned char tag,
 		       const uint8_t *value, size_t vlen)
 {
@@ -242,7 +242,7 @@ int lc_spc_file_digest(void *context, size_t hdrlen, unsigned char tag,
 	return 0;
 }
 
-static int sbverify_dump_file(struct pkcs7_generator_opts *opts, int verbose)
+static int sbverify_file(struct pkcs7_generator_opts *opts, int verbose)
 {
 //	static const uint8_t spc_sp_opus_info_objid[] = {
 //		0x2b, 0x6, 0x1, 0x4, 0x1, 0x82, 0x37, 0x2, 0x1, 0xc,
@@ -263,31 +263,39 @@ static int sbverify_dump_file(struct pkcs7_generator_opts *opts, int verbose)
 	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
+	/* Open the binary image file */
 	CKINT(get_data(opts->infile, &image_buf, &image_size,
 		       lc_pem_flag_nopem));
 
-	/* Parse image */
+	/* Parse binar image */
 	CKINT(image_load(image_buf, image_size, &ws->image));
 
+	/* Loop over all signatures */
 	for (;;) {
 		if (opts->pkcs7_msg) {
+			/* Only one detached signature can be processed */
 			if (signum > 0)
 				break;
 
-			CKINT(get_data(opts->infile, &detached_sig_buf,
+			/* Read detached signature */
+			CKINT(get_data(opts->pkcs7_msg, &detached_sig_buf,
 				       &detached_sig_buflen,
 				       lc_pem_flag_nopem));
 
+			/* Set the read detached signature for processing */
 			signature = detached_sig_buf;
 			signaturelen = detached_sig_buflen;
 		} else {
+			/* Fetch the embedded signature from image */
 			ret = image_get_signature(&ws->image, signum,
 						  &signature, &signaturelen);
 			if (ret) {
 				if (signum > 0) {
+					/* We processed all signatures */
 					ret = 0;
 					break;
 				} else {
+					/* Failure in reading the signature */
 					fprintf(stderr,
 						"Unable to read signature data from %s\n",
 						opts->infile);
@@ -300,23 +308,35 @@ static int sbverify_dump_file(struct pkcs7_generator_opts *opts, int verbose)
 		if (verbose || opts->print_pkcs7)
 			printf("signature %d\n", signum);
 
+		/* Initialize the decoding context */
 		CKINT(lc_pkcs7_decode_ctx_init(&ws->ctx));
 
+		/*
+		 * Set the PKCS#7 message buffer where the decoding result goes
+		 * to.
+		 */
 		CKINT(lc_pkcs7_decode_ctx_set_pkcs7(&ws->ctx, pkcs7));
 
+		/*
+		 * The authenticated attributes data type shall be
+		 * SPC_INDIRECT_DATA_OBJID (1.3.6.1.4.1.311.2.1.4)
+		 */
 		CKINT(lc_pkcs7_decode_ctx_set_aa_content_type(
 			&ws->ctx, OID_msIndirectData));
 
+		/* Perform the actual message decoding */
 		CKINT_LOG(lc_pkcs7_decode_ctx(&ws->ctx, signature,
 					      signaturelen),
 			  "Unable to parse signature data\n");
 
-		/*
-		 * Now, if we have data with the PKCS7 message, attempt to verify it
-		 * (i.e. perform a signature verification).
-		 */
+		/* Get the embedded data. */
 		CKINT(lc_pkcs7_get_content_data(opts->pkcs7, &avail_data,
 						&avail_datalen));
+
+		/*
+		 * Perform the verification of the parsed message and its
+		 * authenticated attributes.
+		 */
 		CKINT_LOG(lc_pkcs7_verify(
 				  opts->pkcs7,
 				  opts->use_trust_store ? &opts->trust_store :
@@ -325,7 +345,11 @@ static int sbverify_dump_file(struct pkcs7_generator_opts *opts, int verbose)
 							   NULL),
 			  "Unable to verify signature\n");
 
-		/* Attempt to decode the signature */
+		/*
+		 * Attempt to decode the embedded data as
+		 * SpcIndirectDataContent. Here we will get the signed image
+		 * hash.
+		 */
 		CKINT(lc_asn1_ber_decoder(
 			&lc_authenticode_SpcIndirectDataContent_decoder,
 			&ws->authenticode_ctx, avail_data, avail_datalen));
@@ -334,6 +358,11 @@ static int sbverify_dump_file(struct pkcs7_generator_opts *opts, int verbose)
 		CKINT(image_hash(&ws->image, ws->authenticode_ctx.hash,
 				 ws->image_digest, &opts->aux_datalen));
 
+		/*
+		 * Perform the actual authentication of the image:
+		 * comparing the newly calculated hash with the signed hash from
+		 * the PKCS#7 message.
+		 */
 		if (lc_memcmp_secure(
 			    ws->image_digest, opts->aux_datalen,
 			    ws->authenticode_ctx.decoded_image_digest,
@@ -418,7 +447,7 @@ int main(int argc, char **argv)
 	if (parsed_opts.infile)
 		CKINT(pkcs7_set_data(&parsed_opts));
 
-	CKINT(sbverify_dump_file(&parsed_opts, verbose));
+	CKINT(sbverify_file(&parsed_opts, verbose));
 
 out:
 	pkcs7_clean_opts(&parsed_opts);

@@ -175,8 +175,9 @@ lc_generate_cert_pkcs8() {
 
 sbsign_cert() {
 	local output="$TMPDIR/$(basename $EFIFILE).signed"
+	local output2="$TMPDIR/$(basename $EFIFILE).signed2"
 
-	rm -f $output
+	rm -f $output $output2
 
 	echo_info "Leancrypto: sbsign create PKCS#7 signature of X.509 certificate using the X.509 certificate and associated PKCS#8 private key as signer"
 
@@ -188,9 +189,23 @@ sbsign_cert() {
 
 	if [ $? -ne 0 ]
 	then
-		echo_fail "Failed leancrypto signature generation"
+		echo_fail "Failed leancrypto embedded signature generation"
 	else
-		echo_success "Successful leancrypto signature generation"
+		echo_success "Successful leancrypto embedded signature generation"
+	fi
+
+	# Create file with 2 signatures
+	$SBSIGN \
+	 --key ${sk_file} \
+	 --cert ${pk_file} \
+	 --output $output2 \
+	 $output
+
+	if [ $? -ne 0 ]
+	then
+		echo_fail "Failed leancrypto dual embedded signature generation"
+	else
+		echo_success "Successful leancrypto dual embedded signature generation"
 	fi
 }
 
@@ -210,60 +225,94 @@ sbsign_cert_detached() {
 
 	if [ $? -ne 0 ]
 	then
-		echo_fail "Failed leancrypto signature generation"
+		echo_fail "Failed leancrypto detached signature generation"
 	else
-		echo_success "Successful leancrypto signature generation"
+		echo_success "Successful leancrypto detached signature generation"
 	fi
 }
 
 sbverify_cert() {
+	local output="$TMPDIR/$(basename $EFIFILE).signed"
+	local output2="$TMPDIR/$(basename $EFIFILE).signed2"
+
 	echo_info "Leancrypto: sbVerify PKCS#7 signature of X.509 certificate using the X.509 certificate and associated PKCS#8 private key as signer"
 
 	$SBVERIFY \
 	 -c ${pk_file} \
 	 -l \
-	 ${pk_file}.signed
+	 $output
 
 	if [ $? -ne 0 ]
 	then
-		echo_fail "Failed sbverify"
+		echo_fail "Failed sbverify embedded signature"
 	else
-		echo_success "Successful sbverify"
+		echo_success "Successful sbverify embedded signature"
 	fi
 
 	$SBVERIFY \
 	 -c ${pk_file} \
 	 -l -vv \
-	 ${pk_file}.signed
+	 $output
 
 	if [ $? -ne 0 ]
 	then
-		echo_fail "Failed sbverify"
+		echo_fail "Failed sbverify embedded signature"
 	else
-		echo_success "Successful sbverify"
+		echo_success "Successful sbverify embedded signature"
 	fi
 
 	$SBVERIFY \
 	 -c ${pk_file} \
 	 -vv \
-	 ${pk_file}.signed
+	 $output
 
 	if [ $? -ne 0 ]
 	then
-		echo_fail "Failed sbverify"
+		echo_fail "Failed sbverify embedded signature"
 	else
-		echo_success "Successful sbverify"
+		echo_success "Successful sbverify embedded signature"
 	fi
 
 	$SBVERIFY \
 	 -c ${pk_file} \
-	 ${pk_file}.signed
+	 $output
 
 	if [ $? -ne 0 ]
 	then
-		echo_fail "Failed sbverify"
+		echo_fail "Failed sbverify embedded signature"
 	else
-		echo_success "Successful sbverify"
+		echo_success "Successful sbverify embedded signature"
+	fi
+
+	$SBVERIFY \
+	 -c ${pk_file} \
+	 -l -vv \
+	 $output2
+
+	if [ $? -ne 0 ]
+	then
+		echo_fail "Failed sbverify with dual embedded signature"
+	else
+		echo_success "Successful sbverify with dual embedded signature"
+	fi
+}
+
+sbverify_cert_detached() {
+	local output="$TMPDIR/$(basename $EFIFILE).pk7"
+
+	echo_info "Leancrypto: sbVerify PKCS#7 signature of X.509 certificate using the X.509 certificate and associated PKCS#8 private key as signer"
+
+	$SBVERIFY \
+	 -d $output \
+	 -c ${pk_file} \
+	 -l -vv \
+	 $EFIFILE
+
+	if [ $? -ne 0 ]
+	then
+		echo_fail "Failed sbverify detached signature"
+	else
+		echo_success "Successful sbverify detached signature"
 	fi
 }
 
@@ -277,22 +326,24 @@ lc_sbsign() {
 	lc_generate_cert_pkcs8 $1
 
 	sbsign_cert
+	sbverify_cert
 	sbsign_cert_detached
-	#sbverify_cert
+	sbverify_cert_detached
 }
 
 ################################################################################
 # TEST 2
 #
 # Leancrypto generation of key/cert and use it for signature generation and
-# verification
+# verification usng PEM key/certificate format
 #
 lc_sbsign_pem() {
 	lc_generate_cert_pkcs8 $1 "--pem-output"
 
 	sbsign_cert
+	sbverify_cert
 	sbsign_cert_detached
-	#sbverify_cert
+	sbverify_cert_detached
 }
 
 case $TESTTYPE

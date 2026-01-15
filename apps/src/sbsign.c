@@ -128,28 +128,30 @@ out:
 	return ret;
 }
 
+/* Set the authenticated attribute OID */
 int lc_spc_attribute_type_OID_enc(void *context, uint8_t *data,
 				  size_t *avail_datalen, uint8_t *tag)
 {
-	/* SPC_PE_IMAGE_DATAOBJ OID (1.3.6.1.4.1.311.2.1.15) */
-	static const uint8_t spc_indirect_data_objid[] = {
-		0x2b, 0x6, 0x1, 0x4, 0x1, 0x82, 0x37, 0x2, 0x1, 0xf,
-	};
+	const uint8_t *oid_data;
+	size_t oid_datalen;
 	int ret;
 
 	(void)context;
 	(void)tag;
 
-	CKINT(lc_x509_sufficient_size(avail_datalen,
-				      sizeof(spc_indirect_data_objid)));
+	/* SPC_PE_IMAGE_DATAOBJ OID (1.3.6.1.4.1.311.2.1.15) */
+	CKINT(lc_OID_to_data(OID_msPeImageDataObjId, &oid_data, &oid_datalen));
 
-	memcpy(data, spc_indirect_data_objid, sizeof(spc_indirect_data_objid));
-	*avail_datalen -= sizeof(spc_indirect_data_objid);
+	CKINT(lc_x509_sufficient_size(avail_datalen, oid_datalen));
+
+	memcpy(data, oid_data, oid_datalen);
+	*avail_datalen -= oid_datalen;
 
 out:
 	return ret;
 }
 
+/* Set the "obsolete" file name */
 int lc_spc_filename_obsolete_enc(void *context, uint8_t *data,
 				 size_t *avail_datalen, uint8_t *tag)
 {
@@ -172,6 +174,7 @@ out:
 	return ret;
 }
 
+/* Create and set the SpcPeImageData */
 int lc_spc_pe_image_data_enc(void *context, uint8_t *data,
 			     size_t *avail_datalen, uint8_t *tag)
 {
@@ -191,6 +194,7 @@ out:
 	return ret;
 }
 
+/* Set message digest hash type */
 int lc_spc_digest_algorithm_OID_enc(void *context, uint8_t *data,
 				    size_t *avail_datalen, uint8_t *tag)
 {
@@ -231,6 +235,7 @@ out:
 	return ret;
 }
 
+/* Write the actual image message digest into PKCS#7 message */
 int lc_spc_file_digest_enc(void *context, uint8_t *data, size_t *avail_datalen,
 			   uint8_t *tag)
 {
@@ -292,7 +297,8 @@ static int pkcs7_gen_message_sbsign(struct pkcs7_generator_opts *opts)
 
 	/*
 	 * As defined in the "Windows Authenticode Portable Executable Signature
-	 * Format" The content must be set to SpcIndirectDataContent
+	 * Format" The content must be set to SpcIndirectDataContent. This
+	 * content is generated here.
 	 */
 	avail_datalen = LC_AUTHENTICODE_SPC_INDIRECT_DATA_CONTENT_SIZE;
 	CKINT(lc_asn1_ber_encoder(
@@ -301,20 +307,22 @@ static int pkcs7_gen_message_sbsign(struct pkcs7_generator_opts *opts)
 	datalen =
 		LC_AUTHENTICODE_SPC_INDIRECT_DATA_CONTENT_SIZE - avail_datalen;
 
+	/* Initialize the encoding context */
 	CKINT(lc_pkcs7_encode_ctx_init(&ws->ctx));
 
-	/*
-	 * Set the data type to messageDigest
-	 */
+	/* Set the data type to messageDigest */
 	CKINT(lc_pkcs7_encode_ctx_set_signer_data_type(&ws->ctx,
 						       OID_messageDigest));
 
 	/*
-	 * Set and embed the SpcIndirectDataContent into the PKCS#7 message.
+	 * Set and embed the SpcIndirectDataContent into the PKCS#7 message
+	 * using SPC_INDIRECT_DATA_OBJID (1.3.6.1.4.1.311.2.1.4).
 	 */
 	CKINT(lc_pkcs7_set_data_with_type(
 		pkcs7, ws->authenticode_SpcIndirectDataContent, datalen,
 		lc_pkcs7_set_data_embed, OID_msIndirectData));
+
+	/* Set the PKCS#7 message structure to be encoded */
 	CKINT(lc_pkcs7_encode_ctx_set_pkcs7(&ws->ctx, pkcs7));
 
 	/*
@@ -327,11 +335,13 @@ static int pkcs7_gen_message_sbsign(struct pkcs7_generator_opts *opts)
 	// 	sizeof(spc_sp_opus_info_objid),
 	// ));
 
+	/* Perform the actual message encoding. */
 	avail_datalen = ASN1_MAX_DATASIZE;
 	CKINT_LOG(lc_pkcs7_encode_ctx(&ws->ctx, ws->data, &avail_datalen),
 		  "Message generation failed\n");
 	datalen = ASN1_MAX_DATASIZE - avail_datalen;
 
+	/* Add the encoded PKCS#7 message block with signature to image */
 	CKINT(image_add_signature(&ws->image, ws->data, datalen));
 	if (opts->infile_flags == lc_pkcs7_set_data_embed) {
 		image_write(&ws->image, outfile_p);
