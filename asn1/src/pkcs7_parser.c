@@ -31,6 +31,7 @@
 #include "asn1_debug.h"
 #include "ext_headers_internal.h"
 #include "helper.h"
+#include "lc_memcmp_secure.h"
 #include "lc_memory_support.h"
 #include "lc_pkcs7_parser.h"
 #include "oid_registry.h"
@@ -124,12 +125,14 @@ inconsistent:
 static int pkcs7_note_OID(void *context, size_t hdrlen, unsigned char tag,
 			  const uint8_t *value, size_t vlen)
 {
-	struct pkcs7_parse_context *ctx = context;
+	struct lc_pkcs7_parse_context *ctx = context;
 
 	(void)hdrlen;
 	(void)tag;
 
 	ctx->last_oid = lc_look_up_OID(value, vlen);
+	ctx->last_oid_data = value;
+	ctx->last_oid_datalen = vlen;
 
 	if (ctx->last_oid == OID__NR) {
 		char buffer[50];
@@ -213,7 +216,7 @@ int lc_pkcs7_sig_note_digest_algo(void *context, size_t hdrlen,
 				  unsigned char tag, const uint8_t *value,
 				  size_t vlen)
 {
-	struct pkcs7_parse_context *ctx = context;
+	struct lc_pkcs7_parse_context *ctx = context;
 	struct lc_pkcs7_message *pkcs7 = ctx->msg;
 	struct lc_pkcs7_signed_info *sinfo;
 	struct lc_public_key_signature *sig;
@@ -239,7 +242,7 @@ out:
 int lc_pkcs7_sig_note_pkey_algo(void *context, size_t hdrlen, unsigned char tag,
 				const uint8_t *value, size_t vlen)
 {
-	struct pkcs7_parse_context *ctx = context;
+	struct lc_pkcs7_parse_context *ctx = context;
 	struct lc_pkcs7_message *pkcs7 = ctx->msg;
 	struct lc_pkcs7_signed_info *sinfo;
 	struct lc_public_key_signature *sig;
@@ -265,7 +268,7 @@ out:
 int lc_pkcs7_check_content_type(void *context, size_t hdrlen, unsigned char tag,
 				const uint8_t *value, size_t vlen)
 {
-	struct pkcs7_parse_context *ctx = context;
+	struct lc_pkcs7_parse_context *ctx = context;
 
 	(void)hdrlen;
 	(void)tag;
@@ -287,7 +290,7 @@ int lc_pkcs7_note_signeddata_version(void *context, size_t hdrlen,
 				     unsigned char tag, const uint8_t *value,
 				     size_t vlen)
 {
-	struct pkcs7_parse_context *ctx = context;
+	struct lc_pkcs7_parse_context *ctx = context;
 	unsigned int version;
 
 	(void)hdrlen;
@@ -325,7 +328,7 @@ int lc_pkcs7_note_signerinfo_version(void *context, size_t hdrlen,
 				     unsigned char tag, const uint8_t *value,
 				     size_t vlen)
 {
-	struct pkcs7_parse_context *ctx = context;
+	struct lc_pkcs7_parse_context *ctx = context;
 	unsigned version;
 
 	(void)hdrlen;
@@ -382,7 +385,7 @@ int lc_pkcs7_extract_cert_continue(void *context, size_t hdrlen,
 int lc_pkcs7_extract_cert(void *context, size_t hdrlen, unsigned char tag,
 			  const uint8_t *value, size_t vlen)
 {
-	struct pkcs7_parse_context *ctx = context;
+	struct lc_pkcs7_parse_context *ctx = context;
 	struct lc_pkcs7_message *pkcs7 = ctx->msg;
 	struct lc_x509_certificate *x509;
 	struct lc_asymmetric_key_id *id;
@@ -443,7 +446,7 @@ int lc_pkcs7_note_certificate_list(void *context, size_t hdrlen,
 				   unsigned char tag, const uint8_t *value,
 				   size_t vlen)
 {
-	struct pkcs7_parse_context *ctx = context;
+	struct lc_pkcs7_parse_context *ctx = context;
 
 	(void)hdrlen;
 	(void)tag;
@@ -465,14 +468,15 @@ int lc_pkcs7_note_certificate_list(void *context, size_t hdrlen,
 int lc_pkcs7_note_content(void *context, size_t hdrlen, unsigned char tag,
 			  const uint8_t *value, size_t vlen)
 {
-	struct pkcs7_parse_context *ctx = context;
+	struct lc_pkcs7_parse_context *ctx = context;
 
 	(void)hdrlen;
 	(void)tag;
 	(void)value;
 	(void)vlen;
 
-	if (ctx->last_oid != OID_data && ctx->last_oid != OID_msIndirectData) {
+	if (ctx->last_oid != OID_data && ctx->last_oid != OID_msIndirectData &&
+	    ctx->last_oid != OID_messageDigest) {
 		printf_debug("Unsupported data type %d\n", ctx->last_oid);
 		return -EINVAL;
 	}
@@ -488,7 +492,7 @@ int lc_pkcs7_note_content(void *context, size_t hdrlen, unsigned char tag,
 int lc_pkcs7_note_data(void *context, size_t hdrlen, unsigned char tag,
 		       const uint8_t *value, size_t vlen)
 {
-	struct pkcs7_parse_context *ctx = context;
+	struct lc_pkcs7_parse_context *ctx = context;
 
 	(void)hdrlen;
 	(void)tag;
@@ -507,7 +511,7 @@ int lc_pkcs7_sig_note_authenticated_attr(void *context, size_t hdrlen,
 					 unsigned char tag,
 					 const uint8_t *value, size_t vlen)
 {
-	struct pkcs7_parse_context *ctx = context;
+	struct lc_pkcs7_parse_context *ctx = context;
 	struct lc_pkcs7_message *pkcs7 = ctx->msg;
 	struct lc_pkcs7_signed_info *sinfo;
 	enum OID content_type;
@@ -525,9 +529,10 @@ int lc_pkcs7_sig_note_authenticated_attr(void *context, size_t hdrlen,
 		if (lc_test_and_set_bit(sinfo_has_content_type, &sinfo->aa_set))
 			goto repeated;
 		content_type = lc_look_up_OID(value, vlen);
-		if (content_type != ctx->msg->data_type) {
+		if (content_type != ctx->msg->data_type &&
+		    content_type != ctx->data_type) {
 			printf_debug(
-				"Mismatch between global data type (%d) and sinfo %u (%d)\n",
+				"Mismatch between global data type (%d) and authenticated attributes data type %u (%d)\n",
 				ctx->msg->data_type, content_type,
 				sinfo->index);
 			return -EBADMSG;
@@ -607,7 +612,7 @@ int lc_pkcs7_sig_note_set_of_authattrs(void *context, size_t hdrlen,
 				       unsigned char tag, const uint8_t *value,
 				       size_t vlen)
 {
-	struct pkcs7_parse_context *ctx = context;
+	struct lc_pkcs7_parse_context *ctx = context;
 	struct lc_pkcs7_message *pkcs7 = ctx->msg;
 	struct lc_pkcs7_signed_info *sinfo;
 	int ret;
@@ -647,7 +652,7 @@ const uint8_t lc_pkcs7_authattr_tag = ASN1_CONS_BIT | ASN1_SET;
 int lc_pkcs7_sig_note_serial(void *context, size_t hdrlen, unsigned char tag,
 			     const uint8_t *value, size_t vlen)
 {
-	struct pkcs7_parse_context *ctx = context;
+	struct lc_pkcs7_parse_context *ctx = context;
 
 	(void)hdrlen;
 	(void)tag;
@@ -663,7 +668,7 @@ int lc_pkcs7_sig_note_serial(void *context, size_t hdrlen, unsigned char tag,
 int lc_pkcs7_sig_note_issuer(void *context, size_t hdrlen, unsigned char tag,
 			     const uint8_t *value, size_t vlen)
 {
-	struct pkcs7_parse_context *ctx = context;
+	struct lc_pkcs7_parse_context *ctx = context;
 
 	(void)hdrlen;
 	(void)tag;
@@ -679,7 +684,7 @@ int lc_pkcs7_sig_note_issuer(void *context, size_t hdrlen, unsigned char tag,
 int lc_pkcs7_sig_note_skid(void *context, size_t hdrlen, unsigned char tag,
 			   const uint8_t *value, size_t vlen)
 {
-	struct pkcs7_parse_context *ctx = context;
+	struct lc_pkcs7_parse_context *ctx = context;
 
 	(void)hdrlen;
 	(void)tag;
@@ -697,7 +702,7 @@ int lc_pkcs7_sig_note_skid(void *context, size_t hdrlen, unsigned char tag,
 int lc_pkcs7_sig_note_signature(void *context, size_t hdrlen, unsigned char tag,
 				const uint8_t *value, size_t vlen)
 {
-	struct pkcs7_parse_context *ctx = context;
+	struct lc_pkcs7_parse_context *ctx = context;
 	struct lc_pkcs7_message *pkcs7 = ctx->msg;
 	struct lc_pkcs7_signed_info *sinfo;
 	int ret;
@@ -724,7 +729,7 @@ out:
 int lc_pkcs7_note_signed_info(void *context, size_t hdrlen, unsigned char tag,
 			      const uint8_t *value, size_t vlen)
 {
-	struct pkcs7_parse_context *ctx = context;
+	struct lc_pkcs7_parse_context *ctx = context;
 	struct lc_pkcs7_message *pkcs7 = ctx->msg;
 	struct lc_pkcs7_signed_info *sinfo;
 	int ret;
@@ -817,20 +822,73 @@ LC_INTERFACE_FUNCTION(void, lc_pkcs7_message_clear,
 LC_INTERFACE_FUNCTION(int, lc_pkcs7_decode, struct lc_pkcs7_message *pkcs7,
 		      const uint8_t *data, size_t datalen)
 {
-	struct pkcs7_parse_context ctx = { 0 };
+	struct lc_pkcs7_parse_context ctx = { 0 };
 	int ret;
 
-	CKNULL(pkcs7, -EINVAL);
+	CKINT(lc_pkcs7_decode_ctx_set_pkcs7(&ctx, pkcs7));
+	CKINT(lc_pkcs7_decode_ctx(&ctx, data, datalen));
+
+out:
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_pkcs7_decode_ctx,
+		      struct lc_pkcs7_parse_context *ctx, const uint8_t *data,
+		      size_t datalen)
+{
+	int ret;
+
+	CKNULL(ctx, -EINVAL);
 	CKNULL(data, -EINVAL);
 
-	ctx.msg = pkcs7;
-	ctx.data = data;
-	ctx.ppcerts = &ctx.certs;
+	ctx->data = data;
+	ctx->ppcerts = &ctx->certs;
 
 	/* Attempt to decode the signature */
-	CKINT(lc_asn1_ber_decoder(&lc_pkcs7_decoder, &ctx, data, datalen));
+	CKINT(lc_asn1_ber_decoder(&lc_pkcs7_decoder, ctx, data, datalen));
 
-	CKINT(pkcs7_check_authattrs(ctx.msg));
+	CKINT(pkcs7_check_authattrs(ctx->msg));
+
+out:
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_pkcs7_decode_ctx_init,
+		      struct lc_pkcs7_parse_context *ctx)
+{
+	int ret = 0;
+
+	CKNULL(ctx, -EINVAL);
+
+	lc_memset_secure(ctx, 0, sizeof(struct lc_pkcs7_parse_context));
+
+out:
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_pkcs7_decode_ctx_set_pkcs7,
+		      struct lc_pkcs7_parse_context *ctx,
+		      struct lc_pkcs7_message *pkcs7)
+{
+	int ret = 0;
+
+	CKNULL(ctx, -EINVAL);
+	CKNULL(pkcs7, -EINVAL);
+
+	ctx->msg = pkcs7;
+
+out:
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_pkcs7_decode_ctx_set_aa_content_type,
+		      struct lc_pkcs7_parse_context *ctx, enum OID oid)
+{
+	int ret = 0;
+
+	CKNULL(ctx, -EINVAL);
+
+	ctx->data_type = oid;
 
 out:
 	return ret;

@@ -147,6 +147,8 @@ if (host_machine.system() != 'windows' and
 
 		sbverify_files = internal_src
 		sbverify_files += files([
+			'authenticode_SpcIndirectDataContent_asn1.c',
+			'image.c',
 			'lc_pkcs7_generator_helper.c',
 			'lc_x509_generator_checker.c',
 			'lc_x509_generator_file_helper.c',

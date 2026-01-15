@@ -86,8 +86,6 @@ struct lc_pkcs7_signed_info {
 #define sinfo_has_ms_opus_info (1 << 4)
 	/** Currently unused */
 #define sinfo_has_ms_statement_type (1 << 5)
-	/** Caller-provided attribute */
-#define sinfo_has_caller_provided_aa (1 << 6)
 
 	unsigned int index;
 

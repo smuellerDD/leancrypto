@@ -490,7 +490,8 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_verify, struct lc_pkcs7_message *pkcs7,
 
 	printf_debug("==> %s(), ", __func__);
 
-	if (pkcs7->data_type != OID_data) {
+	if (pkcs7->data_type != OID_data &&
+	    pkcs7->data_type != OID_messageDigest) {
 		printf_debug("Invalid sig (not pkcs7-data)\n");
 		return -EKEYREJECTED;
 	}

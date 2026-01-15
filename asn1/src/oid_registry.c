@@ -34,13 +34,15 @@
 #include "oid_registry.h"
 #include "visibility.h"
 #include "oid_registry_data.c"
+#include "visibility.h"
 
 /**
  * look_up_OID - Find an OID registration for the specified data
  * @data: Binary representation of the OID
  * @datasize: Size of the binary representation
  */
-enum OID lc_look_up_OID(const uint8_t *data, size_t datasize)
+LC_INTERFACE_FUNCTION(enum OID, lc_look_up_OID, const uint8_t *data,
+		      size_t datasize)
 {
 	enum OID oid;
 	size_t len, hash;

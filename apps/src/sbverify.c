@@ -43,15 +43,25 @@
 
 #include <getopt.h>
 
-#include "lc_status.h"
+#include "authenticode_SpcIndirectDataContent_asn1.h"
+#include "image.h"
+#include "lc_memcmp_secure.h"
 #include "lc_pkcs7_generator_helper.h"
+#include "lc_status.h"
 #include "lc_x509_generator_file_helper.h"
 #include "math_helper.h"
 #include "ret_checkers.h"
+#include "small_stack_support.h"
+
+struct lc_sbverify_ctx {
+	const struct lc_hash *hash;
+	const uint8_t *decoded_image_digest;
+	size_t decoded_image_digestlen;
+};
 
 static const char *toolname = "sbverify";
 
-static struct option options[] = {
+static const struct option options[] = {
 	{ "cert", required_argument, NULL, 'c' },
 	{ "list", no_argument, NULL, 'l' },
 	{ "detached", required_argument, NULL, 'd' },
@@ -162,69 +172,193 @@ print_certificate_store_certs(const struct pkcs7_generator_opts *parsed_opts)
 	return 0;
 }
 
-static int sbverify_dump_file(struct pkcs7_generator_opts *opts, int verbose)
+int lc_spc_attribute_type_OID(void *context, size_t hdrlen, unsigned char tag,
+			      const uint8_t *value, size_t vlen)
 {
-	const uint8_t *avail_data;
-	uint8_t *pkcs7_data = NULL;
-	size_t pkcs7_datalen = 0, avail_datalen;
+	/* SPC_PE_IMAGE_DATAOBJ OID (1.3.6.1.4.1.311.2.1.15) */
+	static const uint8_t spc_indirect_data_objid[] = {
+		0x2b, 0x6, 0x1, 0x4, 0x1, 0x82, 0x37, 0x2, 0x1, 0xf,
+	};
+
+	(void)context;
+	(void)hdrlen;
+	(void)tag;
+
+	if (lc_memcmp_secure(value, vlen, spc_indirect_data_objid,
+			     sizeof(spc_indirect_data_objid)))
+		return -EINVAL;
+
+	return 0;
+}
+
+int lc_spc_pe_image_data(void *context, size_t hdrlen, unsigned char tag,
+			 const uint8_t *value, size_t vlen)
+{
+	(void)context;
+	(void)hdrlen;
+	(void)tag;
+	(void)value;
+	(void)vlen;
+
+	/*
+	 * We are not decoding lc_authenticode_SpcPeImageData_encoder
+	 */
+	return 0;
+}
+
+int lc_spc_digest_algorithm_OID(void *context, size_t hdrlen, unsigned char tag,
+				const uint8_t *value, size_t vlen)
+{
+	struct lc_sbverify_ctx *authenticode_ctx = context;
+	enum OID oid;
 	int ret;
 
-	if (!opts->pkcs7_msg && !opts->checker)
-		return 0;
+	(void)hdrlen;
+	(void)tag;
 
-	CKINT_LOG(get_data(opts->pkcs7_msg, &pkcs7_data, &pkcs7_datalen,
-			   lc_pem_flag_cms),
-		  "Loading of file %s failed\n", opts->pkcs7_msg);
-
-	CKINT_LOG(lc_pkcs7_decode(opts->pkcs7, pkcs7_data, pkcs7_datalen),
-		  "Parsing of input file %s failed\n", opts->pkcs7_msg);
-
-	/*
-	 * If caller provided data, set it - if data is found in the CMS
-	 * structure, the following call will error out.
-	 */
-	if (opts->data) {
-		CKINT(lc_pkcs7_set_data(opts->pkcs7, opts->data, opts->datalen,
-					0));
+	oid = lc_look_up_OID(value, vlen);
+	if (oid == OID__NR) {
+		bin2print_debug(value, vlen, stdout, "PKCS7: Unknown OID\n");
+		return -EINVAL;
 	}
 
-	/*
-	 * Now, if we have data with the PKCS7 message, attempt to verify it
-	 * (i.e. perform a signature verification).
-	 */
-	ret = lc_pkcs7_get_content_data(opts->pkcs7, &avail_data,
-					&avail_datalen);
-	if (!ret) {
-		ret = lc_pkcs7_verify(
-			opts->pkcs7,
-			opts->use_trust_store ? &opts->trust_store : NULL,
-			opts->verify_rules_set ? &opts->verify_rules : NULL);
-	} else {
-		printf("Verification of PKCS#7 message skipped\n");
-	}
-
-	if (verbose || opts->print_pkcs7) {
-		CKINT(print_signature_info(opts));
-		if (verbose > 1)
-			CKINT(print_certificate_store_certs(opts));
-	}
-
-	/*
-	 * Mimic the original sbverify tool and not print out the signature
-	 * verification result when listing information.
-	 */
-	if (opts->print_pkcs7) {
-		ret = 0;
-		goto out;
-	}
-
-	if (ret)
-		printf("Signature verification failed\n");
-	else
-		printf("Signature verification OK\n");
+	CKINT(lc_x509_oid_to_hash(oid, &authenticode_ctx->hash));
 
 out:
-	release_data(pkcs7_data, pkcs7_datalen, lc_pem_flag_cms);
+	return ret;
+}
+
+int lc_spc_file_digest(void *context, size_t hdrlen, unsigned char tag,
+		       const uint8_t *value, size_t vlen)
+{
+	struct lc_sbverify_ctx *authenticode_ctx = context;
+
+	(void)hdrlen;
+	(void)tag;
+
+	authenticode_ctx->decoded_image_digest = value;
+	authenticode_ctx->decoded_image_digestlen = vlen;
+
+	return 0;
+}
+
+static int sbverify_dump_file(struct pkcs7_generator_opts *opts, int verbose)
+{
+//	static const uint8_t spc_sp_opus_info_objid[] = {
+//		0x2b, 0x6, 0x1, 0x4, 0x1, 0x82, 0x37, 0x2, 0x1, 0xc,
+//	};
+#define LC_AUTHENTICODE_SPC_INDIRECT_DATA_CONTENT_SIZE 256
+	struct workspace {
+		struct image image;
+		struct lc_pkcs7_parse_context ctx;
+		struct lc_sbverify_ctx authenticode_ctx;
+		uint8_t image_digest[LC_SHA_MAX_SIZE_DIGEST];
+	};
+	struct lc_pkcs7_message *pkcs7 = opts->pkcs7;
+	const uint8_t *avail_data;
+	uint8_t *image_buf = NULL, *detached_sig_buf = NULL, *signature;
+	size_t image_size = 0, detached_sig_buflen = 0, signaturelen,
+	       avail_datalen;
+	unsigned int signum = 0;
+	int ret;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+
+	CKINT(get_data(opts->infile, &image_buf, &image_size,
+		       lc_pem_flag_nopem));
+
+	/* Parse image */
+	CKINT(image_load(image_buf, image_size, &ws->image));
+
+	for (;;) {
+		if (opts->pkcs7_msg) {
+			if (signum > 0)
+				break;
+
+			CKINT(get_data(opts->infile, &detached_sig_buf,
+				       &detached_sig_buflen,
+				       lc_pem_flag_nopem));
+
+			signature = detached_sig_buf;
+			signaturelen = detached_sig_buflen;
+		} else {
+			ret = image_get_signature(&ws->image, signum,
+						  &signature, &signaturelen);
+			if (ret) {
+				if (signum > 0) {
+					ret = 0;
+					break;
+				} else {
+					fprintf(stderr,
+						"Unable to read signature data from %s\n",
+						opts->infile);
+					ret = -EINVAL;
+					goto out;
+				}
+			}
+		}
+
+		if (verbose || opts->print_pkcs7)
+			printf("signature %d\n", signum);
+
+		CKINT(lc_pkcs7_decode_ctx_init(&ws->ctx));
+
+		CKINT(lc_pkcs7_decode_ctx_set_pkcs7(&ws->ctx, pkcs7));
+
+		CKINT(lc_pkcs7_decode_ctx_set_aa_content_type(
+			&ws->ctx, OID_msIndirectData));
+
+		CKINT_LOG(lc_pkcs7_decode_ctx(&ws->ctx, signature,
+					      signaturelen),
+			  "Unable to parse signature data\n");
+
+		/*
+		 * Now, if we have data with the PKCS7 message, attempt to verify it
+		 * (i.e. perform a signature verification).
+		 */
+		CKINT(lc_pkcs7_get_content_data(opts->pkcs7, &avail_data,
+						&avail_datalen));
+		CKINT_LOG(lc_pkcs7_verify(
+				  opts->pkcs7,
+				  opts->use_trust_store ? &opts->trust_store :
+							  NULL,
+				  opts->verify_rules_set ? &opts->verify_rules :
+							   NULL),
+			  "Unable to verify signature\n");
+
+		/* Attempt to decode the signature */
+		CKINT(lc_asn1_ber_decoder(
+			&lc_authenticode_SpcIndirectDataContent_decoder,
+			&ws->authenticode_ctx, avail_data, avail_datalen));
+
+		/* Calculating the PE Image Hash */
+		CKINT(image_hash(&ws->image, ws->authenticode_ctx.hash,
+				 ws->image_digest, &opts->aux_datalen));
+
+		if (lc_memcmp_secure(
+			    ws->image_digest, opts->aux_datalen,
+			    ws->authenticode_ctx.decoded_image_digest,
+			    ws->authenticode_ctx.decoded_image_digestlen)) {
+			fprintf(stderr, "Image fails hash check\n");
+			ret = -EBADMSG;
+			goto out;
+		}
+
+		if (verbose || opts->print_pkcs7) {
+			CKINT(print_signature_info(opts));
+			if (verbose > 1)
+				CKINT(print_certificate_store_certs(opts));
+		}
+
+		signum++;
+	}
+
+out:
+	if (ws->image.buf != image_buf)
+		free((uint8_t *)ws->image.buf);
+	release_data(image_buf, image_size, lc_pem_flag_nopem);
+	release_data(detached_sig_buf, detached_sig_buflen, lc_pem_flag_nopem);
+	image_release(&ws->image);
+	LC_RELEASE_MEM(ws);
 	return ret;
 }
 
@@ -254,7 +388,7 @@ int main(int argc, char **argv)
 			break;
 		case 'd':
 			parsed_opts.infile_flags = lc_pkcs7_set_data_noflag;
-			parsed_opts.infile = optarg;
+			parsed_opts.pkcs7_msg = optarg;
 			break;
 		case 'l':
 			parsed_opts.print_pkcs7 = 1;
@@ -279,7 +413,7 @@ int main(int argc, char **argv)
 		goto out;
 	}
 
-	parsed_opts.pkcs7_msg = argv[optind];
+	parsed_opts.infile = argv[optind];
 
 	if (parsed_opts.infile)
 		CKINT(pkcs7_set_data(&parsed_opts));

@@ -39,7 +39,7 @@
 int lc_pkcs7_sig_note_pkey_algo_OID_enc(void *context, uint8_t *data,
 					size_t *avail_datalen, uint8_t *tag)
 {
-	struct pkcs7_generate_context *ctx = context;
+	struct lc_pkcs7_generate_context *ctx = context;
 	const struct lc_x509_certificate *current_x509 = ctx->current_x509;
 	const struct lc_pkcs7_signed_info *sinfo = ctx->current_sinfo;
 	enum lc_sig_types pkey_algo;
@@ -118,7 +118,7 @@ out:
 int lc_pkcs7_digest_algorithm_OID_enc(void *context, uint8_t *data,
 				      size_t *avail_datalen, uint8_t *tag)
 {
-	struct pkcs7_generate_context *ctx = context;
+	struct lc_pkcs7_generate_context *ctx = context;
 	const struct lc_pkcs7_signed_info *sinfo = ctx->current_sinfo;
 	const struct lc_hash *hash_algo;
 	const uint8_t *oid_data = NULL;
@@ -222,7 +222,7 @@ int lc_pkcs7_check_content_type_enc(void *context, uint8_t *data,
 int lc_pkcs7_note_signeddata_version_enc(void *context, uint8_t *data,
 					 size_t *avail_datalen, uint8_t *tag)
 {
-	struct pkcs7_generate_context *ctx = context;
+	struct lc_pkcs7_generate_context *ctx = context;
 	const struct lc_pkcs7_message *pkcs7 = ctx->pkcs7;
 	const struct lc_x509_certificate *x509;
 	unsigned int skid_present = 0;
@@ -259,7 +259,7 @@ out:
 int lc_pkcs7_note_signerinfo_version_enc(void *context, uint8_t *data,
 					 size_t *avail_datalen, uint8_t *tag)
 {
-	struct pkcs7_generate_context *ctx = context;
+	struct lc_pkcs7_generate_context *ctx = context;
 	const struct lc_pkcs7_signed_info *sinfo = ctx->current_sinfo;
 	const struct lc_x509_certificate *x509;
 	int ret;
@@ -288,7 +288,7 @@ out:
 int lc_pkcs7_extract_cert_continue_enc(void *context, uint8_t *data,
 				       size_t *avail_datalen, uint8_t *tag)
 {
-	struct pkcs7_generate_context *ctx = context;
+	struct lc_pkcs7_generate_context *ctx = context;
 	const struct lc_x509_certificate *current_x509 = ctx->current_x509;
 
 	(void)data;
@@ -340,7 +340,7 @@ int lc_pkcs7_extract_crl_cert_enc(void *context, uint8_t *data,
 int lc_pkcs7_extract_extended_cert_enc(void *context, uint8_t *data,
 				       size_t *avail_datalen, uint8_t *tag)
 {
-	struct pkcs7_generate_context *ctx = context;
+	struct lc_pkcs7_generate_context *ctx = context;
 	const struct lc_x509_certificate *current_x509 = ctx->current_x509;
 	size_t offset, len;
 	int ret;
@@ -416,25 +416,20 @@ int lc_pkcs7_note_content_enc(void *context, uint8_t *data,
 int lc_pkcs7_data_OID_enc(void *context, uint8_t *data, size_t *avail_datalen,
 			  uint8_t *tag)
 {
-	struct pkcs7_generate_context *ctx = context;
+	struct lc_pkcs7_generate_context *ctx = context;
+	const uint8_t *oid_data;
+	size_t oid_datalen;
 	int ret = 0;
 
 	(void)context;
 	(void)tag;
 
-	bin2print_debug(ctx->signed_data_content_type_oid_data,
-			ctx->signed_data_content_type_oid_datalen, stdout,
-			"OID pkcs7 Data");
+	CKINT(lc_OID_to_data(ctx->signed_info_data_type, &oid_data,
+			     &oid_datalen));
+	CKINT(lc_x509_sufficient_size(avail_datalen, oid_datalen));
 
-	if (ctx->signed_data_content_type_oid_datalen) {
-		CKINT(lc_x509_sufficient_size(
-			avail_datalen,
-			ctx->signed_data_content_type_oid_datalen));
-
-		memcpy(data, ctx->signed_data_content_type_oid_data,
-		       ctx->signed_data_content_type_oid_datalen);
-		*avail_datalen -= ctx->signed_data_content_type_oid_datalen;
-	}
+	memcpy(data, oid_data, oid_datalen);
+	*avail_datalen -= oid_datalen;
 
 out:
 	return ret;
@@ -447,7 +442,7 @@ out:
 int lc_pkcs7_note_data_enc(void *context, uint8_t *data, size_t *avail_datalen,
 			   uint8_t *tag)
 {
-	struct pkcs7_generate_context *ctx = context;
+	struct lc_pkcs7_generate_context *ctx = context;
 	const struct lc_pkcs7_message *pkcs7 = ctx->pkcs7;
 	int ret;
 
@@ -473,9 +468,8 @@ out:
 	return ret;
 }
 
-static inline int
-pkcs7_authenticated_attr_unprocessed(const struct pkcs7_generate_context *ctx,
-				     unsigned long check_aa)
+static inline int pkcs7_authenticated_attr_unprocessed(
+	const struct lc_pkcs7_generate_context *ctx, unsigned long check_aa)
 {
 	const struct lc_pkcs7_signed_info *sinfo = ctx->current_sinfo;
 	unsigned long aa = sinfo->aa_set & ~ctx->aa_set_applied;
@@ -488,7 +482,7 @@ pkcs7_authenticated_attr_unprocessed(const struct pkcs7_generate_context *ctx,
 int lc_pkcs7_external_aa_continue_enc(void *context, uint8_t *data,
 				      size_t *avail_datalen, uint8_t *tag)
 {
-	struct pkcs7_generate_context *ctx = context;
+	struct lc_pkcs7_generate_context *ctx = context;
 	const struct lc_pkcs7_signed_info *sinfo = ctx->current_sinfo;
 
 	(void)data;
@@ -504,7 +498,7 @@ int lc_pkcs7_external_aa_continue_enc(void *context, uint8_t *data,
 int lc_pkcs7_external_aa_OID_enc(void *context, uint8_t *data,
 				 size_t *avail_datalen, uint8_t *tag)
 {
-	struct pkcs7_generate_context *ctx = context;
+	struct lc_pkcs7_generate_context *ctx = context;
 	const struct lc_pkcs7_signed_info *sinfo = ctx->current_sinfo;
 	const uint8_t *oid_data = NULL;
 	size_t oid_datalen = 0;
@@ -543,12 +537,6 @@ int lc_pkcs7_external_aa_OID_enc(void *context, uint8_t *data,
 				     &oid_datalen));
 		bin2print_debug(oid_data, oid_datalen, stdout,
 				"OID message digest");
-	} else if (pkcs7_authenticated_attr_unprocessed(
-			   ctx, sinfo_has_caller_provided_aa)) {
-		oid_data = ctx->caller_provided_aa_oid_data;
-		oid_datalen = ctx->caller_provided_aa_oid_datalen;
-		bin2print_debug(oid_data, oid_datalen, stdout,
-				"OID caller-provided AA");
 	}
 
 	if (oid_datalen) {
@@ -647,7 +635,7 @@ out:
 int lc_pkcs7_external_aa_enc(void *context, uint8_t *data,
 			     size_t *avail_datalen, uint8_t *tag)
 {
-	struct pkcs7_generate_context *ctx = context;
+	struct lc_pkcs7_generate_context *ctx = context;
 	const struct lc_pkcs7_message *pkcs7 = ctx->pkcs7;
 	const struct lc_pkcs7_signed_info *sinfo = ctx->current_sinfo;
 	uint8_t digest[LC_SHA_MAX_SIZE_DIGEST];
@@ -710,15 +698,6 @@ int lc_pkcs7_external_aa_enc(void *context, uint8_t *data,
 		CKINT(lc_x509_sufficient_size(avail_datalen, digest_size));
 		memcpy(data, digest, digest_size);
 		*avail_datalen -= digest_size;
-	} else if (pkcs7_authenticated_attr_unprocessed(
-			   ctx, sinfo_has_caller_provided_aa)) {
-		ctx->aa_set_applied |= sinfo_has_caller_provided_aa;
-
-		CKINT(lc_x509_sufficient_size(avail_datalen,
-					      ctx->caller_provided_aa_datalen));
-		memcpy(data, ctx->caller_provided_aa_data,
-		       ctx->caller_provided_aa_datalen);
-		*avail_datalen -= ctx->caller_provided_aa_datalen;
 	}
 
 out:
@@ -729,7 +708,7 @@ out:
 int lc_pkcs7_note_attribute_type_OID_enc(void *context, uint8_t *data,
 					 size_t *avail_datalen, uint8_t *tag)
 {
-	struct pkcs7_generate_context *ctx = context;
+	struct lc_pkcs7_generate_context *ctx = context;
 	const struct lc_pkcs7_signed_info *sinfo = ctx->current_sinfo;
 	const struct lc_x509_certificate *x509 = sinfo->signer;
 	const struct lc_x509_certificate_name *name = &x509->subject_segments;
@@ -747,7 +726,7 @@ int lc_pkcs7_extract_attribute_name_segment_enc(void *context, uint8_t *data,
 						size_t *avail_datalen,
 						uint8_t *tag)
 {
-	struct pkcs7_generate_context *ctx = context;
+	struct lc_pkcs7_generate_context *ctx = context;
 	const struct lc_pkcs7_signed_info *sinfo = ctx->current_sinfo;
 	const struct lc_x509_certificate *x509 = sinfo->signer;
 	const struct lc_x509_certificate_name *name = &x509->subject_segments;
@@ -764,7 +743,7 @@ int lc_pkcs7_extract_attribute_name_segment_enc(void *context, uint8_t *data,
 int lc_pkcs7_attribute_value_continue_enc(void *context, uint8_t *data,
 					  size_t *avail_datalen, uint8_t *tag)
 {
-	struct pkcs7_generate_context *ctx = context;
+	struct lc_pkcs7_generate_context *ctx = context;
 	const struct lc_pkcs7_signed_info *sinfo = ctx->current_sinfo;
 	const struct lc_x509_certificate *x509 = sinfo->signer;
 	const struct lc_x509_certificate_name *name = &x509->subject_segments;
@@ -788,7 +767,7 @@ int lc_pkcs7_attribute_value_continue_enc(void *context, uint8_t *data,
 int lc_pkcs7_sig_note_set_of_authattrs_enc(void *context, uint8_t *data,
 					   size_t *avail_datalen, uint8_t *tag)
 {
-	struct pkcs7_generate_context *ctx = context;
+	struct lc_pkcs7_generate_context *ctx = context;
 	const struct lc_pkcs7_signed_info *sinfo = ctx->current_sinfo;
 	uint8_t *copy_aa = ctx->authattrs, len;
 	size_t copy_aalen;
@@ -882,7 +861,7 @@ out:
 int lc_pkcs7_sig_note_serial_enc(void *context, uint8_t *data,
 				 size_t *avail_datalen, uint8_t *tag)
 {
-	struct pkcs7_generate_context *ctx = context;
+	struct lc_pkcs7_generate_context *ctx = context;
 	const struct lc_pkcs7_signed_info *sinfo = ctx->current_sinfo;
 	const struct lc_x509_certificate *x509 = sinfo->signer;
 	int ret = 0;
@@ -943,7 +922,7 @@ int lc_pkcs7_authenticated_attr_OID_enc(void *context, uint8_t *data,
 int lc_pkcs7_sig_note_skid_enc(void *context, uint8_t *data,
 			       size_t *avail_datalen, uint8_t *tag)
 {
-	struct pkcs7_generate_context *ctx = context;
+	struct lc_pkcs7_generate_context *ctx = context;
 	const struct lc_pkcs7_signed_info *sinfo = ctx->current_sinfo;
 	const struct lc_x509_certificate *x509 = sinfo->signer;
 	int ret;
@@ -970,7 +949,7 @@ int lc_pkcs7_sig_note_signature_enc(void *context, uint8_t *data,
 				    size_t *avail_datalen, uint8_t *tag)
 {
 	struct lc_public_key_signature sig = { 0 };
-	struct pkcs7_generate_context *ctx = context;
+	struct lc_pkcs7_generate_context *ctx = context;
 	const struct lc_pkcs7_message *pkcs7 = ctx->pkcs7;
 	const struct lc_pkcs7_signed_info *sinfo = ctx->current_sinfo;
 	const struct lc_x509_certificate *x509 = sinfo->signer;
@@ -1037,7 +1016,7 @@ out:
 int lc_pkcs7_note_signed_info_enc(void *context, uint8_t *data,
 				  size_t *avail_datalen, uint8_t *tag)
 {
-	struct pkcs7_generate_context *ctx = context;
+	struct lc_pkcs7_generate_context *ctx = context;
 	const struct lc_pkcs7_signed_info *current_sinfo = ctx->current_sinfo;
 
 	(void)data;
@@ -1063,7 +1042,7 @@ int lc_pkcs7_note_signed_info_enc(void *context, uint8_t *data,
  * API functions
  ******************************************************************************/
 
-static int pkcs7_initialize_ctx(struct pkcs7_generate_context *ctx,
+static int pkcs7_initialize_ctx(struct lc_pkcs7_generate_context *ctx,
 				const struct lc_pkcs7_message *pkcs7)
 {
 	struct lc_pkcs7_signed_info *sinfo;
@@ -1072,9 +1051,6 @@ static int pkcs7_initialize_ctx(struct pkcs7_generate_context *ctx,
 
 	CKNULL(pkcs7->certs, -EINVAL);
 	CKNULL(pkcs7->list_head_sinfo, -EINVAL);
-
-	CKINT(lc_OID_to_data(OID_data, &ctx->signed_data_content_type_oid_data,
-			     &ctx->signed_data_content_type_oid_datalen));
 
 	ctx->pkcs7 = pkcs7;
 	ctx->current_x509 = pkcs7->certs;
@@ -1118,7 +1094,7 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_encode,
 		      const struct lc_pkcs7_message *pkcs7, uint8_t *data,
 		      size_t *avail_datalen)
 {
-	struct pkcs7_generate_context ctx = { 0 };
+	struct lc_pkcs7_generate_context ctx = { 0 };
 	int ret;
 
 	CKNULL(pkcs7, -EINVAL);
@@ -1129,6 +1105,7 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_encode,
 		pkcs7->data, -EINVAL,
 		"Encapsulated data missing - perhaps you want to use the detached signature API?\n");
 
+	ctx.signed_info_data_type = OID_data;
 	CKINT(pkcs7_initialize_ctx(&ctx, pkcs7));
 
 	/* Attempt to decode the signature */
@@ -1140,20 +1117,22 @@ out:
 }
 
 LC_INTERFACE_FUNCTION(int, lc_pkcs7_encode_ctx_init,
-		      struct pkcs7_generate_context *ctx)
+		      struct lc_pkcs7_generate_context *ctx)
 {
 	int ret = 0;
 
 	CKNULL(ctx, -EINVAL);
 
-	lc_memset_secure(ctx, 0, sizeof(ctx));
+	lc_memset_secure(ctx, 0, sizeof(struct lc_pkcs7_generate_context));
+
+	ctx->signed_info_data_type = OID_data;
 
 out:
 	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_pkcs7_encode_ctx_set_pkcs7,
-		      struct pkcs7_generate_context *ctx,
+		      struct lc_pkcs7_generate_context *ctx,
 		      const struct lc_pkcs7_message *pkcs7)
 {
 	int ret;
@@ -1167,8 +1146,21 @@ out:
 	return ret;
 }
 
+LC_INTERFACE_FUNCTION(int, lc_pkcs7_encode_ctx_set_signer_data_type,
+		      struct lc_pkcs7_generate_context *ctx, enum OID oid)
+{
+	int ret = 0;
+
+	CKNULL(ctx, -EINVAL);
+
+	ctx->signed_info_data_type = oid;
+
+out:
+	return ret;
+}
+
 LC_INTERFACE_FUNCTION(int, lc_pkcs7_encode_ctx,
-		      struct pkcs7_generate_context *ctx, uint8_t *data,
+		      struct lc_pkcs7_generate_context *ctx, uint8_t *data,
 		      size_t *avail_datalen)
 {
 	int ret;

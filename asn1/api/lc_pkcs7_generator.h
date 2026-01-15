@@ -27,7 +27,7 @@ extern "C" {
 #endif
 
 /// \cond DO_NOT_DOCUMENT
-struct pkcs7_generate_context {
+struct lc_pkcs7_generate_context {
 	/*
 	 * Message being converted into PKCS#7 blob
 	 */
@@ -58,20 +58,11 @@ struct pkcs7_generate_context {
 	/**********************************************************************
 	 * Caller-provided data
 	 **********************************************************************/
-	/*
-	 * SignedData settings
-	 */
-	/* contentType */
-	const uint8_t *signed_data_content_type_oid_data;
-	size_t signed_data_content_type_oid_datalen;
 
 	/*
-	 * Additional authenticated attribute
+	 * SignedData
 	 */
-	const uint8_t *caller_provided_aa_oid_data;
-	size_t caller_provided_aa_oid_datalen;
-	const uint8_t *caller_provided_aa_data;
-	size_t caller_provided_aa_datalen;
+	enum OID signed_info_data_type; /* Type of Data */
 };
 /// \endcond
 
@@ -146,7 +137,7 @@ int lc_pkcs7_encode(const struct lc_pkcs7_message *pkcs7, uint8_t *data,
  *
  * @return 0 on success or < 0 on error
  */
-int lc_pkcs7_encode_ctx_init(struct pkcs7_generate_context *ctx);
+int lc_pkcs7_encode_ctx_init(struct lc_pkcs7_generate_context *ctx);
 
 /**
  * @ingroup PKCS7Gen
@@ -161,45 +152,24 @@ int lc_pkcs7_encode_ctx_init(struct pkcs7_generate_context *ctx);
  *
  * @return 0 on success or < 0 on error
  */
-int lc_pkcs7_encode_ctx_set_pkcs7(struct pkcs7_generate_context *ctx,
+int lc_pkcs7_encode_ctx_set_pkcs7(struct lc_pkcs7_generate_context *ctx,
 				  const struct lc_pkcs7_message *pkcs7);
 
 /**
  * @ingroup PKCS7Gen
- * @brief Set the SignedData ContentType OID
+ * @brief Set the PKCS#7 SignedData contentType
  *
- * Provide a specific OID for the PKCS#7 message field
- * SignedData->ContentInfo->ContentType.
+ * By default the OID for generic data is set.
  *
- * @param [in,out] ctx The context data structure shaping the PKCS#7 message
- *		       generation.
- * @param [in] oid Binary version of the OID
- * @param [in] oidlen Length of the binary OID field
+ * @param [in] ctx The context data structure shaping the PKCS#7 message
+ *		   generation.
+ * @param [in] oid Data type OID
  *
  * @return 0 on success or < 0 on error
  */
-int lc_pkcs7_encode_ctx_set_signed_data_content_type(
-	struct pkcs7_generate_context *ctx, const uint8_t *oid, size_t oidlen);
 
-/**
- * @ingroup PKCS7Gen
- * @brief Set an additional authenticated attribute
- *
- * Provide a specific OID along with the data for an additional authenticated
- * attribute.
- *
- * @param [in,out] ctx The context data structure shaping the PKCS#7 message
- *		       generation.
- * @param [in] oid Binary version of the OID
- * @param [in] oidlen Length of the binary OID field
- * @param [in] data Authenticated attribute data to be set
- * @param [in] datalen Length of the authenticated attribute data
- *
- * @return 0 on success or < 0 on error
- */
-int lc_pkcs7_encode_ctx_set_additional_aa(struct pkcs7_generate_context *ctx,
-					  const uint8_t *oid, size_t oidlen,
-					  const uint8_t *data, size_t datalen);
+int lc_pkcs7_encode_ctx_set_signer_data_type(
+	struct lc_pkcs7_generate_context *ctx, enum OID oid);
 
 /**
  * @ingroup PKCS7Gen
@@ -224,7 +194,7 @@ int lc_pkcs7_encode_ctx_set_additional_aa(struct pkcs7_generate_context *ctx,
  *
  * @return 0 on success or < 0 on error
  */
-int lc_pkcs7_encode_ctx(struct pkcs7_generate_context *ctx, uint8_t *data,
+int lc_pkcs7_encode_ctx(struct lc_pkcs7_generate_context *ctx, uint8_t *data,
 			size_t *avail_datalen);
 
 /**
@@ -318,6 +288,25 @@ enum lc_pkcs7_set_data_flags {
 int lc_pkcs7_set_data(struct lc_pkcs7_message *pkcs7, const uint8_t *data,
 		      size_t data_len, enum lc_pkcs7_set_data_flags flags);
 
+/**
+ * @ingroup PKCS7Gen
+ * @brief Set the data to be signed with PKCS#7
+ *
+ * \note The caller must retain the \p data for the lifetime of the \p pkcs7
+ * structure.
+ *
+ * @param [in] pkcs7 PKCS#7 data structure to be filled
+ * @param [in] data Pointer to the data to be signed
+ * @param [in] data_len Size of the data buffer
+ * @param [in] flags Flags to be set
+ * @param [in] data_type OID of the data type to set to
+ *
+ * @return 0 on success, < 0 on error
+ */
+int lc_pkcs7_set_data_with_type(struct lc_pkcs7_message *pkcs7,
+				const uint8_t *data, size_t data_len,
+				enum lc_pkcs7_set_data_flags flags,
+				enum OID data_type);
 #ifdef __cplusplus
 }
 #endif

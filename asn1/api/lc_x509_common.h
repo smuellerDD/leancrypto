@@ -379,6 +379,27 @@ int lc_x509_sig_type_to_name(enum lc_sig_types pkey_algo, const char **alg);
 int lc_x509_sig_type_to_hash(enum lc_sig_types pkey_algo,
 			     const struct lc_hash **hash_algo);
 
+/**
+ * @brief Obtain the hash type to be used with a given OID
+ *
+ * @param [in] oid OID to convert
+ * @param [out] hash_algo Hash reference (or NULL if none is to be used)
+ *
+ * @return 0 on success, < 0 on error
+ */
+int lc_x509_oid_to_hash(enum OID oid, const struct lc_hash **hash_algo);
+
+/**
+ * @brief Convert a binary representation of an OID to leancrypto internal
+ *	  reference
+ *
+ * @param [in] data Binary OID data
+ * @param [in] datasize Length of data buffer
+ *
+ * @return OID
+ */
+enum OID lc_look_up_OID(const uint8_t *data, size_t datasize);
+
 struct lc_tm {
 	unsigned short year;
 	unsigned char month;

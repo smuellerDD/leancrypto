@@ -460,7 +460,8 @@ LC_INTERFACE_FUNCTION(int, lc_x509_hash_to_oid, const struct lc_hash *hash_algo,
 	return 0;
 }
 
-int lc_x509_oid_to_hash(enum OID oid, const struct lc_hash **hash_algo)
+LC_INTERFACE_FUNCTION(int, lc_x509_oid_to_hash, enum OID oid,
+		      const struct lc_hash **hash_algo)
 {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wswitch-enum"

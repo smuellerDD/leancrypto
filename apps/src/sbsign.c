@@ -58,7 +58,7 @@
 
 static const char *toolname = "sbsign";
 
-static struct option options[] = {
+static const struct option options[] = {
 	{ "output", required_argument, NULL, 'o' },
 	{ "cert", required_argument, NULL, 'c' },
 	{ "key", required_argument, NULL, 'k' },
@@ -250,19 +250,15 @@ out:
 	return ret;
 }
 
-#include "binhexbin.h"
 static int pkcs7_gen_message_sbsign(struct pkcs7_generator_opts *opts)
 {
-	static const uint8_t spc_indirect_data_objid[] = {
-		0x2b, 0x6, 0x1, 0x4, 0x1, 0x82, 0x37, 0x2, 0x1, 0x4,
-	};
 //	static const uint8_t spc_sp_opus_info_objid[] = {
 //		0x2b, 0x6, 0x1, 0x4, 0x1, 0x82, 0x37, 0x2, 0x1, 0xc,
 //	};
 #define LC_AUTHENTICODE_SPC_INDIRECT_DATA_CONTENT_SIZE 256
 	struct workspace {
 		struct image image;
-		struct pkcs7_generate_context ctx;
+		struct lc_pkcs7_generate_context ctx;
 		uint8_t authenticode_SpcIndirectDataContent
 			[LC_AUTHENTICODE_SPC_INDIRECT_DATA_CONTENT_SIZE];
 		uint8_t data[ASN1_MAX_DATASIZE];
@@ -293,7 +289,6 @@ static int pkcs7_gen_message_sbsign(struct pkcs7_generator_opts *opts)
 	CKINT(image_hash(&ws->image, opts->hash, ws->image_digest,
 			 &opts->aux_datalen));
 	opts->aux_data = ws->image_digest;
-bin2print(ws->image_digest, opts->aux_datalen, stdout, "digest");
 
 	/*
 	 * As defined in the "Windows Authenticode Portable Executable Signature
@@ -309,20 +304,18 @@ bin2print(ws->image_digest, opts->aux_datalen, stdout, "digest");
 	CKINT(lc_pkcs7_encode_ctx_init(&ws->ctx));
 
 	/*
-	 * Set and embed the SpcIndirectDataContent into the PKCS#7 message.
+	 * Set the data type to messageDigest
 	 */
-	CKINT(lc_pkcs7_set_data(pkcs7, ws->authenticode_SpcIndirectDataContent,
-				datalen, lc_pkcs7_set_data_embed));
-	CKINT(lc_pkcs7_encode_ctx_set_pkcs7(&ws->ctx, pkcs7));
+	CKINT(lc_pkcs7_encode_ctx_set_signer_data_type(&ws->ctx,
+						       OID_messageDigest));
 
 	/*
-	 * As defined in the "Windows Authenticode Portable Executable Signature
-	 * Format" The contentType must be set to
-	 * SPC_INDIRECT_DATA_OBJID (1.3.6.1.4.1.311.2.1.4).
+	 * Set and embed the SpcIndirectDataContent into the PKCS#7 message.
 	 */
-	CKINT(lc_pkcs7_encode_ctx_set_signed_data_content_type(
-		&ws->ctx, spc_indirect_data_objid,
-		sizeof(spc_indirect_data_objid)));
+	CKINT(lc_pkcs7_set_data_with_type(
+		pkcs7, ws->authenticode_SpcIndirectDataContent, datalen,
+		lc_pkcs7_set_data_embed, OID_msIndirectData));
+	CKINT(lc_pkcs7_encode_ctx_set_pkcs7(&ws->ctx, pkcs7));
 
 	/*
 	 * As defined in the "Windows Authenticode Portable Executable Signature
@@ -343,7 +336,7 @@ bin2print(ws->image_digest, opts->aux_datalen, stdout, "digest");
 	if (opts->infile_flags == lc_pkcs7_set_data_embed) {
 		image_write(&ws->image, outfile_p);
 	} else {
-		int i;
+		unsigned int i;
 		uint8_t *buf;
 		size_t len;
 

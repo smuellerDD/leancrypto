@@ -108,11 +108,12 @@ int image_load(const uint8_t *image_buf, size_t image_size,
 int image_hash(struct image *image, const struct lc_hash *hash,
 	       uint8_t digest[], size_t *digestsize);
 int image_add_signature(struct image *, void *sig, size_t size);
-int image_get_signature(struct image *image, int signum, uint8_t **buf,
+int image_get_signature(struct image *image, unsigned int signum, uint8_t **buf,
 			size_t *size);
-int image_remove_signature(struct image *image, int signum);
+int image_remove_signature(struct image *image, unsigned int signum);
 int image_write(struct image *image, const char *filename);
-int image_write_detached(struct image *image, int signum, const char *filename);
+int image_write_detached(struct image *image, unsigned int signum,
+			 const char *filename);
 void image_release(struct image *image);
 
 #endif /* IMAGE_H */

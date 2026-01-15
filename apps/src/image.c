@@ -197,9 +197,9 @@ static void image_pecoff_update_checksum(struct image *image)
 	 *
 	 * We also skip the 32-bits of checksum data in the PE/COFF header.
 	 */
-	checksum = csum_bytes(
-		0, image->buf,
-		(size_t)((uint8_t *)image->checksum - image->buf));
+	checksum =
+		csum_bytes(0, image->buf,
+			   (size_t)((uint8_t *)image->checksum - image->buf));
 	checksum = csum_bytes((uint16_t)checksum, image->checksum + 1,
 			      (size_t)((image->buf + image->data_size) -
 				       (uint8_t *)(image->checksum + 1)));
@@ -209,10 +209,10 @@ static void image_pecoff_update_checksum(struct image *image)
 				      image->sigsize);
 	}
 
-	checksum += image->data_size;
+	checksum += (uint32_t)image->data_size;
 
 	if (is_signed)
-		checksum += image->sigsize;
+		checksum += (uint32_t)image->sigsize;
 
 	*(image->checksum) = le_bswap32(checksum);
 }
@@ -309,7 +309,8 @@ static int image_pecoff_parse(struct image *image)
 
 	image->cert_table_size = image->data_dir_sigtable->size;
 	if (image->cert_table_size) {
-		cert_table = (const struct cert_table_header *)(buf + image->data_dir_sigtable->addr);
+		cert_table = (const struct cert_table_header
+				      *)(buf + image->data_dir_sigtable->addr);
 	} else {
 		cert_table = NULL;
 	}
@@ -328,7 +329,8 @@ static int image_pecoff_parse(struct image *image)
 	}
 
 	image->sections = pehdr_u16(image->pehdr->f_nscns);
-	image->scnhdr = (const struct external_scnhdr *)(image->opthdr.addr + image->opthdr_size);
+	image->scnhdr = (const struct external_scnhdr *)(image->opthdr.addr +
+							 image->opthdr_size);
 
 	return 0;
 }
@@ -616,16 +618,16 @@ out:
 	return ret;
 }
 
-int image_get_signature(struct image *image, int signum, uint8_t **buf,
+int image_get_signature(struct image *image, unsigned int signum, uint8_t **buf,
 			size_t *size)
 {
 	struct cert_table_header *header;
 	uint8_t *addr = image->sigbuf;
-	int i;
+	unsigned int i;
 
 	if (!image->sigbuf) {
 		fprintf(stderr, "No signature table present\n");
-		return -1;
+		return -ENODATA;
 	}
 
 	header = (struct cert_table_header *)addr;
@@ -634,14 +636,14 @@ int image_get_signature(struct image *image, int signum, uint8_t **buf,
 		header = (struct cert_table_header *)addr;
 	}
 	if (addr >= (image->sigbuf + image->sigsize))
-		return -1;
+		return -ENODATA;
 
 	*buf = (uint8_t *)(header + 1);
 	*size = header->size - sizeof(*header);
 	return 0;
 }
 
-int image_remove_signature(struct image *image, int signum)
+int image_remove_signature(struct image *image, unsigned int signum)
 {
 	uint8_t *buf;
 	size_t size, aligned_size;
@@ -723,7 +725,8 @@ out:
 	return ret;
 }
 
-int image_write_detached(struct image *image, int signum, const char *filename)
+int image_write_detached(struct image *image, unsigned int signum,
+			 const char *filename)
 {
 	uint8_t *sig;
 	size_t len;

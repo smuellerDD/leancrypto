@@ -1,6 +1,9 @@
 hasher_test_script = find_program('hasher-test.sh', required: true)
 siggen_test_script = find_program('siggen_tester.sh', required: true)
 sbsign_test_script = find_program('sbsign_test.sh', required: true)
+
+# Application can be re-generated as outlined in README.md
+# "Library Build for EFI Environment"
 efi_test_file = meson.project_source_root() + '/apps/tests/pkcs7_trust_tester.efi'
 rfc9882_test_script = find_program('rfc9882_test.sh', required: true)
 certdir = meson.project_source_root() + '/asn1/tests/testcerts/'
@@ -561,27 +564,26 @@ if (host_machine.system() != 'windows' and
 			is_parallel: false, timeout: 300, suite: regression,
 			should_fail: fips140_negative_expect_fail)
 
+		# These tests do not fail in FIPS mode, because they do not
+		# perform cryptographic operations
 		test('RFC9882 ML-DSA87 Test Vector',
 		     rfc9882_test_script,
 		     args: [ rfc9882dir + 'rfc9882_cms_mldsa87.pem',
 			     lc_pkcs7_generator.full_path(),
 			   ],
-		     timeout: 300, suite: regression,
-		     should_fail: fips140_negative_expect_fail)
+		     timeout: 300, suite: regression)
 		test('RFC9882 ML-DSA65 Test Vector',
 		     rfc9882_test_script,
 		     args: [ rfc9882dir + 'rfc9882_cms_mldsa65.pem',
 			     lc_pkcs7_generator.full_path(),
 			   ],
-		     timeout: 300, suite: regression,
-		     should_fail: fips140_negative_expect_fail)
+		     timeout: 300, suite: regression)
 		test('RFC9882 ML-DSA44 Test Vector',
 		     rfc9882_test_script,
 		     args: [ rfc9882dir + 'rfc9882_cms_mldsa44.pem',
 			     lc_pkcs7_generator.full_path(),
 			   ],
-		     timeout: 300, suite: regression,
-		     should_fail: fips140_negative_expect_fail)
+		     timeout: 300, suite: regression)
 
 	endif
 
