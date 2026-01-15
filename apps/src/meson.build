@@ -143,6 +143,7 @@ if (host_machine.system() != 'windows' and
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto,
 				install: true,
+				install_dir: get_option('libexecdir') / meson.project_name()
 				)
 
 		sbverify_files = internal_src
@@ -161,6 +162,7 @@ if (host_machine.system() != 'windows' and
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto,
 				install: true,
+				install_dir: get_option('libexecdir') / meson.project_name()
 				)
 	endif
 
