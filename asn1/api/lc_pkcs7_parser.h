@@ -202,7 +202,7 @@ int lc_pkcs7_decode_ctx_set_aa_content_type(struct lc_pkcs7_parse_context *ctx,
 
 /**
  * @ingroup PKCS7
- * @brief Encode a PKCS#7 message using the provided context.
+ * @brief Decode a PKCS#7 message using the provided context.
  *
  * The function generates a PKCS#7 data blob from the filled PKCS#7 data
  * structure.
@@ -214,12 +214,8 @@ int lc_pkcs7_decode_ctx_set_aa_content_type(struct lc_pkcs7_parse_context *ctx,
  *
  * @param [in] ctx The context data structure shaping the PKCS#7 message
  *		   generation.
- * @param [in,out] data Raw PKCS#7 data blob in DER / BER format - the caller
- *			must provide the memory
- * @param [in,out] avail_datalen Length of the raw PKCS#7 certificate buffer that
- *				 is free (the input value must be equal to the
- * 				 \p data buffer size, the output refers to how
- *				 many bytes are unused)
+ * @param [in] data Raw PKCS#7 data blob following RFC5652
+ * @param [in] datalen Length of the raw PKCS#7 message buffer
  *
  * @return 0 on success or < 0 on error
  */
