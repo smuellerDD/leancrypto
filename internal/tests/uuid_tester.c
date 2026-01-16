@@ -20,6 +20,7 @@
 #include "ext_headers_internal.h"
 #include "lc_rng.h"
 #include "lc_uuid.h"
+#include "ret_checkers.h"
 #include "visibility.h"
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
@@ -31,12 +32,15 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	(void)argc;
 	(void)argv;
 
-	lc_uuid_random(uuid_str);
-	printf("random UUID %s\n", uuid_str);
+	ret = lc_uuid_random(uuid_str);
+	if (!ret)
+		printf("random UUID %s\n", uuid_str);
 
-	lc_uuid_time(uuid_str, 0);
-	printf("time UUID %s\n", uuid_str);
+	ret = lc_uuid_time(uuid_str, 0);
+	if (!ret)
+		printf("time UUID %s\n", uuid_str);
 
+#ifdef LC_DRNG_PRESENT
         lc_rng_generate(lc_seeded_rng, NULL, 0, uuid, 16);
 	lc_uuid_bin2hex(uuid, uuid_str);
 	ret = lc_uuid_hex2bin(uuid_str, 36, uuid2);
@@ -51,6 +55,10 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 		return EFAULT;
 	}
 	printf("UUID parsing successful: %s\n", uuid_str);
+#else
+	(void)uuid;
+	(void)uuid2;
+#endif
 
 	return 0;
 }

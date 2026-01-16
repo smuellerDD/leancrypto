@@ -281,31 +281,45 @@ if get_option('aes_gcm').enabled()
 	add_global_arguments([ '-DLC_AES_GCM' ], language: 'c')
 endif
 
+drng_present = 0
 if get_option('chacha20_drng').enabled()
 	add_global_arguments([ '-DLC_DRNG_CC20' ], language: 'c')
+	drng_present = 1
 endif
 if get_option('kmac_drng').enabled()
 	add_global_arguments([ '-DLC_DRNG_KMAC' ], language: 'c')
+	drng_present = 1
 endif
 if get_option('cshake_drng').enabled()
 	add_global_arguments([ '-DLC_DRNG_CSHAKE' ], language: 'c')
+	drng_present = 1
 endif
 if (get_option('xdrbg').enabled() and get_option('ascon').enabled())
 	add_global_arguments([ '-DLC_DRNG_XDRBG128' ], language: 'c')
+	drng_present = 1
 endif
 if (get_option('xdrbg').enabled() and get_option('sha3').enabled())
 	add_global_arguments([ '-DLC_DRNG_XDRBG256' ], language: 'c')
 	add_global_arguments([ '-DLC_DRNG_XDRBG512' ], language: 'c')
+	drng_present = 1
 endif
 if get_option('drbg_hash').enabled()
 	add_global_arguments([ '-DLC_DRNG_HASH_DRBG' ], language: 'c')
+	drng_present = 1
 endif
 if get_option('drbg_hmac').enabled()
 	add_global_arguments([ '-DLC_DRNG_HMAC_DRBG' ], language: 'c')
+	drng_present = 1
 endif
 if get_option('drbg_ctr').enabled()
 	add_global_arguments([ '-DLC_DRNG_CTR_DRBG' ], language: 'c')
+	drng_present = 1
 endif
+
+if drng_present == 1
+	add_global_arguments([ '-DLC_DRNG_PRESENT' ], language: 'c')
+endif
+
 if get_option('hkdf').enabled()
 	add_global_arguments([ '-DLC_HKDF' ], language: 'c')
 endif

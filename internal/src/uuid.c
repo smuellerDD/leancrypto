@@ -75,8 +75,9 @@ LC_INTERFACE_FUNCTION(int, lc_uuid_hex2bin, const char *uuid_str,
 
 /******************************************************************************/
 
-LC_INTERFACE_FUNCTION(void, lc_uuid_random, char uuid_str[37])
+LC_INTERFACE_FUNCTION(int, lc_uuid_random, char uuid_str[37])
 {
+#ifdef LC_DRNG_PRESENT
 	uint8_t uuid[16];
 
         lc_rng_generate(lc_seeded_rng, (uint8_t *)"random UUID", 11, uuid, 16);
@@ -86,11 +87,17 @@ LC_INTERFACE_FUNCTION(void, lc_uuid_random, char uuid_str[37])
 	uuid[8] = (uint8_t)((uuid[8] & 0x3F) | 0x80);
 
 	lc_uuid_bin2hex(uuid, uuid_str);
+
+	return 0;
+#else
+	(void)uuid_str;
+	return -EOPNOTSUPP;
+#endif
 }
 
-LC_INTERFACE_FUNCTION(void, lc_uuid_time, char uuid_str[37], uint64_t node)
+LC_INTERFACE_FUNCTION(int, lc_uuid_time, char uuid_str[37], uint64_t node)
 {
-	time64_t time_since_epoch, n_sec;
+	time64_t time_since_epoch, n_sec = 0;
 
 	if (!lc_get_time(&time_since_epoch, &n_sec)) {
 		union {
@@ -112,6 +119,8 @@ LC_INTERFACE_FUNCTION(void, lc_uuid_time, char uuid_str[37], uint64_t node)
 
 		lc_uuid_bin2hex(u.uuid8, uuid_str);
 	} else {
-		lc_uuid_random(uuid_str);
+		return lc_uuid_random(uuid_str);
 	}
+
+	return 0;
 }
