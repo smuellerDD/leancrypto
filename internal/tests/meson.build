@@ -35,6 +35,13 @@ status_tester = executable('status_tester',
 			  )
 test('Status', status_tester, suite: regression)
 
+uuid_tester = executable('uuid_tester',
+			   [ 'uuid_tester.c', internal_src ],
+			   include_directories: [ include_internal_dirs ],
+			   dependencies: leancrypto
+			  )
+test('UUID', uuid_tester, suite: regression)
+
 if (get_option('sha3').enabled() and
     get_option('hmac').enabled() and
     get_option('enable_selftests').enabled())

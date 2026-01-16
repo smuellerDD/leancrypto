@@ -400,7 +400,7 @@ static int lc_x509_policy_verify_general(const struct lc_public_key *pkey,
 
 	(void)flags;
 
-	ret = lc_get_time(&time_since_epoch);
+	ret = lc_get_time(&time_since_epoch, NULL);
 	/*
 	 * If gathering of time is not supported on local system, do not check
 	 * it.

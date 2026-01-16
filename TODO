@@ -26,3 +26,5 @@
 - Linux kernel: enable ASN.1 on 32 bit systems (due to gmtime.c divisions, __divdi3 (i586) and __aeabi_divmod (armv7) are included by compiler)
 
 - Linux kernel: x86 accelerated implementations of xts, chacha20, gcm(aes), rfc4106(gcm(aes)), rfc7539(chacha20,poly1305), rfc7539esp(chacha20,poly1305) do not pass the extended/full kernel self tests. The issue is that the the test harness creates SGLs which are not aligned to cra_blocksize. Thus I am not sure whether the test harness is broken or whether leancrypto should handle such very strange (and not real-life scenarios).
+
+- lc_get_time in the kernel: return proper n_sec

@@ -193,7 +193,7 @@ static time64_t get_time(void)
 {
 	time64_t t;
 
-	if (lc_get_time(&t))
+	if (lc_get_time(&t, NULL))
 		return 0;
 
 	return t;

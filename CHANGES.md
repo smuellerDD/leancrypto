@@ -43,6 +43,8 @@ Changes 1.7.0-prerelease
 
 * ASN.1: Make encoder and decoder available as API
 
+* Add UUID generator / parser
+
 Changes 1.6.0
 * ASN.1: use stack for small generator for small use cases
 

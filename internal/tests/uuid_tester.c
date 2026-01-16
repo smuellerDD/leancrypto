@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 - 2025, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2026, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *
@@ -17,35 +17,40 @@
  * DAMAGE.
  */
 
-#include <errno.h>
-#include <time.h>
-
-#include "lc_hotp.h"
-#include "lc_totp.h"
+#include "ext_headers_internal.h"
+#include "lc_rng.h"
+#include "lc_uuid.h"
 #include "visibility.h"
 
-/****************************************************************************
- * RFC 6238
- ****************************************************************************/
-LC_INTERFACE_FUNCTION(int, lc_totp, const uint8_t *hmac_key,
-		      size_t hmac_key_len, uint32_t step, uint32_t digits,
-		      uint32_t *totp_val)
+LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
-	time64_t now;
-	uint64_t counter;
+	char uuid_str[37];
+	uint8_t uuid[16], uuid2[16];
 	int ret;
 
-	if (!totp_val)
-		return -EINVAL;
+	(void)argc;
+	(void)argv;
 
-	/* Get time in seconds since Epoch */
-	ret = lc_get_time(&now, NULL);
-	if (ret)
-		return ret;
+	lc_uuid_random(uuid_str);
+	printf("random UUID %s\n", uuid_str);
 
-	counter = (uint64_t)now;
-	counter /= step;
+	lc_uuid_time(uuid_str, 0);
+	printf("time UUID %s\n", uuid_str);
 
-	lc_hotp(hmac_key, hmac_key_len, counter, digits, totp_val);
+        lc_rng_generate(lc_seeded_rng, NULL, 0, uuid, 16);
+	lc_uuid_bin2hex(uuid, uuid_str);
+	ret = lc_uuid_hex2bin(uuid_str, 36, uuid2);
+	if (ret) {
+		printf("UUID parsing failed: %d\n", ret);
+		return -ret;
+	}
+	if (memcmp(uuid, uuid2, 16)) {
+		printf("UUID parsing failed: %s", uuid_str);
+		lc_uuid_bin2hex(uuid2, uuid_str);
+		printf(" - %s\n", uuid_str);
+		return EFAULT;
+	}
+	printf("UUID parsing successful: %s\n", uuid_str);
+
 	return 0;
 }

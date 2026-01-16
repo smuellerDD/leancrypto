@@ -7,7 +7,8 @@ src += files([
 	'memcpy_secure_c.c',
 	'null_buffer.c',
 	'status_api.c',
-	'status_algorithms.c'
+	'status_algorithms.c',
+	'uuid.c'
 ])
 
 if get_option('efi').disabled()
@@ -89,7 +90,8 @@ include_files += files([
 	'../api/lc_memcmp_secure.h',
 	'../api/lc_memcpy_secure.h',
 	'../api/lc_memset_secure.h',
-	'../api/lc_status.h'
+	'../api/lc_status.h',
+	'../api/lc_uuid.h'
 	])
 
 c_compiler = meson.get_compiler('c')

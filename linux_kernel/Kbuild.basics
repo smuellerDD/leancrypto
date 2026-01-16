@@ -94,7 +94,8 @@ leancrypto-y			+= ../internal/src/left_encode.o	       \
 				   ../internal/src/fips_integrity_checker_none.o\
 				   ../internal/src/status.o		       \
 				   ../internal/src/status_api.o		       \
-				   ../internal/src/status_algorithms.o
+				   ../internal/src/status_algorithms.o	       \
+				   ../internal/src/uuid.o
 
 leancrypto-$(CONFIG_LEANCRYPTO_SIG_SUPPORT)				       \
 				+= ../internal/src/signature_domain_separation.o
@@ -122,7 +123,9 @@ endif
 obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= status_tester.o
 obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= rerun_selftests_tester.o
 obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= rerun_one_selftest_tester.o
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= uuid_tester.o
 
 status_tester-y			+= ../internal/tests/status_tester.o
 rerun_selftests_tester-y	+= ../internal/tests/rerun_selftests_tester.o
 rerun_one_selftest_tester-y	+= ../internal/tests/rerun_one_selftest_tester.o
+uuid_tester-y			+= ../internal/tests/uuid_tester.o

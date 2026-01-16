@@ -79,12 +79,15 @@ static inline pid_t getpid(void)
 
 typedef s64 time64_t;
 
-static inline int lc_get_time(time64_t *time_since_epoch)
+static inline int lc_get_time(time64_t *time_since_epoch, time64_t *n_sec)
 {
 	if (!time_since_epoch)
 		return -EINVAL;
 
 	*time_since_epoch = (time64_t)(jiffies / HZ);
+	//TODO
+	if (n - sec)
+		*n_sec = 0;
 
 	return 0;
 }
@@ -204,12 +207,14 @@ static inline size_t strlen(const char *str)
 }
 #endif
 
-static inline int lc_get_time(time64_t *time_since_epoch)
+static inline int lc_get_time(time64_t *time_since_epoch, time64_t *n_sec)
 {
 	if (!time_since_epoch)
 		return -22; /* EINVAL */
 
 	*time_since_epoch = -1;
+	if (n_sec)
+		*n_sec = -1;
 
 	return -95; /* EOPNOTSUPP */
 }
@@ -320,7 +325,7 @@ static inline int mlock(const void *ptr, size_t len)
 
 typedef int64_t time64_t;
 
-static inline int lc_get_time(time64_t *time_since_epoch)
+static inline int lc_get_time(time64_t *time_since_epoch, time64_t *n_sec)
 {
 	struct timespec tp = { 0 };
 
@@ -329,6 +334,8 @@ static inline int lc_get_time(time64_t *time_since_epoch)
 
 	if (clock_gettime(CLOCK_REALTIME, &tp) == 0) {
 		*time_since_epoch = tp.tv_sec;
+		if (n_sec)
+			*n_sec = tp.tv_nsec;
 		return 0;
 	}
 
@@ -402,7 +409,7 @@ static inline int lc_get_time(time64_t *time_since_epoch)
 
 typedef int64_t time64_t;
 
-static inline int lc_get_time(time64_t *time_since_epoch)
+static inline int lc_get_time(time64_t *time_since_epoch, time64_t *n_sec)
 {
 	struct timespec tp = { 0 };
 
@@ -411,6 +418,8 @@ static inline int lc_get_time(time64_t *time_since_epoch)
 
 	if (clock_gettime(CLOCK_REALTIME, &tp) == 0) {
 		*time_since_epoch = tp.tv_sec;
+		if (n_sec)
+			*n_sec = tp.tv_nsec;
 		return 0;
 	}
 

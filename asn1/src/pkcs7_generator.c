@@ -565,7 +565,7 @@ static int pkcs7_set_time(uint8_t *data, size_t *avail_datalen, uint8_t *tag)
 	time64_t timeval;
 	int ret;
 
-	CKINT(lc_get_time(&timeval));
+	CKINT(lc_get_time(&timeval, NULL));
 
 	/* UTC time */
 	CKINT(lc_gmtime(timeval, &time_detail));
