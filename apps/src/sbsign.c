@@ -45,6 +45,7 @@
 #include "lc_x509_generator_file_helper.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
+#include "x509_print.h"
 
 static const char *toolname = "sbsign";
 
@@ -58,6 +59,7 @@ static const struct option options[] = {
 	{ "version", no_argument, NULL, 'V' },
 	{ "engine", required_argument, NULL, 'e' },
 	{ "addcert", required_argument, NULL, 'a' },
+	{ "print", no_argument, NULL, 'p' },
 	{ NULL, 0, NULL, 0 },
 };
 
@@ -77,7 +79,8 @@ static void usage(void)
 	       "\t--output <file>    write signed data to <file>\n"
 	       "\t                    (default <efi-boot-image>.signed,\n"
 	       "\t                    or <efi-boot-image>.pk7 for detached\n"
-	       "\t                    signatures)\n",
+	       "\t                    signatures)\n"
+	       "\t--print             Verify OPKCS#7 message and print content\n",
 	       toolname);
 }
 
@@ -245,6 +248,60 @@ out:
 	return ret;
 }
 
+static int pkcs7_ver_message_sbsign(struct pkcs7_generator_opts *opts,
+				    const uint8_t *pkcs7_data,
+				    size_t pkcs7_datalen)
+{
+	struct lc_pkcs7_parse_context ctx;
+	uint8_t *buf = NULL;
+	PKCS7_ALLOC
+	int ret;
+
+	CKINT(lc_pkcs7_decode_ctx_init(&ctx));
+
+	CKINT(lc_pkcs7_decode_ctx_set_aa_content_type(&ctx,
+						      OID_msIndirectData));
+
+	/* Set the PKCS#7 message structure to be encoded */
+	CKINT(lc_pkcs7_decode_ctx_set_pkcs7(&ctx, pkcs7_msg));
+
+	CKINT_LOG(lc_pkcs7_decode_ctx(&ctx, pkcs7_data, pkcs7_datalen),
+		  "Parsing of input data failed\n");
+
+	/* No data to be set as data is embedded */
+
+	ret = lc_pkcs7_verify(
+		pkcs7_msg,
+		opts->use_trust_store ? &opts->trust_store : NULL,
+		opts->verify_rules_set ? &opts->verify_rules : NULL);
+	if (!opts->skip_signature_verification) {
+		if (ret) {
+			printf("Verification of PKCS#7 message failed\n");
+			goto out;
+		}
+	} else {
+		if (ret == -EBADMSG) {
+			printf("AA: Message digest size mismatch\n");
+			goto out;
+		} else if (ret == -EKEYREJECTED) {
+			printf("AA: No message digest or digest mismatch\n");
+			goto out;
+		} else if (ret == -ENOKEY) {
+			printf("No signer found - skipping signature verification as requested\n");
+			ret = 0;
+		}
+	}
+
+	CKINT(print_pkcs7_data(pkcs7_msg));
+
+out:
+	lc_free(buf);
+	lc_pkcs7_message_clear(pkcs7_msg);
+	lc_pkcs7_decode_ctx_clear(&ctx);
+	PKCS7_FREE
+	return ret;
+}
+
 static int pkcs7_gen_message_sbsign(struct pkcs7_generator_opts *opts)
 {
 //	static const uint8_t spc_sp_opus_info_objid[] = {
@@ -345,6 +402,9 @@ static int pkcs7_gen_message_sbsign(struct pkcs7_generator_opts *opts)
 		CKINT(image_write_detached(&ws->image, i - 1, outfile_p));
 	}
 
+	if (opts->print_pkcs7)
+		CKINT(pkcs7_ver_message_sbsign(opts, ws->data, datalen));
+
 out:
 	if (outfile)
 		lc_free(outfile);
@@ -427,6 +487,9 @@ int main(int argc, char **argv)
 		case 'a':
 			ws->parsed_opts.x509_file = optarg;
 			CKINT(pkcs7_collect_x509(&ws->parsed_opts));
+			break;
+		case 'p':
+			ws->parsed_opts.print_pkcs7 = true;
 			break;
 		}
 	}

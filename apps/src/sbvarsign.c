@@ -66,11 +66,11 @@
 #include "lc_memory_support.h"
 #include "lc_pkcs7_generator_helper.h"
 #include "lc_status.h"
-#include "x509_print.h"
 #include "lc_x509_generator_file_helper.h"
 #include "lc_uuid.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
+#include "x509_print.h"
 
 static const char *toolname = "sbvarsign";
 
@@ -348,11 +348,10 @@ static int verify_auth_descriptor(struct pkcs7_generator_opts *opts,
 				  EFI_VARIABLE_AUTHENTICATION_2 *auth_descriptor,
 				  size_t auth_descriptor_len)
 {
-	const uint8_t *avail_data,
-	      *pkcs7_data = (uint8_t *)auth_descriptor +
-			     sizeof(EFI_VARIABLE_AUTHENTICATION_2);
+	const uint8_t *pkcs7_data = (uint8_t *)auth_descriptor +
+				    sizeof(EFI_VARIABLE_AUTHENTICATION_2);
 	uint8_t *buf = NULL;
-	size_t avail_datalen, buflen,
+	size_t buflen,
 	       pkcs7_datalen = auth_descriptor_len -
 			       sizeof(EFI_VARIABLE_AUTHENTICATION_2);
 	PKCS7_ALLOC
@@ -364,12 +363,6 @@ static int verify_auth_descriptor(struct pkcs7_generator_opts *opts,
 	CKINT(hash_data(ctx, &auth_descriptor->TimeStamp, &buf, &buflen));
 
 	CKINT(lc_pkcs7_set_data(pkcs7_msg, buf, buflen, 0))
-
-	/*
-	 * Now, if we have data with the PKCS7 message, attempt to verify it
-	 * (i.e. perform a signature verification).
-	 */
-	CKINT(lc_pkcs7_get_content_data(pkcs7_msg, &avail_data, &avail_datalen));
 
 	ret = lc_pkcs7_verify(
 		pkcs7_msg,

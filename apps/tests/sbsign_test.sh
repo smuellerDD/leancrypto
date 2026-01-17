@@ -185,6 +185,7 @@ sbsign_cert() {
 	 --key ${sk_file} \
 	 --cert ${pk_file} \
 	 --output $output \
+	 --print \
 	 $EFIFILE
 
 	if [ $? -ne 0 ]
