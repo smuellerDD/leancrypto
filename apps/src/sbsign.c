@@ -271,8 +271,7 @@ static int pkcs7_ver_message_sbsign(struct pkcs7_generator_opts *opts,
 	/* No data to be set as data is embedded */
 
 	ret = lc_pkcs7_verify(
-		pkcs7_msg,
-		opts->use_trust_store ? &opts->trust_store : NULL,
+		pkcs7_msg, opts->use_trust_store ? &opts->trust_store : NULL,
 		opts->verify_rules_set ? &opts->verify_rules : NULL);
 	if (!opts->skip_signature_verification) {
 		if (ret) {

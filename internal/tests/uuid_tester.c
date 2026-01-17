@@ -41,7 +41,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 		printf("time UUID %s\n", uuid_str);
 
 #ifdef LC_DRNG_PRESENT
-        lc_rng_generate(lc_seeded_rng, NULL, 0, uuid, 16);
+	lc_rng_generate(lc_seeded_rng, NULL, 0, uuid, 16);
 	lc_uuid_bin2hex(uuid, uuid_str);
 	ret = lc_uuid_hex2bin(uuid_str, 36, uuid2);
 	if (ret) {

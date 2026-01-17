@@ -343,17 +343,17 @@ out:
 	return ret;
 }
 
-static int verify_auth_descriptor(struct pkcs7_generator_opts *opts,
-				  struct varsign_context *ctx,
-				  EFI_VARIABLE_AUTHENTICATION_2 *auth_descriptor,
-				  size_t auth_descriptor_len)
+static int
+verify_auth_descriptor(struct pkcs7_generator_opts *opts,
+		       struct varsign_context *ctx,
+		       EFI_VARIABLE_AUTHENTICATION_2 *auth_descriptor,
+		       size_t auth_descriptor_len)
 {
 	const uint8_t *pkcs7_data = (uint8_t *)auth_descriptor +
 				    sizeof(EFI_VARIABLE_AUTHENTICATION_2);
 	uint8_t *buf = NULL;
-	size_t buflen,
-	       pkcs7_datalen = auth_descriptor_len -
-			       sizeof(EFI_VARIABLE_AUTHENTICATION_2);
+	size_t buflen, pkcs7_datalen = auth_descriptor_len -
+				       sizeof(EFI_VARIABLE_AUTHENTICATION_2);
 	PKCS7_ALLOC
 	int ret;
 
@@ -365,8 +365,7 @@ static int verify_auth_descriptor(struct pkcs7_generator_opts *opts,
 	CKINT(lc_pkcs7_set_data(pkcs7_msg, buf, buflen, 0))
 
 	ret = lc_pkcs7_verify(
-		pkcs7_msg,
-		opts->use_trust_store ? &opts->trust_store : NULL,
+		pkcs7_msg, opts->use_trust_store ? &opts->trust_store : NULL,
 		opts->verify_rules_set ? &opts->verify_rules : NULL);
 	if (!opts->skip_signature_verification) {
 		if (ret) {
@@ -511,8 +510,7 @@ static void usage(void)
 	       "\t                    TIME_BASED_AUTH... is always included.\n"
 	       "\t--output <file>    write signed data to <file>\n"
 	       "\t                    (default <var-data-file>.signed)\n"
-	       "\t--print            Verify OPKCS#7 message and print content\n"
-	);
+	       "\t--print            Verify OPKCS#7 message and print content\n");
 }
 
 static void version(void)
