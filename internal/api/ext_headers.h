@@ -86,7 +86,7 @@ static inline int lc_get_time(time64_t *time_since_epoch, time64_t *n_sec)
 
 	*time_since_epoch = (time64_t)(jiffies / HZ);
 	//TODO
-	if (n - sec)
+	if (n_sec)
 		*n_sec = 0;
 
 	return 0;
