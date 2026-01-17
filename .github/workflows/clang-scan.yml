@@ -16,7 +16,7 @@ jobs:
     - name: Install meson
       run: |
         sudo apt-get update
-        sudo apt-get install -y meson clang clang-tools
+        sudo apt-get install -y meson clang clang-tools gnu-efi
     - name: Meson setup
       run: CC=clang meson setup build -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled
     - name: Clang Scanner

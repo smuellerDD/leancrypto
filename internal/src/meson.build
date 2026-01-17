@@ -11,6 +11,10 @@ src += files([
 	'uuid.c'
 ])
 
+internal_src += files([
+	'binhexbin_raw.c'
+])
+
 if get_option('efi').disabled()
 	internal_src += files([
 		'binhexbin.c'

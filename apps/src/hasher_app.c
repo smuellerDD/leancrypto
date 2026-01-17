@@ -160,7 +160,7 @@ static void hasher_bin2print(const uint8_t *bin, size_t binlen,
 	hex = calloc(1, hexlen);
 	if (!hex)
 		return;
-	bin2hex(bin, binlen, hex, hexlen - 1, 0);
+	lc_bin2hex(bin, binlen, hex, hexlen - 1, 0);
 	/* fipshmac does not want the file name :-( */
 	if (outfile != stdout)
 		fprintf(outfile, "%s", hex);
@@ -288,7 +288,7 @@ static int hasher(struct lc_hash_ctx *hash_ctx,
 		uint8_t compmd[64];
 
 		memset(compmd, 0, sizeof(compmd));
-		hex2bin(comphash, comphashlen, compmd, sizeof(compmd));
+		lc_hex2bin(comphash, comphashlen, compmd, sizeof(compmd));
 		if ((comphashlen != hashlen * 2) ||
 		    memcmp(compmd, md, hashlen)) {
 			ret = -EBADMSG;

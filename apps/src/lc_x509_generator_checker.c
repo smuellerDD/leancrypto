@@ -318,7 +318,7 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 		    LC_X509_POL_FALSE) {
 			char buf[33] = { 0 };
 
-			bin2hex(x509->san_ip, x509->san_ip_len, buf,
+			lc_bin2hex(x509->san_ip, x509->san_ip_len, buf,
 				sizeof(buf) - 1, 1);
 
 			printf("SAN IP: names mismatch (expected %s, actual %s)\n",
@@ -333,7 +333,7 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 		uint8_t exp_id_bin[32];
 		size_t exp_id_len = strlen(parsed_opts->skid);
 
-		hex2bin(parsed_opts->skid, exp_id_len, exp_id_bin,
+		lc_hex2bin(parsed_opts->skid, exp_id_len, exp_id_bin,
 			sizeof(exp_id_bin));
 
 		if (exp_id_len / 2 != x509->raw_skid_size) {
@@ -345,7 +345,7 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 		if (memcmp(exp_id_bin, x509->raw_skid, x509->raw_skid_size)) {
 			char buf[65] = { 0 };
 
-			bin2hex(x509->raw_skid, x509->raw_skid_size, buf,
+			lc_bin2hex(x509->raw_skid, x509->raw_skid_size, buf,
 				sizeof(buf) - 1, 1);
 
 			printf("SKID: names mismatch (expected %s, actual %s)\n",
@@ -367,7 +367,7 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 		uint8_t exp_id_bin[32];
 		size_t exp_id_len = strlen(parsed_opts->akid);
 
-		hex2bin(parsed_opts->akid, exp_id_len, exp_id_bin,
+		lc_hex2bin(parsed_opts->akid, exp_id_len, exp_id_bin,
 			sizeof(exp_id_bin));
 
 		if (exp_id_len / 2 != x509->raw_akid_size) {
@@ -379,7 +379,7 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 		if (memcmp(exp_id_bin, x509->raw_akid, x509->raw_akid_size)) {
 			char buf[65] = { 0 };
 
-			bin2hex(x509->raw_akid, x509->raw_akid_size, buf,
+			lc_bin2hex(x509->raw_akid, x509->raw_akid_size, buf,
 				sizeof(buf) - 1, 1);
 
 			printf("AKID: names mismatch (expected %s, actual %s)\n",
@@ -692,7 +692,7 @@ int apply_checks_pkcs7(const struct lc_pkcs7_message *pkcs7_msg,
 		size_t exp_id_len = strlen(parsed_opts->skid);
 		int found = 0;
 
-		hex2bin(parsed_opts->skid, exp_id_len, exp_id_bin,
+		lc_hex2bin(parsed_opts->skid, exp_id_len, exp_id_bin,
 			sizeof(exp_id_bin));
 
 		for (sinfo = pkcs7_msg->list_head_sinfo; sinfo;

@@ -18,7 +18,7 @@
  * DAMAGE.
  */
 
-#include "binhexbin.h"
+#include "binhexbin_raw.h"
 #include "conv_be_le.h"
 #include "ext_headers_internal.h"
 #include "lc_rng.h"
@@ -29,19 +29,19 @@
 LC_INTERFACE_FUNCTION(void, lc_uuid_bin2hex, const uint8_t uuid[16],
 		      char uuid_str[37])
 {
-	bin2hex(uuid, 4, uuid_str, 8, 0);
+	lc_bin2hex(uuid, 4, uuid_str, 8, 0);
 	uuid_str[8] = '-';
 
-	bin2hex(uuid + 4, 2, uuid_str + 9, 4, 0);
+	lc_bin2hex(uuid + 4, 2, uuid_str + 9, 4, 0);
 	uuid_str[13] = '-';
 
-	bin2hex(uuid + 6, 2, uuid_str + 14, 4, 0);
+	lc_bin2hex(uuid + 6, 2, uuid_str + 14, 4, 0);
 	uuid_str[18] = '-';
 
-	bin2hex(uuid + 8, 2, uuid_str + 19, 4, 0);
+	lc_bin2hex(uuid + 8, 2, uuid_str + 19, 4, 0);
 	uuid_str[23] = '-';
 
-	bin2hex(uuid + 10, 6, uuid_str + 24, 12, 0);
+	lc_bin2hex(uuid + 10, 6, uuid_str + 24, 12, 0);
 
 	uuid_str[36] = '\0';
 }
@@ -52,23 +52,23 @@ LC_INTERFACE_FUNCTION(int, lc_uuid_hex2bin, const char *uuid_str,
 	if (uuid_strlen < 36)
 		return -EINVAL;
 
-	hex2bin(uuid_str, 8, uuid, 4);
+	lc_hex2bin(uuid_str, 8, uuid, 4);
 	if (uuid_str[8] != 0x2d)
 		return -EINVAL;
 
-	hex2bin(uuid_str + 9, 4, uuid + 4, 2);
+	lc_hex2bin(uuid_str + 9, 4, uuid + 4, 2);
 	if (uuid_str[13] != 0x2d)
 		return -EINVAL;
 
-	hex2bin(uuid_str + 14, 4, uuid + 6, 2);
+	lc_hex2bin(uuid_str + 14, 4, uuid + 6, 2);
 	if (uuid_str[18] != 0x2d)
 		return -EINVAL;
 
-	hex2bin(uuid_str + 19, 4, uuid + 8, 2);
+	lc_hex2bin(uuid_str + 19, 4, uuid + 8, 2);
 	if (uuid_str[18] != 0x2d)
 		return -EINVAL;
 
-	hex2bin(uuid_str + 24, 12, uuid + 10, 6);
+	lc_hex2bin(uuid_str + 24, 12, uuid + 10, 6);
 
 	return 0;
 }

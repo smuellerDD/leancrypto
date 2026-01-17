@@ -952,6 +952,7 @@ if build_shared
 			'hash/src/sha3_c.c',
 			'hash/src/sha3_selftest.c',
 			'internal/src/binhexbin.c',
+			'internal/src/binhexbin_raw.c',
 			'internal/src/compare.c',
 			'internal/src/fips_mode.c',
 			'internal/src/fips_integrity_checker_none.c',

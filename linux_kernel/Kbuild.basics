@@ -84,7 +84,8 @@ leancrypto-y			+= posix_support.o			       \
 				   leancrypto_kernel.o
 
 # Internal helper code
-leancrypto-y			+= ../internal/src/left_encode.o	       \
+leancrypto-y			+= ../internal/src/binhexbin_raw.o	       \
+				   ../internal/src/left_encode.o	       \
 				   ../internal/src/leancrypto_init.o	       \
 				   ../internal/src/compare.o		       \
 				   ../internal/src/fips_integrity_check.o      \

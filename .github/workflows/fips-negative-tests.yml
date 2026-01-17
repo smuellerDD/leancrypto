@@ -16,7 +16,7 @@ jobs:
     - name: Install meson
       run: |
         sudo apt-get update
-        sudo apt-get install -y meson
+        sudo apt-get install -y meson gnu-efi
     - name: Meson setup
       run: meson setup build -Dfips140_negative=enabled
     - name: Meson compile
