@@ -30,7 +30,7 @@ then
 	SBSIGN=$3
 fi
 
-if [ -n "$5" ]
+if [ -n "$4" ]
 then
 	SBVERIFY=$4
 fi
@@ -214,7 +214,7 @@ sbsign_cert_detached() {
 
 	rm -f $output
 
-	echo_info "Leancrypto: sbsign create detached PKCS#7 signature of X.509 certificate using the X.509 certificate and associated PKCS#8 private key as signer"
+	echo_info "Leancrypto: sbsign create detached PKCS#7 signature of PE/COFF file using the X.509 certificate and associated PKCS#8 private key as signer"
 
 	$SBSIGN \
 	 --detached \
@@ -235,7 +235,7 @@ sbverify_cert() {
 	local output="$TMPDIR/$(basename $EFIFILE).signed"
 	local output2="$TMPDIR/$(basename $EFIFILE).signed2"
 
-	echo_info "Leancrypto: sbVerify PKCS#7 signature of X.509 certificate using the X.509 certificate and associated PKCS#8 private key as signer"
+	echo_info "Leancrypto: sbVerify PKCS#7 signature of PE/COFF file using the X.509 certificate and associated PKCS#8 private key as signer"
 
 	$SBVERIFY \
 	 -c ${pk_file} \
@@ -300,7 +300,7 @@ sbverify_cert() {
 sbverify_cert_detached() {
 	local output="$TMPDIR/$(basename $EFIFILE).pk7"
 
-	echo_info "Leancrypto: sbVerify PKCS#7 signature of X.509 certificate using the X.509 certificate and associated PKCS#8 private key as signer"
+	echo_info "Leancrypto: sbVerify PKCS#7 signature of PE/COFF file using the X.509 certificate and associated PKCS#8 private key as signer"
 
 	$SBVERIFY \
 	 -d $output \

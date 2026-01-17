@@ -30,16 +30,6 @@
  *   formatted certificate per file, but supply each file with a separate
  *   --addcert option.
  */
-#define _GNU_SOURCE
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <string.h>
 
 #include <getopt.h>
 
@@ -273,8 +263,7 @@ static int pkcs7_gen_message_sbsign(struct pkcs7_generator_opts *opts)
 	uint8_t *image_buf = NULL;
 	const char *outfile_p;
 	char *outfile = NULL;
-	size_t image_size = 0;
-	size_t avail_datalen = ASN1_MAX_DATASIZE, datalen;
+	size_t image_size = 0, avail_datalen, datalen;
 	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 

@@ -1025,7 +1025,7 @@ endif
 
 if get_option('efi').disabled()
 	pkgconfig.generate(leancrypto_lib_fips,
-			description: 'PQC-resistant cryptographic library with FIPS -140 compliance')
+			description: 'PQC-resistant cryptographic library with FIPS-140 compliance')
 endif
 
 leancrypto_fips = declare_dependency(link_with: leancrypto_lib_fips,

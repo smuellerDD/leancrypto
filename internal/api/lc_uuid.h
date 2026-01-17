@@ -30,7 +30,7 @@ extern "C" {
  * @brief Convert a binary buffer into a UUID
  *
  * @param [in] uuid Binary buffer of 16 bytes
- * @param [out] uuid_str UUID
+ * @param [out] uuid_str NULL-terminated UUID string
  */
 void lc_uuid_bin2hex(const uint8_t uuid[16], char uuid_str[37]);
 
@@ -48,7 +48,7 @@ int lc_uuid_hex2bin(const char *uuid_str, size_t uuid_strlen, uint8_t uuid[16]);
 /**
  * @brief Generate random UUID following RFC 4122 section 4.4
  *
- * @param [out] uuid_str [out] NULL-terminated UUID string
+ * @param [out] uuid_str NULL-terminated UUID string
  *
  * @return 0 on success; < 0 on error
  */
@@ -57,7 +57,7 @@ int lc_uuid_random(char uuid_str[37]);
 /**
  * @brief Generate time-based UUID following RFC 4122 section 4.2
  *
- * @param [out] uuid_str [out] NULL-terminated UUID string
+ * @param [out] uuid_str NULL-terminated UUID string
  * @param [in] node node identifier the UUID applies to
  *
  * @return 0 on success; < 0 on error

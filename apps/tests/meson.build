@@ -1,6 +1,7 @@
 hasher_test_script = find_program('hasher-test.sh', required: true)
 siggen_test_script = find_program('siggen_tester.sh', required: true)
 sbsign_test_script = find_program('sbsign_test.sh', required: true)
+sbvarsign_test_script = find_program('sbvarsign_test.sh', required: true)
 
 # Application can be re-generated as outlined in README.md
 # "Library Build for EFI Environment"
@@ -806,6 +807,129 @@ if (host_machine.system() != 'windows' and
 		     args: [ 'SLH-DSA-SHAKE-256S',
 			     lc_x509_generator.full_path(),
 			     sbsign.full_path(),
+			     sbverify.full_path(),
+			     efi_test_file
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+
+		test('Secure boot sbvarsign tool ML-DSA87',
+		     sbvarsign_test_script,
+		     args: [ 'ML-DSA87',
+			     lc_x509_generator.full_path(),
+			     sbvarsign.full_path(),
+			     sbverify.full_path(),
+			     efi_test_file
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('Secure boot sbvarsign tool ML-DSA65',
+		     sbvarsign_test_script,
+		     args: [ 'ML-DSA65',
+			     lc_x509_generator.full_path(),
+			     sbvarsign.full_path(),
+			     sbverify.full_path(),
+			     efi_test_file
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('Secure boot sbvarsign tool ML-DSA44',
+		     sbvarsign_test_script,
+		     args: [ 'ML-DSA44',
+			     lc_x509_generator.full_path(),
+			     sbvarsign.full_path(),
+			     sbverify.full_path(),
+			     efi_test_file
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+
+		test('Secure boot sbvarsign tool ML-DSA87-ED448',
+		     sbvarsign_test_script,
+		     args: [ 'ML-DSA87-ED448',
+			     lc_x509_generator.full_path(),
+			     sbvarsign.full_path(),
+			     sbverify.full_path(),
+			     efi_test_file
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('Secure boot sbvarsign tool ML-DSA65-ED25519',
+		     sbvarsign_test_script,
+		     args: [ 'ML-DSA65-ED25519',
+			     lc_x509_generator.full_path(),
+			     sbvarsign.full_path(),
+			     sbverify.full_path(),
+			     efi_test_file
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('Secure boot sbvarsign tool ML-DSA44-ED25519',
+		     sbvarsign_test_script,
+		     args: [ 'ML-DSA44-ED25519',
+			     lc_x509_generator.full_path(),
+			     sbvarsign.full_path(),
+			     sbverify.full_path(),
+			     efi_test_file
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+
+		test('Secure boot sbvarsign tool SLH-DSA-SHAKE-128F',
+		     sbvarsign_test_script,
+		     args: [ 'SLH-DSA-SHAKE-128F',
+			     lc_x509_generator.full_path(),
+			     sbvarsign.full_path(),
+			     sbverify.full_path(),
+			     efi_test_file
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('Secure boot sbvarsign tool SLH-DSA-SHAKE-128S',
+		     sbvarsign_test_script,
+		     args: [ 'SLH-DSA-SHAKE-128S',
+			     lc_x509_generator.full_path(),
+			     sbvarsign.full_path(),
+			     sbverify.full_path(),
+			     efi_test_file
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('Secure boot sbvarsign tool SLH-DSA-SHAKE-192F',
+		     sbvarsign_test_script,
+		     args: [ 'SLH-DSA-SHAKE-192F',
+			     lc_x509_generator.full_path(),
+			     sbvarsign.full_path(),
+			     sbverify.full_path(),
+			     efi_test_file
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('Secure boot sbvarsign tool SLH-DSA-SHAKE-192S',
+		     sbvarsign_test_script,
+		     args: [ 'SLH-DSA-SHAKE-192S',
+			     lc_x509_generator.full_path(),
+			     sbvarsign.full_path(),
+			     sbverify.full_path(),
+			     efi_test_file
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('Secure boot sbvarsign tool SLH-DSA-SHAKE-256F',
+		     sbvarsign_test_script,
+		     args: [ 'SLH-DSA-SHAKE-256F',
+			     lc_x509_generator.full_path(),
+			     sbvarsign.full_path(),
+			     sbverify.full_path(),
+			     efi_test_file
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('Secure boot sbvarsign tool SLH-DSA-SHAKE-256S',
+		     sbvarsign_test_script,
+		     args: [ 'SLH-DSA-SHAKE-256S',
+			     lc_x509_generator.full_path(),
+			     sbvarsign.full_path(),
 			     sbverify.full_path(),
 			     efi_test_file
 			   ],

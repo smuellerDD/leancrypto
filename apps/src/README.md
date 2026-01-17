@@ -30,9 +30,9 @@ The `lc_x509_generator` is the command line application providing an X.509 certi
 
 The `lc_pkcs7_generator` is the command line application providing a PKCS#7 / CMS message generator and parser along with message validation and trust verification. For details, see `asn1/src/README.md` section "PKCS#7 Message Generator". This tool also is able to generate private keys encapsulated as PKCS#8 message.
 
-## Secure Boot Signing Tools Supporting PQC: `sbsign` and `sbverify`
+## Secure Boot Signing Tools Supporting PQC
 
-The `sbsign` and `sbverify` tools are drop-in replacements for the respective tools provided with http://git.kernel.org/pub/scm/linux/kernel/git/jejb/sbsigntools.git. They provide the same behavior and the same command line options as the originals. The key difference is that the created signatures are PQC signatures as supported by leancrypto:
+The `sbsign`, `sbverify`, `sbvarsign` tools are drop-in replacements for the respective tools provided with http://git.kernel.org/pub/scm/linux/kernel/git/jejb/sbsigntools.git. They provide the same behavior and the same command line options as the originals. The key difference is that the created signatures are PQC signatures as supported by leancrypto:
 
 * ML-DSA44, ML-DSA65, ML-DSA87
 

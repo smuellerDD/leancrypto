@@ -402,7 +402,7 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 	if (parsed_opts->check_time) {
 		time64_t time_since_epoch;
 
-		CKINT(lc_get_time(&time_since_epoch));
+		CKINT(lc_get_time(&time_since_epoch, NULL));
 		CKINT(lc_x509_policy_time_valid(x509, time_since_epoch));
 
 		if (ret == LC_X509_POL_FALSE) {

@@ -608,3 +608,5 @@ apps/src/image.c
 apps/src/image.h
 apps/src/coff/pe.h
 apps/src/coff/external.h
+apps/src/efivars.h
+apps/src/sbvarsign.c

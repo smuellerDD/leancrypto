@@ -164,6 +164,22 @@ if (host_machine.system() != 'windows' and
 				install: true,
 				install_dir: get_option('libexecdir') / meson.project_name()
 				)
+
+		sbvarsign_files = internal_src
+		sbvarsign_files += files([
+			'lc_pkcs7_generator_helper.c',
+			'lc_x509_generator_print.c',
+			'lc_x509_generator_file_helper.c',
+			'sbvarsign.c',
+		])
+
+		sbvarsign = executable('sbvarsign',
+				[ sbvarsign_files ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto,
+				install: true,
+				install_dir: get_option('libexecdir') / meson.project_name()
+				)
 	endif
 
 endif
