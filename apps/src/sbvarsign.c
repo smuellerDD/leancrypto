@@ -642,6 +642,9 @@ int main(int argc, char **argv)
 	CKINT((add_auth_descriptor(&ws->parsed_opts, ctx, include_attrs)));
 
 out:
+	if (ctx->var_name)
+		free(ctx->var_name);
+	pkcs7_clean_opts(&ws->parsed_opts);
 	LC_RELEASE_MEM(ws);
 	PKCS7_FREE
 	return -ret;

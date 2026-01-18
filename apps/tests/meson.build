@@ -817,9 +817,7 @@ if (host_machine.system() != 'windows' and
 		     sbvarsign_test_script,
 		     args: [ 'ML-DSA87',
 			     lc_x509_generator.full_path(),
-			     sbvarsign.full_path(),
-			     sbverify.full_path(),
-			     efi_test_file
+			     sbvarsign.full_path()
 			   ],
 		     timeout: 300, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
@@ -827,9 +825,7 @@ if (host_machine.system() != 'windows' and
 		     sbvarsign_test_script,
 		     args: [ 'ML-DSA65',
 			     lc_x509_generator.full_path(),
-			     sbvarsign.full_path(),
-			     sbverify.full_path(),
-			     efi_test_file
+			     sbvarsign.full_path()
 			   ],
 		     timeout: 300, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
@@ -837,9 +833,7 @@ if (host_machine.system() != 'windows' and
 		     sbvarsign_test_script,
 		     args: [ 'ML-DSA44',
 			     lc_x509_generator.full_path(),
-			     sbvarsign.full_path(),
-			     sbverify.full_path(),
-			     efi_test_file
+			     sbvarsign.full_path()
 			   ],
 		     timeout: 300, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
@@ -848,9 +842,7 @@ if (host_machine.system() != 'windows' and
 		     sbvarsign_test_script,
 		     args: [ 'ML-DSA87-ED448',
 			     lc_x509_generator.full_path(),
-			     sbvarsign.full_path(),
-			     sbverify.full_path(),
-			     efi_test_file
+			     sbvarsign.full_path()
 			   ],
 		     timeout: 300, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
@@ -858,9 +850,7 @@ if (host_machine.system() != 'windows' and
 		     sbvarsign_test_script,
 		     args: [ 'ML-DSA65-ED25519',
 			     lc_x509_generator.full_path(),
-			     sbvarsign.full_path(),
-			     sbverify.full_path(),
-			     efi_test_file
+			     sbvarsign.full_path()
 			   ],
 		     timeout: 300, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
@@ -868,9 +858,7 @@ if (host_machine.system() != 'windows' and
 		     sbvarsign_test_script,
 		     args: [ 'ML-DSA44-ED25519',
 			     lc_x509_generator.full_path(),
-			     sbvarsign.full_path(),
-			     sbverify.full_path(),
-			     efi_test_file
+			     sbvarsign.full_path()
 			   ],
 		     timeout: 300, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
@@ -879,9 +867,7 @@ if (host_machine.system() != 'windows' and
 		     sbvarsign_test_script,
 		     args: [ 'SLH-DSA-SHAKE-128F',
 			     lc_x509_generator.full_path(),
-			     sbvarsign.full_path(),
-			     sbverify.full_path(),
-			     efi_test_file
+			     sbvarsign.full_path()
 			   ],
 		     timeout: 300, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
@@ -889,9 +875,7 @@ if (host_machine.system() != 'windows' and
 		     sbvarsign_test_script,
 		     args: [ 'SLH-DSA-SHAKE-128S',
 			     lc_x509_generator.full_path(),
-			     sbvarsign.full_path(),
-			     sbverify.full_path(),
-			     efi_test_file
+			     sbvarsign.full_path()
 			   ],
 		     timeout: 300, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
@@ -899,9 +883,7 @@ if (host_machine.system() != 'windows' and
 		     sbvarsign_test_script,
 		     args: [ 'SLH-DSA-SHAKE-192F',
 			     lc_x509_generator.full_path(),
-			     sbvarsign.full_path(),
-			     sbverify.full_path(),
-			     efi_test_file
+			     sbvarsign.full_path()
 			   ],
 		     timeout: 300, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
@@ -909,9 +891,7 @@ if (host_machine.system() != 'windows' and
 		     sbvarsign_test_script,
 		     args: [ 'SLH-DSA-SHAKE-192S',
 			     lc_x509_generator.full_path(),
-			     sbvarsign.full_path(),
-			     sbverify.full_path(),
-			     efi_test_file
+			     sbvarsign.full_path()
 			   ],
 		     timeout: 300, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
@@ -919,9 +899,7 @@ if (host_machine.system() != 'windows' and
 		     sbvarsign_test_script,
 		     args: [ 'SLH-DSA-SHAKE-256F',
 			     lc_x509_generator.full_path(),
-			     sbvarsign.full_path(),
-			     sbverify.full_path(),
-			     efi_test_file
+			     sbvarsign.full_path()
 			   ],
 		     timeout: 300, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
@@ -929,9 +907,7 @@ if (host_machine.system() != 'windows' and
 		     sbvarsign_test_script,
 		     args: [ 'SLH-DSA-SHAKE-256S',
 			     lc_x509_generator.full_path(),
-			     sbvarsign.full_path(),
-			     sbverify.full_path(),
-			     efi_test_file
+			     sbvarsign.full_path()
 			   ],
 		     timeout: 300, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
