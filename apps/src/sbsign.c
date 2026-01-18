@@ -287,7 +287,6 @@ static int pkcs7_ver_message_sbsign(struct pkcs7_generator_opts *opts,
 			goto out;
 		} else if (ret == -ENOKEY) {
 			printf("No signer found - skipping signature verification as requested\n");
-			ret = 0;
 		}
 	}
 

@@ -167,12 +167,15 @@ static uint32_t parse_attrs(const char *attrs_str)
 		if (attr == attr_invalid) {
 			fprintf(stderr, "Invalid attribute string %s\n",
 				attr_str);
-			return attr_invalid;
+			attrs_val = attr_invalid;
+			goto out;
 		}
 
 		attrs_val |= attr;
 	}
 
+out:
+	free(str);
 	return attrs_val;
 }
 
@@ -381,7 +384,6 @@ verify_auth_descriptor(struct pkcs7_generator_opts *opts,
 			goto out;
 		} else if (ret == -ENOKEY) {
 			printf("No signer found - skipping signature verification as requested\n");
-			ret = 0;
 		}
 	}
 
