@@ -610,3 +610,4 @@ apps/src/coff/pe.h
 apps/src/coff/external.h
 apps/src/efivars.h
 apps/src/sbvarsign.c
+apps/src/sbsiglist.c

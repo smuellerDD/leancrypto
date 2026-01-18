@@ -180,6 +180,20 @@ if (host_machine.system() != 'windows' and
 				install: true,
 				install_dir: get_option('libexecdir') / meson.project_name()
 				)
+
+		sbsiglist_files = internal_src
+		sbsiglist_files += files([
+			'lc_x509_generator_file_helper.c',
+			'sbsiglist.c',
+		])
+
+		sbsiglist = executable('sbsiglist',
+				[ sbsiglist_files ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto,
+				install: true,
+				install_dir: get_option('libexecdir') / meson.project_name()
+				)
 	endif
 
 endif

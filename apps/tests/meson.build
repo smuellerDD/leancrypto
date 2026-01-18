@@ -2,6 +2,7 @@ hasher_test_script = find_program('hasher-test.sh', required: true)
 siggen_test_script = find_program('siggen_tester.sh', required: true)
 sbsign_test_script = find_program('sbsign_test.sh', required: true)
 sbvarsign_test_script = find_program('sbvarsign_test.sh', required: true)
+sbsiglist_test_script = find_program('sbsiglist_test.sh', required: true)
 
 # Application can be re-generated as outlined in README.md
 # "Library Build for EFI Environment"
@@ -911,5 +912,15 @@ if (host_machine.system() != 'windows' and
 			   ],
 		     timeout: 300, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
+
+		if get_option('sha2-256').enabled()
+			test('Secure boot sbsiglist tool',
+			     sbsiglist_test_script,
+			     args: [ sbsiglist.full_path(),
+				     sha256sum.full_path()
+				   ],
+			     timeout: 300, suite: regression,
+			     should_fail: fips140_negative_expect_fail)
+		endif
 	endif
 endif

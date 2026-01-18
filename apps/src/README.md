@@ -32,7 +32,7 @@ The `lc_pkcs7_generator` is the command line application providing a PKCS#7 / CM
 
 ## Secure Boot Signing Tools Supporting PQC
 
-The `sbsign`, `sbverify`, `sbvarsign` tools are drop-in replacements for the respective tools provided with http://git.kernel.org/pub/scm/linux/kernel/git/jejb/sbsigntools.git. They provide the same behavior and the same command line options as the originals. The key difference is that the created signatures are PQC signatures as supported by leancrypto:
+The `sbsign`, `sbverify`, `sbvarsign`, `sbsiglist` tools are drop-in replacements for the respective tools provided with http://git.kernel.org/pub/scm/linux/kernel/git/jejb/sbsigntools.git. They provide the same behavior and the same command line options as the originals. The key difference is that the created signatures are PQC signatures as supported by leancrypto:
 
 * ML-DSA44, ML-DSA65, ML-DSA87
 
