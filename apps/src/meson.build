@@ -208,6 +208,23 @@ if (host_machine.system() != 'windows' and
 				install: true,
 				install_dir: get_option('libexecdir') / meson.project_name()
 				)
+
+		sbattach_files = internal_src
+		sbattach_files += files([
+			'image.c',
+			'lc_pkcs7_generator_helper.c',
+			'lc_x509_generator_file_helper.c',
+			'lc_x509_generator_print.c',
+			'sbattach.c',
+		])
+
+		sbattach = executable('sbattach',
+				[ sbattach_files ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto,
+				install: true,
+				install_dir: get_option('libexecdir') / meson.project_name()
+				)
 	endif
 
 endif
