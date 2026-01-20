@@ -80,7 +80,7 @@ static void usage(void)
 	       "\t                    (default <efi-boot-image>.signed,\n"
 	       "\t                    or <efi-boot-image>.pk7 for detached\n"
 	       "\t                    signatures)\n"
-	       "\t--print             Verify OPKCS#7 message and print content\n",
+	       "\t--print             Verify PKCS#7 message and print content\n",
 	       toolname);
 }
 
@@ -448,7 +448,7 @@ int main(int argc, char **argv)
 
 	for (;;) {
 		int idx;
-		c = getopt_long(argc, argv, "o:c:k:dvVhe:a:", options, &idx);
+		c = getopt_long(argc, argv, "o:c:k:dvVhe:a:p", options, &idx);
 		if (c == -1)
 			break;
 

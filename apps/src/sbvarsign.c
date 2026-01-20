@@ -512,7 +512,7 @@ static void usage(void)
 	       "\t                    TIME_BASED_AUTH... is always included.\n"
 	       "\t--output <file>    write signed data to <file>\n"
 	       "\t                    (default <var-data-file>.signed)\n"
-	       "\t--print            Verify OPKCS#7 message and print content\n");
+	       "\t--print            Verify PKCS#7 message and print content\n");
 }
 
 static void version(void)
