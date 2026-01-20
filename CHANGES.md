@@ -37,7 +37,7 @@ Changes 1.7.0-prerelease
 
 * Add support of PEM
 
-* Add sbsign, sbverify, sbsiglist, sbvarsign, sbkeysync (currently untested as its usage is not fully clear) tools as a drop-in replacement for the one provided with http://git.kernel.org/pub/scm/linux/kernel/git/jejb/sbsigntools.git
+* Add sbsign, sbverify, sbsiglist, sbvarsign, sbattach, sbkeysync (currently untested as its usage is not fully clear) tools as a drop-in replacement for the one provided with http://git.kernel.org/pub/scm/linux/kernel/git/jejb/sbsigntools.git
 
 * PKCS7 generator: support altering the generation process (allow content type setting, additional authenticated attributes)
 
