@@ -550,17 +550,20 @@ static int read_filesystem_keydb(struct sync_context *ctx,
 
 static int read_keysets(struct sync_context *ctx)
 {
-	read_firmware_keydb(ctx, &ctx->firmware_keys->pk);
-	read_firmware_keydb(ctx, &ctx->firmware_keys->kek);
-	read_firmware_keydb(ctx, &ctx->firmware_keys->db);
-	read_firmware_keydb(ctx, &ctx->firmware_keys->dbx);
+	int ret;
 
-	read_filesystem_keydb(ctx, &ctx->filesystem_keys->pk);
-	read_filesystem_keydb(ctx, &ctx->filesystem_keys->kek);
-	read_filesystem_keydb(ctx, &ctx->filesystem_keys->db);
-	read_filesystem_keydb(ctx, &ctx->filesystem_keys->dbx);
+	CKINT(read_firmware_keydb(ctx, &ctx->firmware_keys->pk));
+	CKINT(read_firmware_keydb(ctx, &ctx->firmware_keys->kek));
+	CKINT(read_firmware_keydb(ctx, &ctx->firmware_keys->db));
+	CKINT(read_firmware_keydb(ctx, &ctx->firmware_keys->dbx));
 
-	return 0;
+	CKINT(read_filesystem_keydb(ctx, &ctx->filesystem_keys->pk));
+	CKINT(read_filesystem_keydb(ctx, &ctx->filesystem_keys->kek));
+	CKINT(read_filesystem_keydb(ctx, &ctx->filesystem_keys->db));
+	CKINT(read_filesystem_keydb(ctx, &ctx->filesystem_keys->dbx));
+
+out:
+	return ret;
 }
 
 static int check_pk(struct sync_context *ctx)
@@ -667,9 +670,15 @@ static int update_keystore(struct fs_keystore *keystore, const char *root)
 
 			ke = calloc(1, sizeof(struct fs_keystore_entry));
 			CKNULL(ke, -ENOMEM);
+			LIST_ENTRY_INIT(ke->keystore_list);
+			LIST_ENTRY_INIT(ke->new_list);
 			len = strlen(name) + 1;
 			name_tmp = calloc(1, len);
-			CKNULL(name_tmp, -ENOMEM);
+			if (!name_tmp) {
+				free(ke);
+				ret = -ENOMEM;
+				goto out;
+			}
 			snprintf(name_tmp, len, "%s", name);
 			ke->name = name_tmp;
 			ke->root = root;
@@ -955,18 +964,25 @@ static void version(void)
 	fprintf(stderr, "%s\n", version);
 }
 
-static void add_keystore_dir(struct sync_context *ctx, const char *dir)
+static int add_keystore_dir(struct sync_context *ctx, const char *dir)
 {
+	int ret = 0;
+
 	if (!ctx->keystore_dirs) {
-		ctx->keystore_dirs = calloc(1, sizeof(uintptr_t));
+		ctx->keystore_dirs = calloc(1, sizeof(char *));
+		CKNULL(ctx->keystore_dirs, -ENOMEM);
 		ctx->n_keystore_dirs++;
 	} else {
 		ctx->keystore_dirs = realloc(
 			ctx->keystore_dirs,
-			++ctx->n_keystore_dirs * sizeof(uintptr_t));
+			++ctx->n_keystore_dirs * sizeof(char *));
+		CKNULL(ctx->keystore_dirs, -ENOMEM);
 	}
 
 	ctx->keystore_dirs[ctx->n_keystore_dirs - 1] = strdup(dir);
+
+out:
+	return ret;
 }
 
 
@@ -1015,9 +1031,10 @@ static void release_ctx(struct sync_context *ctx)
 
 	if (ctx->filesystem_keys) {
 		for (i = 0; i < ARRAY_SIZE(kdbs); i++ ) {
-			struct key *key;
+			struct key *key, *tmp_key;
 
-			list_for_each(key, &kdbs[i].fs_kdb->keys, list) {
+			list_for_each_guarded(key, tmp_key,
+					      &kdbs[i].fs_kdb->keys, list) {
 				release_key(key);
 			}
 		}
@@ -1038,6 +1055,7 @@ int main(int argc, char **argv)
 
 	use_default_keystore_dirs = true;
 	ctx = calloc(1, sizeof(struct sync_context));
+	CKNULL(ctx, -ENOMEM);
 	LIST_ENTRY_INIT(ctx->new_keys);
 
 	for (;;) {
@@ -1054,7 +1072,7 @@ int main(int argc, char **argv)
 			use_default_keystore_dirs = false;
 			break;
 		case 'k':
-			add_keystore_dir(ctx, optarg);
+			CKINT(add_keystore_dir(ctx, optarg));
 			break;
 		case 'p':
 			ctx->set_pk = true;
@@ -1076,7 +1094,8 @@ int main(int argc, char **argv)
 
 	if (argc != optind) {
 		usage();
-		return EXIT_FAILURE;
+		ret = -EINVAL;
+		goto out;
 	}
 
 	ctx->filesystem_keys = init_keyset();
@@ -1098,12 +1117,12 @@ int main(int argc, char **argv)
 			add_keystore_dir(ctx, default_keystore_dirs[i]);
 	}
 
-	read_keystore(ctx);
+	CKINT(read_keystore(ctx));
 
 	if (ctx->verbose)
 		print_keystore(ctx->fs_keystore);
 
-	read_keysets(ctx);
+	CKINT(read_keysets(ctx));
 	if (ctx->verbose) {
 		print_keyset(ctx->firmware_keys, "firmware");
 		print_keyset(ctx->filesystem_keys, "filesystem");
@@ -1112,7 +1131,7 @@ int main(int argc, char **argv)
 	if (check_pk(ctx))
 		fprintf(stderr, "WARNING: multiple PKs found in filesystem\n");
 
-	find_new_keys(ctx);
+	CKINT(find_new_keys(ctx));
 
 	if (ctx->verbose)
 		print_new_keys(ctx);
