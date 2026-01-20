@@ -194,6 +194,20 @@ if (host_machine.system() != 'windows' and
 				install: true,
 				install_dir: get_option('libexecdir') / meson.project_name()
 				)
+
+		sbkeysync_files = internal_src
+		sbkeysync_files += files([
+			'lc_x509_generator_file_helper.c',
+			'sbkeysync.c',
+		])
+
+		sbkeysync = executable('sbkeysync',
+				[ sbkeysync_files ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto,
+				install: true,
+				install_dir: get_option('libexecdir') / meson.project_name()
+				)
 	endif
 
 endif

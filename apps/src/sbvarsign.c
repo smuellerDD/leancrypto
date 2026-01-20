@@ -321,7 +321,7 @@ static int hash_data(const struct varsign_context *ctx, EFI_TIME *timestamp,
 	int ret;
 
 	/*
-	 * create a BIO for our variable data, containing:
+	 * create a linear buffer for our variable data, containing:
 	 *  * Variablename (not including trailing nul)
 	 *  * VendorGUID
 	 *  * Attributes

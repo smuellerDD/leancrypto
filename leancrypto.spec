@@ -186,6 +186,7 @@ done
 
 %files -n %{name}-sbsigntools
 %{_libexecdir}/%{name}
+%{_libexecdir}/%{name}/sbkeysync
 %{_libexecdir}/%{name}/sbsign
 %{_libexecdir}/%{name}/sbsiglist
 %{_libexecdir}/%{name}/sbvarsign
