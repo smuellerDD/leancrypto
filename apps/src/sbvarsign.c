@@ -399,9 +399,17 @@ out:
 static int add_auth_descriptor(struct pkcs7_generator_opts *opts,
 			       struct varsign_context *ctx, int include_attrs)
 {
+	/*
+	 * The pragma is needed for workspace->auth as the structure already
+	 * allocates memory at the emtpy initializer of auth. The compiler does
+	 * not see that and thus complains.
+	 */
 #pragma GCC diagnostic push
-//#pragma GCC diagnostic ignored "-Wgnu-variable-sized-type-not-at-end"
+#ifdef __clang__
+#pragma GCC diagnostic ignored "-Wgnu-variable-sized-type-not-at-end"
+#else
 #pragma GCC diagnostic ignored "-Wpedantic"
+#endif
 	struct workspace {
 		/*
 		 * Auth and data must be aligned as both act as one linear

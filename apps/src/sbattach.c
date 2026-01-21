@@ -89,6 +89,7 @@ static struct option options[] = {
 	{ "version", no_argument, NULL, 'V' },
 	{ "signum", required_argument, NULL, 's' },
 	{ "print", no_argument, NULL, 'p' },
+	{ "cert", required_argument, NULL, 'c' },
 	{ NULL, 0, NULL, 0 },
 };
 
@@ -108,7 +109,9 @@ static void usage(void)
 		"\t                     table from the original file\n"
 	        "\t--signum            signature to operate on (defaults to\n"
 	        "\t                     first)\n"
-		"\t--print             Verify PKCS#7 message and print content\n",
+		"\t--print             Verify PKCS#7 message and print content\n"
+		"\t--cert <certfile>   certificate (x509 certificate) used for\n"
+		"                       PKCS#7 verification with --print",
 		toolname, toolname, toolname);
 }
 
@@ -126,6 +129,10 @@ static void version(void)
 static int detach_sig(struct image *image, unsigned int signum,
 		      const char *sig_filename)
 {
+	/*
+	 * Write a duplicate of the signature in the PE/COFF file to a
+	 * separate file.
+	 */
 	return image_write_detached(image, signum, sig_filename);
 }
 
@@ -138,19 +145,28 @@ static int pkcs7_ver_message_sbattach(struct pkcs7_generator_opts *opts,
 	PKCS7_ALLOC
 	int ret;
 
+	/* Initialize the encoding context */
 	CKINT(lc_pkcs7_decode_ctx_init(&ctx));
 
+	/*
+	 * Expect the data content to be SpcIndirectDataContent
+	 * using SPC_INDIRECT_DATA_OBJID (1.3.6.1.4.1.311.2.1.4).
+	 */
 	CKINT(lc_pkcs7_decode_ctx_set_aa_content_type(&ctx,
 						      OID_msIndirectData));
 
-	/* Set the PKCS#7 message structure to be encoded */
+	/* Set the PKCS#7 message structure to be decoded into. */
 	CKINT(lc_pkcs7_decode_ctx_set_pkcs7(&ctx, pkcs7_msg));
 
+	/* Perform the actual message decoding. */
 	CKINT_LOG(lc_pkcs7_decode_ctx(&ctx, pkcs7_data, pkcs7_datalen),
 		  "Parsing of input data failed\n");
 
-	/* No data to be set as data is embedded */
-
+	/*
+	 * Verify the PKCS#7 message data.
+	 * No data needs to be set as all data is embedded into the PKCS#7
+	 * message as documented in sbsign.c:pkcs7_gen_message_sbsign.
+	 */
 	ret = lc_pkcs7_verify(
 		pkcs7_msg, opts->use_trust_store ? &opts->trust_store : NULL,
 		opts->verify_rules_set ? &opts->verify_rules : NULL);
@@ -194,12 +210,16 @@ static int attach_sig(struct pkcs7_generator_opts *opts, struct image *image,
 	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
+	/* Read the file with the signature to be added */
 	CKINT(get_data(sig_filename, &sigbuf, &size, lc_pem_flag_nopem));
 
-	CKINT(image_add_signature(image, sigbuf, size));
-
+	/* Verify the signature as a safety precaution */
 	CKINT(pkcs7_ver_message_sbattach(opts, sigbuf, size));
 
+	/* Add the signature to the PE/COFF file */
+	CKINT(image_add_signature(image, sigbuf, size));
+
+	/* Write the PE/COFF structure out to file */
 	CKINT_LOG(image_write(image, image_filename),
 		  "Error writing %s: %s\n", image_filename, strerror(errno));
 
@@ -215,9 +235,11 @@ static int remove_sig(struct image *image, unsigned int signum,
 {
 	int ret;
 
+	/* Remove the signature from the PE/COFF file referenced by signum */
 	CKINT_LOG(image_remove_signature(image, signum),
 		  "Error, image has no signature at %u\n", signum + 1);
 
+	/* Write the PE/COFF structure out to file */
 	CKINT_LOG(image_write(image, image_filename),
 		  "Error writing %s: %s\n", image_filename, strerror(errno));
 
@@ -287,6 +309,29 @@ int main(int argc, char **argv)
 		case 'p':
 			ws->parsed_opts.print_pkcs7 = true;
 			break;
+		case 'c':
+			ws->parsed_opts.trust_anchor = optarg;
+			CKINT(pkcs7_collect_trust(&ws->parsed_opts));
+			break;
+		/*
+		 * NOTE: we also could check for EKU/key usage during PKCS#7
+		 * verify:
+		 */
+#if 0
+		/* expected-keyusage */
+		case 13:
+			CKINT(lc_x509_name_to_keyusage(
+				optarg,
+				&verify_rules->required_keyusage));
+			parsed_opts.verify_rules_set = 1;
+			break;
+		/* expected-eku */
+		case 14:
+			CKINT(lc_x509_name_to_eku(
+				optarg, &verify_rules->required_eku));
+			parsed_opts.verify_rules_set = 1;
+			break;
+#endif
 		}
 	}
 
@@ -311,8 +356,11 @@ int main(int argc, char **argv)
 		goto out;
 	}
 
+	/* Read the PE/COFF file into memory to allow it to be modified */
 	CKINT(get_data_memory(ws->parsed_opts.infile, &image_buf, &image_size,
 			      lc_pem_flag_nopem));
+
+	/* Parse the image */
 	CKINT_LOG(image_load(image_buf, image_size, &ws->image),
 		  "Can't load image file %s\n", ws->parsed_opts.infile);
 

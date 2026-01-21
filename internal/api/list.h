@@ -181,8 +181,8 @@ static inline void list_add_internal(struct list_entry *entry,
 
 /**
  * @brief insert a new list entry or complete list at the end of the list when
- *	  pointing to the start of a list with @param start. Otherwise the
- *	  new list entry is added before the entry pointed to by @param start.
+ *	  pointing to the start of a list with \p start. Otherwise the
+ *	  new list entry is added before the entry pointed to by \p start.
  * @param entry the list entry (or the start list entry of the new list) to add
  * @param start the start of list (or the list entry before which the new list
  *		or list entry shall be added)

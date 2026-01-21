@@ -424,6 +424,25 @@ int main(int argc, char **argv)
 			usage();
 			ret = 0;
 			goto out;
+		/*
+		 * NOTE: we also could check for EKU/key usage during PKCS#7
+		 * verify:
+		 */
+#if 0
+		/* expected-keyusage */
+		case 13:
+			CKINT(lc_x509_name_to_keyusage(
+				optarg,
+				&verify_rules->required_keyusage));
+			parsed_opts.verify_rules_set = 1;
+			break;
+		/* expected-eku */
+		case 14:
+			CKINT(lc_x509_name_to_eku(
+				optarg, &verify_rules->required_eku));
+			parsed_opts.verify_rules_set = 1;
+			break;
+#endif
 		}
 	}
 

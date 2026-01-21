@@ -361,6 +361,10 @@ static int pkcs7_gen_message_sbsign(struct pkcs7_generator_opts *opts)
 	/*
 	 * Set and embed the SpcIndirectDataContent into the PKCS#7 message
 	 * using SPC_INDIRECT_DATA_OBJID (1.3.6.1.4.1.311.2.1.4).
+	 *
+	 * As defined in the spec, the actual data (the message digest held with
+	 * the SpcIndirectDataContent) is always embedded into the PKCS#7
+	 * message.
 	 */
 	CKINT(lc_pkcs7_set_data_with_type(
 		pkcs7, ws->authenticode_SpcIndirectDataContent, datalen,
@@ -489,6 +493,25 @@ int main(int argc, char **argv)
 		case 'p':
 			ws->parsed_opts.print_pkcs7 = true;
 			break;
+		/*
+		 * NOTE: we also could check for EKU/key usage during PKCS#7
+		 * verify:
+		 */
+#if 0
+		/* expected-keyusage */
+		case 13:
+			CKINT(lc_x509_name_to_keyusage(
+				optarg,
+				&verify_rules->required_keyusage));
+			parsed_opts.verify_rules_set = 1;
+			break;
+		/* expected-eku */
+		case 14:
+			CKINT(lc_x509_name_to_eku(
+				optarg, &verify_rules->required_eku));
+			parsed_opts.verify_rules_set = 1;
+			break;
+#endif
 		}
 	}
 

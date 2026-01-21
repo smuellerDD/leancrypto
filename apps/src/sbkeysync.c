@@ -80,8 +80,6 @@
 #include "ret_checkers.h"
 #include "small_stack_support.h"
 
-static struct statfs statfstype;
-
 #define EFIVARS_MOUNTPOINT	"/sys/firmware/efi/efivars"
 #define PSTORE_FSTYPE		((typeof(statfstype.f_type))0x6165676C)
 #define EFIVARS_FSTYPE		((typeof(statfstype.f_type))0xde5e81e4)
@@ -601,13 +599,25 @@ static void print_keyset(struct keyset *keyset, const char *name)
 
 static int check_efivars_mount(const char *mountpoint)
 {
+
+	static struct statfs statfstype;
 	struct statfs statbuf;
 
 	if (statfs(mountpoint, &statbuf) == -1)
 		return -errno;
 
+	/* Needed for EFIVARS_FSTYPE and PSTORE_FSTYPE */
+	(void)statfstype;
+
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wlanguage-extension-token"
+#endif
 	if (statbuf.f_type != EFIVARS_FSTYPE && statbuf.f_type != PSTORE_FSTYPE)
 		return -EFAULT;
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif
 
 	return 0;
 }

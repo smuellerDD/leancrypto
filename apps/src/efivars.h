@@ -86,8 +86,11 @@ typedef struct {
 } WIN_CERTIFICATE;
 
 #pragma GCC diagnostic push
-//#pragma GCC diagnostic ignored "-Wgnu-variable-sized-type-not-at-end"
+#ifdef __clang__
+#pragma GCC diagnostic ignored "-Wgnu-variable-sized-type-not-at-end"
+#else
 #pragma GCC diagnostic ignored "-Wpedantic"
+#endif
 typedef struct {
 	WIN_CERTIFICATE Hdr;
 	EFI_GUID CertType;
@@ -96,8 +99,11 @@ typedef struct {
 #pragma GCC diagnostic pop
 
 #pragma GCC diagnostic push
-//#pragma GCC diagnostic ignored "-Wflexible-array-extensions"
+#ifdef __clang__
+#pragma GCC diagnostic ignored "-Wflexible-array-extensions"
+#else
 #pragma GCC diagnostic ignored "-Wpedantic"
+#endif
 typedef struct {
 	EFI_TIME TimeStamp;
 	WIN_CERTIFICATE_UEFI_GUID AuthInfo;
