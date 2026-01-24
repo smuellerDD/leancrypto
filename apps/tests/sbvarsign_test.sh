@@ -159,6 +159,7 @@ sbvarsign_test() {
 	 --key ${sk_file} \
 	 --cert ${pk_file} \
 	 --output ${pk_file}.out \
+	 -vv \
 	 cert \
 	 ${pk_file}
 
