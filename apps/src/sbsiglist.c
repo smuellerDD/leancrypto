@@ -89,47 +89,46 @@ static struct option options[] = {
 };
 
 struct cert_type {
-	const char	*name;
-	const EFI_GUID	guid;
-	unsigned int	sigsize;
+	const char *name;
+	const EFI_GUID guid;
+	unsigned int sigsize;
 };
 
 struct cert_type cert_types[] = {
-	{ "x509",   EFI_CERT_X509_GUID,   0 },
+	{ "x509", EFI_CERT_X509_GUID, 0 },
 	{ "sha256", EFI_CERT_SHA256_GUID, 32 },
 };
 
 struct siglist_context {
-	int			verbose;
+	int verbose;
 
-	const char		*infilename;
-	char		*outfilename;
-	const struct cert_type	*type;
-	EFI_GUID		owner;
+	const char *infilename;
+	char *outfilename;
+	const struct cert_type *type;
+	EFI_GUID owner;
 
-	uint8_t			*data;
-	size_t			data_len;
+	uint8_t *data;
+	size_t data_len;
 
-	EFI_SIGNATURE_LIST	*siglist;
+	EFI_SIGNATURE_LIST *siglist;
 };
-
 
 static void usage(void)
 {
 	unsigned int i;
 
 	printf("Usage: %s [options] --owner <guid> --type <type> <sig-file>\n"
-		"Create an EFI_SIGNATURE_LIST from a signature file\n"
-		"Options:\n"
-		"\t--owner <guid>   Signature owner GUID\n"
-		"\t--type <type>    Signature type. One of:\n",
-		toolname);
+	       "Create an EFI_SIGNATURE_LIST from a signature file\n"
+	       "Options:\n"
+	       "\t--owner <guid>   Signature owner GUID\n"
+	       "\t--type <type>    Signature type. One of:\n",
+	       toolname);
 
 	for (i = 0; i < ARRAY_SIZE(cert_types); i++)
 		printf("\t                     %s\n", cert_types[i].name);
 
 	printf("\t--output <file>  write signed data to <file>\n"
-		"\t                  (default <sig-file>.siglist)\n");
+	       "\t                  (default <sig-file>.siglist)\n");
 }
 
 static void version(void)
@@ -151,12 +150,11 @@ static int siglist_create(struct siglist_context *ctx)
 	int ret = 0;
 
 	if (ctx->type->sigsize && ctx->data_len != ctx->type->sigsize) {
-		fprintf(stderr, "Error: signature lists of type '%s' expect "
-					"%d bytes of data, "
-					"%zd bytes provided.\n",
-				ctx->type->name,
-				ctx->type->sigsize,
-				ctx->data_len);
+		fprintf(stderr,
+			"Error: signature lists of type '%s' expect "
+			"%d bytes of data, "
+			"%zd bytes provided.\n",
+			ctx->type->name, ctx->type->sigsize, ctx->data_len);
 		return -EINVAL;
 	}
 
@@ -284,8 +282,8 @@ int main(int argc, char **argv)
 		CKINT(set_default_outfilename(&ctx));
 
 	CKINT_LOG(get_data(ctx.infilename, &ctx.data, &ctx.data_len,
-			   lc_pem_flag_nopem), "Can't read input file %s\n",
-		  ctx.infilename);
+			   lc_pem_flag_nopem),
+		  "Can't read input file %s\n", ctx.infilename);
 
 	CKINT((siglist_create(&ctx)));
 

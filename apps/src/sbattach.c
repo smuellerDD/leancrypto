@@ -96,23 +96,23 @@ static struct option options[] = {
 static void usage(void)
 {
 	printf("Usage: %s --attach <sigfile> <efi-boot-image>\n"
-		"   or: %s --detach <sigfile> [--remove] <efi-boot-image>\n"
-		"   or: %s --remove <efi-boot-image>\n"
-		"Attach or detach a signature file to/from a boot image\n"
-		"\n"
-		"Options:\n"
-		"\t--attach <sigfile>  set <sigfile> as the boot image's\n"
-		"\t                     signature table\n"
-		"\t--detach <sigfile>  copy the boot image's signature table\n"
-		"\t                     to <sigfile>\n"
-		"\t--remove            remove the boot image's signature\n"
-		"\t                     table from the original file\n"
-	        "\t--signum            signature to operate on (defaults to\n"
-	        "\t                     first)\n"
-		"\t--print             Verify PKCS#7 message and print content\n"
-		"\t--cert <certfile>   certificate (x509 certificate) used for\n"
-		"                       PKCS#7 verification with --print",
-		toolname, toolname, toolname);
+	       "   or: %s --detach <sigfile> [--remove] <efi-boot-image>\n"
+	       "   or: %s --remove <efi-boot-image>\n"
+	       "Attach or detach a signature file to/from a boot image\n"
+	       "\n"
+	       "Options:\n"
+	       "\t--attach <sigfile>  set <sigfile> as the boot image's\n"
+	       "\t                     signature table\n"
+	       "\t--detach <sigfile>  copy the boot image's signature table\n"
+	       "\t                     to <sigfile>\n"
+	       "\t--remove            remove the boot image's signature\n"
+	       "\t                     table from the original file\n"
+	       "\t--signum            signature to operate on (defaults to\n"
+	       "\t                     first)\n"
+	       "\t--print             Verify PKCS#7 message and print content\n"
+	       "\t--cert <certfile>   certificate (x509 certificate) used for\n"
+	       "                       PKCS#7 verification with --print",
+	       toolname, toolname, toolname);
 }
 
 static void version(void)
@@ -220,8 +220,8 @@ static int attach_sig(struct pkcs7_generator_opts *opts, struct image *image,
 	CKINT(image_add_signature(image, sigbuf, size));
 
 	/* Write the PE/COFF structure out to file */
-	CKINT_LOG(image_write(image, image_filename),
-		  "Error writing %s: %s\n", image_filename, strerror(errno));
+	CKINT_LOG(image_write(image, image_filename), "Error writing %s: %s\n",
+		  image_filename, strerror(errno));
 
 out:
 	release_data(sigbuf, size, lc_pem_flag_nopem);
@@ -240,8 +240,8 @@ static int remove_sig(struct image *image, unsigned int signum,
 		  "Error, image has no signature at %u\n", signum + 1);
 
 	/* Write the PE/COFF structure out to file */
-	CKINT_LOG(image_write(image, image_filename),
-		  "Error writing %s: %s\n", image_filename, strerror(errno));
+	CKINT_LOG(image_write(image, image_filename), "Error writing %s: %s\n",
+		  image_filename, strerror(errno));
 
 out:
 	return ret;
@@ -295,7 +295,7 @@ int main(int argc, char **argv)
 				return -EINVAL;
 
 			/* humans count from 1 not zero */
-			 signum = (unsigned int)val - 1;
+			signum = (unsigned int)val - 1;
 			break;
 		case 'r':
 			remove = true;
@@ -313,7 +313,7 @@ int main(int argc, char **argv)
 			ws->parsed_opts.trust_anchor = optarg;
 			CKINT(pkcs7_collect_trust(&ws->parsed_opts));
 			break;
-		/*
+			/*
 		 * NOTE: we also could check for EKU/key usage during PKCS#7
 		 * verify:
 		 */

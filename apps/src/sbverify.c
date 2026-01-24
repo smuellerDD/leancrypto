@@ -424,7 +424,7 @@ int main(int argc, char **argv)
 			usage();
 			ret = 0;
 			goto out;
-		/*
+			/*
 		 * NOTE: we also could check for EKU/key usage during PKCS#7
 		 * verify:
 		 */

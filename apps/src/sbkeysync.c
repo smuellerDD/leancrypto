@@ -80,31 +80,33 @@
 #include "ret_checkers.h"
 #include "small_stack_support.h"
 
-#define EFIVARS_MOUNTPOINT	"/sys/firmware/efi/efivars"
-#define PSTORE_FSTYPE		((typeof(statfstype.f_type))0x6165676C)
-#define EFIVARS_FSTYPE		((typeof(statfstype.f_type))0xde5e81e4)
+#define EFIVARS_MOUNTPOINT "/sys/firmware/efi/efivars"
+#define PSTORE_FSTYPE ((typeof(statfstype.f_type))0x6165676C)
+#define EFIVARS_FSTYPE ((typeof(statfstype.f_type))0xde5e81e4)
 
-#define EFI_IMAGE_SECURITY_DATABASE_GUID \
-	{ 0xd719b2cb, 0x3d3a, 0x4596, \
-	{ 0xa3, 0xbc, 0xda, 0xd0, 0x0e, 0x67, 0x65, 0x6f } }
+#define EFI_IMAGE_SECURITY_DATABASE_GUID                                       \
+	{ 0xd719b2cb,                                                          \
+	  0x3d3a,                                                              \
+	  0x4596,                                                              \
+	  { 0xa3, 0xbc, 0xda, 0xd0, 0x0e, 0x67, 0x65, 0x6f } }
 
 static const char *toolname = "sbkeysync";
 
-static const uint32_t sigdb_attrs = EFI_VARIABLE_NON_VOLATILE |
-	EFI_VARIABLE_BOOTSERVICE_ACCESS |
+static const uint32_t sigdb_attrs =
+	EFI_VARIABLE_NON_VOLATILE | EFI_VARIABLE_BOOTSERVICE_ACCESS |
 	EFI_VARIABLE_RUNTIME_ACCESS |
 	EFI_VARIABLE_TIME_BASED_AUTHENTICATED_WRITE_ACCESS |
 	EFI_VARIABLE_APPEND_WRITE;
 
 struct key_database_type {
-	const char	*name;
-	EFI_GUID	guid;
+	const char *name;
+	EFI_GUID guid;
 };
 
 struct key_database_type keydb_types[] = {
-	{ "PK",  EFI_GLOBAL_VARIABLE },
+	{ "PK", EFI_GLOBAL_VARIABLE },
 	{ "KEK", EFI_GLOBAL_VARIABLE },
-	{ "db",  EFI_IMAGE_SECURITY_DATABASE_GUID },
+	{ "db", EFI_IMAGE_SECURITY_DATABASE_GUID },
 	{ "dbx", EFI_IMAGE_SECURITY_DATABASE_GUID },
 };
 
@@ -121,75 +123,72 @@ static const char *default_keystore_dirs[] = {
 };
 
 struct key {
-	EFI_GUID			type;
-	size_t				id_len;
-	uint8_t				*id;
+	EFI_GUID type;
+	size_t id_len;
+	uint8_t *id;
 
-	char				*description;
+	char *description;
 
-	struct list_entry		list;
+	struct list_entry list;
 
 	/* set for keys loaded from a filesystem keystore */
-	struct fs_keystore_entry	*keystore_entry;
+	struct fs_keystore_entry *keystore_entry;
 };
 
 typedef int (*key_parse_func)(struct key *, uint8_t *, size_t);
 
 struct cert_type {
-	EFI_GUID	guid;
-	key_parse_func	parse;
+	EFI_GUID guid;
+	key_parse_func parse;
 };
 
 struct key_database {
-	const struct key_database_type	*type;
-	struct list_entry		keys;
+	const struct key_database_type *type;
+	struct list_entry keys;
 };
 
 struct keyset {
-	struct key_database	pk;
-	struct key_database	kek;
-	struct key_database	db;
-	struct key_database	dbx;
+	struct key_database pk;
+	struct key_database kek;
+	struct key_database db;
+	struct key_database dbx;
 };
 
 struct fs_keystore_entry {
-	const struct key_database_type	*type;
-	const char			*root;
-	char			*name;
-	uint8_t				*data;
-	size_t				len;
-	struct list_entry		keystore_list;
-	struct list_entry		new_list;
+	const struct key_database_type *type;
+	const char *root;
+	char *name;
+	uint8_t *data;
+	size_t len;
+	struct list_entry keystore_list;
+	struct list_entry new_list;
 };
 
 struct fs_keystore {
-	struct list_entry	keys;
+	struct list_entry keys;
 };
 
 struct sync_context {
-	const char		*efivars_dir;
-	struct keyset		*filesystem_keys;
-	struct keyset		*firmware_keys;
-	struct fs_keystore	*fs_keystore;
-	char		**keystore_dirs;
-	unsigned int		n_keystore_dirs;
-	struct list_entry	new_keys;
-	bool			verbose;
-	bool			dry_run;
-	bool			set_pk;
+	const char *efivars_dir;
+	struct keyset *filesystem_keys;
+	struct keyset *firmware_keys;
+	struct fs_keystore *fs_keystore;
+	char **keystore_dirs;
+	unsigned int n_keystore_dirs;
+	struct list_entry new_keys;
+	bool verbose;
+	bool dry_run;
+	bool set_pk;
 };
-
 
 #define GUID_STRLEN (8 + 1 + 4 + 1 + 4 + 1 + 4 + 1 + 12 + 1)
 static void guid_to_str(const EFI_GUID *guid, char *str)
 {
 	snprintf(str, GUID_STRLEN,
-		"%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
-			guid->Data1, guid->Data2, guid->Data3,
-			guid->Data4[0], guid->Data4[1],
-			guid->Data4[2], guid->Data4[3],
-			guid->Data4[4], guid->Data4[5],
-			guid->Data4[6], guid->Data4[7]);
+		 "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+		 guid->Data1, guid->Data2, guid->Data3, guid->Data4[0],
+		 guid->Data4[1], guid->Data4[2], guid->Data4[3], guid->Data4[4],
+		 guid->Data4[5], guid->Data4[6], guid->Data4[7]);
 }
 
 static int sha256_key_parse(struct key *key, uint8_t *data, size_t len)
@@ -209,17 +208,16 @@ static int sha256_key_parse(struct key *key, uint8_t *data, size_t len)
 	key->description = calloc(1, len * 2 + 1);
 	CKNULL(key->description, -ENOMEM);
 	for (i = 0; i < len; i++)
-		snprintf(&key->description[i*2], 3, "%02x", data[i]);
-	key->description[len*2] = '\0';
+		snprintf(&key->description[i * 2], 3, "%02x", data[i]);
+	key->description[len * 2] = '\0';
 
 out:
 	return ret;
 }
 
-static void
-print_x509_name_component(char *buf, size_t bufmaxlen, unsigned int *comma,
-			  const char *prefix, const char *string,
-			  size_t string_len)
+static void print_x509_name_component(char *buf, size_t bufmaxlen,
+				      unsigned int *comma, const char *prefix,
+				      const char *string, size_t string_len)
 {
 	size_t buflen;
 
@@ -228,8 +226,8 @@ print_x509_name_component(char *buf, size_t bufmaxlen, unsigned int *comma,
 
 	buflen = strlen(buf);
 
-	snprintf(buf + buflen, bufmaxlen, "%s%s%s",
-		 *comma ? ", " : "", prefix, string);
+	snprintf(buf + buflen, bufmaxlen, "%s%s%s", *comma ? ", " : "", prefix,
+		 string);
 
 	*comma = 1;
 }
@@ -330,10 +328,10 @@ static int key_parse(struct key *key, const EFI_GUID *type, uint8_t *data,
 	guid_to_str(type, guid_str);
 	printf("warning: unknown signature type found:\n  %s\n", guid_str);
 	return -EINVAL;
-
 }
 
-typedef int (*sigdata_fn)(EFI_SIGNATURE_DATA *, size_t, const EFI_GUID *, void *);
+typedef int (*sigdata_fn)(EFI_SIGNATURE_DATA *, size_t, const EFI_GUID *,
+			  void *);
 
 /**
  * Iterates an buffer of EFI_SIGNATURE_LISTs (at db_data, of length len),
@@ -363,8 +361,7 @@ static int sigdb_iterate(uint8_t *db_data, size_t len, sigdata_fn fn, void *arg)
 	     i + siglist->SignatureListSize > i &&
 	     i + siglist->SignatureListSize <= len;
 	     i += siglist->SignatureListSize,
-	     siglist = (EFI_SIGNATURE_LIST *)(db_data + i)) {
-
+	    siglist = (EFI_SIGNATURE_LIST *)(db_data + i)) {
 		/* ensure that the header & sig sizes are sensible */
 		if (siglist->SignatureHeaderSize > siglist->SignatureListSize)
 			continue;
@@ -378,15 +375,13 @@ static int sigdb_iterate(uint8_t *db_data, size_t len, sigdata_fn fn, void *arg)
 		/* iterate through the (constant-sized) signature data blocks */
 		for (j = sizeof(*siglist) + siglist->SignatureHeaderSize;
 		     j < siglist->SignatureListSize;
-		     j += siglist->SignatureSize)
-		{
-			sigdata = (EFI_SIGNATURE_DATA *)((uint8_t *)(siglist) + j);
+		     j += siglist->SignatureSize) {
+			sigdata = (EFI_SIGNATURE_DATA *)((uint8_t *)(siglist) +
+							 j);
 
 			CKINT(fn(sigdata, siglist->SignatureSize,
 				 &siglist->SignatureType, arg));
-
 		}
-
 	}
 #pragma GCC diagnostic pop
 
@@ -441,8 +436,8 @@ static int read_firmware_keydb(struct sync_context *ctx,
 
 	guid_to_str(&kdb->type->guid, guid_str);
 
-	snprintf(filename, sizeof(filename), "%s/%s-%s",
-		 ctx->efivars_dir, kdb->type->name, guid_str);
+	snprintf(filename, sizeof(filename), "%s/%s-%s", ctx->efivars_dir,
+		 kdb->type->name, guid_str);
 
 	CKINT(get_data(filename, &buf, &len, lc_pem_flag_nopem));
 
@@ -460,8 +455,8 @@ out:
 	return ret;
 }
 
-static void __attribute__((format(printf, 2, 3))) print_keystore_key_error(
-		struct fs_keystore_entry *ke, const char *fmt, ...)
+static void __attribute__((format(printf, 2, 3)))
+print_keystore_key_error(struct fs_keystore_entry *ke, const char *fmt, ...)
 {
 	va_list ap;
 
@@ -483,7 +478,7 @@ static int read_filesystem_keydb(struct sync_context *ctx,
 	add_ctx.keyset = ctx->filesystem_keys;
 	add_ctx.kdb = kdb;
 
-	list_for_each(ke, &ctx->fs_keystore->keys, keystore_list) {
+	list_for_each (ke, &ctx->fs_keystore->keys, keystore_list) {
 		size_t len;
 		uint8_t *buf;
 
@@ -504,8 +499,9 @@ static int read_filesystem_keydb(struct sync_context *ctx,
 		len = ke->len;
 
 		if (len < sizeof(*auth)) {
-			print_keystore_key_error(ke, "does not contain an "
-				"EFI_VARIABLE_AUTHENTICATION_2 descriptor");
+			print_keystore_key_error(
+				ke, "does not contain an "
+				    "EFI_VARIABLE_AUTHENTICATION_2 descriptor");
 			continue;
 		}
 
@@ -520,8 +516,8 @@ static int read_filesystem_keydb(struct sync_context *ctx,
 		}
 
 		if (auth->AuthInfo.Hdr.dwLength > len) {
-			print_keystore_key_error(ke,
-					"invalid WIN_CERTIFICATE length");
+			print_keystore_key_error(
+				ke, "invalid WIN_CERTIFICATE length");
 			continue;
 		}
 
@@ -529,18 +525,17 @@ static int read_filesystem_keydb(struct sync_context *ctx,
 		 * but not the other data in the EFI_VARIABLE_AUTHENTICATION_2
 		 * descriptor */
 		buf += sizeof(*auth) - sizeof(auth->AuthInfo) +
-			auth->AuthInfo.Hdr.dwLength;
+		       auth->AuthInfo.Hdr.dwLength;
 		len -= sizeof(*auth) - sizeof(auth->AuthInfo) +
-			auth->AuthInfo.Hdr.dwLength;
+		       auth->AuthInfo.Hdr.dwLength;
 
 		add_ctx.ke = ke;
 		rc = sigdb_iterate(buf, len, keydb_add_key, &add_ctx);
 		if (rc) {
 			print_keystore_key_error(ke, "error parsing "
-					"EFI_SIGNATURE_LIST");
+						     "EFI_SIGNATURE_LIST");
 			continue;
 		}
-
 	}
 
 	return 0;
@@ -569,7 +564,7 @@ static int check_pk(struct sync_context *ctx)
 	struct key *key;
 	int i = 0;
 
-	list_for_each(key, &ctx->filesystem_keys->pk.keys, list)
+	list_for_each (key, &ctx->filesystem_keys->pk.keys, list)
 		i++;
 
 	return (i <= 1) ? 0 : 1;
@@ -577,8 +572,8 @@ static int check_pk(struct sync_context *ctx)
 
 static void print_keyset(struct keyset *keyset, const char *name)
 {
-	struct key_database *kdbs[] =
-		{ &keyset->pk, &keyset->kek, &keyset->db, &keyset->dbx };
+	struct key_database *kdbs[] = { &keyset->pk, &keyset->kek, &keyset->db,
+					&keyset->dbx };
 	struct key *key;
 	unsigned int i;
 
@@ -587,19 +582,18 @@ static void print_keyset(struct keyset *keyset, const char *name)
 	for (i = 0; i < ARRAY_SIZE(kdbs); i++) {
 		printf("  %s:\n", kdbs[i]->type->name);
 
-		list_for_each(key, &kdbs[i]->keys, list) {
+		list_for_each (key, &kdbs[i]->keys, list) {
 			printf("    %s\n", key->description);
 			if (key->keystore_entry)
 				printf("     from %s/%s\n",
-						key->keystore_entry->root,
-						key->keystore_entry->name);
+				       key->keystore_entry->root,
+				       key->keystore_entry->name);
 		}
 	}
 }
 
 static int check_efivars_mount(const char *mountpoint)
 {
-
 	static struct statfs statfstype;
 	struct statfs statbuf;
 
@@ -639,7 +633,7 @@ static bool keystore_contains_file(struct fs_keystore *keystore,
 {
 	struct fs_keystore_entry *ke;
 
-	list_for_each(ke, &keystore->keys, keystore_list) {
+	list_for_each (ke, &keystore->keys, keystore_list) {
 		if (!strcmp(ke->name, filename))
 			return true;
 	}
@@ -735,7 +729,7 @@ static void print_keystore(struct fs_keystore *keystore)
 
 	printf("Filesystem keystore:\n");
 
-	list_for_each(ke, &keystore->keys, keystore_list)
+	list_for_each (ke, &keystore->keys, keystore_list)
 		printf("  %s/%s [%zd bytes]\n", ke->root, ke->name, ke->len);
 }
 
@@ -757,22 +751,22 @@ static int find_new_keys(struct sync_context *ctx)
 	struct {
 		struct key_database *fs_kdb, *fw_kdb;
 	} kdbs[] = {
-		{ &ctx->filesystem_keys->pk,  &ctx->firmware_keys->pk },
+		{ &ctx->filesystem_keys->pk, &ctx->firmware_keys->pk },
 		{ &ctx->filesystem_keys->kek, &ctx->firmware_keys->kek },
-		{ &ctx->filesystem_keys->db,  &ctx->firmware_keys->db },
+		{ &ctx->filesystem_keys->db, &ctx->firmware_keys->db },
 		{ &ctx->filesystem_keys->dbx, &ctx->firmware_keys->dbx },
 	};
 	unsigned int i;
 	int n = 0;
 
-	for (i = 0; i < ARRAY_SIZE(kdbs); i++ ) {
+	for (i = 0; i < ARRAY_SIZE(kdbs); i++) {
 		struct fs_keystore_entry *ke;
 		struct key *fs_key, *fw_key;
 		bool found;
 
-		list_for_each(fs_key, &kdbs[i].fs_kdb->keys, list) {
+		list_for_each (fs_key, &kdbs[i].fs_kdb->keys, list) {
 			found = false;
-			list_for_each(fw_key, &kdbs[i].fw_kdb->keys, list) {
+			list_for_each (fw_key, &kdbs[i].fw_kdb->keys, list) {
 				if (!key_cmp(fs_key, fw_key)) {
 					found = true;
 					break;
@@ -783,7 +777,7 @@ static int find_new_keys(struct sync_context *ctx)
 
 			/* add the keystore entry if it's not already present */
 			found = false;
-			list_for_each(ke, &ctx->new_keys, new_list) {
+			list_for_each (ke, &ctx->new_keys, new_list) {
 				if (fs_key->keystore_entry == ke) {
 					found = true;
 					break;
@@ -794,7 +788,7 @@ static int find_new_keys(struct sync_context *ctx)
 				continue;
 
 			list_add(&ctx->new_keys,
-					&fs_key->keystore_entry->new_list);
+				 &fs_key->keystore_entry->new_list);
 			n++;
 		}
 	}
@@ -808,7 +802,7 @@ static void print_new_keys(struct sync_context *ctx)
 
 	printf("New keys in filesystem:\n");
 
-	list_for_each(ke, &ctx->new_keys, new_list)
+	list_for_each (ke, &ctx->new_keys, new_list)
 		printf(" %s/%s\n", ke->root, ke->name);
 }
 
@@ -824,8 +818,8 @@ static int insert_key(struct sync_context *ctx, struct fs_keystore_entry *ke)
 	fd = -1;
 
 	if (ctx->verbose)
-		printf("Inserting key update %s/%s into %s\n",
-				ke->root, ke->name, ke->type->name);
+		printf("Inserting key update %s/%s into %s\n", ke->root,
+		       ke->name, ke->type->name);
 
 	/* we create a contiguous buffer of attributes & key data, so that
 	 * we write to the efivars file in a single syscall */
@@ -842,8 +836,8 @@ static int insert_key(struct sync_context *ctx, struct fs_keystore_entry *ke)
 
 	fd = open(efivars_filename, O_WRONLY | O_CREAT, 0600);
 	if (fd < 0) {
-		fprintf(stderr,	"Can't create key file %s: %s\n",
-				efivars_filename, strerror(errno));
+		fprintf(stderr, "Can't create key file %s: %s\n",
+			efivars_filename, strerror(errno));
 		goto out;
 	}
 
@@ -856,9 +850,10 @@ static int insert_key(struct sync_context *ctx, struct fs_keystore_entry *ke)
 	}
 
 	if ((size_t)written != buf_len) {
-		fprintf(stderr, "Partial write during key update: "
-				"wrote %zd bytes, expecting %zu\n",
-				written, buf_len);
+		fprintf(stderr,
+			"Partial write during key update: "
+			"wrote %zd bytes, expecting %zu\n",
+			written, buf_len);
 		ret = -EFAULT;
 		goto out;
 	}
@@ -869,8 +864,8 @@ out:
 	if (buf)
 		free(buf);
 	if (ret)
-		fprintf(stderr, "Error syncing keystore file %s/%s\n",
-				ke->root, ke->name);
+		fprintf(stderr, "Error syncing keystore file %s/%s\n", ke->root,
+			ke->name);
 	return ret;
 }
 
@@ -882,8 +877,7 @@ static int insert_new_keys(struct sync_context *ctx)
 	pks = 0;
 	ke_pk = NULL;
 
-	list_for_each(ke, &ctx->new_keys, new_list) {
-
+	list_for_each (ke, &ctx->new_keys, new_list) {
 		/* we handle PK last */
 		if (ke->type == &keydb_types[KEYDB_PK]) {
 			ke_pk = ke;
@@ -946,21 +940,21 @@ static struct option options[] = {
 static void usage(void)
 {
 	printf("Usage: %s [options]\n"
-		"Update EFI key databases from the filesystem\n"
-		"\n"
-		"Options:\n"
-		"\t--efivars-path <dir>  Path to efivars mountpoint\n"
-		"\t                       (or regular directory for testing)\n"
-		"\t--verbose             Print verbose progress information\n"
-		"\t--dry-run             Don't update firmware key databases\n"
-		"\t--pk                  Set PK\n"
-		"\t--keystore <dir>      Read keys from <dir>/{db,dbx,KEK}/*\n"
-		"\t                       (can be specified multiple times,\n"
-		"\t                       first dir takes precedence)\n"
-		"\t--no-default-keystores\n"
-		"\t                      Don't read keys from the default\n"
-		"\t                       keystore dirs\n",
-		toolname);
+	       "Update EFI key databases from the filesystem\n"
+	       "\n"
+	       "Options:\n"
+	       "\t--efivars-path <dir>  Path to efivars mountpoint\n"
+	       "\t                       (or regular directory for testing)\n"
+	       "\t--verbose             Print verbose progress information\n"
+	       "\t--dry-run             Don't update firmware key databases\n"
+	       "\t--pk                  Set PK\n"
+	       "\t--keystore <dir>      Read keys from <dir>/{db,dbx,KEK}/*\n"
+	       "\t                       (can be specified multiple times,\n"
+	       "\t                       first dir takes precedence)\n"
+	       "\t--no-default-keystores\n"
+	       "\t                      Don't read keys from the default\n"
+	       "\t                       keystore dirs\n",
+	       toolname);
 }
 
 static void version(void)
@@ -983,9 +977,9 @@ static int add_keystore_dir(struct sync_context *ctx, const char *dir)
 		CKNULL(ctx->keystore_dirs, -ENOMEM);
 		ctx->n_keystore_dirs++;
 	} else {
-		ctx->keystore_dirs = realloc(
-			ctx->keystore_dirs,
-			++ctx->n_keystore_dirs * sizeof(char *));
+		ctx->keystore_dirs =
+			realloc(ctx->keystore_dirs,
+				++ctx->n_keystore_dirs * sizeof(char *));
 		CKNULL(ctx->keystore_dirs, -ENOMEM);
 	}
 
@@ -994,7 +988,6 @@ static int add_keystore_dir(struct sync_context *ctx, const char *dir)
 out:
 	return ret;
 }
-
 
 static void release_key(struct key *key)
 {
@@ -1025,7 +1018,8 @@ static void release_ctx(struct sync_context *ctx)
 		return;
 
 	if (ctx->fs_keystore) {
-		list_for_each_guarded(ke, tmp, &ctx->fs_keystore->keys, keystore_list) {
+		list_for_each_guarded (ke, tmp, &ctx->fs_keystore->keys,
+				       keystore_list) {
 			lc_free(ke->data);
 			free(ke->name);
 			free(ke);
@@ -1040,11 +1034,11 @@ static void release_ctx(struct sync_context *ctx)
 	}
 
 	if (ctx->filesystem_keys) {
-		for (i = 0; i < ARRAY_SIZE(kdbs); i++ ) {
+		for (i = 0; i < ARRAY_SIZE(kdbs); i++) {
 			struct key *key, *tmp_key;
 
-			list_for_each_guarded(key, tmp_key,
-					      &kdbs[i].fs_kdb->keys, list) {
+			list_for_each_guarded (key, tmp_key,
+					       &kdbs[i].fs_kdb->keys, list) {
 				release_key(key);
 			}
 		}
@@ -1117,7 +1111,8 @@ int main(int argc, char **argv)
 		ctx->efivars_dir = EFIVARS_MOUNTPOINT;
 		CKINT_LOG(check_efivars_mount(ctx->efivars_dir),
 			  "Can't access efivars filesystem "
-			  "at %s, aborting\n", ctx->efivars_dir);
+			  "at %s, aborting\n",
+			  ctx->efivars_dir);
 	}
 
 	if (use_default_keystore_dirs) {

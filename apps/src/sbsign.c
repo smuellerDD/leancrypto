@@ -493,7 +493,7 @@ int main(int argc, char **argv)
 		case 'p':
 			ws->parsed_opts.print_pkcs7 = true;
 			break;
-		/*
+			/*
 		 * NOTE: we also could check for EKU/key usage during PKCS#7
 		 * verify:
 		 */

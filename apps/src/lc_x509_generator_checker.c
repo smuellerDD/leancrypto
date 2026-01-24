@@ -319,7 +319,7 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 			char buf[33] = { 0 };
 
 			lc_bin2hex(x509->san_ip, x509->san_ip_len, buf,
-				sizeof(buf) - 1, 1);
+				   sizeof(buf) - 1, 1);
 
 			printf("SAN IP: names mismatch (expected %s, actual %s)\n",
 			       parsed_opts->san_ip, buf);
@@ -334,7 +334,7 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 		size_t exp_id_len = strlen(parsed_opts->skid);
 
 		lc_hex2bin(parsed_opts->skid, exp_id_len, exp_id_bin,
-			sizeof(exp_id_bin));
+			   sizeof(exp_id_bin));
 
 		if (exp_id_len / 2 != x509->raw_skid_size) {
 			printf("SKID: lengths differ (expected %zu, actual %zu)\n",
@@ -346,7 +346,7 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 			char buf[65] = { 0 };
 
 			lc_bin2hex(x509->raw_skid, x509->raw_skid_size, buf,
-				sizeof(buf) - 1, 1);
+				   sizeof(buf) - 1, 1);
 
 			printf("SKID: names mismatch (expected %s, actual %s)\n",
 			       parsed_opts->skid, buf);
@@ -368,7 +368,7 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 		size_t exp_id_len = strlen(parsed_opts->akid);
 
 		lc_hex2bin(parsed_opts->akid, exp_id_len, exp_id_bin,
-			sizeof(exp_id_bin));
+			   sizeof(exp_id_bin));
 
 		if (exp_id_len / 2 != x509->raw_akid_size) {
 			printf("AKID: lengths differ (expected %zu, actual %zu)\n",
@@ -380,7 +380,7 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 			char buf[65] = { 0 };
 
 			lc_bin2hex(x509->raw_akid, x509->raw_akid_size, buf,
-				sizeof(buf) - 1, 1);
+				   sizeof(buf) - 1, 1);
 
 			printf("AKID: names mismatch (expected %s, actual %s)\n",
 			       parsed_opts->akid, buf);
@@ -693,7 +693,7 @@ int apply_checks_pkcs7(const struct lc_pkcs7_message *pkcs7_msg,
 		int found = 0;
 
 		lc_hex2bin(parsed_opts->skid, exp_id_len, exp_id_bin,
-			sizeof(exp_id_bin));
+			   sizeof(exp_id_bin));
 
 		for (sinfo = pkcs7_msg->list_head_sinfo; sinfo;
 		     sinfo = sinfo->next) {
