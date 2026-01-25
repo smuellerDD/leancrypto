@@ -7,7 +7,7 @@
 --
 
 PrivateKey ::= CHOICE {
-	seed [0] OCTET STRING ({ lc_x509_mldsa_private_key_seed }),
+	seed [0] IMPLICIT OCTET STRING ({ lc_x509_mldsa_private_key_seed }),
 	expandedKey OCTET STRING ({ lc_x509_mldsa_private_key_expanded }),
 	both Both
 }

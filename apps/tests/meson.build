@@ -313,6 +313,7 @@ if (host_machine.system() != 'windows' and
 		test('X.509 Parsing other cryptoproviders',
 		     x509_parser_test_script,
 		     args: [ lc_x509_generator.full_path(),
+			     lc_pkcs7_generator.full_path(),
 			     meson.project_source_root() + '/apps/tests/'
 			   ],
 		     timeout: 300, suite: regression,

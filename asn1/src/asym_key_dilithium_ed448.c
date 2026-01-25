@@ -26,7 +26,6 @@
 #include "ret_checkers.h"
 #include "small_stack_support.h"
 #include "x509_algorithm_mapper.h"
-#include "x509_mldsa_ed448_privkey_asn1.h"
 
 /*
  * Size of the hash of the message: see
@@ -34,17 +33,13 @@
  */
 #define LC_X509_COMP_ED448_MSG_SIZE 64
 
-int lc_x509_mldsa_ed448_private_key_enc(void *context, uint8_t *data,
-					size_t *avail_datalen, uint8_t *tag)
+int private_key_encode_dilithium_ed448(uint8_t *data, size_t *avail_datalen,
+				       struct x509_generate_privkey_context *ctx)
 {
-#ifdef LC_X509_GENERATOR
-	const struct x509_generate_privkey_context *ctx = context;
 	const struct lc_x509_key_data *keys = ctx->keys;
 	size_t ml_dsa_sklen, ed448_sklen;
 	uint8_t *ml_dsa_ptr, *ed448_ptr;
 	int ret;
-
-	(void)tag;
 
 	CKINT(lc_dilithium_ed448_sk_ptr(&ml_dsa_ptr, &ml_dsa_sklen, &ed448_ptr,
 					&ed448_sklen,
@@ -60,8 +55,8 @@ int lc_x509_mldsa_ed448_private_key_enc(void *context, uint8_t *data,
 	 *
 	 * First the ML-DSA seed, then the traditional SK.
 	 */
-	CKINT(lc_x509_set_bit_string(&data, avail_datalen, keys->sk_seed,
-				     LC_X509_PQC_SK_SEED_SIZE));
+	CKINT(lc_x509_concatenate_bit_string(
+		&data, avail_datalen, keys->sk_seed, LC_X509_PQC_SK_SEED_SIZE));
 	CKINT(lc_x509_concatenate_bit_string(&data, avail_datalen, ed448_ptr,
 					     ed448_sklen));
 
@@ -70,63 +65,23 @@ int lc_x509_mldsa_ed448_private_key_enc(void *context, uint8_t *data,
 
 out:
 	return ret;
-#else
-	(void)data;
-	(void)avail_datalen;
-	(void)context;
-	(void)tag;
-	return -EOPNOTSUPP;
-#endif
 }
 
-int private_key_encode_dilithium_ed448(uint8_t *data, size_t *avail_datalen,
-				       struct x509_generate_privkey_context *ctx)
-{
-#ifdef LC_X509_GENERATOR
-	int ret;
-
-	CKINT(lc_asn1_ber_encoder_small(&lc_x509_mldsa_ed448_privkey_encoder,
-					ctx, data, avail_datalen));
-
-out:
-	return ret;
-#else
-	(void)data;
-	(void)avail_datalen;
-	(void)ctx;
-	return -EOPNOTSUPP;
-#endif
-}
-
-int lc_x509_mldsa_ed448_private_key(void *context, size_t hdrlen,
-				    unsigned char tag, const uint8_t *value,
-				    size_t vlen)
+int private_key_decode_dilithium_ed448(struct lc_x509_key_data *keys,
+				       const uint8_t *data, size_t datalen)
 {
 	struct workspace {
 		struct lc_dilithium_pk pk;
 		struct lc_dilithium_sk sk;
 	};
-	struct lc_x509_key_data *keys = context;
 	struct lc_dilithium_ed448_sk *dilithium_sk =
 		keys->sk.dilithium_ed448_sk;
-	const uint8_t *data, *ed448_src_key;
+	const uint8_t *ed448_src_key;
 	uint8_t *dilithium_src_key;
-	size_t datalen, dilithium_src_key_len, ed448_src_key_len;
+	size_t dilithium_src_key_len, ed448_src_key_len;
 	enum lc_dilithium_type dilithium_type = LC_DILITHIUM_UNKNOWN;
 	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
-
-	(void)hdrlen;
-	(void)tag;
-
-	/*
-	 * Account for the BIT STRING
-	 */
-	if (vlen < 1)
-		return -EBADMSG;
-
-	datalen = vlen - 1;
-	data = value + 1;
 
 	if (datalen != LC_ED448_SECRETKEYBYTES + LC_X509_PQC_SK_SEED_SIZE)
 		return -EINVAL;
@@ -185,6 +140,7 @@ int lc_x509_mldsa_ed448_private_key(void *context, size_t hdrlen,
 	CKINT(lc_dilithium_keypair_from_seed(&ws->pk, &ws->sk, keys->sk_seed,
 					     LC_X509_PQC_SK_SEED_SIZE,
 					     dilithium_type));
+
 	CKINT(lc_dilithium_sk_ptr(&dilithium_src_key, &dilithium_src_key_len,
 				  &ws->sk));
 
@@ -199,18 +155,6 @@ int lc_x509_mldsa_ed448_private_key(void *context, size_t hdrlen,
 
 out:
 	LC_RELEASE_MEM(ws);
-	return ret;
-}
-
-int private_key_decode_dilithium_ed448(struct lc_x509_key_data *keys,
-				       const uint8_t *data, size_t datalen)
-{
-	int ret;
-
-	CKINT(lc_asn1_ber_decoder(&lc_x509_mldsa_ed448_privkey_decoder, keys,
-				  data, datalen));
-
-out:
 	return ret;
 }
 
@@ -348,7 +292,7 @@ int public_key_verify_signature_dilithium_ed448(
 		uint8_t ph_message[LC_X509_COMP_ED448_MSG_SIZE];
 	};
 	const struct lc_hash *hash_algo;
-	const uint8_t *dilithium_src, *ed448_src, *randomizer, *data_ptr;
+	const uint8_t *dilithium_src, *ed448_src, *data_ptr;
 	size_t dilithium_src_len, ed448_src_len, data_len;
 	int ret, authattrs_tag;
 	LC_DILITHIUM_ED448_CTX_ON_STACK(ctx);
@@ -361,8 +305,7 @@ int public_key_verify_signature_dilithium_ed448(
 	CKINT(public_key_dilithium_ed448_get_data(&data_ptr, &data_len,
 						  &authattrs_tag, sig));
 
-	if (sig->s_size <
-	    (LC_ED448_SIGBYTES + LC_X509_SIGNATURE_RANDOMIZER_SIZE))
+	if (sig->s_size < LC_ED448_SIGBYTES)
 		return -EINVAL;
 
 	CKINT(public_key_decode_dilithium_ed448(&ws->dilithium_pk, pkey->key,
@@ -377,10 +320,8 @@ int public_key_verify_signature_dilithium_ed448(
 	 * the code takes the ED448 PK size and the remainder is the
 	 * ML-DSA PK.
 	 */
-	randomizer = sig->s;
-	dilithium_src = sig->s + LC_X509_SIGNATURE_RANDOMIZER_SIZE;
-	dilithium_src_len = sig->s_size - LC_ED448_SIGBYTES -
-			    LC_X509_SIGNATURE_RANDOMIZER_SIZE;
+	dilithium_src = sig->s;
+	dilithium_src_len = sig->s_size - LC_ED448_SIGBYTES;
 	ed448_src = dilithium_src + dilithium_src_len;
 	ed448_src_len = LC_ED448_SIGBYTES;
 
@@ -400,8 +341,6 @@ int public_key_verify_signature_dilithium_ed448(
 	 * Yet, the ctx can be added to struct lc_public_key_signature.
 	 */
 	lc_dilithium_ed448_ctx_userctx(ctx, NULL, 0);
-	lc_dilithium_ed448_ctx_randomizer(ctx, randomizer,
-					  LC_X509_SIGNATURE_RANDOMIZER_SIZE);
 
 	/*
 	 * Verify the signature using Composite-ML-DSA
@@ -423,7 +362,6 @@ int public_key_generate_signature_dilithium_ed448(
 {
 #ifdef LC_X509_GENERATOR
 	struct workspace {
-		uint8_t randomizer[LC_X509_SIGNATURE_RANDOMIZER_SIZE];
 		uint8_t ph_message[LC_X509_COMP_ED448_MSG_SIZE];
 		struct lc_dilithium_ed448_sig dilithium_ed448_sig;
 	};
@@ -440,10 +378,6 @@ int public_key_generate_signature_dilithium_ed448(
 	CKINT(public_key_dilithium_ed448_get_data(&data_ptr, &data_len, NULL,
 						  sig));
 
-	/* Generate the randomizer value */
-	CKINT(lc_rng_generate(lc_seeded_rng, (uint8_t *)"X509.Comp.Sig.448", 17,
-			      ws->randomizer, sizeof(ws->randomizer)));
-
 	CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
 	/* XOF works as digest size of 64 bytes is same as XOF size */
 	CKINT(lc_xof(hash_algo, data_ptr, data_len, ws->ph_message,
@@ -454,8 +388,6 @@ int public_key_generate_signature_dilithium_ed448(
 	 * Yet, the ctx can be added to struct lc_public_key_signature.
 	 */
 	lc_dilithium_ed448_ctx_userctx(ctx, NULL, 0);
-	lc_dilithium_ed448_ctx_randomizer(ctx, ws->randomizer,
-					  sizeof(ws->randomizer));
 
 	/* Sign the signature using Composite-ML-DSA */
 	CKINT(lc_dilithium_ed448_sign_ctx(
@@ -471,15 +403,12 @@ int public_key_generate_signature_dilithium_ed448(
 	 * draft version 5.
 	 */
 	CKINT(lc_x509_concatenate_bit_string(&sig_data, available_len,
-					     ws->randomizer,
-					     sizeof(ws->randomizer)));
-	CKINT(lc_x509_concatenate_bit_string(&sig_data, available_len,
 					     ml_dsa_ptr, ml_dsa_siglen));
 	CKINT(lc_x509_concatenate_bit_string(&sig_data, available_len,
 					     ed448_ptr, ed448_siglen));
 
 	printf_debug("Set composite signature of size %zu\n",
-		     sizeof(ws->randomizer) + ml_dsa_siglen + ed448_siglen);
+		     ml_dsa_siglen + ed448_siglen);
 
 out:
 	lc_dilithium_ed448_ctx_zero(ctx);
@@ -498,8 +427,7 @@ int public_key_signature_size_dilithium_ed448(
 	enum lc_dilithium_type dilithium_type, size_t *size)
 {
 	/* sig sizes of all components */
-	*size = lc_dilithium_sig_size(dilithium_type) + LC_ED448_SIGBYTES +
-		LC_X509_SIGNATURE_RANDOMIZER_SIZE;
+	*size = lc_dilithium_sig_size(dilithium_type) + LC_ED448_SIGBYTES;
 	return 0;
 }
 

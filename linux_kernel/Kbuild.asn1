@@ -42,8 +42,7 @@ endif
 
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_ED25519
 leancrypto-$(CONFIG_LEANCRYPTO_X509_PARSER)				       \
-				+= ../asn1/src/asym_key_dilithium_ed25519.o    \
-				   ../asn1/src/x509_mldsa_ed25519_privkey_asn1.o
+				+= ../asn1/src/asym_key_dilithium_ed25519.o
 else
 leancrypto-$(CONFIG_LEANCRYPTO_X509_PARSER)				       \
 				+= ../asn1/src/asym_key_dilithium_ed25519_null.o
@@ -51,8 +50,7 @@ endif
 
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_ED448
 leancrypto-$(CONFIG_LEANCRYPTO_X509_PARSER)				       \
-				+= ../asn1/src/asym_key_dilithium_ed448.o      \
-				   ../asn1/src/x509_mldsa_ed448_privkey_asn1.o
+				+= ../asn1/src/asym_key_dilithium_ed448.o
 else
 leancrypto-$(CONFIG_LEANCRYPTO_X509_PARSER)				       \
 				+= ../asn1/src/asym_key_dilithium_ed448_null.o

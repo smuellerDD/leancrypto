@@ -929,16 +929,6 @@ LC_INTERFACE_FUNCTION(void, lc_dilithium_ed25519_ctx_userctx,
 	}
 }
 
-LC_INTERFACE_FUNCTION(void, lc_dilithium_ed25519_ctx_randomizer,
-		      struct lc_dilithium_ed25519_ctx *ctx,
-		      const uint8_t *randomizer, size_t randomizerlen)
-{
-	if (ctx) {
-		ctx->dilithium_ctx.randomizer = randomizer;
-		ctx->dilithium_ctx.randomizerlen = randomizerlen;
-	}
-}
-
 LC_INTERFACE_FUNCTION(enum lc_dilithium_type, lc_dilithium_ed25519_sk_type,
 		      const struct lc_dilithium_ed25519_sk *sk)
 {
@@ -1064,7 +1054,8 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sk_load,
 		      size_t ed25519_src_key_len)
 {
 	if (!sk || !dilithium_src_key || !ed25519_src_key ||
-	    ed25519_src_key_len != LC_ED25519_SECRETKEYBYTES) {
+	    (ed25519_src_key_len != LC_ED25519_RAW_SECRETKEYBYTES &&
+	     ed25519_src_key_len != LC_ED25519_SECRETKEYBYTES)) {
 		return -EINVAL;
 #ifdef LC_DILITHIUM_87_ENABLED
 	} else if (dilithium_src_key_len ==
@@ -1075,6 +1066,13 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sk_load,
 		memcpy(_sk->sk_ed25519.sk, ed25519_src_key,
 		       ed25519_src_key_len);
 		sk->dilithium_type = LC_DILITHIUM_87;
+
+		/*
+		 * Allow only the secret part of the key to be set and
+		 * then re-establish the public part.
+		 */
+		if (ed25519_src_key_len == LC_ED25519_RAW_SECRETKEYBYTES)
+			return (lc_ed25519_derive_pk(NULL, &_sk->sk_ed25519));
 		return 0;
 #endif
 #ifdef LC_DILITHIUM_65_ENABLED
@@ -1086,6 +1084,13 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sk_load,
 		memcpy(_sk->sk_ed25519.sk, ed25519_src_key,
 		       ed25519_src_key_len);
 		sk->dilithium_type = LC_DILITHIUM_65;
+
+		/*
+		 * Allow only the secret part of the key to be set and
+		 * then re-establish the public part.
+		 */
+		if (ed25519_src_key_len == LC_ED25519_RAW_SECRETKEYBYTES)
+			return (lc_ed25519_derive_pk(NULL, &_sk->sk_ed25519));
 		return 0;
 #endif
 #ifdef LC_DILITHIUM_44_ENABLED
@@ -1097,6 +1102,13 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sk_load,
 		memcpy(_sk->sk_ed25519.sk, ed25519_src_key,
 		       ed25519_src_key_len);
 		sk->dilithium_type = LC_DILITHIUM_44;
+
+		/*
+		 * Allow only the secret part of the key to be set and
+		 * then re-establish the public part.
+		 */
+		if (ed25519_src_key_len == LC_ED25519_RAW_SECRETKEYBYTES)
+			return (lc_ed25519_derive_pk(NULL, &_sk->sk_ed25519));
 		return 0;
 #endif
 	} else {
@@ -1777,16 +1789,6 @@ LC_INTERFACE_FUNCTION(void, lc_dilithium_ed448_ctx_userctx,
 	if (ctx) {
 		ctx->dilithium_ctx.userctx = userctx;
 		ctx->dilithium_ctx.userctxlen = userctxlen;
-	}
-}
-
-LC_INTERFACE_FUNCTION(void, lc_dilithium_ed448_ctx_randomizer,
-		      struct lc_dilithium_ed448_ctx *ctx,
-		      const uint8_t *randomizer, size_t randomizerlen)
-{
-	if (ctx) {
-		ctx->dilithium_ctx.randomizer = randomizer;
-		ctx->dilithium_ctx.randomizerlen = randomizerlen;
 	}
 }
 

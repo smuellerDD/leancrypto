@@ -41,7 +41,15 @@ static inline int _lc_ed25519_pct_fips(const struct lc_ed25519_pk *pk,
 
 	CKINT(lc_ed25519_sign(&ws->sig, ws->m, sizeof(ws->m), sk,
 			      lc_seeded_rng));
-	CKINT(lc_ed25519_verify(&ws->sig, ws->m, sizeof(ws->m), pk));
+	if (pk) {
+		CKINT(lc_ed25519_verify(&ws->sig, ws->m, sizeof(ws->m), pk));
+	} else {
+		struct lc_ed25519_pk *pk_sk;
+
+		/* The PK is the trailing part of the SK */
+		pk_sk = (struct lc_ed25519_pk *)(sk->sk + 32);
+		CKINT(lc_ed25519_verify(&ws->sig, ws->m, sizeof(ws->m), pk_sk));
+	}
 
 out:
 	LC_RELEASE_MEM(ws);

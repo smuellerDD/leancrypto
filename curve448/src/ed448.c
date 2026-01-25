@@ -410,8 +410,6 @@ curveed448_sign_internal(uint8_t signature[LC_ED448_SIGBYTES],
 			CKINT(composite_signature_domain_separation(
 				shake256_ctx, dilithium_ctx->userctx,
 				dilithium_ctx->userctxlen,
-				dilithium_ctx->randomizer,
-				dilithium_ctx->randomizerlen,
 				dilithium_ctx->nist_category));
 		}
 
@@ -458,8 +456,6 @@ curveed448_sign_internal(uint8_t signature[LC_ED448_SIGBYTES],
 			CKINT(composite_signature_domain_separation(
 				shake256_ctx, dilithium_ctx->userctx,
 				dilithium_ctx->userctxlen,
-				dilithium_ctx->randomizer,
-				dilithium_ctx->randomizerlen,
 				dilithium_ctx->nist_category));
 		}
 
@@ -699,8 +695,7 @@ curveed448_verify(const uint8_t signature[LC_ED448_SIGBYTES],
 	if (dilithium_ctx) {
 		CKINT(composite_signature_domain_separation(
 			shake256_ctx, dilithium_ctx->userctx,
-			dilithium_ctx->userctxlen, dilithium_ctx->randomizer,
-			dilithium_ctx->randomizerlen,
+			dilithium_ctx->userctxlen,
 			dilithium_ctx->nist_category));
 	}
 

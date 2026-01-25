@@ -121,18 +121,18 @@ static const unsigned short oid_index[OID__NR + 1] = {
 	[OID_id_MLDSA65] = 824,
 	[OID_id_MLDSA87] = 833,
 	[OID_id_MLDSA44_Ed25519] = 842,
-	[OID_id_MLDSA65_Ed25519] = 853,
-	[OID_id_MLDSA87_Ed448] = 864,
-	[OID_id_SLHDSA_SHAKE_128S] = 875,
-	[OID_id_SLHDSA_SHAKE_128F] = 884,
-	[OID_id_SLHDSA_SHAKE_192S] = 893,
-	[OID_id_SLHDSA_SHAKE_192F] = 902,
-	[OID_id_SLHDSA_SHAKE_256S] = 911,
-	[OID_id_SLHDSA_SHAKE_256F] = 920,
-	[OID__NR] = 929
+	[OID_id_MLDSA65_Ed25519] = 850,
+	[OID_id_MLDSA87_Ed448] = 858,
+	[OID_id_SLHDSA_SHAKE_128S] = 866,
+	[OID_id_SLHDSA_SHAKE_128F] = 875,
+	[OID_id_SLHDSA_SHAKE_192S] = 884,
+	[OID_id_SLHDSA_SHAKE_192F] = 893,
+	[OID_id_SLHDSA_SHAKE_256S] = 902,
+	[OID_id_SLHDSA_SHAKE_256F] = 911,
+	[OID__NR] = 920
 };
 
-static const unsigned char oid_data[929] = {
+static const unsigned char oid_data[920] = {
 	42, 134, 72, 206, 46, 4, 3, 	// id_dsa_with_sha1
 	42, 134, 72, 206, 56, 4, 1, 	// id_dsa
 	42, 134, 72, 206, 61, 2, 1, 	// id_ecPublicKey
@@ -249,9 +249,9 @@ static const unsigned char oid_data[929] = {
 	96, 134, 72, 1, 101, 3, 4, 3, 17, 	// id_MLDSA44
 	96, 134, 72, 1, 101, 3, 4, 3, 18, 	// id_MLDSA65
 	96, 134, 72, 1, 101, 3, 4, 3, 19, 	// id_MLDSA87
-	96, 134, 72, 1, 134, 250, 107, 80, 9, 1, 2, 	// id_MLDSA44_Ed25519
-	96, 134, 72, 1, 134, 250, 107, 80, 9, 1, 11, 	// id_MLDSA65_Ed25519
-	96, 134, 72, 1, 134, 250, 107, 80, 9, 1, 14, 	// id_MLDSA87_Ed448
+	43, 6, 1, 5, 5, 7, 6, 39, 	// id_MLDSA44_Ed25519
+	43, 6, 1, 5, 5, 7, 6, 48, 	// id_MLDSA65_Ed25519
+	43, 6, 1, 5, 5, 7, 6, 51, 	// id_MLDSA87_Ed448
 	96, 134, 72, 1, 101, 3, 4, 3, 26, 	// id_SLHDSA_SHAKE_128S
 	96, 134, 72, 1, 101, 3, 4, 3, 27, 	// id_SLHDSA_SHAKE_128F
 	96, 134, 72, 1, 101, 3, 4, 3, 28, 	// id_SLHDSA_SHAKE_192S
@@ -269,12 +269,12 @@ static const struct {
 	[  2] = {  11, OID_spnego                              }, // 2b0601050502
 	[  3] = {  11, OID_IAKerb                              }, // 2b0601050205
 	[  4] = {  13, OID_id_ansip384r1                       }, // 2b81040022
-	[  5] = {  19, OID_gostTC26Sign512C                    }, // 2a8503070102010203
-	[  6] = {  19, OID_gostTC26Sign256D                    }, // 2a8503070102010104
-	[  7] = {  23, OID_issuerAltName                       }, // 551d12
-	[  8] = {  23, OID_initials                            }, // 55042b
-	[  9] = {  26, OID_id_SLHDSA_SHAKE_192F                }, // 60864801650304031d
-	[ 10] = {  26, OID_id_MLDSA65_Ed25519                  }, // 6086480186fa6b5009010b
+	[  5] = {  19, OID_id_MLDSA87_Ed448                    }, // 2b06010505070633
+	[  6] = {  19, OID_gostTC26Sign512C                    }, // 2a8503070102010203
+	[  7] = {  19, OID_gostTC26Sign256D                    }, // 2a8503070102010104
+	[  8] = {  23, OID_issuerAltName                       }, // 551d12
+	[  9] = {  23, OID_initials                            }, // 55042b
+	[ 10] = {  26, OID_id_SLHDSA_SHAKE_192F                }, // 60864801650304031d
 	[ 11] = {  31, OID_id_kp_timeStamping                  }, // 2b06010505070308
 	[ 12] = {  32, OID_id_dsa_with_sha1                    }, // 2a8648ce2e0403
 	[ 13] = {  35, OID_contentType                         }, // 2a864886f70d010903
@@ -287,38 +287,38 @@ static const struct {
 	[ 20] = {  44, OID_PKU2U                               }, // 2b0501050207
 	[ 21] = {  44, OID_krb5u2u                             }, // 2a864886f71201020203
 	[ 22] = {  49, OID_id_ecdsa_with_sha224                }, // 2a8648ce3d040301
-	[ 23] = {  50, OID_id_MLDSA44_Ed25519                  }, // 6086480186fa6b50090102
-	[ 24] = {  51, OID_msIndividualSPKeyPurpose            }, // 2b060104018237020115
-	[ 25] = {  52, OID_SM2_with_SM3                        }, // 2a811ccf55018375
-	[ 26] = {  54, OID_basicConstraints                    }, // 551d13
-	[ 27] = {  54, OID_generationalQualifier               }, // 55042c
-	[ 28] = {  59, OID_id_SLHDSA_SHAKE_192S                }, // 60864801650304031c
-	[ 29] = {  60, OID_gostCPSignA                         }, // 2a850302022301
-	[ 30] = {  60, OID_id_kp_OCSPSigning                   }, // 2b06010505070309
-	[ 31] = {  64, OID_TPMLoadableKey                      }, // 6781050a0103
-	[ 32] = {  64, OID_krb5                                }, // 2a864886f712010202
-	[ 33] = {  64, OID_signed_data                         }, // 2a864886f70d010702
-	[ 34] = {  65, OID_id_rsassa_pkcs1_v1_5_with_sha3_512  }, // 608648016503040310
-	[ 35] = {  70, OID_id_kp_clientAuth                    }, // 2b06010505070302
-	[ 36] = {  76, OID_id_prime192v1                       }, // 2a8648ce3d030101
-	[ 37] = {  77, OID_countryName                         }, // 550406
-	[ 38] = {  77, OID_id_ecdsa_with_sha1                  }, // 2a8648ce3d0401
-	[ 39] = {  83, OID_sha256                              }, // 608648016503040201
-	[ 40] = {  84, OID_sm2                                 }, // 2a811ccf5501822d
-	[ 41] = {  85, OID_smimeCapabilites                    }, // 2a864886f70d01090f
-	[ 42] = {  87, OID_sha1                                }, // 2b0e03021a
-	[ 43] = {  88, OID_sha3_384                            }, // 608648016503040209
-	[ 44] = {  92, OID_id_SLHDSA_SHAKE_256F                }, // 60864801650304031f
-	[ 45] = {  93, OID_gostCPSignB                         }, // 2a850302022302
-	[ 46] = {  97, OID_email_address                       }, // 2a864886f70d010901
-	[ 47] = {  98, OID_id_rsassa_pkcs1_v1_5_with_sha3_384  }, // 60864801650304030f
-	[ 48] = { 105, OID_anyExtendedKeyUsage                 }, // 551d2500
-	[ 49] = { 106, OID_extKeyUsage                         }, // 551d25
-	[ 50] = { 106, OID_msPeImageDataObjId                  }, // 2b06010401823702010f
-	[ 51] = { 110, OID_locality                            }, // 550407
-	[ 52] = { 112, OID_id_kp_ModuleSigning                 }, // 2b060104019208100102
-	[ 53] = { 120, OID_negoex                              }, // 2b06010401823702021e
-	[ 54] = { 121, OID_id_kp_codeSigning                   }, // 2b06010505070303
+	[ 23] = {  51, OID_msIndividualSPKeyPurpose            }, // 2b060104018237020115
+	[ 24] = {  52, OID_SM2_with_SM3                        }, // 2a811ccf55018375
+	[ 25] = {  54, OID_basicConstraints                    }, // 551d13
+	[ 26] = {  54, OID_generationalQualifier               }, // 55042c
+	[ 27] = {  59, OID_id_SLHDSA_SHAKE_192S                }, // 60864801650304031c
+	[ 28] = {  60, OID_gostCPSignA                         }, // 2a850302022301
+	[ 29] = {  60, OID_id_kp_OCSPSigning                   }, // 2b06010505070309
+	[ 30] = {  64, OID_TPMLoadableKey                      }, // 6781050a0103
+	[ 31] = {  64, OID_krb5                                }, // 2a864886f712010202
+	[ 32] = {  64, OID_signed_data                         }, // 2a864886f70d010702
+	[ 33] = {  65, OID_id_rsassa_pkcs1_v1_5_with_sha3_512  }, // 608648016503040310
+	[ 34] = {  70, OID_id_kp_clientAuth                    }, // 2b06010505070302
+	[ 35] = {  76, OID_id_prime192v1                       }, // 2a8648ce3d030101
+	[ 36] = {  77, OID_countryName                         }, // 550406
+	[ 37] = {  77, OID_id_ecdsa_with_sha1                  }, // 2a8648ce3d0401
+	[ 38] = {  83, OID_sha256                              }, // 608648016503040201
+	[ 39] = {  84, OID_sm2                                 }, // 2a811ccf5501822d
+	[ 40] = {  85, OID_smimeCapabilites                    }, // 2a864886f70d01090f
+	[ 41] = {  87, OID_sha1                                }, // 2b0e03021a
+	[ 42] = {  88, OID_sha3_384                            }, // 608648016503040209
+	[ 43] = {  92, OID_id_SLHDSA_SHAKE_256F                }, // 60864801650304031f
+	[ 44] = {  93, OID_gostCPSignB                         }, // 2a850302022302
+	[ 45] = {  97, OID_email_address                       }, // 2a864886f70d010901
+	[ 46] = {  98, OID_id_rsassa_pkcs1_v1_5_with_sha3_384  }, // 60864801650304030f
+	[ 47] = { 105, OID_anyExtendedKeyUsage                 }, // 551d2500
+	[ 48] = { 106, OID_extKeyUsage                         }, // 551d25
+	[ 49] = { 106, OID_msPeImageDataObjId                  }, // 2b06010401823702010f
+	[ 50] = { 110, OID_locality                            }, // 550407
+	[ 51] = { 112, OID_id_kp_ModuleSigning                 }, // 2b060104019208100102
+	[ 52] = { 120, OID_negoex                              }, // 2b06010401823702021e
+	[ 53] = { 121, OID_id_kp_codeSigning                   }, // 2b06010505070303
+	[ 54] = { 121, OID_id_MLDSA44_Ed25519                  }, // 2b06010505070627
 	[ 55] = { 123, OID_sha3_256                            }, // 608648016503040208
 	[ 56] = { 124, OID_gost2012PKey256                     }, // 2a85030701010101
 	[ 57] = { 125, OID_id_SLHDSA_SHAKE_256S                }, // 60864801650304031e
@@ -345,13 +345,13 @@ static const struct {
 	[ 78] = { 161, OID_crlDistributionPoints               }, // 551d1f
 	[ 79] = { 161, OID_TPMImportableKey                    }, // 6781050a0104
 	[ 80] = { 173, OID_msOutlookExpress                    }, // 2b0601040182371004
-	[ 81] = { 178, OID_sha384                              }, // 608648016503040202
-	[ 82] = { 179, OID_keyUsage                            }, // 551d0f
-	[ 83] = { 179, OID_NetlogonMechanism                   }, // 2a85702b0e02
-	[ 84] = { 185, OID_sha3_512                            }, // 60864801650304020a
-	[ 85] = { 190, OID_gost2012Digest256                   }, // 2a85030701010202
-	[ 86] = { 191, OID_gostTC26Sign256A                    }, // 2a8503070102010101
-	[ 87] = { 191, OID_id_MLDSA87_Ed448                    }, // 6086480186fa6b5009010e
+	[ 81] = { 175, OID_id_MLDSA65_Ed25519                  }, // 2b06010505070630
+	[ 82] = { 178, OID_sha384                              }, // 608648016503040202
+	[ 83] = { 179, OID_keyUsage                            }, // 551d0f
+	[ 84] = { 179, OID_NetlogonMechanism                   }, // 2a85702b0e02
+	[ 85] = { 185, OID_sha3_512                            }, // 60864801650304020a
+	[ 86] = { 190, OID_gost2012Digest256                   }, // 2a85030701010202
+	[ 87] = { 191, OID_gostTC26Sign256A                    }, // 2a8503070102010101
 	[ 88] = { 195, OID_mskrb5                              }, // 2a864882f712010202
 	[ 89] = { 196, OID_id_ecdsa_with_sha3_512              }, // 60864801650304030c
 	[ 90] = { 198, OID_certPolicies                        }, // 551d20

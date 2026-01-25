@@ -27,33 +27,27 @@ static const asn1_action_enc_t x509_mldsa_privkey_action_table_enc[NR__x509_mlds
 
 static const unsigned char x509_mldsa_privkey_machine[] = {
 	// PrivateKey
-	[   0] = ASN1_OP_MATCH_JUMP_OR_SKIP,		// seed
-	[   1] = _tagn(CONT, CONS,  0),
-	[   2] = _jump_target(11),
+	[   0] = ASN1_OP_MATCH_ACT_OR_SKIP,		// seed
+	[   1] = _tagn(CONT, PRIM,  0),
+	[   2] = _action(ACT_lc_x509_mldsa_private_key_seed),
 	[   3] = ASN1_OP_COND_MATCH_ACT_OR_SKIP,		// expandedKey
 	[   4] = _tag(UNIV, PRIM, OTS),
 	[   5] = _action(ACT_lc_x509_mldsa_private_key_expanded),
 	// Both
 	[   6] = ASN1_OP_COND_MATCH_JUMP_OR_SKIP,		// both
 	[   7] = _tag(UNIV, CONS, SEQ),
-	[   8] = _jump_target(16),		// --> Both
+	[   8] = _jump_target(11),		// --> Both
 	[   9] = ASN1_OP_COND_FAIL,
 	[  10] = ASN1_OP_COMPLETE,
 
 	[  11] =  ASN1_OP_MATCH_ACT,		// seed
 	[  12] =  _tag(UNIV, PRIM, OTS),
 	[  13] =  _action(ACT_lc_x509_mldsa_private_key_seed),
-	[  14] = ASN1_OP_END_SEQ,
-	[  15] = ASN1_OP_RETURN,
-
-	[  16] =  ASN1_OP_MATCH_ACT,		// seed
-	[  17] =  _tag(UNIV, PRIM, OTS),
-	[  18] =  _action(ACT_lc_x509_mldsa_private_key_seed),
-	[  19] =  ASN1_OP_MATCH_ACT,		// expandedKey
-	[  20] =  _tag(UNIV, PRIM, OTS),
-	[  21] =  _action(ACT_lc_x509_mldsa_private_key_expanded),
-	[  22] = ASN1_OP_END_SEQ,
-	[  23] = ASN1_OP_RETURN,
+	[  14] =  ASN1_OP_MATCH_ACT,		// expandedKey
+	[  15] =  _tag(UNIV, PRIM, OTS),
+	[  16] =  _action(ACT_lc_x509_mldsa_private_key_expanded),
+	[  17] = ASN1_OP_END_SEQ,
+	[  18] = ASN1_OP_RETURN,
 };
 
 const struct lc_asn1_decoder lc_x509_mldsa_privkey_decoder = {

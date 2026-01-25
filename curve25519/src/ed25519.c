@@ -134,20 +134,11 @@ out:
 			    sizeof(sk_exp), "ED25519 keypair seckey\n");
 }
 
-static int lc_ed25519_keypair_nocheck(struct lc_ed25519_pk *pk,
-				      struct lc_ed25519_sk *sk,
-				      struct lc_rng_ctx *rng_ctx)
+int lc_ed25519_derive_pk(struct lc_ed25519_pk *pk, struct lc_ed25519_sk *sk)
 {
 	ge25519_p3 A;
 	uint8_t tmp[LC_SHA512_SIZE_DIGEST];
 	int ret;
-
-	CKNULL(sk, -EINVAL);
-	CKNULL(pk, -EINVAL);
-
-	lc_rng_check(&rng_ctx);
-
-	CKINT(lc_rng_generate(rng_ctx, NULL, 0, sk->sk, 32));
 
 	/* Timecop: the random number is the sentitive data */
 	poison(sk->sk, 32);
@@ -159,19 +150,38 @@ static int lc_ed25519_keypair_nocheck(struct lc_ed25519_pk *pk,
 
 	ge25519_scalarmult_base(&A, tmp);
 	lc_memset_secure(tmp, 0, sizeof(tmp));
-	ge25519_p3_tobytes(pk->pk, &A);
+	ge25519_p3_tobytes(sk->sk + 32, &A);
 
-	memcpy(sk->sk + 32, pk->pk, 32);
-
-	/* Timecop: pk and sk are not relevant for side-channels any more. */
+	/* Timecop: sk is not relevant for side-channels any more. */
 	unpoison(sk->sk, sizeof(sk->sk));
-	unpoison(pk->pk, sizeof(pk->pk));
+
+	if (pk)
+		memcpy(pk->pk, sk->sk + 32, 32);
 
 	CKINT(lc_ed25519_pct_fips(pk, sk));
 
 out:
 	lc_memset_secure(&A, 0, sizeof(A));
 	lc_memset_secure(tmp, 0, sizeof(tmp));
+	return ret;
+}
+
+static int lc_ed25519_keypair_nocheck(struct lc_ed25519_pk *pk,
+				      struct lc_ed25519_sk *sk,
+				      struct lc_rng_ctx *rng_ctx)
+{
+	int ret;
+
+	CKNULL(sk, -EINVAL);
+	CKNULL(pk, -EINVAL);
+
+	lc_rng_check(&rng_ctx);
+
+	CKINT(lc_rng_generate(rng_ctx, NULL, 0, sk->sk, 32));
+
+	CKINT(lc_ed25519_derive_pk(pk, sk));
+
+out:
 	return ret;
 }
 
@@ -355,8 +365,7 @@ static int lc_ed25519_sign_internal(
 	if (dilithium_ctx) {
 		CKINT(composite_signature_domain_separation(
 			hash_ctx, dilithium_ctx->userctx,
-			dilithium_ctx->userctxlen, dilithium_ctx->randomizer,
-			dilithium_ctx->randomizerlen,
+			dilithium_ctx->userctxlen,
 			dilithium_ctx->nist_category));
 	}
 
@@ -377,8 +386,7 @@ static int lc_ed25519_sign_internal(
 	if (dilithium_ctx) {
 		CKINT(composite_signature_domain_separation(
 			hash_ctx, dilithium_ctx->userctx,
-			dilithium_ctx->userctxlen, dilithium_ctx->randomizer,
-			dilithium_ctx->randomizerlen,
+			dilithium_ctx->userctxlen,
 			dilithium_ctx->nist_category));
 	}
 
@@ -578,8 +586,7 @@ static int lc_ed25519_verify_internal(
 	if (dilithium_ctx) {
 		CKINT(composite_signature_domain_separation(
 			hash_ctx, dilithium_ctx->userctx,
-			dilithium_ctx->userctxlen, dilithium_ctx->randomizer,
-			dilithium_ctx->randomizerlen,
+			dilithium_ctx->userctxlen,
 			dilithium_ctx->nist_category));
 	}
 

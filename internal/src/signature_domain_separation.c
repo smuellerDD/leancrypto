@@ -79,30 +79,36 @@ const uint8_t lc_x509_composite_sig_prefix[] = {
 	0x61, 0x74, 0x75, 0x72, 0x65, 0x73, 0x32, 0x30, 0x32, 0x35
 };
 
+/* COMPSIG-MLDSA65-ECDSA-P256-SHA512 */
 LC_FIPS_RODATA_SECTION
-static const uint8_t lc_x509_test_dom_sep[] = { 0x06, 0x0b, 0x60, 0x86, 0x48,
-						0x01, 0x86, 0xfa, 0x6b, 0x50,
-						0x09, 0x01, 0x08 };
-
-/* id-HashMLDSA44-Ed25519-SHA512 */
-LC_FIPS_RODATA_SECTION
-static const uint8_t lc_x509_mldsa44_ed25519_sha512_dom_sep[] = {
-	0x06, 0x0B, 0x60, 0x86, 0x48, 0x01, 0x86,
-	0xFA, 0x6B, 0x50, 0x09, 0x01, 0x02
+static const uint8_t lc_x509_test_label[] = {
+	0x43, 0x4F, 0x4D, 0x50, 0x53, 0x49, 0x47, 0x2D, 0x4D, 0x4C, 0x44,
+	0x53, 0x41, 0x36, 0x35, 0x2D, 0x45, 0x43, 0x44, 0x53, 0x41, 0x2D,
+	0x50, 0x32, 0x35, 0x36, 0x2D, 0x53, 0x48, 0x41, 0x35, 0x31, 0x32
 };
 
-/* id-HashMLDSA65-Ed25519-SHA512 */
+/* COMPSIG-MLDSA44-Ed25519-SHA512 */
 LC_FIPS_RODATA_SECTION
-static const uint8_t lc_x509_mldsa65_ed25519_sha512_dom_sep[] = {
-	0x06, 0x0B, 0x60, 0x86, 0x48, 0x01, 0x86,
-	0xFA, 0x6B, 0x50, 0x09, 0x01, 0x0B
+static const uint8_t lc_x509_mldsa44_ed25519_sha512_label[] = {
+	0x43, 0x4F, 0x4D, 0x50, 0x53, 0x49, 0x47, 0x2D, 0x4D, 0x4C,
+	0x44, 0x53, 0x41, 0x34, 0x34, 0x2D, 0x45, 0x64, 0x32, 0x35,
+	0x35, 0x31, 0x39, 0x2D, 0x53, 0x48, 0x41, 0x35, 0x31, 0x32
 };
 
-/* id-HashMLDSA87-Ed448-SHAKE256 */
+/* COMPSIG-MLDSA65-Ed25519-SHA512 */
 LC_FIPS_RODATA_SECTION
-static const uint8_t lc_x509_mldsa87_ed448_sha512_dom_sep[] = {
-	0x06, 0x0B, 0x60, 0x86, 0x48, 0x01, 0x86,
-	0xFA, 0x6B, 0x50, 0x09, 0x01, 0x0E
+static const uint8_t lc_x509_mldsa65_ed25519_sha512_label[] = {
+	0x43, 0x4F, 0x4D, 0x50, 0x53, 0x49, 0x47, 0x2D, 0x4D, 0x4C,
+	0x44, 0x53, 0x41, 0x36, 0x35, 0x2D, 0x45, 0x64, 0x32, 0x35,
+	0x35, 0x31, 0x39, 0x2D, 0x53, 0x48, 0x41, 0x35, 0x31, 0x32
+};
+
+/* COMPSIG-MLDSA87-Ed448-SHAKE256 */
+LC_FIPS_RODATA_SECTION
+static const uint8_t lc_x509_mldsa87_ed448_sha512_label[] = {
+	0x43, 0x4F, 0x4D, 0x50, 0x53, 0x49, 0x47, 0x2D, 0x4D, 0x4C,
+	0x44, 0x53, 0x41, 0x38, 0x37, 0x2D, 0x45, 0x64, 0x34, 0x34,
+	0x38, 0x2D, 0x53, 0x48, 0x41, 0x4B, 0x45, 0x32, 0x35, 0x36
 };
 
 int signature_ph_oids(struct lc_hash_ctx *hash_ctx,
@@ -220,27 +226,27 @@ int signature_ph_oids(struct lc_hash_ctx *hash_ctx,
 	return -EOPNOTSUPP;
 }
 
-static int composite_signature_set_domain(const uint8_t **domain,
-					  size_t *domainlen,
-					  uint8_t nist_category)
+static int composite_signature_set_label(const uint8_t **domain,
+					 size_t *domainlen,
+					 uint8_t nist_category)
 {
 	/* Set Domain */
 	switch (nist_category) {
 	case 0:
-		*domain = lc_x509_test_dom_sep;
-		*domainlen = sizeof(lc_x509_test_dom_sep);
+		*domain = lc_x509_test_label;
+		*domainlen = sizeof(lc_x509_test_label);
 		break;
 	case 1:
-		*domain = lc_x509_mldsa44_ed25519_sha512_dom_sep;
-		*domainlen = sizeof(lc_x509_mldsa44_ed25519_sha512_dom_sep);
+		*domain = lc_x509_mldsa44_ed25519_sha512_label;
+		*domainlen = sizeof(lc_x509_mldsa44_ed25519_sha512_label);
 		break;
 	case 3:
-		*domain = lc_x509_mldsa65_ed25519_sha512_dom_sep;
-		*domainlen = sizeof(lc_x509_mldsa65_ed25519_sha512_dom_sep);
+		*domain = lc_x509_mldsa65_ed25519_sha512_label;
+		*domainlen = sizeof(lc_x509_mldsa65_ed25519_sha512_label);
 		break;
 	case 5:
-		*domain = lc_x509_mldsa87_ed448_sha512_dom_sep;
-		*domainlen = sizeof(lc_x509_mldsa87_ed448_sha512_dom_sep);
+		*domain = lc_x509_mldsa87_ed448_sha512_label;
+		*domainlen = sizeof(lc_x509_mldsa87_ed448_sha512_label);
 		break;
 	default:
 		return -EOPNOTSUPP;
@@ -249,29 +255,30 @@ static int composite_signature_set_domain(const uint8_t **domain,
 	return 0;
 }
 
-int composite_signature_domain_separation(
-	struct lc_hash_ctx *hash_ctx, const uint8_t *userctx, size_t userctxlen,
-	const uint8_t *randomizer, size_t randomizerlen, uint8_t nist_category)
+int composite_signature_domain_separation(struct lc_hash_ctx *hash_ctx,
+					  const uint8_t *userctx,
+					  size_t userctxlen,
+					  uint8_t nist_category)
 {
-	const uint8_t *domain;
-	size_t domainlen;
+	const uint8_t *label;
+	size_t labellen;
 	uint8_t userctxlen_small = (uint8_t)userctxlen;
 	int ret;
 
-	CKINT(composite_signature_set_domain(&domain, &domainlen,
-					     nist_category));
+	CKINT(composite_signature_set_label(&label, &labellen, nist_category));
 
 	/*
-	 * M' = Prefix || Domain || len(ctx) || ctx || r
+	 * M' = Prefix || Label || len(ctx) || ctx || PH (M)
+	 *
+	 * where PH(M) is to be set by caller
 	 *
 	 * See for details: https://lamps-wg.github.io/draft-composite-sigs/draft-ietf-lamps-pq-composite-sigs.html
 	 */
 	lc_hash_update(hash_ctx, lc_x509_composite_sig_prefix,
 		       sizeof(lc_x509_composite_sig_prefix));
-	lc_hash_update(hash_ctx, domain, domainlen);
+	lc_hash_update(hash_ctx, label, labellen);
 	lc_hash_update(hash_ctx, &userctxlen_small, sizeof(userctxlen_small));
 	lc_hash_update(hash_ctx, userctx, userctxlen);
-	lc_hash_update(hash_ctx, randomizer, randomizerlen);
 
 out:
 	return ret;
@@ -302,16 +309,15 @@ out:
 /*
  * Domain separation as required by:
  *
- * FIPS 204 pre-hash ML-DSA: randomizer is NULL
- * Composite ML-DSA draft 5: randomizer is set
+ * FIPS 204 pre-hash ML-DSA: composite is 0
+ * Composite ML-DSA draft 5: composite is set
  */
 int signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 				unsigned int ml_dsa_internal,
 				const struct lc_hash *signature_prehash_type,
 				const uint8_t *userctx, size_t userctxlen,
 				const uint8_t *m, size_t mlen,
-				const uint8_t *randomizer, size_t randomizerlen,
-				uint8_t nist_category)
+				uint8_t composite, uint8_t nist_category)
 {
 	int ret = 0;
 
@@ -323,21 +329,16 @@ int signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 		return -EINVAL;
 
 	/* If Composite ML-DSA is requested, use domain as userctx */
-	if (randomizer) {
-		const uint8_t *domain;
-		size_t domainlen;
+	if (composite) {
+		const uint8_t *label;
+		size_t labellen;
 
-		CKINT(composite_signature_set_domain(&domain, &domainlen,
-						     nist_category));
+		CKINT(composite_signature_set_label(&label, &labellen,
+						    nist_category));
 
-		/* Add the composite signature domain as context */
-		CKINT(standalone_signature_domain_separation(
-			hash_ctx, signature_prehash_type, domain, domainlen,
-			mlen, nist_category));
-
+		/* Add the composite signature label as context */
 		CKINT(composite_signature_domain_separation(
-			hash_ctx, userctx, userctxlen, randomizer,
-			randomizerlen, nist_category));
+			hash_ctx, userctx, userctxlen, nist_category));
 	} else {
 		CKINT(standalone_signature_domain_separation(
 			hash_ctx, signature_prehash_type, userctx, userctxlen,

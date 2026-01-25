@@ -104,7 +104,7 @@ ${X509_CMD}							\
   --skid 0b0c0d0e0f0001						\
   -o ${TARGETDIR}/${INT1_FILENAME}_int1.der			\
   --sk-file ${TARGETDIR}/${INT1_FILENAME}_int1.privkey		\
-  --create-keypair ${INT1_KEYTYPE}				\
+  --create-keypair ${INT1_KEYTYPE}			\
   --x509-signer ${TARGETDIR}/${CA_FILENAME}_cacert.der		\
   --signer-sk-file ${TARGETDIR}/${CA_FILENAME}_cacert.privkey
 
@@ -135,7 +135,7 @@ ${X509_CMD}							\
   --skid 0c0d0e0f000102						\
   -o ${TARGETDIR}/${INT2_FILENAME}_int2.der			\
   --sk-file ${TARGETDIR}/${INT2_FILENAME}_int2.privkey		\
-  --create-keypair ${INT2_KEYTYPE}				\
+  --create-keypair ${INT2_KEYTYPE}			\
   --x509-signer ${TARGETDIR}/${INT1_FILENAME}_int1.der		\
   --signer-sk-file ${TARGETDIR}/${INT1_FILENAME}_int1.privkey
 
@@ -166,7 +166,7 @@ ${X509_CMD}							\
   --skid 0d0e0f00010203						\
   -o ${TARGETDIR}/${LEAF_FILENAME}_leaf.der			\
   --sk-file ${TARGETDIR}/${LEAF_FILENAME}_leaf.privkey		\
-  --create-keypair ${LEAF_KEYTYPE}				\
+  --create-keypair ${LEAF_KEYTYPE}			\
   --x509-signer ${TARGETDIR}/${INT2_FILENAME}_int2.der		\
   --signer-sk-file ${TARGETDIR}/${INT2_FILENAME}_int2.privkey
 

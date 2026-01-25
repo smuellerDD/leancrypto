@@ -39,6 +39,7 @@
 #include "asym_key_dilithium_ed448.h"
 #include "asym_key_sphincs.h"
 #include "asymmetric_type.h"
+#include "binhexbin_raw.h"
 #include "conv_be_le.h"
 #include "math_helper.h"
 #include "oid_registry.h"
@@ -52,53 +53,6 @@
 #include "x509_keyusage_asn1.h"
 #include "x509_san_asn1.h"
 #include "x509_skid_asn1.h"
-
-/******************************************************************************
- * Duplication of code from binhexbin.c for EFI compilation to avoid compiling
- * binhexbin.c
- ******************************************************************************/
-
-#ifndef LC_ASN1_DEBUG
-static char lc_hex_char(unsigned int bin, const int u)
-{
-	if (bin < 10)
-		return (char)(bin + 0x30);
-	else if (bin < 16)
-		return (char)(bin + 0x57 - (unsigned int)(!!u * 0x20));
-
-	return 0x78;
-}
-
-/*
- * Convert binary string into hex representation
- * @bin input buffer with binary data
- * @binlen length of bin
- * @hex output buffer to store hex data
- * @hexlen length of already allocated hex buffer (should be at least
- *	   twice binlen -- if not, only a fraction of binlen is converted)
- * @u case of hex characters (0=>lower case, 1=>upper case)
- */
-static void lc_bin2hex(const uint8_t *bin, const size_t binlen, char *hex,
-		       const size_t hexlen, const int u)
-{
-	size_t i = 0;
-	size_t chars = (binlen > (hexlen / 2)) ? (hexlen / 2) : binlen;
-
-	for (i = 0; i < chars; i++) {
-		hex[(i * 2)] = lc_hex_char((bin[i] >> 4), u);
-		hex[((i * 2) + 1)] = lc_hex_char((bin[i] & 0x0f), u);
-	}
-}
-
-#else /* LC_ASN1_DEBUG */
-
-static void lc_bin2hex(const uint8_t *bin, const size_t binlen, char *hex,
-		       const size_t hexlen, const int u)
-{
-	bin2hex(bin, binlen, hex, hexlen, u);
-}
-
-#endif /* LC_ASN1_DEBUG */
 
 /******************************************************************************
  * ASN.1 parser support functions

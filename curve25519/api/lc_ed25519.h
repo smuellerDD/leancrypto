@@ -26,8 +26,10 @@
 extern "C" {
 #endif
 
-#define LC_ED25519_SECRETKEYBYTES (64U)
+#define LC_ED25519_RAW_SECRETKEYBYTES (32U)
 #define LC_ED25519_PUBLICKEYBYTES (32U)
+#define LC_ED25519_SECRETKEYBYTES                                              \
+	(LC_ED25519_RAW_SECRETKEYBYTES + LC_ED25519_PUBLICKEYBYTES)
 #define LC_ED25519_SIGBYTES (64U)
 
 struct lc_ed25519_sk {
@@ -44,6 +46,7 @@ struct lc_ed25519_sig {
 
 int lc_ed25519_keypair(struct lc_ed25519_pk *pk, struct lc_ed25519_sk *sk,
 		       struct lc_rng_ctx *rng_ctx);
+int lc_ed25519_derive_pk(struct lc_ed25519_pk *pk, struct lc_ed25519_sk *sk);
 int lc_ed25519_sign(struct lc_ed25519_sig *sig, const uint8_t *msg, size_t mlen,
 		    const struct lc_ed25519_sk *sk, struct lc_rng_ctx *rng_ctx);
 int lc_ed25519_verify(const struct lc_ed25519_sig *sig, const uint8_t *msg,

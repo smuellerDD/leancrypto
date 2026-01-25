@@ -161,6 +161,8 @@ LC_INTERFACE_FUNCTION(int, lc_asn1_ber_decoder,
 	if (datalen > ASN1_MAX_DATASIZE)
 		return -EMSGSIZE;
 
+	printf_debug("---- Start decoder\n");
+
 next_op:
 	printf_debug(
 		"next_op: pc=\x1B[32m%zu\x1B[m/%zu dp=\x1B[33m%zu\x1B[m/%zu C=%d J=%d\n",

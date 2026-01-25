@@ -1,9 +1,0 @@
--- SPDX-License-Identifier: BSD-3-Clause
---
--- Copyright (C) 2024 IETF Trust and the persons identified as authors
--- of the code
---
-
-SignaturePrivateKey ::= SEQUENCE {
-	privateKey BIT STRING ({ lc_x509_mldsa_ed25519_private_key })
-}

@@ -222,15 +222,6 @@ struct lc_dilithium_ctx {
 	size_t external_mu_len;
 
 	/**
-	 * @brief Pointer to the randomizer
-	 *
-	 * This is used for the Composite signature: For the discussion of the
-	 * randomizer, see https://lamps-wg.github.io/draft-composite-sigs/draft-ietf-lamps-pq-composite-sigs.html
-	 */
-	const uint8_t *randomizer;
-	size_t randomizerlen;
-
-	/**
 	 * @brief Pointer to the AHat buffer. This can be provided by the caller
 	 * or it must be NULL otherwise.
 	 *
@@ -248,6 +239,12 @@ struct lc_dilithium_ctx {
 	 * OID for the "Domain" data.
 	 */
 	uint8_t nist_category;
+
+	/**
+	 * @brief Indicator whether it is a composite algorithm usage. This is
+	 * used and set internally.
+	 */
+	unsigned int composite_algorithm:1;
 
 	/**
 	 * @brief When set to true, only the ML-DSA.Sign_internal or
@@ -307,9 +304,8 @@ struct lc_dilithium_ctx {
 	(name)->ahat_size = 0;                                                 \
 	(name)->external_mu = NULL;                                            \
 	(name)->external_mu_len = 0;                                           \
-	(name)->randomizer = NULL;                                             \
-	(name)->randomizerlen = 0;                                             \
-	(name)->nist_category = 0;
+	(name)->nist_category = 0;                                             \
+	(name)->composite_algorithm = 0;
 #endif
 /// \endcond
 
@@ -719,6 +715,9 @@ struct lc_dilithium_ed25519_ctx {
 #ifndef LC_DILITHIUM_ED25519_CTX_ON_STACK
 #define LC_DILITHIUM_ED25519_CTX_SIZE                                          \
 	sizeof(struct lc_dilithium_ed25519_ctx)
+#define LC_DILITHIUM_ED25519_SET_CTX(name)                                     \
+	LC_DILITHIUM_SET_CTX(&(name)->dilithium_ctx);                          \
+	(name)->dilithium_ctx.composite_algorithm = 1;
 #endif
 /// \endcond
 
@@ -736,7 +735,7 @@ struct lc_dilithium_ed25519_ctx {
 			LC_HASH_COMMON_ALIGNMENT);                             \
 	struct lc_dilithium_ed25519_ctx *name =                                \
 		(struct lc_dilithium_ed25519_ctx *)name##_ctx_buf;             \
-	LC_DILITHIUM_SET_CTX(&(name)->dilithium_ctx);                          \
+	LC_DILITHIUM_ED25519_SET_CTX(name);                                    \
 	_Pragma("GCC diagnostic pop")
 #endif
 
@@ -933,8 +932,11 @@ struct lc_dilithium_ed448_ctx {
 
 /// \cond DO_NOT_DOCUMENT
 #ifndef LC_DILITHIUM_ED448_CTX_ON_STACK
-#define LC_DILITHIUM_ED448_CTX_SIZE                                          \
+#define LC_DILITHIUM_ED448_CTX_SIZE                                            \
 	sizeof(struct lc_dilithium_ed448_ctx)
+#define LC_DILITHIUM_ED448_SET_CTX(name)                                       \
+	LC_DILITHIUM_SET_CTX(&(name)->dilithium_ctx);                          \
+	(name)->dilithium_ctx.composite_algorithm = 1;
 #endif
 /// \endcond
 
@@ -944,15 +946,15 @@ struct lc_dilithium_ed448_ctx {
  * @param [in] name Name of the stack variable
  */
 #ifndef LC_DILITHIUM_ED448_CTX_ON_STACK
-#define LC_DILITHIUM_ED448_CTX_ON_STACK(name)                                \
+#define LC_DILITHIUM_ED448_CTX_ON_STACK(name)                                  \
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 		LC_ALIGNED_BUFFER(                                             \
-			name##_ctx_buf, LC_DILITHIUM_ED448_CTX_SIZE,         \
+			name##_ctx_buf, LC_DILITHIUM_ED448_CTX_SIZE,           \
 			LC_HASH_COMMON_ALIGNMENT);                             \
-	struct lc_dilithium_ed448_ctx *name =                                \
-		(struct lc_dilithium_ed448_ctx *)name##_ctx_buf;             \
-	LC_DILITHIUM_SET_CTX(&(name)->dilithium_ctx);                          \
+	struct lc_dilithium_ed448_ctx *name =                                  \
+		(struct lc_dilithium_ed448_ctx *)name##_ctx_buf;               \
+	LC_DILITHIUM_ED448_SET_CTX(name);                                      \
 	_Pragma("GCC diagnostic pop")
 #endif
 

@@ -182,15 +182,15 @@ enum OID {
 	OID_id_rsassa_pkcs1_v1_5_with_sha3_384, /* 2.16.840.1.101.3.4.3.15 */
 	OID_id_rsassa_pkcs1_v1_5_with_sha3_512, /* 2.16.840.1.101.3.4.3.16 */
 
-	/* OIDs from RFC9882 */
+	/* OIDs from RFC9881 */
 	OID_id_MLDSA44, /* 2.16.840.1.101.3.4.3.17 */
 	OID_id_MLDSA65, /* 2.16.840.1.101.3.4.3.18 */
 	OID_id_MLDSA87, /* 2.16.840.1.101.3.4.3.19 */
 
-	/* https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-03.html */
-	OID_id_MLDSA44_Ed25519, /* 2.16.840.1.114027.80.9.1.2 */
-	OID_id_MLDSA65_Ed25519, /* 2.16.840.1.114027.80.9.1.11 */
-	OID_id_MLDSA87_Ed448, /* 2.16.840.1.114027.80.9.1.14 */
+	/* https://lamps-wg.github.io/draft-composite-sigs/draft-ietf-lamps-pq-composite-sigs.html */
+	OID_id_MLDSA44_Ed25519, /* 1.3.6.1.5.5.7.6.39 */
+	OID_id_MLDSA65_Ed25519, /* 1.3.6.1.5.5.7.6.48 */
+	OID_id_MLDSA87_Ed448, /* 1.3.6.1.5.5.7.6.51 */
 
 	/* OIDs from https://github.com/IETF-Hackathon/pqc-certificates/blob/master/docs/oid_mapping.md */
 	OID_id_SLHDSA_SHAKE_128S, /* 2.16.840.1.101.3.4.3.26 */
