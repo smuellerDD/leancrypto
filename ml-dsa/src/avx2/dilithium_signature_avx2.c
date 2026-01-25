@@ -545,8 +545,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_ctx_avx2,
 		CKINT(signature_domain_separation(
 			&ctx->dilithium_hash_ctx, ctx->ml_dsa_internal,
 			ctx->dilithium_prehash_type, ctx->userctx,
-			ctx->userctxlen, m, mlen, ctx->randomizer,
-			ctx->randomizerlen, LC_DILITHIUM_NIST_CATEGORY));
+			ctx->userctxlen, m, mlen, ctx->composite_algorithm, LC_DILITHIUM_NIST_CATEGORY));
 	}
 
 	ret = lc_dilithium_sign_avx2_internal(sig, ctx, sk, rng_ctx);
@@ -596,8 +595,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_init_avx2,
 	CKINT(signature_domain_separation(
 		&ctx->dilithium_hash_ctx, ctx->ml_dsa_internal,
 		ctx->dilithium_prehash_type, ctx->userctx, ctx->userctxlen,
-		NULL, 0, ctx->randomizer, ctx->randomizerlen,
-		LC_DILITHIUM_NIST_CATEGORY));
+		NULL, 0, ctx->composite_algorithm, LC_DILITHIUM_NIST_CATEGORY));
 
 out:
 	return ret;
@@ -790,8 +788,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_ctx_avx2,
 		CKINT(signature_domain_separation(
 			&ctx->dilithium_hash_ctx, ctx->ml_dsa_internal,
 			ctx->dilithium_prehash_type, ctx->userctx,
-			ctx->userctxlen, m, mlen, ctx->randomizer,
-			ctx->randomizerlen, LC_DILITHIUM_NIST_CATEGORY));
+			ctx->userctxlen, m, mlen, ctx->composite_algorithm, LC_DILITHIUM_NIST_CATEGORY));
 	}
 
 	ret = lc_dilithium_verify_avx2_internal(sig, pk, ctx);
@@ -841,8 +838,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_init_avx2,
 	CKINT(signature_domain_separation(
 		&ctx->dilithium_hash_ctx, ctx->ml_dsa_internal,
 		ctx->dilithium_prehash_type, ctx->userctx, ctx->userctxlen,
-		NULL, 0, ctx->randomizer, ctx->randomizerlen,
-		LC_DILITHIUM_NIST_CATEGORY));
+		NULL, 0, ctx->composite_algorithm, LC_DILITHIUM_NIST_CATEGORY));
 
 out:
 	return ret;
