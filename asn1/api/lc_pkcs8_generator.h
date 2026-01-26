@@ -72,20 +72,4 @@
 int lc_pkcs8_encode(const struct lc_pkcs8_message *pkcs8, uint8_t *data,
 		    size_t *avail_datalen);
 
-/**
- * @ingroup PKCS8Gen
- * @brief Set the private key for the PKCS8 message
- *
- * The function sets the pointers to the private key in the PKCS#8 message
- * correctly.
- *
- * @param [in,out] pkcs8 The PKCS#8 data structure that shall receive the
- *			 private key.
- * @param [in] privkey Raw private key data
- *
- * @return 0 on success or < 0 on error
- */
-int lc_pkcs8_set_privkey(struct lc_pkcs8_message *pkcs8,
-			 const struct lc_x509_key_data *privkey);
-
 #endif /* _CRYPTO_PKCS8_GENERATOR_H */

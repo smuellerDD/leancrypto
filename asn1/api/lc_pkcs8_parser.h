@@ -110,6 +110,23 @@ int lc_pkcs8_decode(struct lc_pkcs8_message *pkcs8, const uint8_t *data,
 
 /**
  * @ingroup PKCS8
+ * @brief Set the private key for the PKCS8 message
+ *
+ * The function sets the pointers to the private key in the PKCS#8 message
+ * correctly. For encoding, the private key is read, for decoding, the
+ * private key buffer is filled by the parser.
+ *
+ * @param [in,out] pkcs8 The PKCS#8 data structure that shall receive the
+ *			 private key.
+ * @param [in] privkey Raw private key data
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_pkcs8_set_privkey(struct lc_pkcs8_message *pkcs8,
+			 struct lc_x509_key_data *privkey);
+
+/**
+ * @ingroup PKCS8
  * @brief Clear the resources used by the PKCS#8 message parsing state
  *
  * @param [in] pkcs8 Certificate structure to be cleared

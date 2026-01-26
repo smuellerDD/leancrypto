@@ -559,7 +559,9 @@ static int x509_sk_decode(struct x509_generator_opts *opts,
 	 * parse the data in both ways with the PKCS#8 first, as it has more
 	 * stringent format checks.
 	 */
+	CKINT(lc_pkcs8_set_privkey(&opts->pkcs8, keys));
 	ret = lc_pkcs8_decode(&opts->pkcs8, data, datalen);
+
 	if (!ret) {
 		opts->sk_is_pkcs8 = 1;
 		return 0;
@@ -659,7 +661,6 @@ static int x509_enc_set_signer(struct x509_generator_opts *opts)
 		printf("WARNING: X.509 signer is no CA!\n");
 
 	LC_X509_LINK_PK_INPUT_DATA(signer_key_data, signer_key_input_data);
-
 	if (opts->signer_sk_file) {
 		CKINT_LOG(x509_load_sk(opts),
 			  "Loading of private key failed\n");

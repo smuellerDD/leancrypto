@@ -144,6 +144,20 @@ out:
  * API functions
  ******************************************************************************/
 
+LC_INTERFACE_FUNCTION(int, lc_pkcs8_set_privkey, struct lc_pkcs8_message *pkcs8,
+		      struct lc_x509_key_data *privkey)
+{
+	int ret = 0;
+
+	CKNULL(pkcs8, -EINVAL);
+	CKNULL(privkey, -EINVAL);
+
+	pkcs8->privkey_ptr = privkey;
+
+out:
+	return ret;
+}
+
 LC_INTERFACE_FUNCTION(void, lc_pkcs8_message_clear,
 		      struct lc_pkcs8_message *pkcs8)
 {
@@ -158,22 +172,15 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs8_decode, struct lc_pkcs8_message *pkcs8,
 		      const uint8_t *data, size_t datalen)
 {
 	struct pkcs8_parse_context ctx = { 0 };
-	struct lc_x509_key_data *privkey = &pkcs8->privkey;
 	struct lc_x509_priv_key_data *privkey_data = &pkcs8->privkey_data;
 	int ret;
 
 	CKNULL(pkcs8, -EINVAL);
 	CKNULL(data, -EINVAL);
+	CKNULL(pkcs8->privkey_ptr, -EINVAL);
 
 	ctx.data = data;
-	ctx.privkey = privkey;
-
-	/*
-	 * Link the common key structure of privkey to the buffer that may hold
-	 * the privkey. Also, set the pubkey to NULL.
-	 */
-	LC_PKCS8_LINK_PRIVKEY_DATA(privkey, privkey_data);
-	pkcs8->privkey_ptr = privkey;
+	ctx.privkey = pkcs8->privkey_ptr;
 
 	/* Attempt to decode the PKCS#8 blob */
 	CKINT_LOG(
@@ -194,8 +201,8 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs8_signature_gen, uint8_t *sig_data,
 
 	CKNULL(pkcs8, -EINVAL);
 
-	CKINT(lc_x509_signature_gen(sig_data, siglen, &pkcs8->privkey, m, mlen,
-				    prehash_algo));
+	CKINT(lc_x509_signature_gen(sig_data, siglen, pkcs8->privkey_ptr, m,
+				    mlen, prehash_algo));
 
 out:
 	return ret;

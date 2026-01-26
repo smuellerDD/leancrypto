@@ -26,6 +26,7 @@
 #include <time.h>
 
 #include "binhexbin.h"
+#include "lc_pkcs8_parser.h"
 #include "lc_x509_generator.h"
 #include "lc_x509_parser.h"
 #include "ret_checkers.h"
@@ -36,6 +37,7 @@
 
 struct x509_generator_opts {
 	struct lc_x509_certificate cert;
+	struct lc_pkcs8_message pkcs8;
 
 	const char *sk_file;
 	const char *x509_cert_file;
@@ -46,12 +48,39 @@ struct x509_generator_opts {
 	size_t x509_cert_data_len;
 };
 
+static int x509_sk_decode(struct x509_generator_opts *opts,
+			  struct lc_x509_key_data *keys,
+			  enum lc_sig_types pkey_type, const uint8_t *data,
+			  size_t datalen)
+{
+	int ret;
+
+	/*
+	 * The input data can be either a plain buffer string of encoded
+	 * private key or a PKCS#8 buffer. This function therefore tries to
+	 * parse the data in both ways with the PKCS#8 first, as it has more
+	 * stringent format checks.
+	 */
+	CKINT(lc_pkcs8_set_privkey(&opts->pkcs8, keys));
+	ret = lc_pkcs8_decode(&opts->pkcs8, data, datalen);
+
+	if (!ret) {
+		return 0;
+	}
+
+	CKINT(lc_x509_sk_decode(keys, pkey_type, data, datalen));
+
+out:
+	return ret;
+}
+
 static void x509_clean_opts(struct x509_generator_opts *opts)
 {
 	if (!opts)
 		return;
 
 	lc_x509_cert_clear(&opts->cert);
+	lc_pkcs8_message_clear(&opts->pkcs8);
 
 	release_data(opts->sk_data, opts->sk_len, lc_pem_flag_nopem);
 	release_data(opts->x509_cert_data, opts->x509_cert_data_len,
@@ -93,8 +122,8 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 			   lc_pem_flag_nopem),
 		  "Secret key mmap failure\n");
 	/* Parse the X.509 secret key */
-	CKINT_LOG(lc_x509_sk_decode(keys, cert->pub.pkey_algo, opts->sk_data,
-				    opts->sk_len),
+	CKINT_LOG(x509_sk_decode(opts, keys, cert->pub.pkey_algo, opts->sk_data,
+				 opts->sk_len),
 		  "Parsing of secret key failed\n");
 
 	CKINT_LOG(lc_x509_get_signature_size_from_sk(&siglen, keys),

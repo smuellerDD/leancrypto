@@ -51,6 +51,7 @@ PKCS7_CMD="$(dirname $0)/../../../build/apps/src/lc_pkcs7_generator"
 ################################################################################
 
 # Generate CA certificate
+# Private key in DER format and PKCS#8
 CA_FILENAME="$(echo $CA_KEYTYPE | tr '[:upper:]' '[:lower:]' )"
 ${X509_CMD}							\
   --keyusage digitalSignature					\
@@ -75,7 +76,7 @@ ${X509_CMD}							\
   --akid 0a0b0c0d0e0f						\
   -o ${TARGETDIR}/${CA_FILENAME}_cacert.der			\
   --sk-file ${TARGETDIR}/${CA_FILENAME}_cacert.privkey		\
-  --create-keypair ${CA_KEYTYPE}
+  --create-keypair-pkcs8 ${CA_KEYTYPE}
 
 if [ $? -eq 0 ]
 then
@@ -86,6 +87,7 @@ else
 fi
 
 # Generate Intermediate 1 certificate
+# Private key in PEM format and PKCS#8
 INT1_FILENAME="$(echo $INT1_KEYTYPE | tr '[:upper:]' '[:lower:]' )"
 ${X509_CMD}							\
   --keyusage digitalSignature					\
@@ -104,7 +106,8 @@ ${X509_CMD}							\
   --skid 0b0c0d0e0f0001						\
   -o ${TARGETDIR}/${INT1_FILENAME}_int1.der			\
   --sk-file ${TARGETDIR}/${INT1_FILENAME}_int1.privkey		\
-  --create-keypair ${INT1_KEYTYPE}			\
+  --create-keypair-pkcs8 ${INT1_KEYTYPE}			\
+  --pem-output							\
   --x509-signer ${TARGETDIR}/${CA_FILENAME}_cacert.der		\
   --signer-sk-file ${TARGETDIR}/${CA_FILENAME}_cacert.privkey
 
@@ -117,6 +120,7 @@ else
 fi
 
 # Generate Intermediate 2 certificate
+# Private key in raw DER format
 INT2_FILENAME="$(echo $INT2_KEYTYPE | tr '[:upper:]' '[:lower:]' )"
 ${X509_CMD}							\
   --keyusage digitalSignature					\
@@ -148,6 +152,7 @@ else
 fi
 
 # Generate Leaf certificate
+# Private key in raw DER format
 LEAF_FILENAME="$(echo $LEAF_KEYTYPE | tr '[:upper:]' '[:lower:]' )"
 ${X509_CMD}							\
   --keyusage dataEncipherment					\

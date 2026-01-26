@@ -269,10 +269,11 @@ static int pkcs7_sk_decode(struct pkcs7_generator_opts *opts,
 	 * parse the data in both ways with the PKCS#8 first, as it has more
 	 * stringent format checks.
 	 */
+	CKINT(lc_pkcs8_set_privkey(&opts->pkcs8, keys));
 	ret = lc_pkcs8_decode(&opts->pkcs8, data, datalen);
 	if (!ret) {
 		struct lc_pkcs8_message *pkcs8 = &opts->pkcs8;
-		struct lc_x509_key_data *pkcs8_keys = &pkcs8->privkey;
+		struct lc_x509_key_data *pkcs8_keys = pkcs8->privkey_ptr;
 
 		/*
 		 * After successful parsing of the private key into the
