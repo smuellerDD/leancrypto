@@ -46,7 +46,6 @@ struct lc_x509_priv_key_data {
 };
 
 struct lc_pkcs8_message {
-	struct lc_x509_priv_key_data privkey_data;
 	struct lc_x509_key_data *privkey_ptr;
 
 	size_t data_len; /* Length of Data */

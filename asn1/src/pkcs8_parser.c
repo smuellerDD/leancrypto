@@ -172,7 +172,6 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs8_decode, struct lc_pkcs8_message *pkcs8,
 		      const uint8_t *data, size_t datalen)
 {
 	struct pkcs8_parse_context ctx = { 0 };
-	struct lc_x509_priv_key_data *privkey_data = &pkcs8->privkey_data;
 	int ret;
 
 	CKNULL(pkcs8, -EINVAL);
