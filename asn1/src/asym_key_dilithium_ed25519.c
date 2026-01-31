@@ -330,9 +330,9 @@ int public_key_verify_signature_dilithium_ed25519(
 	/*
 	 * Verify the signature using Composite-ML-DSA
 	 */
-	CKINT(lc_dilithium_ed25519_verify(
-		&ws->dilithium_sig, ws->ph_message, sizeof(ws->ph_message),
-		&ws->dilithium_pk));
+	CKINT(lc_dilithium_ed25519_verify(&ws->dilithium_sig, ws->ph_message,
+					  sizeof(ws->ph_message),
+					  &ws->dilithium_pk));
 
 out:
 	LC_RELEASE_MEM(ws);
@@ -367,9 +367,9 @@ int public_key_generate_signature_dilithium_ed25519(
 		     sizeof(ws->ph_message)));
 
 	/* Sign the signature using Composite-ML-DSA */
-	CKINT(lc_dilithium_ed25519_sign(
-		&ws->dilithium_ed25519_sig, ws->ph_message,
-		sizeof(ws->ph_message), dilithium_ed25519_sk, lc_seeded_rng));
+	CKINT(lc_dilithium_ed25519_sign(&ws->dilithium_ed25519_sig,
+					ws->ph_message, sizeof(ws->ph_message),
+					dilithium_ed25519_sk, lc_seeded_rng));
 
 	CKINT(lc_dilithium_ed25519_sig_ptr(&ml_dsa_ptr, &ml_dsa_siglen,
 					   &ed25519_ptr, &ed25519_siglen,

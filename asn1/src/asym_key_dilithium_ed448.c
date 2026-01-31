@@ -332,9 +332,9 @@ int public_key_verify_signature_dilithium_ed448(
 	/*
 	 * Verify the signature using Composite-ML-DSA
 	 */
-	CKINT(lc_dilithium_ed448_verify(
-		&ws->dilithium_sig, ws->ph_message, sizeof(ws->ph_message),
-		&ws->dilithium_pk));
+	CKINT(lc_dilithium_ed448_verify(&ws->dilithium_sig, ws->ph_message,
+					sizeof(ws->ph_message),
+					&ws->dilithium_pk));
 
 out:
 	LC_RELEASE_MEM(ws);
@@ -369,9 +369,9 @@ int public_key_generate_signature_dilithium_ed448(
 		     sizeof(ws->ph_message)));
 
 	/* Sign the signature using Composite-ML-DSA */
-	CKINT(lc_dilithium_ed448_sign(
-		&ws->dilithium_ed448_sig, ws->ph_message,
-		sizeof(ws->ph_message), dilithium_ed448_sk, lc_seeded_rng));
+	CKINT(lc_dilithium_ed448_sign(&ws->dilithium_ed448_sig, ws->ph_message,
+				      sizeof(ws->ph_message),
+				      dilithium_ed448_sk, lc_seeded_rng));
 
 	CKINT(lc_dilithium_ed448_sig_ptr(&ml_dsa_ptr, &ml_dsa_siglen,
 					 &ed448_ptr, &ed448_siglen,

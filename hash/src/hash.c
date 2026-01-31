@@ -46,8 +46,8 @@ LC_INTERFACE_FUNCTION(void, lc_hash_final, struct lc_hash_ctx *hash_ctx,
 	hash->final(hash_ctx->hash_state, digest);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_hash_set_digestsize,
-		      struct lc_hash_ctx *hash_ctx, size_t digestsize)
+LC_INTERFACE_FUNCTION(int, lc_hash_set_digestsize, struct lc_hash_ctx *hash_ctx,
+		      size_t digestsize)
 {
 	const struct lc_hash *hash;
 
