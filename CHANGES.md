@@ -45,6 +45,8 @@ Changes 1.7.0-prerelease
 
 * Add UUID generator / parser
 
+* Update of X.509 composite signatures with latest draft + cross testing with all IETF-Hackathon providers
+
 Changes 1.6.0
 * ASN.1: use stack for small generator for small use cases
 
