@@ -89,7 +89,8 @@ static int xdrbg128_drng_selftest(struct lc_rng_ctx *xdrbg128_ctx)
 	lc_hash_update(xdrbg128_compare, seed, sizeof(seed));
 	encode = 0;
 	lc_hash_update(xdrbg128_compare, &encode, sizeof(encode));
-	lc_hash_set_digestsize(xdrbg128_compare, LC_XDRBG128_DRNG_KEYSIZE);
+	CKINT(lc_hash_set_digestsize(xdrbg128_compare,
+				     LC_XDRBG128_DRNG_KEYSIZE));
 	lc_hash_final(xdrbg128_compare, compare1);
 	unpoison(state->v, LC_XDRBG128_DRNG_KEYSIZE);
 	ret += lc_compare(compare1, state->v, LC_XDRBG128_DRNG_KEYSIZE,
@@ -102,7 +103,7 @@ static int xdrbg128_drng_selftest(struct lc_rng_ctx *xdrbg128_ctx)
 	lc_hash_update(xdrbg128_compare, compare1, LC_XDRBG128_DRNG_KEYSIZE);
 	encode = 2 * 85;
 	lc_hash_update(xdrbg128_compare, &encode, sizeof(encode));
-	lc_hash_set_digestsize(xdrbg128_compare, sizeof(compare1));
+	CKINT(lc_hash_set_digestsize(xdrbg128_compare, sizeof(compare1)));
 	lc_hash_final(xdrbg128_compare, compare1);
 	ret += lc_compare(compare1 + LC_XDRBG128_DRNG_KEYSIZE, exp1,
 			  sizeof(exp1), "Ascon DRNG verification");
@@ -152,7 +153,8 @@ static int xdrbg128_drng_selftest(struct lc_rng_ctx *xdrbg128_ctx)
 	lc_hash_update(xdrbg128_compare, &encode, sizeof(encode));
 
 	/* Verify: Now get the key for the next operation */
-	lc_hash_set_digestsize(xdrbg128_compare, LC_XDRBG128_DRNG_KEYSIZE);
+	CKINT(lc_hash_set_digestsize(xdrbg128_compare,
+				     LC_XDRBG128_DRNG_KEYSIZE));
 	lc_hash_final(xdrbg128_compare, compare1);
 
 	if (lc_hash_init(xdrbg128_compare))
@@ -167,8 +169,8 @@ static int xdrbg128_drng_selftest(struct lc_rng_ctx *xdrbg128_ctx)
 	lc_hash_update(xdrbg128_compare, &encode, sizeof(encode));
 
 	/* Verify: Generate operation of the DRBG: generate data */
-	lc_hash_set_digestsize(xdrbg128_compare,
-			       LC_XDRBG128_DRNG_KEYSIZE + sizeof(act2));
+	CKINT(lc_hash_set_digestsize(xdrbg128_compare,
+				     LC_XDRBG128_DRNG_KEYSIZE + sizeof(act2)));
 	lc_hash_final(xdrbg128_compare, compare1);
 	ret += lc_compare(compare1 + LC_XDRBG128_DRNG_KEYSIZE, exp84,
 			  sizeof(exp84),
@@ -178,6 +180,7 @@ static int xdrbg128_drng_selftest(struct lc_rng_ctx *xdrbg128_ctx)
 
 	lc_hash_zero(xdrbg128_compare);
 
+out:
 	return ret;
 }
 

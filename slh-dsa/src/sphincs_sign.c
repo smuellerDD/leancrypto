@@ -421,11 +421,11 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_sign_final, struct lc_sphincs_sig *sig,
 	 */
 	if (!lc_hash_digestsize(&ctx->sphincs_hash_ctx)) {
 #if (LC_SPHINCS_NIST_CATEGORY == 1)
-		lc_hash_set_digestsize(&ctx->sphincs_hash_ctx, 32);
+		CKINT(lc_hash_set_digestsize(&ctx->sphincs_hash_ctx, 32));
 #elif (LC_SPHINCS_NIST_CATEGORY == 3)
-		lc_hash_set_digestsize(&ctx->sphincs_hash_ctx, 48);
+		CKINT(lc_hash_set_digestsize(&ctx->sphincs_hash_ctx, 48));
 #elif (LC_SPHINCS_NIST_CATEGORY == 5)
-		lc_hash_set_digestsize(&ctx->sphincs_hash_ctx, 64);
+		CKINT(lc_hash_set_digestsize(&ctx->sphincs_hash_ctx, 64));
 #else
 #error "Unknown NIST category"
 #endif

@@ -50,7 +50,7 @@ static inline int kyber_kdf2(const uint8_t *in, size_t inlen,
 	CKINT(lc_hash_init(shake256));
 	lc_hash_update(shake256, in, inlen);
 	lc_hash_update(shake256, in2, inlen2);
-	lc_hash_set_digestsize(shake256, outlen);
+	CKINT(lc_hash_set_digestsize(shake256, outlen));
 	lc_hash_final(shake256, out);
 
 	lc_hash_zero(shake256);

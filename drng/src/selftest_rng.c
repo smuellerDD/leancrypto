@@ -18,6 +18,7 @@
  */
 
 #include "ext_headers_internal.h"
+#include "ret_checkers.h"
 #include "selftest_rng.h"
 
 /*
@@ -29,14 +30,16 @@ static int selftest_rng_gen(void *_state, const uint8_t *addtl_input,
 			    size_t addtl_input_len, uint8_t *out, size_t outlen)
 {
 	struct lc_hash_ctx *state = _state;
+	int ret;
 
 	(void)addtl_input;
 	(void)addtl_input_len;
 
-	lc_hash_set_digestsize(state, outlen);
+	CKINT(lc_hash_set_digestsize(state, outlen));
 	lc_hash_final(state, out);
 
-	return 0;
+out:
+	return ret;
 }
 
 static int selftest_rng_seed(void *_state, const uint8_t *seed, size_t seedlen,

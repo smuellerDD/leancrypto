@@ -148,8 +148,11 @@ static int lc_hasher(const char *filename, size_t digestsize,
 		lc_memset_secure(tmpbuf, 0, sizeof(tmpbuf));
 	}
 
-	if (digestsize)
-		lc_hash_set_digestsize(hash_ctx, digestsize);
+	if (digestsize) {
+		ret = (ssize_t)lc_hash_set_digestsize(hash_ctx, digestsize);
+		if (ret)
+			goto out;
+	}
 	if (digestsize > sizeof(md)) {
 		md_p = malloc(digestsize);
 		if (!md_p)
@@ -161,7 +164,9 @@ static int lc_hasher(const char *filename, size_t digestsize,
 
 	if (md_p != md)
 		free(md_p);
-	return 0;
+
+out:
+	return (int)ret;
 }
 
 static void usage(void)

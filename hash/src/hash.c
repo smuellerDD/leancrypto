@@ -46,17 +46,23 @@ LC_INTERFACE_FUNCTION(void, lc_hash_final, struct lc_hash_ctx *hash_ctx,
 	hash->final(hash_ctx->hash_state, digest);
 }
 
-LC_INTERFACE_FUNCTION(void, lc_hash_set_digestsize,
+LC_INTERFACE_FUNCTION(int, lc_hash_set_digestsize,
 		      struct lc_hash_ctx *hash_ctx, size_t digestsize)
 {
 	const struct lc_hash *hash;
 
 	if (!hash_ctx)
-		return;
+		return -EINVAL;
 
 	hash = hash_ctx->hash;
 	if (hash->set_digestsize)
 		hash->set_digestsize(hash_ctx->hash_state, digestsize);
+
+	if (hash->get_digestsize(hash_ctx->hash_state) != digestsize) {
+		/* Safety check in case function is called with hash */
+		return -EFAULT;
+	}
+	return 0;
 }
 
 LC_INTERFACE_FUNCTION(size_t, lc_hash_digestsize, struct lc_hash_ctx *hash_ctx)
@@ -173,13 +179,7 @@ LC_INTERFACE_FUNCTION(int, lc_xof, const struct lc_hash *xof, const uint8_t *in,
 
 	CKINT(lc_hash_init(hash_ctx));
 	lc_hash_update(hash_ctx, in, inlen);
-	lc_hash_set_digestsize(hash_ctx, digestlen);
-	if (lc_hash_digestsize(hash_ctx) != digestlen) {
-		/* Safety check in case function is called with hash */
-		lc_memset_secure(digest, 0, digestlen);
-		ret = -EFAULT;
-		goto out;
-	}
+	CKINT(lc_hash_set_digestsize(hash_ctx, digestlen));
 	lc_hash_final(hash_ctx, digest);
 
 out:
@@ -195,13 +195,7 @@ int lc_xof_nocheck(const struct lc_hash *xof, const uint8_t *in, size_t inlen,
 
 	CKINT(xof->init_nocheck(hash_ctx->hash_state));
 	lc_hash_update(hash_ctx, in, inlen);
-	lc_hash_set_digestsize(hash_ctx, digestlen);
-	if (lc_hash_digestsize(hash_ctx) != digestlen) {
-		/* Safety check in case function is called with hash */
-		lc_memset_secure(digest, 0, digestlen);
-		ret = -EFAULT;
-		goto out;
-	}
+	CKINT(lc_hash_set_digestsize(hash_ctx, digestlen));
 	lc_hash_final(hash_ctx, digest);
 
 out:

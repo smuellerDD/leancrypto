@@ -186,8 +186,10 @@ void lc_hash_final(struct lc_hash_ctx *hash_ctx, uint8_t *digest);
  * @param [in] hash_ctx Reference to hash context implementation to be used to
  *			perform hash calculation with.
  * @param [in] digestsize Size of the requested digest.
+ *
+ * @return 0 on success; < 0 on error (When setting was not possible)
  */
-void lc_hash_set_digestsize(struct lc_hash_ctx *hash_ctx, size_t digestsize);
+int lc_hash_set_digestsize(struct lc_hash_ctx *hash_ctx, size_t digestsize);
 
 /**
  * @ingroup Hashing

@@ -119,8 +119,10 @@ void lc_kmac_update(struct lc_kmac_ctx *kmac_ctx, const uint8_t *in,
  * @param [out] mac Buffer with at least the size of the message digest that
  *		    is returned by kmac_macsize.
  * @param [in] maclen Size of the requested MAC
+ *
+ * @return 0 on success; < 0 on error
  */
-void lc_kmac_final(struct lc_kmac_ctx *kmac_ctx, uint8_t *mac, size_t maclen);
+int lc_kmac_final(struct lc_kmac_ctx *kmac_ctx, uint8_t *mac, size_t maclen);
 
 /**
  * @ingroup KMAC

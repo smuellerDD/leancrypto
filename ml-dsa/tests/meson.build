@@ -1024,7 +1024,7 @@ if get_option('dilithium_65').enabled()
 					c_args : '-DLC_DILITHIUM_TYPE_65'
 					)
 		dilithium_65_ed25519_iuf_tester = executable('dilithium_65_ed25519_iuf_tester',
-					[ 'dilithium_ed25519_tester.c',
+					[ 'dilithium_ed25519_iuf_tester.c',
 					  internal_src ],
 					include_directories: [
 						include_dirs,
@@ -1071,7 +1071,7 @@ if get_option('dilithium_65').enabled()
 					c_args : '-DLC_DILITHIUM_TYPE_65'
 					)
 		dilithium_65_ed448_iuf_tester = executable('dilithium_65_ed448_iuf_tester',
-					[ 'dilithium_ed448_tester.c',
+					[ 'dilithium_ed448_iuf_tester.c',
 					  internal_src ],
 					include_directories: [
 						include_dirs,
@@ -1383,7 +1383,7 @@ if get_option('dilithium_44').enabled()
 					c_args : '-DLC_DILITHIUM_TYPE_44'
 					)
 		dilithium_44_ed25519_iuf_tester = executable('dilithium_44_ed25519_iuf_tester',
-					[ 'dilithium_ed25519_tester.c',
+					[ 'dilithium_ed25519_iuf_tester.c',
 					  internal_src ],
 					include_directories: [
 						include_dirs,
@@ -1430,7 +1430,7 @@ if get_option('dilithium_44').enabled()
 					c_args : '-DLC_DILITHIUM_TYPE_44'
 					)
 		dilithium_44_ed448_iuf_tester = executable('dilithium_44_ed448_iuf_tester',
-					[ 'dilithium_ed448_tester.c',
+					[ 'dilithium_ed448_iuf_tester.c',
 					  internal_src ],
 					include_directories: [
 						include_dirs,

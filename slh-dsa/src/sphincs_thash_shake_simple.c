@@ -44,7 +44,7 @@ int thash(struct lc_hash_ctx *hash_ctx, uint8_t out[LC_SPX_N],
 	lc_hash_update(hash_ctx, in, LC_SPX_N * inblocks);
 
 	/* Squeeze out the final data point */
-	lc_hash_set_digestsize(hash_ctx, LC_SPX_N);
+	CKINT(lc_hash_set_digestsize(hash_ctx, LC_SPX_N));
 	lc_hash_final(hash_ctx, out);
 
 out:
@@ -79,7 +79,7 @@ int thash_ascon(struct lc_hash_ctx *hash_ctx, uint8_t out[LC_SPX_N],
 	lc_hash_update(hash_ctx, in, LC_SPX_N * inblocks);
 
 	/* Squeeze out the final data point */
-	lc_hash_set_digestsize(hash_ctx, LC_SPX_N);
+	CKINT(lc_hash_set_digestsize(hash_ctx, LC_SPX_N));
 	lc_hash_final(hash_ctx, out);
 
 out:

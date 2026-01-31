@@ -25,6 +25,7 @@
 #include "ascon_avx512.h"
 #include "ascon_arm_neon.h"
 #include "ascon_c.h"
+#include "ret_checkers.h"
 
 #define LC_EXEC_ONE_TEST(ascon_impl)                                           \
 	if (ascon_impl)                                                        \
@@ -58,12 +59,12 @@ static int _ascon_sqeeze_more_tester(const struct lc_hash *ascon,
 		if (lc_hash_init(ctx))
 			return 1;
 		lc_hash_update(ctx, msg, sizeof(msg));
-		lc_hash_set_digestsize(ctx, i);
+		CKINT(lc_hash_set_digestsize(ctx, i));
 
 		for (len = sizeof(exp); len > 0; len -= lc_hash_digestsize(ctx),
 		    act_p += lc_hash_digestsize(ctx)) {
 			if (len < lc_hash_digestsize(ctx))
-				lc_hash_set_digestsize(ctx, len);
+				CKINT(lc_hash_set_digestsize(ctx, len));
 
 			lc_hash_final(ctx, act_p);
 		}
@@ -76,6 +77,7 @@ static int _ascon_sqeeze_more_tester(const struct lc_hash *ascon,
 		}
 	}
 
+out:
 	return ret;
 }
 

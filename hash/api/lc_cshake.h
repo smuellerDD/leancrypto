@@ -72,12 +72,20 @@ int lc_cshake_init(struct lc_hash_ctx *ctx, const uint8_t *n, size_t nlen,
  * @param [out] out Buffer allocated by caller that is filled with the message
  *		    digest data.
  * @param [in] outlen Size of the output buffer to be filled.
+ *
+ * @return 0 on success; < 0 on error
  */
-static inline void lc_cshake_final(struct lc_hash_ctx *ctx, uint8_t *out,
-				   size_t outlen)
+static inline int lc_cshake_final(struct lc_hash_ctx *ctx, uint8_t *out,
+				  size_t outlen)
 {
-	lc_hash_set_digestsize(ctx, outlen);
+	int ret;
+
+	ret = lc_hash_set_digestsize(ctx, outlen);
+	if (ret)
+		return ret;
 	lc_hash_final(ctx, out);
+
+	return 0;
 }
 
 /*

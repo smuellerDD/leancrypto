@@ -101,7 +101,8 @@ static int xdrbg512_drng_selftest(struct lc_rng_ctx *xdrbg512_ctx)
 	lc_hash_update(xdrbg512_compare, seed, sizeof(seed));
 	encode = 0;
 	lc_hash_update(xdrbg512_compare, &encode, sizeof(encode));
-	lc_hash_set_digestsize(xdrbg512_compare, LC_XDRBG512_DRNG_KEYSIZE);
+	CKINT(lc_hash_set_digestsize(xdrbg512_compare,
+				     LC_XDRBG512_DRNG_KEYSIZE));
 	lc_hash_final(xdrbg512_compare, compare1);
 	unpoison(state->v, LC_XDRBG512_DRNG_KEYSIZE);
 	ret += lc_compare(compare1, state->v, LC_XDRBG512_DRNG_KEYSIZE,
@@ -117,10 +118,12 @@ static int xdrbg512_drng_selftest(struct lc_rng_ctx *xdrbg512_ctx)
 	encode = 2 * 85;
 	lc_hash_update(xdrbg512_compare, &encode, sizeof(encode));
 	/* First loop iteration: generate key */
-	lc_hash_set_digestsize(xdrbg512_compare, LC_XDRBG512_DRNG_KEYSIZE);
+	CKINT(lc_hash_set_digestsize(xdrbg512_compare,
+				     LC_XDRBG512_DRNG_KEYSIZE));
 	lc_hash_final(xdrbg512_compare, compare1);
 	/* First loop iteratipn: generate data */
-	lc_hash_set_digestsize(xdrbg512_compare, LC_XDRBG512_DRNG_MAX_CHUNK);
+	CKINT(lc_hash_set_digestsize(xdrbg512_compare,
+				     LC_XDRBG512_DRNG_MAX_CHUNK));
 	lc_hash_final(xdrbg512_compare, compare1 + LC_XDRBG512_DRNG_KEYSIZE);
 
 	/* 2nd loop round as output size is larger than chunk size */
@@ -130,12 +133,13 @@ static int xdrbg512_drng_selftest(struct lc_rng_ctx *xdrbg512_ctx)
 	encode = 2 * 85;
 	lc_hash_update(xdrbg512_compare, &encode, sizeof(encode));
 	/* Second loop iteratipn: generate key */
-	lc_hash_set_digestsize(xdrbg512_compare, LC_XDRBG512_DRNG_KEYSIZE);
+	CKINT(lc_hash_set_digestsize(xdrbg512_compare,
+				     LC_XDRBG512_DRNG_KEYSIZE));
 	lc_hash_final(xdrbg512_compare, compare1);
 	/* Second loop iteratipn: generate data */
-	lc_hash_set_digestsize(xdrbg512_compare,
-			       sizeof(compare1) - LC_XDRBG512_DRNG_MAX_CHUNK -
-				       LC_XDRBG512_DRNG_KEYSIZE);
+	CKINT(lc_hash_set_digestsize(
+		xdrbg512_compare, sizeof(compare1) - LC_XDRBG512_DRNG_MAX_CHUNK -
+				  LC_XDRBG512_DRNG_KEYSIZE));
 	lc_hash_final(xdrbg512_compare, compare1 + LC_XDRBG512_DRNG_MAX_CHUNK +
 						LC_XDRBG512_DRNG_KEYSIZE);
 
@@ -190,7 +194,8 @@ static int xdrbg512_drng_selftest(struct lc_rng_ctx *xdrbg512_ctx)
 	lc_hash_update(xdrbg512_compare, &encode, sizeof(encode));
 
 	/* Verify: Now get the key for the next operation */
-	lc_hash_set_digestsize(xdrbg512_compare, LC_XDRBG512_DRNG_KEYSIZE);
+	CKINT(lc_hash_set_digestsize(xdrbg512_compare,
+				     LC_XDRBG512_DRNG_KEYSIZE));
 	lc_hash_final(xdrbg512_compare, compare1);
 
 	if (lc_hash_init(xdrbg512_compare))
@@ -205,8 +210,8 @@ static int xdrbg512_drng_selftest(struct lc_rng_ctx *xdrbg512_ctx)
 	lc_hash_update(xdrbg512_compare, &encode, sizeof(encode));
 
 	/* Verify: Generate operation of the DRBG: generate data */
-	lc_hash_set_digestsize(xdrbg512_compare,
-			       LC_XDRBG512_DRNG_KEYSIZE + sizeof(act2));
+	CKINT(lc_hash_set_digestsize(xdrbg512_compare,
+				     LC_XDRBG512_DRNG_KEYSIZE + sizeof(act2)));
 	lc_hash_final(xdrbg512_compare, compare1);
 	ret += lc_compare(compare1 + LC_XDRBG512_DRNG_KEYSIZE, exp84,
 			  sizeof(exp84),
@@ -216,6 +221,7 @@ static int xdrbg512_drng_selftest(struct lc_rng_ctx *xdrbg512_ctx)
 
 	lc_hash_zero(xdrbg512_compare);
 
+out:
 	return ret;
 }
 

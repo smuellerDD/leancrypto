@@ -324,12 +324,17 @@ LC_INTERFACE_FUNCTION(int, lc_ed448_keypair, struct lc_ed448_pk *pk,
 	return lc_ed448_keypair_nocheck(pk, sk, rng_ctx);
 }
 
-static inline void lc_ed448_xof_final(struct lc_hash_ctx *xof_ctx,
-				      uint8_t *digest, size_t digest_len)
+static inline int lc_ed448_xof_final(struct lc_hash_ctx *xof_ctx,
+				     uint8_t *digest, size_t digest_len)
 {
-	lc_hash_set_digestsize(xof_ctx, digest_len);
+	int ret;
+
+	CKINT(lc_hash_set_digestsize(xof_ctx, digest_len));
 	lc_hash_final(xof_ctx, digest);
 	lc_hash_zero(xof_ctx);
+
+out:
+	return ret;
 }
 
 static int curveed448_hash_init_with_dom(struct lc_hash_ctx *hash_ctx,
@@ -420,7 +425,7 @@ curveed448_sign_internal(uint8_t signature[LC_ED448_SIGBYTES],
 	{
 		uint8_t nonce[2 * LC_ED448_SECRETKEYBYTES];
 
-		lc_ed448_xof_final(shake256_ctx, nonce, sizeof(nonce));
+		CKINT(lc_ed448_xof_final(shake256_ctx, nonce, sizeof(nonce)));
 		curve448_scalar_decode_long(nonce_scalar, nonce, sizeof(nonce));
 		lc_memset_secure(nonce, 0, sizeof(nonce));
 	}
@@ -462,7 +467,8 @@ curveed448_sign_internal(uint8_t signature[LC_ED448_SIGBYTES],
 		lc_hash_update(shake256_ctx, message, message_len);
 
 		uint8_t challenge[2 * LC_ED448_SECRETKEYBYTES];
-		lc_ed448_xof_final(shake256_ctx, challenge, sizeof(challenge));
+		CKINT(lc_ed448_xof_final(shake256_ctx, challenge,
+					 sizeof(challenge)));
 		curve448_scalar_decode_long(challenge_scalar, challenge,
 					    sizeof(challenge));
 		lc_memset_secure(challenge, 0, sizeof(challenge));
@@ -701,7 +707,7 @@ curveed448_verify(const uint8_t signature[LC_ED448_SIGBYTES],
 
 	lc_hash_update(shake256_ctx, message, message_len);
 
-	lc_ed448_xof_final(shake256_ctx, challenge, sizeof(challenge));
+	CKINT(lc_ed448_xof_final(shake256_ctx, challenge, sizeof(challenge)));
 	curve448_scalar_decode_long(challenge_scalar, challenge,
 				    sizeof(challenge));
 

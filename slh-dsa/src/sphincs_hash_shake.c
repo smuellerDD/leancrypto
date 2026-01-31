@@ -50,7 +50,7 @@ int gen_message_random(uint8_t R[LC_SPX_N], const uint8_t sk_prf[LC_SPX_N],
 					  ctx->sphincs_prehash_type,
 					  ctx->userctx, ctx->userctxlen, m,
 					  mlen, 0, LC_SPHINCS_NIST_CATEGORY));
-	lc_hash_set_digestsize(hash_ctx, LC_SPX_N);
+	CKINT(lc_hash_set_digestsize(hash_ctx, LC_SPX_N));
 	lc_hash_final(hash_ctx, R);
 
 	lc_hash_zero(hash_ctx);
@@ -87,7 +87,7 @@ int hash_message(uint8_t *digest, uint64_t *tree, uint32_t *leaf_idx,
 					  ctx->sphincs_prehash_type,
 					  ctx->userctx, ctx->userctxlen, m,
 					  mlen, 0, LC_SPHINCS_NIST_CATEGORY));
-	lc_hash_set_digestsize(hash_ctx, sizeof(buf));
+	CKINT(lc_hash_set_digestsize(hash_ctx, sizeof(buf)));
 	lc_hash_final(hash_ctx, buf);
 
 	lc_hash_zero(hash_ctx);

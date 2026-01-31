@@ -213,51 +213,63 @@ LC_INTERFACE_FUNCTION(void, lc_kmac_update, struct lc_kmac_ctx *kmac_ctx,
 	lc_hash_update(hash_ctx, in, inlen);
 }
 
-static void lc_kmac_final_internal(struct lc_kmac_ctx *kmac_ctx, uint8_t *mac,
-				   size_t maclen)
+static int lc_kmac_final_internal(struct lc_kmac_ctx *kmac_ctx, uint8_t *mac,
+				  size_t maclen)
 {
 	struct lc_hash_ctx *hash_ctx;
 	uint8_t buf[sizeof(size_t) + 1];
 	size_t len;
+	int ret;
 
-	if (!kmac_ctx || !mac)
-		return;
+	CKNULL(kmac_ctx, -EINVAL);
+	CKNULL(mac, -EINVAL);
+
 	hash_ctx = &kmac_ctx->hash_ctx;
 
 	len = right_encode(buf, maclen << 3);
 	lc_hash_update(hash_ctx, buf, len);
-	lc_hash_set_digestsize(hash_ctx, maclen);
+	CKINT(lc_hash_set_digestsize(hash_ctx, maclen));
 	lc_hash_final(hash_ctx, mac);
 
 	/* Timecop: Message digest is not sensitive any more */
 	unpoison(mac, maclen);
+
+out:
+	return ret;
 }
 
-LC_INTERFACE_FUNCTION(void, lc_kmac_final, struct lc_kmac_ctx *kmac_ctx,
+LC_INTERFACE_FUNCTION(int, lc_kmac_final, struct lc_kmac_ctx *kmac_ctx,
 		      uint8_t *mac, size_t maclen)
 {
 	if (maclen >= LC_KMAC_MIN_MAC_SIZE)
-		lc_kmac_final_internal(kmac_ctx, mac, maclen);
+		return lc_kmac_final_internal(kmac_ctx, mac, maclen);
+
+	return 0;
 }
 
-static void lc_kmac_final_xof_internal(struct lc_kmac_ctx *kmac_ctx,
-				       uint8_t *mac, size_t maclen)
+static int lc_kmac_final_xof_internal(struct lc_kmac_ctx *kmac_ctx,
+				      uint8_t *mac, size_t maclen)
 {
 	struct lc_hash_ctx *hash_ctx;
 	static const uint8_t bytepad_val[] = { 0x00, 0x01 };
+	int ret;
 
-	if (!kmac_ctx || !mac)
-		return;
+	CKNULL(kmac_ctx, -EINVAL);
+	CKNULL(mac, -EINVAL);
+
 	hash_ctx = &kmac_ctx->hash_ctx;
 
 	if (!kmac_ctx->final_called) {
 		lc_hash_update(hash_ctx, bytepad_val, sizeof(bytepad_val));
 		kmac_ctx->final_called = 1;
 	}
-	lc_cshake_final(hash_ctx, mac, maclen);
+	CKINT(lc_cshake_final(hash_ctx, mac, maclen));
 
 	/* Timecop: Message digest is not sensitive any more */
 	unpoison(mac, maclen);
+
+out:
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(void, lc_kmac_final_xof, struct lc_kmac_ctx *kmac_ctx,

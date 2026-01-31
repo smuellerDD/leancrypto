@@ -21,6 +21,7 @@
 #include "compare.h"
 #include "lc_cshake.h"
 #include "lc_sha3.h"
+#include "ret_checkers.h"
 #include "visibility.h"
 
 #include "sha3_c.h"
@@ -94,13 +95,13 @@ static int _shake_sqeeze_more_tester(const struct lc_hash *shake_256,
 		if (lc_hash_init(ctx))
 			return 1;
 		lc_hash_update(ctx, msg2, sizeof(msg2));
-		lc_hash_set_digestsize(ctx, i);
+		CKINT(lc_hash_set_digestsize(ctx, i));
 
 		for (len = sizeof(exp2); len > 0;
 		     len -= lc_hash_digestsize(ctx),
 		    act2_p += lc_hash_digestsize(ctx)) {
 			if (len < lc_hash_digestsize(ctx))
-				lc_hash_set_digestsize(ctx, len);
+				CKINT(lc_hash_set_digestsize(ctx, len));
 
 			lc_hash_final(ctx, act2_p);
 		}
@@ -114,6 +115,7 @@ static int _shake_sqeeze_more_tester(const struct lc_hash *shake_256,
 		}
 	}
 
+out:
 	return ret;
 }
 

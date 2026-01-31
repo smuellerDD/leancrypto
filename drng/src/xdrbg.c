@@ -55,11 +55,17 @@ static inline uint8_t lc_xdrbg_keysize(struct lc_xdrbg_drng_state *state)
 	}
 }
 
-static inline void lc_xdrbg_xof_final(struct lc_hash_ctx *xof_ctx,
-				      uint8_t *digest, size_t digest_len)
+static inline int lc_xdrbg_xof_final(struct lc_hash_ctx *xof_ctx,
+				     uint8_t *digest, size_t digest_len)
 {
-	lc_hash_set_digestsize(xof_ctx, digest_len);
+	int ret = lc_hash_set_digestsize(xof_ctx, digest_len);
+
+	if (ret)
+		return ret;
+
 	lc_hash_final(xof_ctx, digest);
+
+	return 0;
 }
 
 /* Maximum size of the input data to calculate the encode value */

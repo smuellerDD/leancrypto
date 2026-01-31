@@ -57,11 +57,12 @@ static int ascon_xof_tester(const struct lc_hash *ascon, const char *name)
 	if (lc_hash_init(ascon_stack))
 		return 1;
 	lc_hash_update(ascon_stack, msg, sizeof(msg));
-	lc_hash_set_digestsize(ascon_stack, sizeof(act));
+	CKINT(lc_hash_set_digestsize(ascon_stack, sizeof(act)));
 	lc_hash_final(ascon_stack, act);
 	lc_hash_zero(ascon_stack);
 	ret += lc_compare(act, exp, sizeof(act), "Ascon XOF stack");
 
+out:
 	return ret;
 }
 

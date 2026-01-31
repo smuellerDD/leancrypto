@@ -47,7 +47,7 @@ static inline int prf_addr(struct lc_hash_ctx *hash_ctx, uint8_t out[LC_SPX_N],
 	lc_hash_update(hash_ctx, ctx->pub_seed, LC_SPX_N);
 	lc_hash_update(hash_ctx, (uint8_t *)addr, LC_SPX_ADDR_BYTES);
 	lc_hash_update(hash_ctx, ctx->sk_seed, LC_SPX_N);
-	lc_hash_set_digestsize(hash_ctx, LC_SPX_N);
+	CKINT(lc_hash_set_digestsize(hash_ctx, LC_SPX_N));
 	lc_hash_final(hash_ctx, out);
 
 out:
@@ -75,7 +75,7 @@ static inline int prf_addr_ascon(struct lc_hash_ctx *hash_ctx,
 	lc_hash_update(hash_ctx, (uint8_t *)addr + addr_static,
 		       LC_SPX_ADDR_BYTES - addr_static);
 	lc_hash_update(hash_ctx, ctx->sk_seed, LC_SPX_N);
-	lc_hash_set_digestsize(hash_ctx, LC_SPX_N);
+	CKINT(lc_hash_set_digestsize(hash_ctx, LC_SPX_N));
 	lc_hash_final(hash_ctx, out);
 
 out:

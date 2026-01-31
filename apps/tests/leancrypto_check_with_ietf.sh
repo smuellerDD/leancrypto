@@ -117,7 +117,7 @@ doc_init() {
 
 doc_one() {
 	local oid=$1
-	local type=$2 #both, expandedkey, seed, priv
+	local type=$2 #cert, both, expandedkey, seed, priv
 	local res=$3 #Y, N
 
 	touch $statusfile
@@ -171,7 +171,7 @@ check_one() {
 	local certfile=$1
 	local certcheck_only=$2
 	local oid=$3
-	local type="priv"
+	local type="cert"
 
 	if [ ! -f "$certfile" ]
 	then

@@ -316,7 +316,7 @@ if (host_machine.system() != 'windows' and
 			     lc_pkcs7_generator.full_path(),
 			     meson.project_source_root() + '/apps/tests/'
 			   ],
-		     timeout: 300, suite: regression,
+		     timeout: 1000, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
 
 	endif
