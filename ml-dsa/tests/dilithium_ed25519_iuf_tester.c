@@ -79,10 +79,6 @@ static int dilithium_ed25519_tester(struct lc_dilithium_ed25519_ctx *ctx,
 	CKINT_LOG(lc_dilithium_ed25519_verify_final(&ws->sig, ctx, &ws->pk),
 		  "Sign IUF, Verify IUF\n");
 
-	/* Create the PH(M) */
-	CKINT(lc_xof(ctx->dilithium_ctx.dilithium_prehash_type, msg,
-		     sizeof(msg), ws->digest, sizeof(ws->digest)));
-
 	/* Check the signature with one-shot call */
 	CKINT_LOG(lc_dilithium_ed25519_verify(&ws->sig, ws->digest,
 					      sizeof(ws->digest), &ws->pk),

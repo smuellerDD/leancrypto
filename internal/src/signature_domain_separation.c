@@ -270,7 +270,7 @@ int composite_signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 	/*
 	 * M' = Prefix || Label || len(ctx) || ctx || PH (M)
 	 *
-	 * where PH(M) is to be set by caller
+	 * where PH(M) is to be set by caller of this function
 	 *
 	 * See for details: https://lamps-wg.github.io/draft-composite-sigs/draft-ietf-lamps-pq-composite-sigs.html
 	 */
@@ -330,16 +330,56 @@ int signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 
 	/* If Composite ML-DSA is requested, use domain as userctx */
 	if (composite) {
-		/* Add the composite signature label as context */
+		const uint8_t *label;
+		size_t labellen;
+
+		/*
+		 * The composite signature defines the following for invoking
+		 * ML-DSA:
+		 *
+		 * mldsaSig = ML-DSA.Sign( mldsaSK, M', mldsa_ctx=Label )
+		 *
+		 * where
+		 *
+		 * M' :=  Prefix || Label || len(ctx) || ctx || PH( M )
+		 *
+		 * Combining that with FIPS 204 algorithm 2 step 10, we get
+		 *
+		 * M' <- BytesToBits(IntegerToBytes(0, 1) || IntegerToBytes(|mldsa_ctx|, 1) || mldsa_ctx || Prefix || Label || len(ctx) || ctx || PH( M )
+		 *
+		 * with a final replacement, this is turned into
+		 *
+		 * M' <- BytesToBits(IntegerToBytes(0, 1) || IntegerToBytes(|Label|, 1) || Label || Prefix || Label || len(ctx) || ctx || PH( M )
+		 */
+
+		CKINT(composite_signature_set_label(&label, &labellen,
+						    nist_category));
+
+		/*
+		 * Set the ML-DSA domain separation:
+		 * BytesToBits(IntegerToBytes(0, 1) || IntegerToBytes(|Label|, 1) || Label
+		 */
+		CKINT(standalone_signature_domain_separation(
+			hash_ctx, 0, label, labellen, mlen, nist_category));
+
+		/*
+		 * Set the Composite domain separation:
+		 * Prefix || Label || len(ctx) || ctx
+		 */
 		CKINT(composite_signature_domain_separation(
 			hash_ctx, userctx, userctxlen, nist_category));
 	} else {
+		/*
+		 * Set the ML-DSA domain separation:
+		 * BytesToBits(IntegerToBytes(0, 1) || IntegerToBytes(|ctx|, 1) || ctx
+		 */
 		CKINT(standalone_signature_domain_separation(
 			hash_ctx, signature_prehash_type, userctx, userctxlen,
 			mlen, nist_category));
 	}
 
 out:
+	/* Set the final message, or PH(M) as provided by caller */
 	lc_hash_update(hash_ctx, m, mlen);
 	return ret;
 }
