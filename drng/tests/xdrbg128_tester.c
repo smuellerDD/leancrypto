@@ -66,7 +66,7 @@ static int xdrbg128_drng_selftest(struct lc_rng_ctx *xdrbg128_ctx)
 	uint8_t act1[sizeof(exp1)] __align(sizeof(uint32_t)) = { 0 };
 	uint8_t act2[sizeof(exp83)] __align(sizeof(uint32_t));
 	uint8_t compare1[LC_XDRBG128_DRNG_KEYSIZE + sizeof(exp1)];
-	int ret = 0;
+	int ret, rc = 0;
 	uint8_t encode;
 	LC_HASH_CTX_ON_STACK(xdrbg128_compare, lc_ascon_xof);
 
@@ -76,7 +76,7 @@ static int xdrbg128_drng_selftest(struct lc_rng_ctx *xdrbg128_ctx)
 	/* Check the XDRBG operation */
 	lc_rng_seed(xdrbg128_ctx, seed, sizeof(seed), NULL, 0);
 	lc_rng_generate(xdrbg128_ctx, NULL, 0, act1, sizeof(act1));
-	ret += lc_compare(act1, exp1, sizeof(act1), "Ascon DRNG");
+	rc += lc_compare(act1, exp1, sizeof(act1), "Ascon DRNG");
 	lc_rng_zero(xdrbg128_ctx);
 
 	/* Verify the seeding operation to generate proper state */
@@ -93,7 +93,7 @@ static int xdrbg128_drng_selftest(struct lc_rng_ctx *xdrbg128_ctx)
 				     LC_XDRBG128_DRNG_KEYSIZE));
 	lc_hash_final(xdrbg128_compare, compare1);
 	unpoison(state->v, LC_XDRBG128_DRNG_KEYSIZE);
-	ret += lc_compare(compare1, state->v, LC_XDRBG128_DRNG_KEYSIZE,
+	rc += lc_compare(compare1, state->v, LC_XDRBG128_DRNG_KEYSIZE,
 			  "Ascon DRNG state generation");
 
 	/* Verify the generate operation */
@@ -105,7 +105,7 @@ static int xdrbg128_drng_selftest(struct lc_rng_ctx *xdrbg128_ctx)
 	lc_hash_update(xdrbg128_compare, &encode, sizeof(encode));
 	CKINT(lc_hash_set_digestsize(xdrbg128_compare, sizeof(compare1)));
 	lc_hash_final(xdrbg128_compare, compare1);
-	ret += lc_compare(compare1 + LC_XDRBG128_DRNG_KEYSIZE, exp1,
+	rc += lc_compare(compare1 + LC_XDRBG128_DRNG_KEYSIZE, exp1,
 			  sizeof(exp1), "Ascon DRNG verification");
 
 	lc_rng_zero(xdrbg128_ctx);
@@ -117,7 +117,7 @@ static int xdrbg128_drng_selftest(struct lc_rng_ctx *xdrbg128_ctx)
 	BUILD_BUG_ON(sizeof(exp1) < 85);
 	lc_rng_seed(xdrbg128_ctx, seed, sizeof(seed), NULL, 0);
 	lc_rng_generate(xdrbg128_ctx, exp1, 83, act2, sizeof(act2));
-	ret += lc_compare(act2, exp83, sizeof(act2),
+	rc += lc_compare(act2, exp83, sizeof(act2),
 			  "Ascon DRNG with alpha 83 bytes");
 	lc_rng_zero(xdrbg128_ctx);
 
@@ -127,7 +127,7 @@ static int xdrbg128_drng_selftest(struct lc_rng_ctx *xdrbg128_ctx)
 	 */
 	lc_rng_seed(xdrbg128_ctx, seed, sizeof(seed), NULL, 0);
 	lc_rng_generate(xdrbg128_ctx, exp1, 84, act2, sizeof(act2));
-	ret += lc_compare(act2, exp84, sizeof(act2),
+	rc += lc_compare(act2, exp84, sizeof(act2),
 			  "Ascon DRNG with alpha 84 bytes");
 	lc_rng_zero(xdrbg128_ctx);
 
@@ -138,7 +138,7 @@ static int xdrbg128_drng_selftest(struct lc_rng_ctx *xdrbg128_ctx)
 	 */
 	lc_rng_seed(xdrbg128_ctx, seed, sizeof(seed), NULL, 0);
 	lc_rng_generate(xdrbg128_ctx, exp1, 85, act2, sizeof(act2));
-	ret += lc_compare(act2, exp84, sizeof(act2),
+	rc += lc_compare(act2, exp84, sizeof(act2),
 			  "Ascon DRNG with alpha 85 bytes");
 	lc_rng_zero(xdrbg128_ctx);
 
@@ -172,7 +172,7 @@ static int xdrbg128_drng_selftest(struct lc_rng_ctx *xdrbg128_ctx)
 	CKINT(lc_hash_set_digestsize(xdrbg128_compare,
 				     LC_XDRBG128_DRNG_KEYSIZE + sizeof(act2)));
 	lc_hash_final(xdrbg128_compare, compare1);
-	ret += lc_compare(compare1 + LC_XDRBG128_DRNG_KEYSIZE, exp84,
+	rc += lc_compare(compare1 + LC_XDRBG128_DRNG_KEYSIZE, exp84,
 			  sizeof(exp84),
 			  "Ascon DRNG with alpha 84 bytes verification");
 
@@ -181,7 +181,7 @@ static int xdrbg128_drng_selftest(struct lc_rng_ctx *xdrbg128_ctx)
 	lc_hash_zero(xdrbg128_compare);
 
 out:
-	return ret;
+	return ret ? ret : rc;
 }
 
 static int xdrbg128_drng_test(void)

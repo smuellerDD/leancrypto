@@ -64,7 +64,7 @@ static int _cshake_256_tester(const struct lc_hash *cshake_256,
 		0xEA
 	};
 	uint8_t act1[sizeof(exp1)];
-	int ret;
+	int ret, rc;
 	LC_HASH_CTX_ON_STACK(ctx, cshake_256);
 	LC_CSHAKE_256_CTX_ON_STACK(cshake256_stack);
 
@@ -77,7 +77,7 @@ static int _cshake_256_tester(const struct lc_hash *cshake_256,
 	lc_hash_update(ctx, msg1, sizeof(msg1));
 	CKINT(lc_hash_set_digestsize(ctx, sizeof(act1)));
 	lc_hash_final(ctx, act1);
-	ret = lc_compare(act1, exp1, sizeof(act1), "cSHAKE256 1");
+	rc = lc_compare(act1, exp1, sizeof(act1), "cSHAKE256 1");
 	lc_hash_zero(ctx);
 
 	if (lc_cshake_init(cshake256_stack, NULL, 0, cust1, sizeof(cust1)))
@@ -85,14 +85,11 @@ static int _cshake_256_tester(const struct lc_hash *cshake_256,
 	lc_hash_update(cshake256_stack, msg1, sizeof(msg1));
 	CKINT(lc_hash_set_digestsize(cshake256_stack, sizeof(act1)));
 	lc_hash_final(cshake256_stack, act1);
-	ret += lc_compare(act1, exp1, sizeof(act1), "cSHAKE256 1");
+	rc += lc_compare(act1, exp1, sizeof(act1), "cSHAKE256 1");
 	lc_hash_zero(cshake256_stack);
 
-	if (ret)
-		return ret;
-
 out:
-	return ret;
+	return ret ? ret : rc;
 }
 
 static int cshake256_tester(void)

@@ -76,7 +76,7 @@ static int xdrbg512_drng_selftest(struct lc_rng_ctx *xdrbg512_ctx)
 	uint8_t act1[sizeof(exp1)] __align(sizeof(uint32_t)) = { 0 };
 	uint8_t act2[sizeof(exp83)] __align(sizeof(uint32_t));
 	uint8_t compare1[LC_XDRBG512_DRNG_KEYSIZE + sizeof(exp1)];
-	int ret = 0;
+	int ret, rc = 0;
 	uint8_t encode;
 	LC_HASH_CTX_ON_STACK(xdrbg512_compare, lc_shake512);
 
@@ -87,7 +87,7 @@ static int xdrbg512_drng_selftest(struct lc_rng_ctx *xdrbg512_ctx)
 	if (lc_rng_seed(xdrbg512_ctx, seed, sizeof(seed), NULL, 0))
 		return 1;
 	lc_rng_generate(xdrbg512_ctx, NULL, 0, act1, sizeof(act1));
-	ret += lc_compare(act1, exp1, sizeof(act1), "SHAKE DRNG");
+	rc += lc_compare(act1, exp1, sizeof(act1), "SHAKE DRNG");
 	lc_rng_zero(xdrbg512_ctx);
 
 	/* Verify the seeding operation to generate proper state */
@@ -105,7 +105,7 @@ static int xdrbg512_drng_selftest(struct lc_rng_ctx *xdrbg512_ctx)
 				     LC_XDRBG512_DRNG_KEYSIZE));
 	lc_hash_final(xdrbg512_compare, compare1);
 	unpoison(state->v, LC_XDRBG512_DRNG_KEYSIZE);
-	ret += lc_compare(compare1, state->v, LC_XDRBG512_DRNG_KEYSIZE,
+	rc += lc_compare(compare1, state->v, LC_XDRBG512_DRNG_KEYSIZE,
 			  "SHAKE DRNG state generation");
 
 	/* Verify the generate operation */
@@ -143,7 +143,7 @@ static int xdrbg512_drng_selftest(struct lc_rng_ctx *xdrbg512_ctx)
 	lc_hash_final(xdrbg512_compare, compare1 + LC_XDRBG512_DRNG_MAX_CHUNK +
 						LC_XDRBG512_DRNG_KEYSIZE);
 
-	ret += lc_compare(compare1 + LC_XDRBG512_DRNG_KEYSIZE, exp1,
+	rc += lc_compare(compare1 + LC_XDRBG512_DRNG_KEYSIZE, exp1,
 			  sizeof(exp1), "SHAKE DRNG verification");
 
 	lc_rng_zero(xdrbg512_ctx);
@@ -156,7 +156,7 @@ static int xdrbg512_drng_selftest(struct lc_rng_ctx *xdrbg512_ctx)
 	if (lc_rng_seed(xdrbg512_ctx, seed, sizeof(seed), NULL, 0))
 		return 1;
 	lc_rng_generate(xdrbg512_ctx, exp1, 83, act2, sizeof(act2));
-	ret += lc_compare(act2, exp83, sizeof(act2),
+	rc += lc_compare(act2, exp83, sizeof(act2),
 			  "SHAKE DRNG with alpha 83 bytes");
 	lc_rng_zero(xdrbg512_ctx);
 
@@ -167,7 +167,7 @@ static int xdrbg512_drng_selftest(struct lc_rng_ctx *xdrbg512_ctx)
 	if (lc_rng_seed(xdrbg512_ctx, seed, sizeof(seed), NULL, 0))
 		return 1;
 	lc_rng_generate(xdrbg512_ctx, exp1, 84, act2, sizeof(act2));
-	ret += lc_compare(act2, exp84, sizeof(act2),
+	rc += lc_compare(act2, exp84, sizeof(act2),
 			  "SHAKE DRNG with alpha 84 bytes");
 	lc_rng_zero(xdrbg512_ctx);
 
@@ -179,7 +179,7 @@ static int xdrbg512_drng_selftest(struct lc_rng_ctx *xdrbg512_ctx)
 	if (lc_rng_seed(xdrbg512_ctx, seed, sizeof(seed), NULL, 0))
 		return 1;
 	lc_rng_generate(xdrbg512_ctx, exp1, 85, act2, sizeof(act2));
-	ret += lc_compare(act2, exp84, sizeof(act2),
+	rc += lc_compare(act2, exp84, sizeof(act2),
 			  "SHAKE DRNG with alpha 85 bytes");
 	lc_rng_zero(xdrbg512_ctx);
 
@@ -213,7 +213,7 @@ static int xdrbg512_drng_selftest(struct lc_rng_ctx *xdrbg512_ctx)
 	CKINT(lc_hash_set_digestsize(xdrbg512_compare,
 				     LC_XDRBG512_DRNG_KEYSIZE + sizeof(act2)));
 	lc_hash_final(xdrbg512_compare, compare1);
-	ret += lc_compare(compare1 + LC_XDRBG512_DRNG_KEYSIZE, exp84,
+	rc += lc_compare(compare1 + LC_XDRBG512_DRNG_KEYSIZE, exp84,
 			  sizeof(exp84),
 			  "SHAKE DRNG with alpha 84 bytes verification");
 
@@ -222,7 +222,7 @@ static int xdrbg512_drng_selftest(struct lc_rng_ctx *xdrbg512_ctx)
 	lc_hash_zero(xdrbg512_compare);
 
 out:
-	return ret;
+	return ret ? ret : rc;
 }
 
 static int xdrbg512_drng_test(void)

@@ -43,7 +43,7 @@ static int ascon_xof_tester(const struct lc_hash *ascon, const char *name)
 				       0x97, 0x8C, 0xFC, 0x1B, 0x46, 0x11, 0xED,
 				       0x91, 0xFB, 0x38, 0xF8 };
 	uint8_t act[LC_ASCON_HASH_DIGESTSIZE];
-	int ret;
+	int ret, rc;
 	LC_ASCON_CTX_ON_STACK(ascon_stack, ascon);
 
 	printf("hash ctx %s (%s implementation) len %u\n", name,
@@ -52,7 +52,7 @@ static int ascon_xof_tester(const struct lc_hash *ascon, const char *name)
 
 	if (lc_xof(ascon, msg, sizeof(msg), act, sizeof(act)))
 		return 1;
-	ret = lc_compare(act, exp, sizeof(act), "Ascon XOF");
+	rc = lc_compare(act, exp, sizeof(act), "Ascon XOF");
 
 	if (lc_hash_init(ascon_stack))
 		return 1;
@@ -60,10 +60,10 @@ static int ascon_xof_tester(const struct lc_hash *ascon, const char *name)
 	CKINT(lc_hash_set_digestsize(ascon_stack, sizeof(act)));
 	lc_hash_final(ascon_stack, act);
 	lc_hash_zero(ascon_stack);
-	ret += lc_compare(act, exp, sizeof(act), "Ascon XOF stack");
+	rc += lc_compare(act, exp, sizeof(act), "Ascon XOF stack");
 
 out:
-	return ret;
+	return ret ? ret : rc;
 }
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
