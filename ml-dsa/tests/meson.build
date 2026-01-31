@@ -1047,7 +1047,8 @@ if get_option('dilithium_65').enabled()
 		test('Dilithium65-ED25519 Signature', dilithium_65_ed25519_tester,
 		     suite: regression)
 		test('Dilithium65-ED25519 IUF Signature', dilithium_65_ed25519_iuf_tester,
-		     suite: regression)
+		     suite: regression,
+		     should_fail: fips140_negative_expect_fail)
 		test('Dilithium65-ED25519 official API', dilithium_65_ed25519_tester_official,
 		     suite: regression,
 		     should_fail: fips140_negative_expect_fail)
@@ -1094,7 +1095,8 @@ if get_option('dilithium_65').enabled()
 		test('Dilithium65-ED448 Signature', dilithium_65_ed448_tester,
 		     suite: regression)
 		test('Dilithium65-ED448 IUF Signature', dilithium_65_ed448_iuf_tester,
-		     suite: regression)
+		     suite: regression,
+		     should_fail: fips140_negative_expect_fail)
 		test('Dilithium65-ED448 official API', dilithium_65_ed448_tester_official,
 		     suite: regression,
 		     should_fail: fips140_negative_expect_fail)
@@ -1406,7 +1408,8 @@ if get_option('dilithium_44').enabled()
 		test('Dilithium44-ED25519 Signature', dilithium_44_ed25519_tester,
 		     suite: regression)
 		test('Dilithium44-ED25519 IUF Signature', dilithium_44_ed25519_iuf_tester,
-		     suite: regression)
+		     suite: regression,
+		     should_fail: fips140_negative_expect_fail)
 		test('Dilithium44-ED25519 official API', dilithium_44_ed25519_tester_official,
 		     suite: regression,
 		     should_fail: fips140_negative_expect_fail)
@@ -1453,7 +1456,8 @@ if get_option('dilithium_44').enabled()
 		test('Dilithium44-ED448 Signature', dilithium_44_ed448_tester,
 		     suite: regression)
 		test('Dilithium44-ED448 IUF Signature', dilithium_44_ed448_iuf_tester,
-		     suite: regression)
+		     suite: regression,
+		     should_fail: fips140_negative_expect_fail)
 		test('Dilithium44-ED448 official API', dilithium_44_ed448_tester_official,
 		     suite: regression,
 		     should_fail: fips140_negative_expect_fail)
