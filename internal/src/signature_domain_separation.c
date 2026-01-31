@@ -310,7 +310,7 @@ out:
  * Domain separation as required by:
  *
  * FIPS 204 pre-hash ML-DSA: composite is 0
- * Composite ML-DSA draft 5: composite is set
+ * Composite ML-DSA draft 5: composite is set, message is expected to be PH(m)
  */
 int signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 				unsigned int ml_dsa_internal,
@@ -330,12 +330,6 @@ int signature_domain_separation(struct lc_hash_ctx *hash_ctx,
 
 	/* If Composite ML-DSA is requested, use domain as userctx */
 	if (composite) {
-		const uint8_t *label;
-		size_t labellen;
-
-		CKINT(composite_signature_set_label(&label, &labellen,
-						    nist_category));
-
 		/* Add the composite signature label as context */
 		CKINT(composite_signature_domain_separation(
 			hash_ctx, userctx, userctxlen, nist_category));

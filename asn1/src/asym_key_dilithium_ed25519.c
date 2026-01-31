@@ -266,13 +266,7 @@ static int lc_xof_authattr(const struct lc_hash *xof, const uint8_t *in,
 			       sizeof(lc_pkcs7_authattr_tag));
 	}
 	lc_hash_update(hash_ctx, in, inlen);
-	lc_hash_set_digestsize(hash_ctx, digestlen);
-	if (lc_hash_digestsize(hash_ctx) != digestlen) {
-		/* Safety check in case function is called with hash */
-		lc_memset_secure(digest, 0, digestlen);
-		ret = -EFAULT;
-		goto out;
-	}
+	CKINT(lc_hash_set_digestsize(hash_ctx, digestlen));
 	lc_hash_final(hash_ctx, digest);
 
 out:
@@ -293,7 +287,6 @@ int public_key_verify_signature_dilithium_ed25519(
 	const uint8_t *dilithium_src, *ed25519_src, *data_ptr;
 	size_t dilithium_src_len, ed25519_src_len, data_len;
 	int ret, authattrs_tag;
-	LC_DILITHIUM_ED25519_CTX_ON_STACK(ctx);
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	/* A signature verification does not work with a private key */
@@ -335,20 +328,13 @@ int public_key_verify_signature_dilithium_ed25519(
 			      sizeof(ws->ph_message), authattrs_tag));
 
 	/*
-	 * TODO currently no ctx is supported. This implies that ctx == NULL.
-	 * Yet, the ctx can be added to struct lc_public_key_signature.
-	 */
-	lc_dilithium_ed25519_ctx_userctx(ctx, NULL, 0);
-
-	/*
 	 * Verify the signature using Composite-ML-DSA
 	 */
-	CKINT(lc_dilithium_ed25519_verify_ctx(
-		&ws->dilithium_sig, ctx, ws->ph_message, sizeof(ws->ph_message),
+	CKINT(lc_dilithium_ed25519_verify(
+		&ws->dilithium_sig, ws->ph_message, sizeof(ws->ph_message),
 		&ws->dilithium_pk));
 
 out:
-	lc_dilithium_ed25519_ctx_zero(ctx);
 	LC_RELEASE_MEM(ws);
 	return ret;
 }
@@ -370,7 +356,6 @@ int public_key_generate_signature_dilithium_ed25519(
 	const uint8_t *data_ptr;
 	uint8_t *ml_dsa_ptr, *ed25519_ptr;
 	int ret;
-	LC_DILITHIUM_ED25519_CTX_ON_STACK(ctx);
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	CKINT(public_key_dilithium_ed25519_get_data(&data_ptr, &data_len, NULL,
@@ -381,15 +366,9 @@ int public_key_generate_signature_dilithium_ed25519(
 	CKINT(lc_xof(hash_algo, data_ptr, data_len, ws->ph_message,
 		     sizeof(ws->ph_message)));
 
-	/*
-	 * TODO currently no ctx is supported. This implies that ctx == NULL.
-	 * Yet, the ctx can be added to struct lc_public_key_signature.
-	 */
-	lc_dilithium_ed25519_ctx_userctx(ctx, NULL, 0);
-
 	/* Sign the signature using Composite-ML-DSA */
-	CKINT(lc_dilithium_ed25519_sign_ctx(
-		&ws->dilithium_ed25519_sig, ctx, ws->ph_message,
+	CKINT(lc_dilithium_ed25519_sign(
+		&ws->dilithium_ed25519_sig, ws->ph_message,
 		sizeof(ws->ph_message), dilithium_ed25519_sk, lc_seeded_rng));
 
 	CKINT(lc_dilithium_ed25519_sig_ptr(&ml_dsa_ptr, &ml_dsa_siglen,
@@ -408,7 +387,6 @@ int public_key_generate_signature_dilithium_ed25519(
 		     ml_dsa_siglen + ed25519_siglen);
 
 out:
-	lc_dilithium_ed25519_ctx_zero(ctx);
 	LC_RELEASE_MEM(ws);
 	return ret;
 #else

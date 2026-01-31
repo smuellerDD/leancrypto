@@ -530,8 +530,13 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_ctx_avx2,
 	/* rng_ctx is allowed to be NULL as handled below */
 	if (!sig || !sk || !ctx)
 		return -EINVAL;
+
 	/* Either the message or the external mu must be provided */
 	if (!m && !ctx->external_mu)
+		return -EINVAL;
+
+	/* A composite signature does not work with external-Mu */
+	if (ctx->external_mu && ctx->composite_algorithm)
 		return -EINVAL;
 
 	unpack_sk_tr_avx2(tr, sk);
@@ -773,8 +778,13 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_ctx_avx2,
 
 	if (!sig || !pk || !ctx)
 		return -EINVAL;
+
 	/* Either the message or the external mu must be provided */
 	if (!m && !ctx->external_mu)
+		return -EINVAL;
+
+	/* A composite signature does not work with external-Mu */
+	if (ctx->external_mu && ctx->composite_algorithm)
 		return -EINVAL;
 
 	/* Compute CRH(H(rho, t1), msg) */

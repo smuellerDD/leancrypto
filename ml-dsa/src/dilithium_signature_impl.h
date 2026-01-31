@@ -114,7 +114,7 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 	CKINT(lc_hash_init(shake256_ctx));
 	lc_hash_update(shake256_ctx, ws->seedbuf, LC_DILITHIUM_SEEDBYTES);
 	lc_hash_update(shake256_ctx, dimension, sizeof(dimension));
-	lc_hash_set_digestsize(shake256_ctx, sizeof(ws->seedbuf));
+	CKINT(lc_hash_set_digestsize(shake256_ctx, sizeof(ws->seedbuf)));
 	lc_hash_final(shake256_ctx, ws->seedbuf);
 	lc_hash_zero(shake256_ctx);
 
@@ -298,7 +298,7 @@ static int lc_dilithium_sign_internal_ahat(struct lc_dilithium_sig *sig,
 		 * SHA-512 output size is identical to the expected length.
 		 */
 		BUILD_BUG_ON(LC_DILITHIUM_CRHBYTES != LC_SHA3_512_SIZE_DIGEST);
-		lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_CRHBYTES);
+		CKINT(lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_CRHBYTES));
 		lc_hash_final(hash_ctx, mu);
 	}
 
@@ -407,7 +407,7 @@ rej:
 	lc_hash_update(hash_ctx, mu, LC_DILITHIUM_CRHBYTES);
 	lc_hash_update(hash_ctx, sig->sig,
 		       LC_DILITHIUM_K * LC_DILITHIUM_POLYW1_PACKEDBYTES);
-	lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_CTILDE_BYTES);
+	CKINT(lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_CTILDE_BYTES));
 	lc_hash_final(hash_ctx, sig->sig);
 	lc_hash_zero(hash_ctx);
 
@@ -601,8 +601,13 @@ static int lc_dilithium_sign_ctx_impl(struct lc_dilithium_sig *sig,
 	/* rng_ctx is allowed to be NULL as handled below */
 	if (!sig || !sk || !ctx)
 		return -EINVAL;
+
 	/* Either the message or the external mu must be provided */
 	if (!m && !ctx->external_mu)
+		return -EINVAL;
+
+	/* A composite signature does not work with external-Mu */
+	if (ctx->external_mu && ctx->composite_algorithm)
 		return -EINVAL;
 
 	unpack_sk_tr(tr, sk);
@@ -803,7 +808,7 @@ static int lc_dilithium_verify_internal_ahat(const struct lc_dilithium_sig *sig,
 		lc_hash_update(hash_ctx, ctx->external_mu,
 			       LC_DILITHIUM_CRHBYTES);
 	} else {
-		lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_CRHBYTES);
+		CKINT(lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_CRHBYTES));
 		lc_hash_final(hash_ctx, ws->buf.mu);
 
 		/* Call random oracle and verify challenge */
@@ -813,7 +818,7 @@ static int lc_dilithium_verify_internal_ahat(const struct lc_dilithium_sig *sig,
 
 	lc_hash_update(hash_ctx, ws->tmp.buf,
 		       LC_DILITHIUM_K * LC_DILITHIUM_POLYW1_PACKEDBYTES);
-	lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_CTILDE_BYTES);
+	CKINT(lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_CTILDE_BYTES));
 	lc_hash_final(hash_ctx, ws->buf.c2.coeffs);
 	lc_hash_zero(hash_ctx);
 
@@ -929,6 +934,10 @@ static int lc_dilithium_verify_ctx_impl(const struct lc_dilithium_sig *sig,
 
 	/* Either the message or the external mu must be provided */
 	if (!m && !ctx->external_mu)
+		return -EINVAL;
+
+	/* A composite signature does not work with external-Mu */
+	if (ctx->external_mu && ctx->composite_algorithm)
 		return -EINVAL;
 
 	/* Make sure that ->mu is large enough for ->tr */

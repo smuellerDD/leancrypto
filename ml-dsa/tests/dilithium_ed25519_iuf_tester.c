@@ -30,6 +30,7 @@ static int dilithium_ed25519_tester(struct lc_dilithium_ed25519_ctx *ctx,
 		struct lc_dilithium_ed25519_sk sk;
 		struct lc_dilithium_ed25519_pk pk;
 		struct lc_dilithium_ed25519_sig sig;
+		uint8_t digest[LC_SHA512_SIZE_DIGEST];
 	};
 	static const uint8_t msg[] = { 0x00, 0x01, 0x02 };
 	static const uint8_t msg2[] = { 0x00, 0x01, 0x03 };
@@ -61,17 +62,41 @@ static int dilithium_ed25519_tester(struct lc_dilithium_ed25519_ctx *ctx,
 #endif
 
 	CKINT(lc_dilithium_ed25519_sign_init(ctx, &ws->sk));
+	/* Create the PH(M) */
+	CKINT(lc_xof(ctx->dilithium_ctx.dilithium_prehash_type, msg,
+		     sizeof(msg), ws->digest, sizeof(ws->digest)));
+
 	CKINT(lc_dilithium_ed25519_sign_update(ctx, &msg[0], 1));
 	CKINT(lc_dilithium_ed25519_sign_update(ctx, &msg[1], 1));
 	CKINT(lc_dilithium_ed25519_sign_update(ctx, &msg[2], 1));
 	CKINT(lc_dilithium_ed25519_sign_final(&ws->sig, ctx, &ws->sk,
 					      lc_seeded_rng));
+
 	CKINT(lc_dilithium_ed25519_verify_init(ctx, &ws->pk));
 	CKINT(lc_dilithium_ed25519_verify_update(ctx, &msg[0], 1));
 	CKINT(lc_dilithium_ed25519_verify_update(ctx, &msg[1], 1));
 	CKINT(lc_dilithium_ed25519_verify_update(ctx, &msg[2], 1));
 	CKINT_LOG(lc_dilithium_ed25519_verify_final(&ws->sig, ctx, &ws->pk),
 		  "Sign IUF, Verify IUF\n");
+
+	/* Create the PH(M) */
+	CKINT(lc_xof(ctx->dilithium_ctx.dilithium_prehash_type, msg,
+		     sizeof(msg), ws->digest, sizeof(ws->digest)));
+
+	/* Check the signature with one-shot call */
+	CKINT_LOG(lc_dilithium_ed25519_verify(&ws->sig, ws->digest,
+					      sizeof(ws->digest), &ws->pk),
+		  "Sign IUF, Verify one-shot\n");
+
+	CKINT(lc_dilithium_ed25519_sign(&ws->sig, ws->digest,
+					sizeof(ws->digest), &ws->sk,
+					lc_seeded_rng));
+	CKINT(lc_dilithium_ed25519_verify_init(ctx, &ws->pk));
+	CKINT(lc_dilithium_ed25519_verify_update(ctx, &msg[0], 1));
+	CKINT(lc_dilithium_ed25519_verify_update(ctx, &msg[1], 1));
+	CKINT(lc_dilithium_ed25519_verify_update(ctx, &msg[2], 1));
+	CKINT_LOG(lc_dilithium_ed25519_verify_final(&ws->sig, ctx, &ws->pk),
+		  "Sign one-shot, Verify IUF\n");
 
 	if (!failcheck)
 		goto out;

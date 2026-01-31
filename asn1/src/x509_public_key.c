@@ -38,6 +38,7 @@
 int lc_x509_set_digestsize(size_t *digestsize, struct lc_hash_ctx *hash_ctx)
 {
 	size_t found_digestsize = lc_hash_digestsize(hash_ctx);
+	int ret = 0;
 
 	/* This can happen for a SHAKE-algorithm */
 	if (!found_digestsize) {
@@ -50,14 +51,15 @@ int lc_x509_set_digestsize(size_t *digestsize, struct lc_hash_ctx *hash_ctx)
 		else
 			found_digestsize = LC_SHA_MAX_SIZE_DIGEST;
 
-		lc_hash_set_digestsize(hash_ctx, found_digestsize);
+		CKINT(lc_hash_set_digestsize(hash_ctx, found_digestsize));
 	}
 	if (*digestsize < found_digestsize)
 		return -ENOMEM;
 
 	*digestsize = found_digestsize;
 
-	return 0;
+out:
+	return ret;
 }
 
 /* No pre-hashed signatures */
