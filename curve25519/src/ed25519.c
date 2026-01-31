@@ -346,7 +346,7 @@ static int lc_ed25519_sign_internal(
 	/* Timecop: mark the secret key as sensitive */
 	poison(sk->sk, sizeof(sk->sk));
 
-	CKINT(lc_hash(lc_sha512, sk->sk, 32, az));
+	CKINT(lc_hash(lc_sha512, sk->sk, LC_ED25519_RAW_SECRETKEYBYTES, az));
 
 	CKINT(lc_hash_init(hash_ctx));
 	lc_ed25519_dom2(hash_ctx, prehash);
