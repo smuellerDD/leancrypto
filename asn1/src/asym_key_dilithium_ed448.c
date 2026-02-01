@@ -255,27 +255,6 @@ public_key_dilithium_ed448_get_data(const uint8_t **data_ptr, size_t *data_len,
 	}
 }
 
-static int lc_xof_authattr(const struct lc_hash *xof, const uint8_t *in,
-			   size_t inlen, uint8_t *digest, size_t digestlen,
-			   int authattrs_tag)
-{
-	LC_HASH_CTX_ON_STACK(hash_ctx, xof);
-	int ret;
-
-	CKINT(lc_hash_init(hash_ctx));
-	if (authattrs_tag) {
-		lc_hash_update(hash_ctx, &lc_pkcs7_authattr_tag,
-			       sizeof(lc_pkcs7_authattr_tag));
-	}
-	lc_hash_update(hash_ctx, in, inlen);
-	CKINT(lc_hash_set_digestsize(hash_ctx, digestlen));
-	lc_hash_final(hash_ctx, digest);
-
-out:
-	lc_hash_zero(hash_ctx);
-	return ret;
-}
-
 int public_key_verify_signature_dilithium_ed448(
 	const struct lc_public_key *pkey,
 	const struct lc_public_key_signature *sig)
@@ -283,9 +262,8 @@ int public_key_verify_signature_dilithium_ed448(
 	struct workspace {
 		struct lc_dilithium_ed448_pk dilithium_pk;
 		struct lc_dilithium_ed448_sig dilithium_sig;
-		uint8_t ph_message[LC_X509_COMP_ED448_MSG_SIZE];
+		struct lc_dilithium_ed448_ctx sign_ctx;
 	};
-	const struct lc_hash *hash_algo;
 	const uint8_t *dilithium_src, *ed448_src, *data_ptr;
 	size_t dilithium_src_len, ed448_src_len, data_len;
 	int ret, authattrs_tag;
@@ -324,17 +302,21 @@ int public_key_verify_signature_dilithium_ed448(
 
 	printf_debug("Loaded composite signature of size %zu\n", sig->s_size);
 
-	CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
-	/* XOF works as digest size of 64 bytes is same as XOF size */
-	CKINT(lc_xof_authattr(hash_algo, data_ptr, data_len, ws->ph_message,
-			      sizeof(ws->ph_message), authattrs_tag));
-
 	/*
 	 * Verify the signature using Composite-ML-DSA
 	 */
-	CKINT(lc_dilithium_ed448_verify(&ws->dilithium_sig, ws->ph_message,
-					sizeof(ws->ph_message),
-					&ws->dilithium_pk));
+	LC_DILITHIUM_ED448_SET_CTX(&ws->sign_ctx);
+	CKINT(lc_dilithium_ed448_verify_init(&ws->sign_ctx, &ws->dilithium_pk));
+	if (authattrs_tag) {
+		/* Add the authattr tag */
+		CKINT(lc_dilithium_ed448_verify_update(
+			&ws->sign_ctx, &lc_pkcs7_authattr_tag,
+			sizeof(lc_pkcs7_authattr_tag)));
+	}
+	CKINT(lc_dilithium_ed448_verify_update(&ws->sign_ctx, data_ptr,
+					       data_len));
+	CKINT(lc_dilithium_ed448_verify_final(&ws->dilithium_sig, &ws->sign_ctx,
+					      &ws->dilithium_pk));
 
 out:
 	LC_RELEASE_MEM(ws);
@@ -348,10 +330,8 @@ int public_key_generate_signature_dilithium_ed448(
 {
 #ifdef LC_X509_GENERATOR
 	struct workspace {
-		uint8_t ph_message[LC_X509_COMP_ED448_MSG_SIZE];
 		struct lc_dilithium_ed448_sig dilithium_ed448_sig;
 	};
-	const struct lc_hash *hash_algo;
 	struct lc_dilithium_ed448_sk *dilithium_ed448_sk =
 		keys->sk.dilithium_ed448_sk;
 	size_t ml_dsa_siglen, ed448_siglen, data_len;
@@ -363,15 +343,10 @@ int public_key_generate_signature_dilithium_ed448(
 	CKINT(public_key_dilithium_ed448_get_data(&data_ptr, &data_len, NULL,
 						  sig));
 
-	CKINT(lc_x509_sig_type_to_hash(sig->pkey_algo, &hash_algo));
-	/* XOF works as digest size of 64 bytes is same as XOF size */
-	CKINT(lc_xof(hash_algo, data_ptr, data_len, ws->ph_message,
-		     sizeof(ws->ph_message)));
-
 	/* Sign the signature using Composite-ML-DSA */
-	CKINT(lc_dilithium_ed448_sign(&ws->dilithium_ed448_sig, ws->ph_message,
-				      sizeof(ws->ph_message),
-				      dilithium_ed448_sk, lc_seeded_rng));
+	CKINT(lc_dilithium_ed448_sign(&ws->dilithium_ed448_sig, data_ptr,
+				      data_len, dilithium_ed448_sk,
+				      lc_seeded_rng));
 
 	CKINT(lc_dilithium_ed448_sig_ptr(&ml_dsa_ptr, &ml_dsa_siglen,
 					 &ed448_ptr, &ed448_siglen,

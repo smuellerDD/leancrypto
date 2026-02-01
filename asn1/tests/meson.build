@@ -475,6 +475,16 @@ if get_option('x509_generator').enabled()
 			composite_sig_domsep, suite: regression,
 			should_fail: fips140_negative_expect_fail)
 	endif
+
+	composite_sig_tester = executable('composite_sig_tester',
+		[ 'composite_sig_tester.c' ],
+		include_directories: [ include_dirs, include_internal_dirs ],
+		link_with: leancrypto_static_lib
+		)
+
+	test('X.509 Composite Signature',
+		composite_sig_tester, suite: regression,
+		should_fail: fips140_negative_expect_fail)
 endif
 
 if get_option('pkcs7_parser').enabled()

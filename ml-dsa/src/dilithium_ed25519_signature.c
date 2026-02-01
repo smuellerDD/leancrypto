@@ -53,25 +53,15 @@ out:
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sign_ctx,
 		      struct lc_dilithium_ed25519_sig *sig,
-		      struct lc_dilithium_ed25519_ctx *ctx, const uint8_t *ph_m,
-		      size_t ph_m_len, const struct lc_dilithium_ed25519_sk *sk,
+		      struct lc_dilithium_ed25519_ctx *ctx, const uint8_t *m,
+		      size_t mlen, const struct lc_dilithium_ed25519_sk *sk,
 		      struct lc_rng_ctx *rng_ctx)
 {
-	struct lc_dilithium_ctx *dilithium_ctx;
 	int ret;
 
-	CKNULL(sig, -EINVAL);
-	CKNULL(sk, -EINVAL);
-	CKNULL(ctx, -EINVAL);
-
-	dilithium_ctx = &ctx->dilithium_ctx;
-	dilithium_ctx->nist_category = LC_DILITHIUM_NIST_CATEGORY;
-
-	CKINT(lc_dilithium_sign_ctx(&sig->sig, &ctx->dilithium_ctx, ph_m,
-				    ph_m_len, &sk->sk, rng_ctx));
-
-	CKINT(lc_ed25519_sign_ctx(&sig->sig_ed25519, ph_m, ph_m_len,
-				  &sk->sk_ed25519, rng_ctx, ctx));
+	CKINT(lc_dilithium_ed25519_sign_init(ctx, sk));
+	CKINT(lc_dilithium_ed25519_sign_update(ctx, m, mlen));
+	CKINT(lc_dilithium_ed25519_sign_final(sig, ctx, sk, rng_ctx));
 
 out:
 	return ret;
@@ -103,12 +93,18 @@ lc_dilithium_ed25519_common_init(struct lc_dilithium_ed25519_ctx *ctx)
 	hash_ctx = &dilithium_ctx->dilithium_hash_ctx;
 
 	if (!dilithium_ctx->dilithium_prehash_type) {
-		dilithium_ctx->dilithium_prehash_type = lc_shake256;
-
+#ifdef LC_SHA2_512
+		/* The default in composite signatures is SHA2-512 */
+		dilithium_ctx->dilithium_prehash_type = lc_sha512;
+		LC_HASH_SET_CTX(hash_ctx,
+				dilithium_ctx->dilithium_prehash_type);
+#else
 		/*
 		 * No re-initialization of the hash_ctx necessary as
 		 * LC_DILITHIUM_CTX_ON_STACK initialized it to lc_shake256
 		 */
+		dilithium_ctx->dilithium_prehash_type = lc_shake256;
+#endif
 	} else {
 		if ((dilithium_ctx->dilithium_prehash_type != lc_shake256) &&
 		    (dilithium_ctx->dilithium_prehash_type != lc_sha3_512)
@@ -210,27 +206,17 @@ static inline int lc_dilithium_ed25519_verify_check(int retd, int rete)
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_verify_ctx,
 		      const struct lc_dilithium_ed25519_sig *sig,
-		      struct lc_dilithium_ed25519_ctx *ctx, const uint8_t *ph_m,
-		      size_t ph_m_len, const struct lc_dilithium_ed25519_pk *pk)
+		      struct lc_dilithium_ed25519_ctx *ctx, const uint8_t *m,
+		      size_t mlen, const struct lc_dilithium_ed25519_pk *pk)
 {
-	struct lc_dilithium_ctx *dilithium_ctx;
-	int retd, rete, ret = 0;
+	int ret;
 
-	CKNULL(sig, -EINVAL);
-	CKNULL(pk, -EINVAL);
-	CKNULL(ctx, -EINVAL);
-
-	dilithium_ctx = &ctx->dilithium_ctx;
-	dilithium_ctx->nist_category = LC_DILITHIUM_NIST_CATEGORY;
-
-	retd = lc_dilithium_verify_ctx(&sig->sig, &ctx->dilithium_ctx, ph_m,
-				       ph_m_len, &pk->pk);
-
-	rete = lc_ed25519_verify_ctx(&sig->sig_ed25519, ph_m, ph_m_len,
-				     &pk->pk_ed25519, ctx);
+	CKINT(lc_dilithium_ed25519_verify_init(ctx, pk));
+	CKINT(lc_dilithium_ed25519_verify_update(ctx, m, mlen));
+	CKINT(lc_dilithium_ed25519_verify_final(sig, ctx, pk));
 
 out:
-	return ret ? ret : lc_dilithium_ed25519_verify_check(retd, rete);
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_verify,

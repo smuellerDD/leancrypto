@@ -51,6 +51,7 @@ int lc_base64_encode_len(size_t ilen, size_t *olen, enum lc_base64_flags flags);
  * @param [in] idata Buffer holding the base64 encoded data
  * @param [in] ilen Length of the Base64 data
  * @param [out] olen Length of the output data
+ * @param [out] blank_chars Number of chars for CR and/or LF
  * @param [in] flags Flags to shape the operation
  *
  * @return 0 on success, < 0 on error

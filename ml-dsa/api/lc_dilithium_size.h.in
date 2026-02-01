@@ -34,7 +34,6 @@
 #include "lc_hash.h"
 #include "lc_rng.h"
 #include "lc_sha3.h"
-#include "lc_sha512.h"
 
 #endif /* __ASSEMBLER__ */
 
@@ -294,8 +293,7 @@ struct lc_dilithium_ctx {
 #define LC_DILITHIUM_CTX_INIT_HASH(name)                                       \
 	LC_SHAKE_256_CTX((&(name)->dilithium_hash_ctx))
 
-#define LC_DILITHIUM_SET_CTX(name)                                             \
-	LC_DILITHIUM_CTX_INIT_HASH(name);                                      \
+#define LC_DILITHIUM_SET_CTX_COMMON(name)                                      \
 	(name)->dilithium_prehash_type = NULL;                                 \
 	(name)->ml_dsa_internal = 0;                                           \
 	(name)->userctxlen = 0;                                                \
@@ -306,6 +304,10 @@ struct lc_dilithium_ctx {
 	(name)->external_mu_len = 0;                                           \
 	(name)->nist_category = 0;                                             \
 	(name)->composite_algorithm = 0;
+
+#define LC_DILITHIUM_SET_CTX(name)                                             \
+	LC_DILITHIUM_CTX_INIT_HASH(name);                                      \
+	LC_DILITHIUM_SET_CTX_COMMON(name)
 #endif
 /// \endcond
 
@@ -674,6 +676,7 @@ int @dilithium_name@_verify_final(const struct @dilithium_name@_sig *sig,
 #ifdef LC_DILITHIUM_ED25519_SIG
 
 #include "lc_ed25519.h"
+#include "lc_sha512.h"
 
 /**
  * @brief Dilithium secret key
@@ -716,7 +719,8 @@ struct lc_dilithium_ed25519_ctx {
 #define LC_DILITHIUM_ED25519_CTX_SIZE                                          \
 	sizeof(struct lc_dilithium_ed25519_ctx)
 #define LC_DILITHIUM_ED25519_SET_CTX(name)                                     \
-	LC_DILITHIUM_SET_CTX(&(name)->dilithium_ctx);                          \
+	LC_DILITHIUM_SET_CTX_COMMON(&(name)->dilithium_ctx);                   \
+	LC_SHA512_CTX((&(name)->dilithium_ctx.dilithium_hash_ctx));            \
 	(name)->dilithium_ctx.composite_algorithm = 1;
 #endif
 /// \endcond
@@ -788,8 +792,8 @@ int @dilithium_name@_ed25519_keypair(struct @dilithium_name@_ed25519_pk *pk,
  * @brief Computes signature in one shot
  *
  * @param [out] sig pointer to output signature
- * @param [in] ph_m pointer to already hashed message PH(M) to be signed
- * @param [in] ph_m_len length of hashed message
+ * @param [in] m pointer to message to be signed
+ * @param [in] mlen length of message
  * @param [in] sk pointer to bit-packed secret key
  * @param [in] rng_ctx pointer to seeded random number generator context - when
  *		       pointer is non-NULL, perform a randomized signing.
@@ -798,7 +802,7 @@ int @dilithium_name@_ed25519_keypair(struct @dilithium_name@_ed25519_pk *pk,
  * @return 0 (success) or < 0 on error
  */
 int @dilithium_name@_ed25519_sign(struct @dilithium_name@_ed25519_sig *sig,
-			      const uint8_t *ph_m, size_t ph_m_len,
+			      const uint8_t *m, size_t mlen,
 			      const struct @dilithium_name@_ed25519_sk *sk,
 			      struct lc_rng_ctx *rng_ctx);
 
@@ -810,8 +814,8 @@ int @dilithium_name@_ed25519_sign(struct @dilithium_name@_ed25519_sig *sig,
  *
  * @param [out] sig pointer to output signature
  * @param [in] ctx reference to the allocated Dilithium context handle
- * @param [in] ph_m pointer to already hashed message PH(M) to be signed
- * @param [in] ph_m_len length of hashed message
+ * @param [in] m pointer to message to be signed
+ * @param [in] mlen length of message
  * @param [in] sk pointer to bit-packed secret key
  * @param [in] rng_ctx pointer to seeded random number generator context - when
  *		       pointer is non-NULL, perform a randomized signing.
@@ -821,7 +825,7 @@ int @dilithium_name@_ed25519_sign(struct @dilithium_name@_ed25519_sig *sig,
  */
 int @dilithium_name@_ed25519_sign_ctx(struct @dilithium_name@_ed25519_sig *sig,
 				      struct lc_dilithium_ed25519_ctx *ctx,
-			      const uint8_t *ph_m, size_t ph_m_len,
+			      const uint8_t *m, size_t mlen,
 			      const struct @dilithium_name@_ed25519_sk *sk,
 			      struct lc_rng_ctx *rng_ctx);
 
@@ -833,10 +837,6 @@ int @dilithium_name@_ed25519_sign_ctx(struct @dilithium_name@_ed25519_sig *sig,
  * is hashed together with the message to form the message digest to be signed.
  *
  * Just like in other streaming APIs, multiple updates are allowed.
- *
- * \note Compared to the one-shot implementation, the stream operation performs
- * the hashing of the message as part of the init/update/final operation. Thus
- * oneshot-API(hash(message)) == stream-API(message).
  *
  * @param [in] ctx reference to the allocated Dilithium context handle
  * @param [in] sk pointer to bit-packed secret key
@@ -855,10 +855,6 @@ int @dilithium_name@_ed25519_sign_init(
  * is hashed together with the message to form the message digest to be signed.
  *
  * Just like in other streaming APIs, multiple updates are allowed.
- *
- * \note Compared to the one-shot implementation, the stream operation performs
- * the hashing of the message as part of the init/update/final operation. Thus
- * oneshot-API(hash(message)) == stream-API(message).
  *
  * @param [in] ctx reference to the allocated Dilithium context handle
  * @param [in] m pointer to message
@@ -879,10 +875,6 @@ int @dilithium_name@_ed25519_sign_update(
  *
  * Just like in other streaming APIs, multiple updates are allowed.
  *
- * \note Compared to the one-shot implementation, the stream operation performs
- * the hashing of the message as part of the init/update/final operation. Thus
- * oneshot-API(hash(message)) == stream-API(message).
- *
  * @param [out] sig pointer to output signature
  * @param [in] ctx reference to the allocated Dilithium context handle
  * @param [in] sk pointer to bit-packed secret key
@@ -902,15 +894,15 @@ int  @dilithium_name@_ed25519_sign_final(
  * @brief Verifies signature in one shot
  *
  * @param [in] sig pointer to input signature
- * @param [in] ph_m pointer to already hashed message PH(M) to be verified
- * @param [in] ph_m_len length of message
+ * @param [in] m pointer to message to be verified
+ * @param [in] mlen length of message
  * @param [in] pk pointer to bit-packed public key
  *
  * @return 0 if signature could be verified correctly and -EBADMSG when
  * signature cannot be verified, < 0 on other errors
  */
 int @dilithium_name@_ed25519_verify(const struct @dilithium_name@_ed25519_sig *sig,
-				const uint8_t *ph_m, size_t ph_m_len,
+				const uint8_t *m, size_t mlen,
 				const struct @dilithium_name@_ed25519_pk *pk);
 
 /**
@@ -921,8 +913,8 @@ int @dilithium_name@_ed25519_verify(const struct @dilithium_name@_ed25519_sig *s
  *
  * @param [in] sig pointer to input signature
  * @param [in] ctx reference to the allocated Dilithium context handle
- * @param [in] ph_m pointer to already hashed message PH(M) to be verified
- * @param [in] ph_m_len length of message
+ * @param [in] m pointer to message to be verified
+ * @param [in] mlen length of message
  * @param [in] pk pointer to bit-packed public key
  *
  * @return 0 if signature could be verified correctly and -EBADMSG when
@@ -930,7 +922,7 @@ int @dilithium_name@_ed25519_verify(const struct @dilithium_name@_ed25519_sig *s
  */
 int @dilithium_name@_ed25519_verify_ctx(const struct @dilithium_name@_ed25519_sig *sig,
 					struct lc_dilithium_ed25519_ctx *ctx,
-				const uint8_t *ph_m, size_t ph_m_len,
+				const uint8_t *m, size_t mlen,
 				const struct @dilithium_name@_ed25519_pk *pk);
 
 /**
@@ -941,10 +933,6 @@ int @dilithium_name@_ed25519_verify_ctx(const struct @dilithium_name@_ed25519_si
  * is hashed together with the message to form the message digest to be signed.
  *
  * Just like in other streaming APIs, multiple updates are allowed.
- *
- * \note Compared to the one-shot implementation, the stream operation performs
- * the hashing of the message as part of the init/update/final operation. Thus
- * oneshot-API(hash(message)) == stream-API(message).
  *
  * @param [in] ctx reference to the allocated Dilithium context handle
  * @param [in] pk pointer to bit-packed public key
@@ -964,10 +952,6 @@ int @dilithium_name@_ed25519_verify_init(
  *
  * Just like in other streaming APIs, multiple updates are allowed.
  *
- * \note Compared to the one-shot implementation, the stream operation performs
- * the hashing of the message as part of the init/update/final operation. Thus
- * oneshot-API(hash(message)) == stream-API(message).
- *
  * @param [in] ctx reference to the allocated Dilithium context handle
  * @param [in] m pointer to message
  * @param [in] mlen length of message
@@ -986,10 +970,6 @@ int @dilithium_name@_ed25519_verify_update(
  * is hashed together with the message to form the message digest to be signed.
  *
  * Just like in other streaming APIs, multiple updates are allowed.
- *
- * \note Compared to the one-shot implementation, the stream operation performs
- * the hashing of the message as part of the init/update/final operation. Thus
- * oneshot-API(hash(message)) == stream-API(message).
  *
  * @param [out] sig pointer to output signature
  * @param [in] ctx reference to the allocated Dilithium context handle
@@ -1161,14 +1141,61 @@ int @dilithium_name@_ed448_sign_ctx(struct @dilithium_name@_ed448_sig *sig,
 			      const struct @dilithium_name@_ed448_sk *sk,
 			      struct lc_rng_ctx *rng_ctx);
 
+/**
+ * @brief Initiates signature generation with Dilithium context in stream
+ * operation
+ *
+ * This API allows the caller to provide an arbitrary context buffer which
+ * is hashed together with the message to form the message digest to be signed.
+ *
+ * Just like in other streaming APIs, multiple updates are allowed.
+ *
+ * @param [in] ctx reference to the allocated Dilithium context handle
+ * @param [in] sk pointer to bit-packed secret key
+ *
+ * @return 0 (success) or < 0 on error
+ */
 int @dilithium_name@_ed448_sign_init(
 	struct lc_dilithium_ed448_ctx *ctx,
 	const struct @dilithium_name@_ed448_sk *sk);
 
+/**
+ * @brief Updates signature generation with Dilithium context in stream
+ * operation
+ *
+ * This API allows the caller to provide an arbitrary context buffer which
+ * is hashed together with the message to form the message digest to be signed.
+ *
+ * Just like in other streaming APIs, multiple updates are allowed.
+ *
+ * @param [in] ctx reference to the allocated Dilithium context handle
+ * @param [in] m pointer to message
+ * @param [in] mlen length of message
+ *
+ * @return 0 (success) or < 0 on error
+ */
 int @dilithium_name@_ed448_sign_update(
 	struct lc_dilithium_ed448_ctx *ctx, const uint8_t *m,
 	size_t mlen);
 
+/**
+ * @brief Perform signature generation with Dilithium context in stream
+ * operation
+ *
+ * This API allows the caller to provide an arbitrary context buffer which
+ * is hashed together with the message to form the message digest to be signed.
+ *
+ * Just like in other streaming APIs, multiple updates are allowed.
+ *
+ * @param [out] sig pointer to output signature
+ * @param [in] ctx reference to the allocated Dilithium context handle
+ * @param [in] sk pointer to bit-packed secret key
+ * @param [in] rng_ctx pointer to seeded random number generator context - when
+ *		       pointer is non-NULL, perform a randomized signing.
+ *		       Otherwise use deterministic signing.
+ *
+ * @return 0 (success) or < 0 on error
+ */
 int  @dilithium_name@_ed448_sign_final(
 	struct @dilithium_name@_ed448_sig *sig,
 	struct lc_dilithium_ed448_ctx *ctx,
@@ -1210,12 +1237,58 @@ int @dilithium_name@_ed448_verify_ctx(const struct @dilithium_name@_ed448_sig *s
 				const uint8_t *m, size_t mlen,
 				const struct @dilithium_name@_ed448_pk *pk);
 
+/**
+ * @brief Initiates signature verification with Dilithium context in stream
+ * operation
+ *
+ * This API allows the caller to provide an arbitrary context buffer which
+ * is hashed together with the message to form the message digest to be signed.
+ *
+ * Just like in other streaming APIs, multiple updates are allowed.
+ *
+ * @param [in] ctx reference to the allocated Dilithium context handle
+ * @param [in] pk pointer to bit-packed public key
+ *
+ * @return 0 (success) or < 0 on error
+ */
 int @dilithium_name@_ed448_verify_init(
 	struct lc_dilithium_ed448_ctx *ctx,
 	const struct @dilithium_name@_ed448_pk *pk);
+
+/**
+ * @brief Updates signature verification with Dilithium context in stream
+ * operation
+ *
+ * This API allows the caller to provide an arbitrary context buffer which
+ * is hashed together with the message to form the message digest to be signed.
+ *
+ * Just like in other streaming APIs, multiple updates are allowed.
+ *
+ * @param [in] ctx reference to the allocated Dilithium context handle
+ * @param [in] m pointer to message
+ * @param [in] mlen length of message
+ *
+ * @return 0 (success) or < 0 on error
+ */
 int @dilithium_name@_ed448_verify_update(
 	struct lc_dilithium_ed448_ctx *ctx, const uint8_t *m,
 	size_t mlen);
+
+/**
+ * @brief Perform signature verification with Dilithium context in stream
+ * operation
+ *
+ * This API allows the caller to provide an arbitrary context buffer which
+ * is hashed together with the message to form the message digest to be signed.
+ *
+ * Just like in other streaming APIs, multiple updates are allowed.
+ *
+ * @param [out] sig pointer to output signature
+ * @param [in] ctx reference to the allocated Dilithium context handle
+ * @param [in] pk pointer to bit-packed public key
+ *
+ * @return 0 (success) or < 0 on error
+ */
 int @dilithium_name@_ed448_verify_final(
 	const struct @dilithium_name@_ed448_sig *sig,
 	struct lc_dilithium_ed448_ctx *ctx,
