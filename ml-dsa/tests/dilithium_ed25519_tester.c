@@ -110,9 +110,9 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	}
 
 	ret = test_validate_status(ret, LC_ALG_STATUS_MLDSA_KEYGEN, 1);
+#ifndef LC_FIPS140_DEBUG
 	ret = test_validate_status(ret, LC_ALG_STATUS_MLDSA_SIGGEN, 1);
 	ret = test_validate_status(ret, LC_ALG_STATUS_MLDSA_SIGVER, 1);
-#ifndef LC_FIPS140_DEBUG
 	ret = test_validate_status(ret, LC_ALG_STATUS_SHAKE, 1);
 	ret = test_validate_status(ret, LC_ALG_STATUS_ED25519_KEYGEN, 1);
 	ret = test_validate_status(ret, LC_ALG_STATUS_ED25519_SIGGEN, 1);
