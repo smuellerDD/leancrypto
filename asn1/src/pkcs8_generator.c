@@ -133,7 +133,7 @@ int lc_pkcs8_note_key_enc(void *context, uint8_t *data, size_t *avail_datalen,
 	CKINT(lc_privkey_key_encode(&privkey_ctx, data, avail_datalen));
 
 	printf_debug("Setting private key type %u\n",
-		     pkcs8->privkey_ptr.sig_type);
+		     pkcs8->privkey_ptr->sig_type);
 
 out:
 	return ret;
