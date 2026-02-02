@@ -955,14 +955,35 @@ int lc_x509_note_serial_enc(void *context, uint8_t *data, size_t *avail_datalen,
 {
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
+	size_t serial_size = cert->raw_serial_size;
 	int ret = 0;
+	uint8_t add_sign = 0;
 
 	(void)tag;
 
-	CKINT(lc_x509_sufficient_size(avail_datalen, cert->raw_serial_size));
+	if (!serial_size)
+		return 0;
 
+	/*
+	 * From RFC5280 appendix B:
+	 *
+	 * CAs MUST force the serialNumber to be a non-negative integer, that
+	 * is, the sign bit in the DER encoding of the INTEGER value MUST be
+	 * zero.
+	 */
+	if (cert->raw_serial[0] & 0x80) {
+		serial_size++;
+		add_sign = 1;
+	}
+
+	CKINT(lc_x509_sufficient_size(avail_datalen, serial_size));
+
+	if (add_sign) {
+		data[0] = 0;
+		data++;
+	}
 	memcpy(data, cert->raw_serial, cert->raw_serial_size);
-	*avail_datalen -= cert->raw_serial_size;
+	*avail_datalen -= serial_size;
 	bin2print_debug(cert->raw_serial, cert->raw_serial_size, stdout,
 			"Serial");
 
