@@ -140,7 +140,7 @@ static int pkcs7_maclious_gen_certs(struct workspace *ws, int set_ca3_akid_null)
 		ws->ca3.raw_akid_size = 0;
 	}
 
-	blob_len = sizeof(ws->ca2_blob);
+	blob_len = sizeof(ws->ca3_blob);
 	CKINT_LOG(lc_x509_cert_encode(&ws->ca3, ws->ca3_blob, &blob_len),
 		  "X.509 encode CA3\n");
 	CKINT_LOG(lc_x509_cert_decode(&ws->ca3_dec, ws->ca3_blob,
