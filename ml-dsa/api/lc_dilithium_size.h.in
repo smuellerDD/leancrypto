@@ -718,10 +718,18 @@ struct lc_dilithium_ed25519_ctx {
 #ifndef LC_DILITHIUM_ED25519_CTX_ON_STACK
 #define LC_DILITHIUM_ED25519_CTX_SIZE                                          \
 	sizeof(struct lc_dilithium_ed25519_ctx)
+
+#ifdef LC_SHA2_512
+#define LC_DILITHIUM_ED25519_CTX_INIT_HASH(name)                               \
+	LC_SHA512_CTX((&(name)->dilithium_ctx.dilithium_hash_ctx))
+#else
+#define LC_DILITHIUM_ED25519_CTX_INIT_HASH(name)                               \
+	LC_SHAKE_256_CTX(((&(name)->dilithium_ctx.dilithium_hash_ctx))
+#endif
 #define LC_DILITHIUM_ED25519_SET_CTX(name)                                     \
 	LC_DILITHIUM_SET_CTX_COMMON(&(name)->dilithium_ctx);                   \
-	LC_SHA512_CTX((&(name)->dilithium_ctx.dilithium_hash_ctx));            \
-	(name)->dilithium_ctx.composite_algorithm = 1;
+	LC_DILITHIUM_ED25519_CTX_INIT_HASH(name);                              \
+	(name)->dilithium_ctx.composite_algorithm = 1
 #endif
 /// \endcond
 

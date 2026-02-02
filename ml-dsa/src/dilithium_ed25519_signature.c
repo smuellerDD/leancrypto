@@ -94,15 +94,8 @@ lc_dilithium_ed25519_common_init(struct lc_dilithium_ed25519_ctx *ctx)
 
 	if (!dilithium_ctx->dilithium_prehash_type) {
 #ifdef LC_SHA2_512
-		/* The default in composite signatures is SHA2-512 */
 		dilithium_ctx->dilithium_prehash_type = lc_sha512;
-		LC_HASH_SET_CTX(hash_ctx,
-				dilithium_ctx->dilithium_prehash_type);
 #else
-		/*
-		 * No re-initialization of the hash_ctx necessary as
-		 * LC_DILITHIUM_CTX_ON_STACK initialized it to lc_shake256
-		 */
 		dilithium_ctx->dilithium_prehash_type = lc_shake256;
 #endif
 	} else {
@@ -113,13 +106,10 @@ lc_dilithium_ed25519_common_init(struct lc_dilithium_ed25519_ctx *ctx)
 #endif
 		)
 			return -EOPNOTSUPP;
-
-		/* Re-purpose the hash context */
-		LC_HASH_SET_CTX(hash_ctx,
-				dilithium_ctx->dilithium_prehash_type);
-		lc_hash_zero(hash_ctx);
 	}
 
+	LC_HASH_SET_CTX(hash_ctx, dilithium_ctx->dilithium_prehash_type);
+	lc_hash_zero(hash_ctx);
 	CKINT(lc_hash_init(hash_ctx));
 
 out:
