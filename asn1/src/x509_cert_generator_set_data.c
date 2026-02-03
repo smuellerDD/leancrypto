@@ -559,7 +559,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_serial,
 	CKNULL(serial, -EINVAL);
 
 	/* RFC5280 requires the serial to be not longer than 20 bytes. */
-	if (serial_len > 20)
+	if (serial_len > LC_X509_SERIAL_MAX_SIZE)
 		return -EINVAL;
 
 	cert->raw_serial = serial;

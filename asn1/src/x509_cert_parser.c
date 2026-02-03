@@ -193,6 +193,10 @@ int lc_x509_note_serial(void *context, size_t hdrlen, unsigned char tag,
 	(void)hdrlen;
 	(void)tag;
 
+	/* RFC5280 requires the serial to be not longer than 20 bytes. */
+	if (vlen > LC_X509_SERIAL_MAX_SIZE)
+		return -EINVAL;
+
 	cert->raw_serial = value;
 	cert->raw_serial_size = vlen;
 	bin2print_debug(cert->raw_serial, cert->raw_serial_size, stdout,

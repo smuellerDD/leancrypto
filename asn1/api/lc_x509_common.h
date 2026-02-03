@@ -63,6 +63,12 @@ extern "C" {
 #define LC_X509_PQC_SK_SEED_SIZE 32
 
 /*
+ * According to RFC5280 section 4.2.1.2, the serial number must not be larger
+ * than 20 bytes.
+ */
+#define LC_X509_SERIAL_MAX_SIZE 20
+
+/*
  * Identifiers for an asymmetric key ID.  We have three ways of looking up a
  * key derived from an X.509 certificate:
  *
