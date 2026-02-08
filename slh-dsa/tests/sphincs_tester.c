@@ -212,7 +212,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 #if (defined(LC_SPHINCS_TYPE_128F_ASCON) || defined(LC_SPHINCS_TYPE_128S_ASCON))
 		ret = test_validate_status(ret,
-					   lc_hash_alg_status(lc_ascon_256), 1);
+					   lc_hash_alg_status(lc_ascon_xof), 1);
 #else
 #ifndef LC_FIPS140_DEBUG
 		ret = test_validate_status(ret, lc_hash_alg_status(lc_shake256),
