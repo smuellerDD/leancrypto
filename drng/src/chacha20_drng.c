@@ -25,6 +25,7 @@
 #include "lc_chacha20_drng.h"
 #include "lc_chacha20_private.h"
 #include "math_helper.h"
+#include "ret_checkers.h"
 #include "visibility.h"
 
 static void cc20_drng_selftest(void)
@@ -73,20 +74,22 @@ static void cc20_drng_selftest(void)
 								  0x77,
 								  0x0d,
 								  0xc7 };
-	LC_CC20_DRNG_CTX_ON_STACK(cc20_ctx);
+	struct lc_chacha20_drng_ctx *cc20_ctx;
+	LC_CC20_DRNG_CTX_ON_STACK(cc20_rng);
 
 	LC_SELFTEST_RUN(LC_ALG_STATUS_CHACHA20_DRNG);
 
+	cc20_ctx = cc20_rng->rng_state;
 	sym_ctx = &cc20_ctx->cc20;
 	chacha20_state = sym_ctx->sym_state;
 
 	/* Generate with zero state */
 	chacha20_state->counter[0] = 0;
 
-	lc_cc20_drng_generate(cc20_ctx, outbuf, sizeof(expected_block));
+	lc_rng_generate(cc20_rng, NULL, 0, outbuf, sizeof(expected_block));
 	lc_compare_selftest(LC_ALG_STATUS_CHACHA20_DRNG, outbuf, expected_block,
 			    sizeof(expected_block), "ChaCha20 DRNG");
-	lc_cc20_drng_zero(cc20_ctx);
+	lc_rng_zero(cc20_rng);
 }
 
 /**
@@ -142,34 +145,54 @@ static inline void lc_cc20_drng_update(struct lc_chacha20_drng_ctx *cc20_ctx,
  * the next chunk of the input and then encrypted again. I.e. the
  * ChaCha20 CBC-MAC of the seed data is injected into the DRNG state.
  */
-LC_INTERFACE_FUNCTION(int, lc_cc20_drng_seed,
-		      struct lc_chacha20_drng_ctx *cc20_ctx,
-		      const uint8_t *inbuf, size_t inbuflen)
+static int lc_cc20_drng_seed_nocheck(void *_state, const uint8_t *seed,
+				     size_t seedlen,
+				     const uint8_t *personalization,
+				     size_t personalizationlen)
 {
+	struct lc_chacha20_drng_ctx *cc20_ctx = _state;
 	struct lc_sym_ctx *sym_ctx;
 	struct lc_sym_state *chacha20_state;
+	int ret = 0;
 
-	if (!cc20_ctx)
-		return -EINVAL;
+	CKNULL(cc20_ctx, -EINVAL);
+	if (personalization) {
+		/* Personalization string not supported */
+		(void)personalizationlen;
+		ret = -EINVAL;
+		goto out;
+	}
+
 	sym_ctx = &cc20_ctx->cc20;
 	chacha20_state = sym_ctx->sym_state;
 
 	cc20_drng_selftest();
 	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_CHACHA20_DRNG);
 
-	while (inbuflen) {
-		size_t i, todo = min_size(inbuflen, LC_CC20_KEY_SIZE);
+	while (seedlen) {
+		size_t i, todo = min_size(seedlen, LC_CC20_KEY_SIZE);
 
 		for (i = 0; i < todo; i++)
-			chacha20_state->key.b[i] ^= inbuf[i];
+			chacha20_state->key.b[i] ^= seed[i];
 
-		/* Break potential dependencies between the inbuf key blocks */
+		/* Break potential dependencies between the seed key blocks */
 		lc_cc20_drng_update(cc20_ctx, NULL, LC_CC20_BLOCK_SIZE_WORDS);
-		inbuf += todo;
-		inbuflen -= todo;
+		seed += todo;
+		seedlen -= todo;
 	}
 
-	return 0;
+out:
+	return ret;
+}
+
+static int lc_cc20_drng_seed(void *_state, const uint8_t *seed, size_t seedlen,
+			     const uint8_t *alpha, size_t alphalen)
+{
+	cc20_drng_selftest();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_CHACHA20_DRNG);
+
+	return lc_cc20_drng_seed_nocheck(_state, seed, seedlen, alpha,
+					  alphalen);
 }
 
 /**
@@ -185,18 +208,27 @@ LC_INTERFACE_FUNCTION(int, lc_cc20_drng_seed,
  * operation is invoked which implies that the 32 bit counter will never be
  * overflown in this implementation.
  */
-LC_INTERFACE_FUNCTION(void, lc_cc20_drng_generate,
-		      struct lc_chacha20_drng_ctx *cc20_ctx, uint8_t *outbuf,
-		      size_t outbuflen)
+static int lc_cc20_drng_generate(void *_state, const uint8_t *additional,
+				 size_t additional_len, uint8_t *outbuf,
+				 size_t outbuflen)
 {
+	struct lc_chacha20_drng_ctx *cc20_ctx = _state;
 	struct lc_sym_ctx *sym_ctx;
 	struct lc_sym_state *chacha20_state;
 	uint32_t aligned_buf[(LC_CC20_BLOCK_SIZE / sizeof(uint32_t))];
 	size_t used = LC_CC20_BLOCK_SIZE_WORDS;
 	int zeroize_buf = 0;
+	int ret = 0;
 
-	if (!cc20_ctx)
-		return;
+	CKNULL(cc20_ctx, -EINVAL);
+
+	if (additional) {
+		/* Additional information not supported */
+		(void)additional_len;
+		ret = -EINVAL;
+		goto out;
+	}
+
 	sym_ctx = &cc20_ctx->cc20;
 	chacha20_state = sym_ctx->sym_state;
 
@@ -226,39 +258,54 @@ LC_INTERFACE_FUNCTION(void, lc_cc20_drng_generate,
 
 	lc_cc20_drng_update(cc20_ctx, aligned_buf, used);
 
+out:
 	if (zeroize_buf)
 		lc_memset_secure(aligned_buf, 0, sizeof(aligned_buf));
+	return ret;
 }
 
-LC_INTERFACE_FUNCTION(void, lc_cc20_drng_zero_free,
-		      struct lc_chacha20_drng_ctx *cc20_ctx)
+static void lc_cc20_drng_zero(void *_state)
 {
-	if (!cc20_ctx)
+	struct lc_chacha20_drng_ctx *state = _state;
+	struct lc_sym_ctx *sym_ctx;
+
+	if (!state)
 		return;
 
-	lc_cc20_drng_zero(cc20_ctx);
-	lc_free(cc20_ctx);
+	sym_ctx = &state->cc20;
+
+	lc_memset_secure((uint8_t *)state +
+				 sizeof(struct lc_chacha20_drng_ctx),
+			 0, LC_CC20_DRNG_STATE_SIZE);
+	lc_sym_init(sym_ctx);
 }
 
-LC_INTERFACE_FUNCTION(int, lc_cc20_drng_alloc,
-		      struct lc_chacha20_drng_ctx **cc20_ctx)
+LC_INTERFACE_FUNCTION(int, lc_cc20_drng_alloc, struct lc_rng_ctx **state)
 {
-	struct lc_chacha20_drng_ctx *out_ctx = NULL;
+	struct lc_rng_ctx *out_state = NULL;
 	int ret;
 
-	if (!cc20_ctx)
+	if (!state)
 		return -EINVAL;
 
-	ret = lc_alloc_aligned_secure((void *)&out_ctx,
+	ret = lc_alloc_aligned_secure((void *)&out_state,
 				      LC_SYM_ALIGNMENT(lc_chacha20),
 				      LC_CC20_DRNG_CTX_SIZE);
 	if (ret)
 		return -ret;
 
-	LC_CC20_DRNG_SET_CTX(out_ctx);
-	lc_cc20_drng_zero(out_ctx);
+	LC_CC20_DRNG_SET_CTX(out_state);
+	lc_rng_zero(out_state);
 
-	*cc20_ctx = out_ctx;
+	*state = out_state;
 
 	return 0;
 }
+
+static const struct lc_rng _lc_cc20_drng = {
+	.generate = lc_cc20_drng_generate,
+	.seed = lc_cc20_drng_seed,
+	.zero = lc_cc20_drng_zero,
+	.algorithm_type = LC_ALG_STATUS_CHACHA20_DRNG,
+};
+LC_INTERFACE_SYMBOL(const struct lc_rng *, lc_cc20_drng) = &_lc_cc20_drng;

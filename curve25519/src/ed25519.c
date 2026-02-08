@@ -644,3 +644,23 @@ LC_INTERFACE_FUNCTION(int, lc_ed25519ph_verify,
 
 	return lc_ed25519_verify_internal(sig, 1, msg, mlen, pk, NULL);
 }
+
+LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_ed25519_alg_status,
+		      const enum lc_ed25519_alg_operation operation)
+{
+	switch (operation) {
+	case lc_alg_operation_ed25519_keygen:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_ED25519_KEYGEN);
+	case lc_alg_operation_ed25519_siggen:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_ED25519_SIGGEN);
+	case lc_alg_operation_ed25519_sigver:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_ED25519_SIGVER);
+	case lc_alg_operation_ed25519_unknown:
+	default:
+		return lc_alg_status_unknown;
+	}
+	return lc_alg_status_unknown;
+}

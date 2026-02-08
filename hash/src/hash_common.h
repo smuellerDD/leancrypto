@@ -26,6 +26,8 @@
 extern "C" {
 #endif
 
+uint64_t lc_hash_is_fips_eligible(const struct lc_hash *hash);
+
 int lc_hash_nocheck(const struct lc_hash *hash, const uint8_t *in, size_t inlen,
 		    uint8_t *digest);
 int lc_xof_nocheck(const struct lc_hash *xof, const uint8_t *in, size_t inlen,

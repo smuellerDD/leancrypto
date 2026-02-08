@@ -78,7 +78,14 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_EXEC_ONE_TEST(lc_ascon_xof_avx512);
 	LC_EXEC_ONE_TEST(lc_ascon_xof_arm_neon);
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_ASCONXOF, 1);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_ascon_xof), 1);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_ascon_xof_c),
+				   lc_ascon_xof == lc_ascon_xof_c);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_ascon_xof_avx512),
+				   lc_ascon_xof == lc_ascon_xof_avx512);
+	ret = test_validate_status(ret,
+				   lc_hash_alg_status(lc_ascon_xof_arm_neon),
+				   lc_ascon_xof == lc_ascon_xof_arm_neon);
 	ret += test_print_status();
 
 	return ret;

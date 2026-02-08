@@ -563,6 +563,9 @@ int lc_ed448_sign_ctx(struct lc_ed448_sig *sig, const uint8_t *msg, size_t mlen,
 	CKNULL(sig, -EINVAL);
 	CKNULL(sk, -EINVAL);
 
+	lc_ed448_sign_tester();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_ED448_SIGGEN);
+
 	ed448_derive_public_key(rederived_pubkey, sk->sk);
 	CKINT(curveed448_sign_internal(sig->sig, sk->sk, rederived_pubkey, msg,
 				       mlen, 0, composite_ml_dsa_ctx));
@@ -778,9 +781,32 @@ int lc_ed448_verify_ctx(const struct lc_ed448_sig *sig, const uint8_t *msg,
 	CKNULL(sig, -EINVAL);
 	CKNULL(pk, -EINVAL);
 
+	lc_ed448_verify_tester();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_ED448_SIGVER);
+
 	CKINT(curveed448_verify(sig->sig, pk->pk, msg, mlen, 0,
 				composite_ml_dsa_ctx));
 
 out:
 	return ret;
+}
+
+LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_ed448_alg_status,
+		      const enum lc_ed448_alg_operation operation)
+{
+	switch (operation) {
+	case lc_alg_operation_ed448_keygen:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_ED448_KEYGEN);
+	case lc_alg_operation_ed448_siggen:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_ED448_SIGGEN);
+	case lc_alg_operation_ed448_sigver:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_ED448_SIGVER);
+	case lc_alg_operation_ed448_unknown:
+	default:
+		return lc_alg_status_unknown;
+	}
+	return lc_alg_status_unknown;
 }

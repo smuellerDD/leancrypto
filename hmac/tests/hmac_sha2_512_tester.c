@@ -19,6 +19,7 @@
 
 #include "compare.h"
 #include "lc_hmac.h"
+#include "lc_sha256.h"
 #include "lc_sha512.h"
 #include "ret_checkers.h"
 #include "test_helper_common.h"
@@ -158,10 +159,10 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = hmac_sha2_512_tester();
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_SHA256, 1);
-	ret = test_validate_status(ret, LC_ALG_STATUS_HMAC, 1);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha256), 1);
+	ret = test_validate_status(ret, lc_hmac_alg_status(lc_sha256), 1);
 #ifndef LC_FIPS140_DEBUG
-	ret = test_validate_status(ret, LC_ALG_STATUS_SHA512, 1);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha512), 1);
 #endif
 	ret += test_print_status();
 

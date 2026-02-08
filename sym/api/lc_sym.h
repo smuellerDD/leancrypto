@@ -23,6 +23,7 @@
 #include "ext_headers.h"
 #include "lc_memset_secure.h"
 #include "lc_memory_support.h"
+#include "lc_status.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -253,23 +254,23 @@ void lc_sym_zero_free(struct lc_sym_ctx *ctx);
 
 /**
  * @ingroup Symmetric
- * @brief Obtain algorithm type usable with lc_alg_status
+ * @brief Obtain algorithm status
  *
  * @param [in] sym AEAD algorithm instance
  *
- * @return algorithm type
+ * @return algorithm status
  */
-uint64_t lc_sym_algorithm_type(const struct lc_sym *sym);
+enum lc_alg_status_val lc_sym_alg_status(const struct lc_sym *sym);
 
 /**
  * @ingroup Symmetric
- * @brief Obtain algorithm type usable with lc_alg_status
+ * @brief Obtain algorithm status
  *
  * @param [in] ctx Symmetric context handle
  *
- * @return algorithm type
+ * @return algorithm status
  */
-uint64_t lc_sym_ctx_algorithm_type(const struct lc_sym_ctx *ctx);
+enum lc_alg_status_val lc_sym_ctx_alg_status(const struct lc_sym_ctx *ctx);
 
 /**
  * @ingroup Symmetric

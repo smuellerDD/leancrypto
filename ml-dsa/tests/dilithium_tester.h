@@ -69,6 +69,35 @@ int _dilithium_init_update_final_tester(
 					  struct lc_dilithium_ctx *ctx,
 					  const struct lc_dilithium_pk *pk));
 
+/*
+ * Unfortunately, these definitions are replicated because lc_dilithium.h cannot
+ * be included here.
+ */
+enum lc_dilithium_type {
+	/** Unknown key type */
+	LC_DILITHIUM_UNKNOWN,
+	/** Dilithium 87 */
+	LC_DILITHIUM_87,
+	/** Dilithium 65 */
+	LC_DILITHIUM_65,
+	/** Dilithium 44 */
+	LC_DILITHIUM_44,
+};
+enum lc_dilithium_alg_operation {
+	/** Unknown operation */
+	lc_alg_operation_dilithium_unknown,
+	/** ML-DSA: key generation operation */
+	lc_alg_operation_dilithium_keygen,
+	/** ML-DSA: signature generation operation */
+	lc_alg_operation_dilithium_siggen,
+	/** ML-DSA: signature generation operation */
+	lc_alg_operation_dilithium_sigver,
+};
+
+enum lc_alg_status_val
+lc_dilithium_alg_status(const enum lc_dilithium_type dilithium_type,
+			const enum lc_dilithium_alg_operation operation);
+
 #ifdef __cplusplus
 }
 #endif

@@ -42,7 +42,7 @@
  *    generator will return -EOVERFLOW.
  *
  * 3. Before invoking the PKCS#8 generator, the caller must allocate an
- *    \p pkcs8_message data structure (e.g. on stack) and fill it with the
+ *    \p lc_pkcs8_message data structure (e.g. on stack) and fill it with the
  *    numerous setter functions to add data.
  *
  * 4. The \p pkcs8_message data structure should be released at the end of the

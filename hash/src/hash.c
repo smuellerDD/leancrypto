@@ -7,7 +7,12 @@
 
 #include "ext_headers_internal.h"
 #include "hash_common.h"
+#include "lc_ascon_hash.h"
 #include "lc_hash.h"
+#include "lc_sha256.h"
+#include "lc_sha3.h"
+#include "lc_sha512.h"
+#include "lc_status.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 
@@ -248,22 +253,4 @@ LC_INTERFACE_FUNCTION(int, lc_sponge_newstate, const struct lc_hash *hash,
 	hash->sponge_newstate(state, data, offset, length);
 
 	return 0;
-}
-
-LC_INTERFACE_FUNCTION(uint64_t, lc_hash_algorithm_type,
-		      const struct lc_hash *hash)
-{
-	if (!hash)
-		return 0;
-
-	return hash->algorithm_type;
-}
-
-LC_INTERFACE_FUNCTION(uint64_t, lc_hash_ctx_algorithm_type,
-		      const struct lc_hash_ctx *ctx)
-{
-	if (!ctx)
-		return 0;
-
-	return lc_hash_algorithm_type(ctx->hash);
 }

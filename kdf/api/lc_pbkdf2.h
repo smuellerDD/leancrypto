@@ -22,6 +22,7 @@
 
 #include "ext_headers.h"
 #include "lc_hash.h"
+#include "lc_status.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,6 +49,16 @@ extern "C" {
 int lc_pbkdf2(const struct lc_hash *hash, const uint8_t *pw, size_t pwlen,
 	      const uint8_t *salt, size_t saltlen, const uint32_t count,
 	      uint8_t *key, size_t keylen);
+
+/**
+ * @ingroup KDF
+ * @brief Obtain algorithm status
+ *
+ * @param [in] hash Hash algorithm instance
+ *
+ * @return algorithm status
+ */
+enum lc_alg_status_val lc_pbkdf2_alg_status(const struct lc_hash *hash);
 
 #ifdef __cplusplus
 }

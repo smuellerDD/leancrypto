@@ -21,6 +21,7 @@
 #define LC_ED25519_H
 
 #include "lc_rng.h"
+#include "lc_status.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -58,6 +59,27 @@ int lc_ed25519ph_sign(struct lc_ed25519_sig *sig, const uint8_t *msg,
 		      struct lc_rng_ctx *rng_ctx);
 int lc_ed25519ph_verify(const struct lc_ed25519_sig *sig, const uint8_t *msg,
 			size_t mlen, const struct lc_ed25519_pk *pk);
+
+enum lc_ed25519_alg_operation {
+	/** Unknown operation */
+	lc_alg_operation_ed25519_unknown,
+	/** ED25519: key generation operation */
+	lc_alg_operation_ed25519_keygen,
+	/** ED25519: signature generation operation */
+	lc_alg_operation_ed25519_siggen,
+	/** ED25519: signature verification operation */
+	lc_alg_operation_ed25519_sigver,
+};
+
+/**
+ * @brief Obtain algorithm status
+ *
+ * @param [in] operation ED25519 algorithm type
+ *
+ * @return algorithm status
+ */
+enum lc_alg_status_val
+lc_ed25519_alg_status(const enum lc_ed25519_alg_operation operation);
 
 #ifdef __cplusplus
 }

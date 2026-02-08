@@ -29,6 +29,7 @@
 #define LC_DILITHIUM_H
 
 #include "ext_headers.h"
+#include "lc_status.h"
 
 #if defined __has_include
 
@@ -717,6 +718,30 @@ int lc_dilithium_verify_update(struct lc_dilithium_ctx *ctx, const uint8_t *m,
 int lc_dilithium_verify_final(const struct lc_dilithium_sig *sig,
 			      struct lc_dilithium_ctx *ctx,
 			      const struct lc_dilithium_pk *pk);
+
+enum lc_dilithium_alg_operation {
+	/** Unknown operation */
+	lc_alg_operation_dilithium_unknown,
+	/** ML-DSA: key generation operation */
+	lc_alg_operation_dilithium_keygen,
+	/** ML-DSA: signature generation operation */
+	lc_alg_operation_dilithium_siggen,
+	/** ML-DSA: signature generation operation */
+	lc_alg_operation_dilithium_sigver,
+};
+
+/**
+ * @ingroup Dilithium
+ * @brief Obtain algorithm status
+
+ * @param [in] dilithium_type ML-DSA algorithm type
+ * @param [in] operation ML-DSA algorithm operation
+ *
+ * @return algorithm status
+ */
+enum lc_alg_status_val
+lc_dilithium_alg_status(const enum lc_dilithium_type dilithium_type,
+			const enum lc_dilithium_alg_operation operation);
 
 /****************************** Dilithium ED25510 *****************************/
 

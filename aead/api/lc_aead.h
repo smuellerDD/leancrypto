@@ -22,6 +22,7 @@
 
 #include "lc_aes.h"
 #include "lc_memory_support.h"
+#include "lc_status.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -268,23 +269,23 @@ int lc_aead_dec_final(struct lc_aead_ctx *ctx, const uint8_t *tag,
 
 /**
  * @ingroup AEAD
- * @brief Obtain algorithm type usable with lc_alg_status
+ * @brief Obtain algorithm status
  *
  * @param [in] aead AEAD algorithm instance
  *
- * @return algorithm type
+ * @return algorithm status
  */
-uint64_t lc_aead_algorithm_type(const struct lc_aead *aead);
+enum lc_alg_status_val lc_aead_alg_status(const struct lc_aead *aead);
 
 /**
  * @ingroup AEAD
- * @brief Obtain algorithm type usable with lc_alg_status
+ * @brief Obtain algorithm status
  *
  * @param [in] ctx AEAD context handle
  *
- * @return algorithm type
+ * @return algorithm status
  */
-uint64_t lc_aead_ctx_algorithm_type(const struct lc_aead_ctx *ctx);
+enum lc_alg_status_val lc_aead_ctx_alg_status(const struct lc_aead_ctx *ctx);
 
 #ifdef __cplusplus
 }

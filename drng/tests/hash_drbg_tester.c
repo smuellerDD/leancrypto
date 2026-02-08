@@ -274,8 +274,8 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = hash_drbg_tester();
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_HASH_DRBG, 0);
-	ret = test_validate_status(ret, LC_ALG_STATUS_SHA512, 1);
+	ret = test_validate_status(ret, lc_rng_alg_status(lc_hash_drbg), 0);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha512), 1);
 	ret += test_print_status();
 
 	return ret;

@@ -22,7 +22,7 @@
 #include "ascon_hash_common.h"
 #include "conv_be_le.h"
 #include "lc_ascon_hash.h"
-#include "lc_status.h"
+#include "status_algorithms.h"
 #include "visibility.h"
 
 /***************************** Ascon Permutation ******************************/

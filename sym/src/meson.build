@@ -7,6 +7,11 @@ lc_armce_v8_asm = 0
 lc_riscv64_asm = 0
 lc_block = 0
 
+lc_aes_xts_null = 0
+lc_aes_kw_null = 0
+lc_aes_ctr_null = 0
+lc_aes_cbc_null = 0
+
 if get_option('chacha20').enabled()
 	# Compiling Chacha20 in FIPS library is appropriate as the init function
 	# disables ChaCha20 in FIPS mode
@@ -120,6 +125,8 @@ if get_option('aes_cbc').enabled()
 	else
 		src += files([ 'aes_cbc_riscv64_null.c' ])
 	endif
+else
+	lc_aes_cbc_null = 1
 endif
 
 if get_option('aes_ctr').enabled()
@@ -147,6 +154,8 @@ if get_option('aes_ctr').enabled()
 	else
 		src += files([ 'aes_ctr_riscv64_null.c' ])
 	endif
+else
+	lc_aes_ctr_null = 1
 endif
 
 if get_option('aes_kw').enabled()
@@ -175,6 +184,8 @@ if get_option('aes_kw').enabled()
 	else
 		src += files([ 'aes_kw_riscv64_null.c' ])
 	endif
+else
+	lc_aes_kw_null = 1
 endif
 
 if get_option('aes_gcm').enabled()
@@ -185,6 +196,7 @@ endif
 if get_option('aes_xts').enabled()
 	src += files([ 'aes_xts.c', 'mode_xts.c' ])
 	lc_aes = 1
+	lc_aes_block = 1
 
 	# AES-NI
 	if (x86_64_asm)
@@ -210,6 +222,8 @@ if get_option('aes_xts').enabled()
 	else
 		src += files([ 'aes_xts_riscv64_null.c' ])
 	endif
+else
+	lc_aes_xts_null = 1
 endif
 
 if (lc_block == 1)
@@ -285,4 +299,17 @@ endif
 if (lc_sym == 1)
 	src += files([ 'sym.c' ])
 	include_files += files([ '../api/lc_sym.h' ])
+
+	if (lc_aes_xts_null == 1)
+		src += files([ 'aes_xts_null.c' ])
+	endif
+	if (lc_aes_kw_null == 1)
+		src += files([ 'aes_kw_null.c' ])
+	endif
+	if (lc_aes_ctr_null == 1)
+		src += files([ 'aes_ctr_null.c' ])
+	endif
+	if (lc_aes_cbc_null == 1)
+		src += files([ 'aes_cbc_null.c' ])
+	endif
 endif

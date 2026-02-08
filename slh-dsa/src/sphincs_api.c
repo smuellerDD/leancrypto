@@ -1457,3 +1457,26 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_verify_final,
 		return -EOPNOTSUPP;
 	}
 }
+
+LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_sphincs_alg_status,
+		      const enum lc_sphincs_type sphincs_type,
+		      const enum lc_sphincs_alg_operation operation)
+{
+	(void)sphincs_type;
+
+	switch (operation) {
+	case lc_alg_operation_sphincs_keygen:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_SLHDSA_KEYGEN);
+	case lc_alg_operation_sphincs_siggen:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_SLHDSA_SIGGEN);
+	case lc_alg_operation_sphincs_sigver:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_SLHDSA_SIGVER);
+	case lc_alg_operation_sphincs_unknown:
+	default:
+		return lc_alg_status_unknown;
+	}
+	return lc_alg_status_unknown;
+}

@@ -19,6 +19,7 @@
 
 #include "ext_headers_internal.h"
 #include "lc_hqc.h"
+#include "status_algorithms.h"
 #include "visibility.h"
 
 LC_INTERFACE_FUNCTION(enum lc_hqc_type, lc_hqc_sk_type,
@@ -665,4 +666,33 @@ LC_INTERFACE_FUNCTION(int, lc_hqc_dec_kdf, uint8_t *ss, size_t ss_len,
 	default:
 		return -EOPNOTSUPP;
 	}
+}
+
+LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_hqc_alg_status,
+		      const enum lc_hqc_type hqc_type,
+		      const enum lc_hqc_alg_operation operation)
+{
+	(void)hqc_type;
+
+	switch (operation) {
+	case lc_alg_operation_hqc_keygen:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_HQC_KEYGEN);
+	case lc_alg_operation_hqc_enc:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_HQC_ENC);
+	case lc_alg_operation_hqc_dec:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_HQC_DEC);
+	case lc_alg_operation_hqc_enc_kdf:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_HQC_ENC);
+	case lc_alg_operation_hqc_dec_kdf:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_HQC_DEC);
+	case lc_alg_operation_hqc_unknown:
+	default:
+		return lc_alg_status_unknown;
+	}
+	return lc_alg_status_unknown;
 }

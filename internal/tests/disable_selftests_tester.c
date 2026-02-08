@@ -18,7 +18,11 @@
  */
 
 #include "ext_headers_internal.h"
-#include "lc_status.h"
+#include "lc_sha256.h"
+#include "lc_sha3.h"
+#include "lc_hash.h"
+#include "lc_hmac.h"
+#include "status_algorithms.h"
 #include "test_helper_common.h"
 #include "visibility.h"
 
@@ -29,11 +33,11 @@ static int disable_selftest_tester(void)
 {
 	int ret = 0;
 
-	ret += test_validate_status(ret, LC_ALG_STATUS_LIB, 0);
-	ret += test_validate_expected_status(ret, LC_ALG_STATUS_SHA3,
-					     lc_alg_status_result_pending, 1);
-	ret += test_validate_expected_status(ret, LC_ALG_STATUS_HMAC,
-					     lc_alg_status_result_pending, 1);
+	ret += test_validate_status(ret, lc_lib_alg_status(), 0);
+	ret += test_validate_expected_status(
+		ret, lc_hash_alg_status(lc_sha3_256), lc_alg_status_unknown, 1);
+	ret += test_validate_expected_status(ret, lc_hmac_alg_status(lc_sha256),
+					     lc_alg_status_unknown, 1);
 
 	ret += test_print_status();
 
@@ -42,10 +46,11 @@ static int disable_selftest_tester(void)
 	if (lc_alg_disable_selftests())
 		ret += 1;
 
-	ret += test_validate_expected_status(ret, LC_ALG_STATUS_HMAC,
-					     lc_alg_status_result_passed, 1);
-	ret += test_validate_expected_status(ret, LC_ALG_STATUS_SHA3,
-					     lc_alg_status_result_passed, 1);
+	ret += test_validate_expected_status(ret, lc_hmac_alg_status(lc_sha256),
+					     lc_alg_status_self_test_passed, 1);
+	ret += test_validate_expected_status(ret,
+					     lc_hash_alg_status(lc_sha3_256),
+					     lc_alg_status_self_test_passed, 1);
 
 	ret += test_print_status();
 

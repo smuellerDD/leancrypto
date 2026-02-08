@@ -105,7 +105,22 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = sha384_tester();
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_SHA512, 1);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha384), 1);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha384_c),
+				   lc_sha384 == lc_sha384_c);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha384_avx2),
+				   lc_sha384 == lc_sha384_avx2);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha384_shani),
+				   lc_sha384 == lc_sha384_shani);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha384_arm_ce),
+				   lc_sha384 == lc_sha384_arm_ce);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha384_arm_neon),
+				   lc_sha384 == lc_sha384_arm_neon);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha384_riscv),
+				   lc_sha384 == lc_sha384_riscv);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha384_riscv_zbb),
+				   lc_sha384 == lc_sha384_riscv_zbb);
+	ret += test_print_status();
 	ret += test_print_status();
 
 	return ret;

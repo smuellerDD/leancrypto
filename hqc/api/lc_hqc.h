@@ -473,6 +473,34 @@ int lc_hqc_dec(struct lc_hqc_ss *ss, const struct lc_hqc_ct *ct,
 int lc_hqc_dec_kdf(uint8_t *ss, size_t ss_len, const struct lc_hqc_ct *ct,
 		   const struct lc_hqc_sk *sk);
 
+enum lc_hqc_alg_operation {
+	/** Unknown operation */
+	lc_alg_operation_hqc_unknown,
+	/** HQC: key generation operation */
+	lc_alg_operation_hqc_keygen,
+	/** HQC: encapsulation operation */
+	lc_alg_operation_hqc_enc,
+	/** HQC: decapsulation operation */
+	lc_alg_operation_hqc_dec,
+	/** HQC: encapsulation operation with KDF */
+	lc_alg_operation_hqc_enc_kdf,
+	/** HQC: decapsulation operation with KDF */
+	lc_alg_operation_hqc_dec_kdf,
+};
+
+/**
+ * @ingroup HQC
+ * @brief Obtain algorithm status
+ *
+ * @param [in] hqc_type HQC algorithm type
+ * @param [in] operation HQC algorithm operation
+ *
+ * @return algorithm status
+ */
+enum lc_alg_status_val
+lc_hqc_alg_status(const enum lc_hqc_type hqc_type,
+		  const enum lc_hqc_alg_operation operation);
+
 #ifdef __cplusplus
 }
 #endif

@@ -1,6 +1,12 @@
 ################################################################################
 # Hash implementation: SHA-256
-leancrypto-y	  		+= ../hash/src/hash.o
+#
+ifndef CONFIG_LEANCRYPTO_SHA2_256
+leancrypto-y			+= ../hash/src/sha256_null.o
+endif
+
+leancrypto-y	  		+= ../hash/src/hash.o			       \
+				   ../hash/src/hash_alg_status.o
 
 leancrypto-$(CONFIG_LEANCRYPTO_SHA2_256)				       \
 				+= ../hash/src/sha256.o			       \
@@ -62,6 +68,10 @@ endif
 
 ################################################################################
 # Hash implementation: SHA-512
+
+ifndef CONFIG_LEANCRYPTO_SHA2_512
+leancrypto-y			+= ../hash/src/sha512_null.o
+endif
 
 leancrypto-$(CONFIG_LEANCRYPTO_SHA2_512)				       \
 				+= ../hash/src/sha512.o			       \

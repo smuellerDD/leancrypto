@@ -23,6 +23,7 @@ ccflags-y			+= -I$(src)				       \
 				   -I$(src)/../drng/api			       \
 				   -I$(src)/../drng/src			       \
 				   -I$(src)/../hash/api			       \
+				   -I$(src)/../hash/src			       \
 				   -I$(src)/../hmac/api			       \
 				   -I$(src)/../hqc/api			       \
 				   -I$(src)/../ml-kem/api		       \

@@ -21,6 +21,7 @@
 #define LC_ED448_H
 
 #include "lc_rng.h"
+#include "lc_status.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,6 +55,27 @@ int lc_ed448ph_sign(struct lc_ed448_sig *sig, const uint8_t *msg, size_t mlen,
 		    const struct lc_ed448_sk *sk, struct lc_rng_ctx *rng_ctx);
 int lc_ed448ph_verify(const struct lc_ed448_sig *sig, const uint8_t *msg,
 		      size_t mlen, const struct lc_ed448_pk *pk);
+
+enum lc_ed448_alg_operation {
+	/** Unknown operation */
+	lc_alg_operation_ed448_unknown,
+	/** ED448: key generation operation */
+	lc_alg_operation_ed448_keygen,
+	/** ED448: signature generation operation */
+	lc_alg_operation_ed448_siggen,
+	/** ED448: signature verification operation */
+	lc_alg_operation_ed448_sigver,
+};
+
+/**
+ * @brief Obtain algorithm status
+ *
+ * @param [in] operation ED448 algorithm type
+ *
+ * @return algorithm status
+ */
+enum lc_alg_status_val
+lc_ed448_alg_status(const enum lc_ed448_alg_operation operation);
 
 #ifdef __cplusplus
 }

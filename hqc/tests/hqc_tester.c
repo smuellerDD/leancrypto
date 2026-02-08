@@ -40,6 +40,33 @@
 #include "test_helper_common.h"
 #include "visibility.h"
 
+/* Unfortunately, lc_hqc.h cannot be included here */
+
+enum lc_hqc_alg_operation {
+	/** Unknown operation */
+	lc_alg_operation_hqc_unknown,
+	/** HQC: key generation operation */
+	lc_alg_operation_hqc_keygen,
+	/** HQC: encapsulation operation */
+	lc_alg_operation_hqc_enc,
+	/** HQC: decapsulation operation */
+	lc_alg_operation_hqc_dec,
+	/** HQC: encapsulation operation with KDF */
+	lc_alg_operation_hqc_enc_kdf,
+	/** HQC: decapsulation operation with KDF */
+	lc_alg_operation_hqc_dec_kdf,
+};
+
+enum lc_hqc_type {
+	LC_HQC_UNKNOWN, /** Unknown key type */
+	LC_HQC_256, /** HQC 256 */
+	LC_HQC_192, /** HQC 192 */
+	LC_HQC_128, /** HQC 128 */
+};
+enum lc_alg_status_val
+lc_hqc_alg_status(const enum lc_hqc_type hqc_type,
+		  const enum lc_hqc_alg_operation operation);
+
 /*
  * Enable to generate vectors. When enabling this, invoke the application
  * which outputs the header file.
@@ -190,11 +217,17 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	printf("\n};\n");
 #else
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_HQC_KEYGEN, 0);
+	ret = test_validate_status(
+		ret, lc_hqc_alg_status(LC_HQC_256, lc_alg_operation_hqc_keygen),
+		0);
 #ifndef LC_FIPS140_DEBUG
 	ret = test_validate_status(ret, LC_ALG_STATUS_SHAKE, 1);
-	ret = test_validate_status(ret, LC_ALG_STATUS_HQC_ENC, 0);
-	ret = test_validate_status(ret, LC_ALG_STATUS_HQC_DEC, 0);
+	ret = test_validate_status(
+		ret, lc_hqc_alg_status(LC_HQC_192, lc_alg_operation_hqc_enc),
+		0);
+	ret = test_validate_status(
+		ret, lc_hqc_alg_status(LC_HQC_128, lc_alg_operation_hqc_dec),
+		0);
 #endif
 
 	ret += test_print_status();

@@ -19,6 +19,7 @@
 
 #include "ext_headers_internal.h"
 #include "fips_mode.h"
+#include "lc_sha256.h"
 #include "lc_sha3.h"
 #include "lc_hmac.h"
 #include "lc_status.h"
@@ -36,10 +37,11 @@ static int rerun_selftest_tester(void)
 	int ret = 0;
 	unsigned int lib_approved = 0;
 
-	if (lc_alg_status(LC_ALG_STATUS_LIB) & lc_alg_status_fips_approved)
+	if (lc_lib_alg_status() & lc_alg_status_fips_approved)
 		lib_approved = 1;
 
-	ret += test_validate_status(ret, LC_ALG_STATUS_LIB, lib_approved);
+	ret += test_validate_status(ret, lc_lib_alg_status(),
+				    lib_approved);
 
 	/*
 	 * In the Linux kernel there may be other callers that already
@@ -48,15 +50,16 @@ static int rerun_selftest_tester(void)
 #ifndef LINUX_KERNEL
 
 #ifdef LC_FIPS140_DEBUG
-	ret += test_validate_status(ret, LC_ALG_STATUS_SHA3, 1);
+	ret += test_validate_status(ret, lc_hash_alg_status(lc_sha3_256), 1);
 #else
 	/* SHA3 is passed due to FIPS integrity test */
-	if (lc_alg_status(LC_ALG_STATUS_LIB) & lc_alg_status_fips_approved) {
-		ret += test_validate_status(ret, LC_ALG_STATUS_SHA3, 1);
+	if (lc_lib_alg_status() & lc_alg_status_fips_approved) {
+		ret += test_validate_status(ret,
+					    lc_hash_alg_status(lc_sha3_256), 1);
 	} else {
 		ret += test_validate_expected_status(
-			ret, LC_ALG_STATUS_SHA3, lc_alg_status_result_pending,
-			1);
+			ret, lc_hash_alg_status(lc_sha3_256),
+			lc_alg_status_unknown, 1);
 	}
 #endif
 
@@ -65,8 +68,8 @@ static int rerun_selftest_tester(void)
 	 * LC_FIPS140_DEBUG is enabled, the service function checks for the
 	 * presence of the failure state.
 	 */
-	ret += test_validate_expected_status(ret, LC_ALG_STATUS_HMAC,
-					     lc_alg_status_result_pending, 1);
+	ret += test_validate_expected_status(ret, lc_hmac_alg_status(lc_sha256),
+					     lc_alg_status_unknown, 1);
 
 	ret += test_print_status();
 #endif
@@ -81,31 +84,34 @@ static int rerun_selftest_tester(void)
 	)
 		ret += 1;
 
-	ret += test_validate_status(ret, LC_ALG_STATUS_LIB, lib_approved);
-	ret += test_validate_status(ret, LC_ALG_STATUS_SHA3, 1);
-	ret += test_validate_status(ret, LC_ALG_STATUS_HMAC, 1);
+	ret += test_validate_status(ret, lc_lib_alg_status(),
+				    lib_approved);
+	ret += test_validate_status(ret, lc_hash_alg_status(lc_sha3_256), 1);
+	ret += test_validate_status(ret, lc_hmac_alg_status(lc_sha256), 1);
 	ret += test_print_status();
 
 	printf("Rerun self tests\n");
 	lc_rerun_selftests();
 
-	ret += test_validate_status(ret, LC_ALG_STATUS_LIB, lib_approved);
+	ret += test_validate_status(ret, lc_lib_alg_status(),
+				    lib_approved);
 
 #ifdef LC_FIPS140_DEBUG
-	ret += test_validate_status(ret, LC_ALG_STATUS_SHA3, 1);
+	ret += test_validate_status(ret, lc_hash_alg_status(lc_sha3_256), 1);
 #else
 	/* SHA3 is passed due to FIPS integrity test */
-	if (lc_alg_status(LC_ALG_STATUS_LIB) & lc_alg_status_fips_approved) {
-		ret += test_validate_status(ret, LC_ALG_STATUS_SHA3, 1);
+	if (lc_lib_alg_status() & lc_alg_status_fips_approved) {
+		ret += test_validate_status(ret,
+					    lc_hash_alg_status(lc_sha3_256), 1);
 	} else {
 		ret += test_validate_expected_status(
-			ret, LC_ALG_STATUS_SHA3, lc_alg_status_result_pending,
-			1);
+			ret, lc_hash_alg_status(lc_sha3_256),
+			lc_alg_status_unknown, 1);
 	}
 #endif
 
-	ret += test_validate_expected_status(ret, LC_ALG_STATUS_HMAC,
-					     lc_alg_status_result_pending, 1);
+	ret += test_validate_expected_status(ret, lc_hmac_alg_status(lc_sha256),
+					     lc_alg_status_unknown, 1);
 	ret += test_print_status();
 
 	printf("Attempt to calculate HMAC\n");
@@ -118,9 +124,10 @@ static int rerun_selftest_tester(void)
 	)
 		ret += 1;
 
-	ret += test_validate_status(ret, LC_ALG_STATUS_LIB, lib_approved);
-	ret += test_validate_status(ret, LC_ALG_STATUS_SHA3, 1);
-	ret += test_validate_status(ret, LC_ALG_STATUS_HMAC, 1);
+	ret += test_validate_status(ret, lc_lib_alg_status(),
+				    lib_approved);
+	ret += test_validate_status(ret, lc_hash_alg_status(lc_sha3_256), 1);
+	ret += test_validate_status(ret, lc_hmac_alg_status(lc_sha256), 1);
 	ret += test_print_status();
 
 	return ret;

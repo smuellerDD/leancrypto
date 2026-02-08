@@ -48,6 +48,9 @@ aes_dec_tester-y			+= ../sym/tests/aes_dec_tester.o
 aes_enc_tester-y			+= ../sym/tests/aes_enc_tester.o
 endif
 
+ifndef CONFIG_LEANCRYPTO_AES_CBC
+leancrypto-y			+= ../sym/src/aes_cbc_null.o
+endif
 leancrypto-$(CONFIG_LEANCRYPTO_AES_CBC)					       \
 				+= ../sym/src/aes_cbc.o			       \
 				   ../sym/src/mode_cbc.o		       \
@@ -88,6 +91,9 @@ aes_cbc_dec_tester-y		+= ../sym/tests/aes_cbc_dec_tester.o
 aes_cbc_enc_tester-y		+= ../sym/tests/aes_cbc_enc_tester.o
 endif
 
+ifndef CONFIG_LEANCRYPTO_AES_CTR
+leancrypto-y			+= ../sym/src/aes_ctr_null.o
+endif
 leancrypto-$(CONFIG_LEANCRYPTO_AES_CTR)					       \
 				+= ../sym/src/aes_ctr.o			       \
 				   ../sym/src/mode_ctr.o		       \
@@ -126,6 +132,9 @@ obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= aes_ctr_tester.o
 aes_ctr_tester-y			+= ../sym/tests/aes_ctr_tester.o
 endif
 
+ifndef CONFIG_LEANCRYPTO_AES_KW
+leancrypto-y			+= ../sym/src/aes_kw_null.o
+endif
 leancrypto-$(CONFIG_LEANCRYPTO_AES_KW)					       \
 				+= ../sym/src/aes_kw.o			       \
 				   ../sym/src/mode_kw.o
@@ -160,6 +169,9 @@ obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= aes_kw_tester.o
 aes_kw_tester-y				+= ../sym/tests/aes_kw_tester.o
 endif
 
+ifndef CONFIG_LEANCRYPTO_AES_XTS
+leancrypto-y			+= ../sym/src/aes_xts_null.o
+endif
 leancrypto-$(CONFIG_LEANCRYPTO_AES_XTS)					       \
 				+= ../sym/src/aes_xts.o			       \
 				   ../sym/src/mode_xts.o		       \

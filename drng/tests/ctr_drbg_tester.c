@@ -233,8 +233,8 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	ret += ctr_drbg_df_tester_2();
 	ret += ctr_drbg_nodf_tester_1();
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_CTR_DRBG, 0);
-	ret = test_validate_status(ret, LC_ALG_STATUS_AES_CTR, 1);
+	ret = test_validate_status(ret, lc_rng_alg_status(lc_ctr_drbg), 0);
+	ret = test_validate_status(ret, lc_sym_alg_status(lc_aes_ctr), 1);
 	ret += test_print_status();
 
 	return ret;

@@ -25,11 +25,11 @@
 #include "lc_hash_drbg.h"
 #include "lc_hmac_drbg_sha512.h"
 #include "lc_rng.h"
-#include "lc_status.h"
 #include "lc_xdrbg.h"
 #include "mutex_w.h"
 #include "ret_checkers.h"
 #include "seeded_rng.h"
+#include "status_algorithms.h"
 #include "visibility.h"
 
 /* Select the type of DRNG */

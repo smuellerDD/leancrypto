@@ -139,7 +139,15 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_EXEC_ONE_TEST(lc_aes_kw_c);
 	LC_EXEC_ONE_TEST(lc_aes_kw_riscv64);
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_AES_KW, 1);
+	ret = test_validate_status(ret, lc_sym_alg_status(lc_aes_kw), 1);
+	ret = test_validate_status(ret, lc_sym_alg_status(lc_aes_kw_aesni),
+				   lc_aes_kw == lc_aes_kw_aesni);
+	ret = test_validate_status(ret, lc_sym_alg_status(lc_aes_kw_armce),
+				   lc_aes_kw == lc_aes_kw_armce);
+	ret = test_validate_status(ret, lc_sym_alg_status(lc_aes_kw_c),
+				   lc_aes_kw == lc_aes_kw_c);
+	ret = test_validate_status(ret, lc_sym_alg_status(lc_aes_kw_riscv64),
+				   lc_aes_kw == lc_aes_kw_riscv64);
 	ret += test_print_status();
 
 	return ret;

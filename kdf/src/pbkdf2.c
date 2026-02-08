@@ -23,6 +23,7 @@
 #include "conv_be_le.h"
 #include "ext_headers_internal.h"
 #include "fips_mode.h"
+#include "hash_common.h"
 #include "lc_hmac.h"
 #include "lc_pbkdf2.h"
 #include "lc_memset_secure.h"
@@ -181,4 +182,14 @@ LC_INTERFACE_FUNCTION(int, lc_pbkdf2, const struct lc_hash *hash,
 
 	return lc_pbkdf2_nocheck(hash, pw, pwlen, salt, saltlen, count, key,
 				 keylen);
+}
+
+LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_pbkdf2_alg_status,
+		      const struct lc_hash *hash)
+{
+	if (!hash)
+		return lc_alg_status_unknown;
+
+	return lc_alg_status(LC_ALG_STATUS_PBKDF2 |
+			     lc_hash_is_fips_eligible(hash));
 }

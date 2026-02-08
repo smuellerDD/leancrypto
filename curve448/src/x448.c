@@ -254,3 +254,21 @@ LC_INTERFACE_FUNCTION(int, lc_x448_ss, struct lc_x448_ss *ss,
 
 	return lc_x448_ss_nocheck(ss, pk, sk);
 }
+
+LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_x448_alg_status,
+		      const enum lc_x448_alg_operation operation)
+{
+	/* A priori, all algorithms are elegible for FIPS check */
+	switch (operation) {
+	case lc_alg_operation_x448_keygen:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_X448_KEYGEN);
+	case lc_alg_operation_x448_ss:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_X448_SS);
+	case lc_alg_operation_x448_unknown:
+	default:
+		return lc_alg_status_unknown;
+	}
+	return lc_alg_status_unknown;
+}

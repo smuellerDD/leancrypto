@@ -20,6 +20,7 @@
 #include "compare.h"
 #include "ext_headers_internal.h"
 #include "lc_hash_crypt.h"
+#include "lc_sha256.h"
 #include "lc_sha512.h"
 #include "test_helper_common.h"
 #include "visibility.h"
@@ -175,16 +176,16 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = hc_tester_sha512();
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_HASH_CRYPT, 0);
-	ret = test_validate_status(ret, LC_ALG_STATUS_HASH_DRBG, 0);
-	ret = test_validate_status(ret, LC_ALG_STATUS_SHA512, 1);
+	ret = test_validate_status(ret, lc_aead_alg_status(lc_hash_aead), 0);
+	ret = test_validate_status(ret, lc_rng_alg_status(lc_hash_drbg), 0);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha512), 1);
 #ifndef LC_FIPS140_DEBUG
 	/*
 	 * These algos are not even triggered due to initialization errors
 	 * of the higher tests.
 	 */
-	ret = test_validate_status(ret, LC_ALG_STATUS_SHA256, 1);
-	ret = test_validate_status(ret, LC_ALG_STATUS_HMAC, 1);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha256), 1);
+	ret = test_validate_status(ret, lc_hmac_alg_status(lc_sha256), 1);
 #endif
 	ret += test_print_status();
 

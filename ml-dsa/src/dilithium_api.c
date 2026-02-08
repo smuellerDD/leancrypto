@@ -853,6 +853,29 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_final,
 	}
 }
 
+LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_dilithium_alg_status,
+		      const enum lc_dilithium_type dilithium_type,
+		      const enum lc_dilithium_alg_operation operation)
+{
+	(void)dilithium_type;
+
+	switch (operation) {
+	case lc_alg_operation_dilithium_keygen:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_MLDSA_KEYGEN);
+	case lc_alg_operation_dilithium_siggen:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_MLDSA_SIGGEN);
+	case lc_alg_operation_dilithium_sigver:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_MLDSA_SIGVER);
+	case lc_alg_operation_dilithium_unknown:
+	default:
+		return lc_alg_status_unknown;
+	}
+	return lc_alg_status_unknown;
+}
+
 /****************************** Dilithium ED25510 *****************************/
 
 #ifdef LC_DILITHIUM_ED25519_SIG

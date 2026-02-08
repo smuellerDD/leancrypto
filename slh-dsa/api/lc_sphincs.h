@@ -29,6 +29,7 @@
 #define LC_SPHINCS_H
 
 #include "ext_headers.h"
+#include "lc_status.h"
 
 #if defined __has_include
 #if __has_include("lc_sphincs_shake_256s.h")
@@ -756,6 +757,30 @@ int lc_sphincs_verify_update(struct lc_sphincs_ctx *ctx, const uint8_t *m,
 int lc_sphincs_verify_final(const struct lc_sphincs_sig *sig,
 			    struct lc_sphincs_ctx *ctx,
 			    const struct lc_sphincs_pk *pk);
+
+enum lc_sphincs_alg_operation {
+	/** Unknown operation */
+	lc_alg_operation_sphincs_unknown,
+	/** ML-DSA: key generation operation */
+	lc_alg_operation_sphincs_keygen,
+	/** ML-DSA: signature generation operation */
+	lc_alg_operation_sphincs_siggen,
+	/** ML-DSA: signature generation operation */
+	lc_alg_operation_sphincs_sigver,
+};
+
+/**
+ * @ingroup Sphincs
+ * @brief Obtain algorithm status
+ *
+ * @param [in] sphincs_type SLH-DSA algorithm type
+ * @param [in] operation SLH-DSA algorithm operation
+ *
+ * @return algorithm status
+ */
+enum lc_alg_status_val
+lc_sphincs_alg_status(const enum lc_sphincs_type sphincs_type,
+		      const enum lc_sphincs_alg_operation operation);
 
 #ifdef __cplusplus
 }

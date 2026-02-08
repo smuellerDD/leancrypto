@@ -108,7 +108,26 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = sha3_224_tester();
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_SHA3, 1);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha3_224), 1);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha3_224_c),
+				   lc_sha3_224 == lc_sha3_224_c);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha3_224_arm_asm),
+				   lc_sha3_224 == lc_sha3_224_arm_asm);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha3_224_arm_ce),
+				   lc_sha3_224 == lc_sha3_224_arm_ce);
+	ret = test_validate_status(ret,
+				   lc_hash_alg_status(lc_sha3_224_arm_neon),
+				   lc_sha3_224 == lc_sha3_224_arm_neon);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha3_224_avx2),
+				   lc_sha3_224 == lc_sha3_224_avx2);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha3_224_avx512),
+				   lc_sha3_224 == lc_sha3_224_avx512);
+	ret = test_validate_status(ret,
+				   lc_hash_alg_status(lc_sha3_224_riscv_asm),
+				   lc_sha3_224 == lc_sha3_224_riscv_asm);
+	ret = test_validate_status(
+		ret, lc_hash_alg_status(lc_sha3_224_riscv_asm_zbb),
+		lc_sha3_224 == lc_sha3_224_riscv_asm_zbb);
 	ret += test_print_status();
 
 	return ret;

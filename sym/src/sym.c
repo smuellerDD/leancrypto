@@ -18,7 +18,9 @@
  */
 
 #include "ext_headers_internal.h"
+#include "lc_aes.h"
 #include "lc_sym.h"
+#include "status_algorithms.h"
 #include "visibility.h"
 
 LC_INTERFACE_FUNCTION(int, lc_sym_init, struct lc_sym_ctx *ctx)
@@ -136,19 +138,28 @@ LC_INTERFACE_FUNCTION(void, lc_sym_zero_free, struct lc_sym_ctx *ctx)
 	lc_free(ctx);
 }
 
-LC_INTERFACE_FUNCTION(uint64_t, lc_sym_algorithm_type, const struct lc_sym *sym)
+LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_sym_alg_status,
+		      const struct lc_sym *sym)
 {
 	if (!sym)
-		return 0;
+		return lc_alg_status_unknown;
 
-	return sym->algorithm_type;
+	/*
+	 * Only the regular interfaces are considered to have a type to be
+	 * resolvable as FIPS algorithm.
+	 */
+	if (sym == lc_aes || sym == lc_aes_cbc || sym == lc_aes_ctr ||
+	    sym == lc_aes_kw || sym == lc_aes_xts)
+		return lc_alg_status(sym->algorithm_type | LC_ALG_STATUS_FIPS);
+
+	return lc_alg_status(sym->algorithm_type);
 }
 
-LC_INTERFACE_FUNCTION(uint64_t, lc_sym_ctx_algorithm_type,
+LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_sym_ctx_alg_status,
 		      const struct lc_sym_ctx *ctx)
 {
 	if (!ctx)
-		return 0;
+		return lc_alg_status_unknown;
 
-	return lc_sym_algorithm_type(ctx->sym);
+	return lc_sym_alg_status(ctx->sym);
 }

@@ -1,5 +1,10 @@
 ################################################################################
 # Hash implementation: SHA-3
+#
+ifndef CONFIG_LEANCRYPTO_SHA3
+leancrypto-y			+= ../hash/src/sha3_null.o
+endif 
+
 leancrypto-$(CONFIG_LEANCRYPTO_SHA3)					       \
 				+= ../hash/src/cshake.o			       \
 				   ../hash/src/sha3_selector.o		       \

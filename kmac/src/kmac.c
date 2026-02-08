@@ -378,6 +378,31 @@ LC_INTERFACE_FUNCTION(size_t, lc_kmac_macsize, struct lc_kmac_ctx *kmac_ctx)
 	return lc_hash_digestsize(hash_ctx);
 }
 
+LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_kmac_alg_status,
+		      const struct lc_hash *hash)
+{
+	if (!hash)
+		return 0;
+
+	/*
+	 * Only the regular interfaces are considered to have a type to be
+	 * resolvable as FIPS algorithm.
+	 */
+	if (hash == lc_cshake128 || hash == lc_cshake256)
+		return lc_alg_status(LC_ALG_STATUS_KMAC | LC_ALG_STATUS_FIPS);
+
+	return lc_alg_status(LC_ALG_STATUS_KMAC);
+}
+
+LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_kmac_ctx_alg_status,
+		      const struct lc_hash_ctx *ctx)
+{
+	if (!ctx)
+		return 0;
+
+	return lc_kmac_alg_status(ctx->hash);
+}
+
 static int lc_kmac_rng_seed(void *_state, const uint8_t *seed, size_t seedlen,
 			    const uint8_t *persbuf, size_t perslen)
 {

@@ -18,6 +18,7 @@
  */
 
 #include "dilithium_tester.h"
+#include "lc_sha512.h"
 #include "lc_status.h"
 #include "ret_checkers.h"
 #include "selftest_rng.h"
@@ -109,15 +110,30 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 			ret += dilithium_ed25519_tester(0);
 	}
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_MLDSA_KEYGEN, 1);
+	ret = test_validate_status(
+		ret,
+		lc_dilithium_alg_status(LC_DILITHIUM_44,
+					lc_alg_operation_dilithium_keygen),
+		1);
 #ifndef LC_FIPS140_DEBUG
-	ret = test_validate_status(ret, LC_ALG_STATUS_MLDSA_SIGGEN, 1);
-	ret = test_validate_status(ret, LC_ALG_STATUS_MLDSA_SIGVER, 1);
-	ret = test_validate_status(ret, LC_ALG_STATUS_SHAKE, 1);
-	ret = test_validate_status(ret, LC_ALG_STATUS_ED25519_KEYGEN, 1);
-	ret = test_validate_status(ret, LC_ALG_STATUS_ED25519_SIGGEN, 1);
-	ret = test_validate_status(ret, LC_ALG_STATUS_ED25519_SIGVER, 1);
-	ret = test_validate_status(ret, LC_ALG_STATUS_SHA512, 1);
+	ret = test_validate_status(
+		ret,
+		lc_dilithium_alg_status(LC_DILITHIUM_65,
+					lc_alg_operation_dilithium_siggen),
+		1);
+	ret = test_validate_status(
+		ret,
+		lc_dilithium_alg_status(LC_DILITHIUM_87,
+					lc_alg_operation_dilithium_sigver),
+		1);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_shake256), 1);
+	ret = test_validate_status(
+		ret, lc_ed25519_alg_status(lc_alg_operation_ed25519_keygen), 1);
+	ret = test_validate_status(
+		ret, lc_ed25519_alg_status(lc_alg_operation_ed25519_siggen), 1);
+	ret = test_validate_status(
+		ret, lc_ed25519_alg_status(lc_alg_operation_ed25519_sigver), 1);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha512), 1);
 #endif
 	ret += test_print_status();
 

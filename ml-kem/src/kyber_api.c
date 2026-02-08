@@ -22,6 +22,7 @@
 #include "lc_memcmp_secure.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
+#include "status_algorithms.h"
 #include "timecop.h"
 #include "visibility.h"
 
@@ -722,6 +723,35 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_dec_kdf, uint8_t *ss, size_t ss_len,
 	default:
 		return -EOPNOTSUPP;
 	}
+}
+
+LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_kyber_alg_status,
+		      const enum lc_kyber_type kyber_type,
+		      const enum lc_kyber_alg_operation operation)
+{
+	(void)kyber_type;
+
+	switch (operation) {
+	case lc_alg_operation_kyber_keygen:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_MLKEM_KEYGEN);
+	case lc_alg_operation_kyber_enc:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_MLKEM_ENC);
+	case lc_alg_operation_kyber_dec:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_MLKEM_DEC);
+	case lc_alg_operation_kyber_enc_kdf:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_MLKEM_ENC_KDF);
+	case lc_alg_operation_kyber_dec_kdf:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_MLKEM_DEC_KDF);
+	case lc_alg_operation_kyber_unknown:
+	default:
+		return lc_alg_status_unknown;
+	}
+	return lc_alg_status_unknown;
 }
 
 /************************************* KEX ************************************/

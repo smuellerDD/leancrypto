@@ -200,3 +200,22 @@ void lc_hmac_nocheck(const struct lc_hash *hash, const uint8_t *key,
 
 	lc_hmac_zero(hmac_ctx);
 }
+
+LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_hmac_alg_status,
+		      const struct lc_hash *hash)
+{
+	if (!hash)
+		return 0;
+
+	/* A priori, all hash types are allowed for FIPS */
+	return lc_alg_status(LC_ALG_STATUS_HMAC | LC_ALG_STATUS_FIPS);
+}
+
+LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_hmac_ctx_alg_status,
+		      const struct lc_hash_ctx *ctx)
+{
+	if (!ctx)
+		return 0;
+
+	return lc_hmac_alg_status(ctx->hash);
+}

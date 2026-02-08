@@ -1,4 +1,8 @@
 lc_hash = 0
+lc_sha256_null = 0
+lc_sha512_null = 0
+lc_sha3_null = 0
+lc_ascon_null = 0
 
 if get_option('sha2-256').enabled()
 	src += files([ 'sha256.c', 'sha256_selector.c' ])
@@ -67,6 +71,8 @@ if get_option('sha2-256').enabled()
 	else
 		src += files([ 'sha256_riscv_zbb_null.c' ])
 	endif
+else
+	lc_sha256_null = 1
 endif
 
 if get_option('sha2-512').enabled()
@@ -136,6 +142,8 @@ if get_option('sha2-512').enabled()
 	else
 		src += files([ 'sha512_riscv_zbb_null.c' ])
 	endif
+else
+	lc_sha512_null = 1
 endif
 
 if get_option('sha3').enabled()
@@ -264,6 +272,8 @@ if get_option('sha3').enabled()
 		src += files([ 'sha3_riscv_asm_null.c',
 				    'sha3_riscv_asm_zbb_null.c' ])
 	endif
+else
+	lc_sha3_null = 1
 endif
 
 if get_option('ascon').enabled()
@@ -317,5 +327,18 @@ if get_option('chacha20poly1305').enabled()
 endif
 
 if (lc_hash == 1)
-	src += files([ 'hash.c' ])
+	src += files([ 'hash.c', 'hash_alg_status.c' ])
+
+	if (lc_sha256_null == 1)
+		src += files([ 'sha256_null.c' ])
+	endif
+	if (lc_sha512_null == 1)
+		src += files([ 'sha512_null.c' ])
+	endif
+	if (lc_sha3_null == 1)
+		src += files([ 'sha3_null.c' ])
+	endif
+	if (lc_ascon_null == 1)
+		src += files([ 'ascon_null.c' ])
+	endif
 endif

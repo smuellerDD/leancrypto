@@ -146,9 +146,10 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = cshake_drng_test();
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_CSHAKE_DRBG, 0);
+	ret = test_validate_status(ret, lc_rng_alg_status(lc_cshake256_drng),
+				   0);
 #ifndef LC_FIPS140_DEBUG
-	ret = test_validate_status(ret, LC_ALG_STATUS_CSHAKE, 1);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_cshake256), 1);
 #endif
 	ret += test_print_status();
 

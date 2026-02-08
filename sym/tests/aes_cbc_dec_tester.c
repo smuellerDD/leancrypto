@@ -153,7 +153,15 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_EXEC_ONE_TEST(lc_aes_cbc_c);
 	LC_EXEC_ONE_TEST(lc_aes_cbc_riscv64);
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_AES_CBC, 1);
+	ret = test_validate_status(ret, lc_sym_alg_status(lc_aes_cbc), 1);
+	ret = test_validate_status(ret, lc_sym_alg_status(lc_aes_cbc_aesni),
+				   lc_aes_cbc == lc_aes_cbc_aesni);
+	ret = test_validate_status(ret, lc_sym_alg_status(lc_aes_cbc_armce),
+				   lc_aes_cbc == lc_aes_cbc_armce);
+	ret = test_validate_status(ret, lc_sym_alg_status(lc_aes_cbc_c),
+				   lc_aes_cbc == lc_aes_cbc_c);
+	ret = test_validate_status(ret, lc_sym_alg_status(lc_aes_cbc_riscv64),
+				   lc_aes_cbc == lc_aes_cbc_riscv64);
 	ret += test_print_status();
 
 	return ret;

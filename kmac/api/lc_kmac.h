@@ -23,6 +23,7 @@
 #include "lc_hash.h"
 #include "lc_rng.h"
 #include "lc_sha3.h"
+#include "lc_status.h"
 #include "lc_memset_secure.h"
 
 #ifdef __cplusplus
@@ -199,6 +200,26 @@ void lc_kmac_zero_free(struct lc_kmac_ctx *kmac_ctx);
  * @param [in] kmac_ctx KMAC context to be zeroized
  */
 void lc_kmac_zero(struct lc_kmac_ctx *kmac_ctx);
+
+/**
+ * @ingroup KMAC
+ * @brief Obtain algorithm status
+ *
+ * @param [in] hash Hash algorithm instance
+ *
+ * @return algorithm status
+ */
+enum lc_alg_status_val lc_kmac_alg_status(const struct lc_hash *hash);
+
+/**
+ * @ingroup KMAC
+ * @brief Obtain algorithm status
+ *
+ * @param [in] ctx Hash context handle
+ *
+ * @return algorithm status
+ */
+enum lc_alg_status_val lc_kmac_ctx_alg_status(const struct lc_hash_ctx *ctx);
 
 /**
  * @ingroup KMAC

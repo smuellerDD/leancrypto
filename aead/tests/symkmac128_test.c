@@ -255,11 +255,11 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = kh_tester();
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_SYM_KMAC, 1);
-	ret = test_validate_status(ret, LC_ALG_STATUS_KMAC, 1);
+	ret = test_validate_status(ret, lc_aead_alg_status(lc_symkmac_aead), 1);
+	ret = test_validate_status(ret, lc_kmac_alg_status(lc_cshake128), 1);
 #ifndef LC_FIPS140_DEBUG
-	ret = test_validate_status(ret, LC_ALG_STATUS_AES_CBC, 1);
-	ret = test_validate_status(ret, LC_ALG_STATUS_AES_CTR, 1);
+	ret = test_validate_status(ret, lc_sym_alg_status(lc_aes_cbc), 1);
+	ret = test_validate_status(ret, lc_sym_alg_status(lc_aes_ctr), 1);
 #endif
 	ret += test_print_status();
 

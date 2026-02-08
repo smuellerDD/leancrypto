@@ -22,6 +22,7 @@
 
 #include "lc_hash.h"
 #include "lc_sha3.h"
+#include "lc_status.h"
 #include "lc_memset_secure.h"
 
 #ifdef __cplusplus
@@ -150,6 +151,26 @@ void lc_hmac_zero_free(struct lc_hmac_ctx *hmac_ctx);
  * @param [in] hmac_ctx HMAC context to be zeroized
  */
 void lc_hmac_zero(struct lc_hmac_ctx *hmac_ctx);
+
+/**
+ * @ingroup HMAC
+ * @brief Obtain algorithm status
+ *
+ * @param [in] hash Hash algorithm instance
+ *
+ * @return algorithm status
+ */
+enum lc_alg_status_val lc_hmac_alg_status(const struct lc_hash *hash);
+
+/**
+ * @ingroup HMAC
+ * @brief Obtain algorithm status
+ *
+ * @param [in] ctx Hash context handle
+ *
+ * @return algorithm status
+ */
+enum lc_alg_status_val lc_hmac_ctx_alg_status(const struct lc_hash_ctx *ctx);
 
 /**
  * @ingroup HMAC

@@ -24,6 +24,7 @@
 #include "lc_hmac.h"
 #include "lc_rng.h"
 #include "lc_memset_secure.h"
+#include "lc_status.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -159,6 +160,16 @@ void lc_hkdf_zero_free(struct lc_hkdf_ctx *hkdf_ctx);
 int lc_hkdf(const struct lc_hash *hash, const uint8_t *ikm, size_t ikmlen,
 	    const uint8_t *salt, size_t saltlen, const uint8_t *info,
 	    size_t infolen, uint8_t *dst, size_t dlen);
+
+/**
+ * @ingroup KDF
+ * @brief Obtain algorithm status
+ *
+ * @param [in] hash Hash algorithm instance
+ *
+ * @return algorithm status
+ */
+enum lc_alg_status_val lc_hkdf_alg_status(const struct lc_hash *hash);
 
 /******************************** HKDF as RNG *********************************/
 

@@ -425,7 +425,15 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = test_ctr();
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_AES_CTR, 1);
+	ret = test_validate_status(ret, lc_sym_alg_status(lc_aes_ctr), 1);
+	ret = test_validate_status(ret, lc_sym_alg_status(lc_aes_ctr_aesni),
+				   lc_aes_ctr == lc_aes_ctr_aesni);
+	ret = test_validate_status(ret, lc_sym_alg_status(lc_aes_ctr_armce),
+				   lc_aes_ctr == lc_aes_ctr_armce);
+	ret = test_validate_status(ret, lc_sym_alg_status(lc_aes_ctr_c),
+				   lc_aes_ctr == lc_aes_ctr_c);
+	ret = test_validate_status(ret, lc_sym_alg_status(lc_aes_ctr_riscv64),
+				   lc_aes_ctr == lc_aes_ctr_riscv64);
 	ret += test_print_status();
 
 	return ret;

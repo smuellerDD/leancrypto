@@ -47,6 +47,10 @@ Changes 1.7.0-prerelease
 
 * Update of X.509 composite signatures with latest draft + cross testing with all IETF-Hackathon providers
 
+* Add proper status indication APIs for all algorithms
+
+* ChaCha20 DRNG wrapped in common wrapper
+
 Changes 1.6.0
 * ASN.1: use stack for small generator for small use cases
 

@@ -53,6 +53,37 @@
 #include "sphincs_tester_vectors_shake_256s.h"
 #endif
 
+/* Unfortunately lc_sphincs.h cannot be included */
+enum lc_sphincs_type {
+	/** Unknown key type */
+	LC_SPHINCS_UNKNOWN,
+	/** Sphincs 256s using SHAKE for signature operation */
+	LC_SPHINCS_SHAKE_256s,
+	/** Sphincs 256f using SHAKE for signature operation */
+	LC_SPHINCS_SHAKE_256f,
+	/** Sphincs 192s using SHAKE for signature operation */
+	LC_SPHINCS_SHAKE_192s,
+	/** Sphincs 192f using SHAKE for signature operation */
+	LC_SPHINCS_SHAKE_192f,
+	/** Sphincs 128s using SHAKE for signature operation */
+	LC_SPHINCS_SHAKE_128s,
+	/** Sphincs 128f using SHAKE for signature operation */
+	LC_SPHINCS_SHAKE_128f,
+};
+enum lc_sphincs_alg_operation {
+	/** Unknown operation */
+	lc_alg_operation_sphincs_unknown,
+	/** ML-DSA: key generation operation */
+	lc_alg_operation_sphincs_keygen,
+	/** ML-DSA: signature generation operation */
+	lc_alg_operation_sphincs_siggen,
+	/** ML-DSA: signature generation operation */
+	lc_alg_operation_sphincs_sigver,
+};
+enum lc_alg_status_val
+lc_sphincs_alg_status(const enum lc_sphincs_type sphincs_type,
+		      const enum lc_sphincs_alg_operation operation);
+
 enum lc_sphincs_test_type {
 	LC_SPHINCS_REGRESSION,
 	LC_SPHINCS_PERF_KEYGEN,
@@ -163,15 +194,29 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	ret = lc_sphincs_test(&tests[0], t);
 
 	if (argc < 2) {
-		ret = test_validate_status(ret, LC_ALG_STATUS_SLHDSA_KEYGEN, 1);
-		ret = test_validate_status(ret, LC_ALG_STATUS_SLHDSA_SIGGEN, 1);
-		ret = test_validate_status(ret, LC_ALG_STATUS_SLHDSA_SIGVER, 1);
+		ret = test_validate_status(
+			ret,
+			lc_sphincs_alg_status(LC_SPHINCS_SHAKE_256s,
+					      lc_alg_operation_sphincs_keygen),
+			1);
+		ret = test_validate_status(
+			ret,
+			lc_sphincs_alg_status(LC_SPHINCS_SHAKE_192f,
+					      lc_alg_operation_sphincs_siggen),
+			1);
+		ret = test_validate_status(
+			ret,
+			lc_sphincs_alg_status(LC_SPHINCS_SHAKE_128s,
+					      lc_alg_operation_sphincs_sigver),
+			1);
 
 #if (defined(LC_SPHINCS_TYPE_128F_ASCON) || defined(LC_SPHINCS_TYPE_128S_ASCON))
-		ret = test_validate_status(ret, LC_ALG_STATUS_ASCONXOF, 1);
+		ret = test_validate_status(ret,
+					   lc_hash_alg_status(lc_ascon_256), 1);
 #else
 #ifndef LC_FIPS140_DEBUG
-		ret = test_validate_status(ret, LC_ALG_STATUS_SHAKE, 1);
+		ret = test_validate_status(ret, lc_hash_alg_status(lc_shake256),
+					   1);
 #endif
 #endif
 	}

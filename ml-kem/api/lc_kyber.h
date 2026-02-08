@@ -21,6 +21,7 @@
 #define LC_KYBER_H
 
 #include "ext_headers.h"
+#include "lc_status.h"
 
 #if defined __has_include
 #if __has_include("lc_kyber_1024.h")
@@ -491,6 +492,34 @@ int lc_kyber_dec(struct lc_kyber_ss *ss, const struct lc_kyber_ct *ct,
  */
 int lc_kyber_dec_kdf(uint8_t *ss, size_t ss_len, const struct lc_kyber_ct *ct,
 		     const struct lc_kyber_sk *sk);
+
+enum lc_kyber_alg_operation {
+	/** Unknown operation */
+	lc_alg_operation_kyber_unknown,
+	/** ML-KEM: key generation operation */
+	lc_alg_operation_kyber_keygen,
+	/** ML-KEM: encapsulation operation */
+	lc_alg_operation_kyber_enc,
+	/** ML-KEM: decapsulation operation */
+	lc_alg_operation_kyber_dec,
+	/** ML-KEM: encapsulation operation with KDF */
+	lc_alg_operation_kyber_enc_kdf,
+	/** ML-KEM: decapsulation operation with KDF */
+	lc_alg_operation_kyber_dec_kdf,
+};
+
+/**
+ * @ingroup Kyber
+ * @brief Obtain algorithm status
+ *
+ * @param [in] kyber_type ML-KEM algorithm type
+ * @param [in] operation ML-KEM algorithm operation
+ *
+ * @return algorithm status
+ */
+enum lc_alg_status_val
+lc_kyber_alg_status(const enum lc_kyber_type kyber_type,
+		    const enum lc_kyber_alg_operation operation);
 
 /************************************* KEX ************************************/
 

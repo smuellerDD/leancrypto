@@ -18,6 +18,7 @@
  */
 
 #include "compare.h"
+#include "lc_hmac.h"
 #include "lc_sha256.h"
 #include "lc_sha512.h"
 #include "lc_pbkdf2.h"
@@ -68,9 +69,9 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = pbkdf2_tester();
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_PBKDF2, 1);
-	ret = test_validate_status(ret, LC_ALG_STATUS_HMAC, 1);
-	ret = test_validate_status(ret, LC_ALG_STATUS_SHA256, 1);
+	ret = test_validate_status(ret, lc_pbkdf2_alg_status(lc_sha256), 1);
+	ret = test_validate_status(ret, lc_hmac_alg_status(lc_sha256), 1);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha256), 1);
 
 	ret += test_print_status();
 

@@ -278,14 +278,13 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = sh_tester();
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_SYM_HMAC, 1);
-	ret = test_validate_status(ret, LC_ALG_STATUS_HMAC, 1);
-	ret = test_validate_status(ret, LC_ALG_STATUS_SHA256, 1);
-	ret = test_validate_status(ret, LC_ALG_STATUS_HKDF, 1);
+	ret = test_validate_status(ret, lc_aead_alg_status(lc_symhmac_aead), 1);
+	ret = test_validate_status(ret, lc_hmac_alg_status(lc_sha256), 1);
+	ret = test_validate_status(ret, lc_hkdf_alg_status(lc_sha512), 1);
 #ifndef LC_FIPS140_DEBUG
-	ret = test_validate_status(ret, LC_ALG_STATUS_AES_CBC, 1);
-	ret = test_validate_status(ret, LC_ALG_STATUS_SHA512, 1);
-	ret = test_validate_status(ret, LC_ALG_STATUS_SHA3, 1);
+	ret = test_validate_status(ret, lc_sym_alg_status(lc_aes_cbc), 1);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha512), 1);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha3_256), 1);
 #endif
 	ret += test_print_status();
 

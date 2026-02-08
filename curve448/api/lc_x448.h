@@ -21,6 +21,7 @@
 #define LC_X448_H
 
 #include "lc_rng.h"
+#include "lc_status.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,6 +47,25 @@ int lc_x448_keypair(struct lc_x448_pk *pk, struct lc_x448_sk *sk,
 		    struct lc_rng_ctx *rng_ctx);
 int lc_x448_ss(struct lc_x448_ss *ss, const struct lc_x448_pk *pk,
 	       const struct lc_x448_sk *sk);
+
+enum lc_x448_alg_operation {
+	/** Unknown operation */
+	lc_alg_operation_x448_unknown,
+	/** ED448: key generation operation */
+	lc_alg_operation_x448_keygen,
+	/** ED448: shared secret generation operation */
+	lc_alg_operation_x448_ss,
+};
+
+/**
+ * @brief Obtain algorithm status
+ *
+ * @param [in] operation X448 algorithm type
+ *
+ * @return algorithm status
+ */
+enum lc_alg_status_val
+lc_x448_alg_status(const enum lc_x448_alg_operation operation);
 
 #ifdef __cplusplus
 }

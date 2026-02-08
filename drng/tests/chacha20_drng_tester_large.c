@@ -23,7 +23,7 @@
 #define CC20_TEST_BLOCKSIZE LC_CC20_BLOCK_SIZE
 //#define CC20_TEST_BLOCKSIZE	32
 
-static int kmac_drng_selftest_large(struct lc_chacha20_drng_ctx *cc20_ctx)
+static int kmac_drng_selftest_large(struct lc_rng_ctx *cc20_ctx)
 {
 	uint8_t seed[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08
@@ -32,13 +32,14 @@ static int kmac_drng_selftest_large(struct lc_chacha20_drng_ctx *cc20_ctx)
 	unsigned int i;
 	int ret;
 
-	ret = lc_cc20_drng_seed(cc20_ctx, seed, sizeof(seed));
+	ret = lc_rng_seed(cc20_ctx, seed, sizeof(seed), NULL, 0);
 	if (ret)
 		return -ret;
 
 	for (i = 0; i < ((1U << 30) / CC20_TEST_BLOCKSIZE); i++)
-		lc_cc20_drng_generate(cc20_ctx, out, CC20_TEST_BLOCKSIZE);
-	return lc_cc20_drng_zero(cc20_ctx);
+		lc_rng_generate(cc20_ctx, NULL, 0, out, CC20_TEST_BLOCKSIZE);
+
+	return 0;
 }
 
 int main(int argc, char *argv[])

@@ -245,7 +245,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	}
 	ret += ret2;
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_CSHAKE_CRYPT, 0);
+	ret = test_validate_status(ret, lc_aead_alg_status(lc_cshake_aead), 0);
 	ret += test_print_status();
 
 out:

@@ -21,6 +21,7 @@
 #define LC_RNG_H
 
 #include "lc_memory_support.h"
+#include "lc_status.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -158,23 +159,23 @@ int lc_rng_set_seeded(struct lc_rng_ctx *new_ctx);
 
 /**
  * @ingroup RNGs
- * @brief Obtain algorithm type usable with lc_alg_status
+ * @brief Obtain algorithm status
  *
  * @param [in] rng RNG algorithm instance
  *
- * @return algorithm type
+ * @return algorithm status
  */
-uint64_t lc_rng_algorithm_type(const struct lc_rng *rng);
+enum lc_alg_status_val lc_rng_alg_status(const struct lc_rng *rng);
 
 /**
  * @ingroup AEAD
- * @brief Obtain algorithm type usable with lc_alg_status
+ * @brief Obtain algorithm status
  *
  * @param [in] ctx RNG context handle
  *
- * @return algorithm type
+ * @return algorithm status
  */
-uint64_t lc_rng_ctx_algorithm_type(const struct lc_rng_ctx *ctx);
+enum lc_alg_status_val lc_rng_ctx_alg_status(const struct lc_rng_ctx *ctx);
 
 #ifdef __cplusplus
 }

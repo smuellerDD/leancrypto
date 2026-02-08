@@ -58,9 +58,14 @@ LC_INTERFACE_FUNCTION(void, lc_rerun_selftests, void)
 		alg_status_unset_result_all();
 }
 
-LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_alg_status, uint64_t algorithm)
+enum lc_alg_status_val lc_alg_status(uint64_t algorithm)
 {
 	return alg_status(algorithm);
+}
+
+LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_lib_alg_status, void)
+{
+	return alg_status(LC_ALG_STATUS_LIB);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_alg_disable_selftests, void)

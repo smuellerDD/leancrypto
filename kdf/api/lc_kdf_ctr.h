@@ -24,6 +24,7 @@
 #include "lc_hash.h"
 #include "lc_rng.h"
 #include "lc_hmac.h"
+#include "lc_status.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -83,6 +84,16 @@ int lc_kdf_ctr_generate(struct lc_hmac_ctx *hmac_ctx, const uint8_t *label,
 int lc_kdf_ctr(const struct lc_hash *hash, const uint8_t *key, size_t keylen,
 	       const uint8_t *label, size_t labellen, uint8_t *dst,
 	       size_t dlen);
+
+/**
+ * @ingroup KDF
+ * @brief Obtain algorithm status
+ *
+ * @param [in] hash Hash algorithm instance
+ *
+ * @return algorithm status
+ */
+enum lc_alg_status_val lc_kdf_ctr_alg_status(const struct lc_hash *hash);
 
 /***************************** Counter KDF as RNG *****************************/
 

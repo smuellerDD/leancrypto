@@ -28,14 +28,13 @@
 extern "C" {
 #endif
 
-static inline int test_validate_fips_status(int ret, uint64_t algorithm,
+static inline int test_validate_fips_status(int ret,
+					    enum lc_alg_status_val status,
 					    unsigned int is_fips)
 {
-	if (!!(lc_alg_status(algorithm) & lc_alg_status_fips_approved) !=
-	    is_fips) {
-		printf("FIPS approved marker %u does not match expected marker %u for algorithm %llu\n",
-		       lc_alg_status(algorithm), is_fips,
-		       (unsigned long long)algorithm);
+	if (!!(status & lc_alg_status_fips_approved) != is_fips) {
+		printf("FIPS approved marker %u does not match expected marker %u\n",
+		       status, is_fips);
 #ifdef LC_FIPS140_DEBUG
 		ret -= 1;
 #else
@@ -48,46 +47,44 @@ static inline int test_validate_fips_status(int ret, uint64_t algorithm,
 	return ret;
 }
 
-static inline int
-test_validate_expected_status(int ret, uint64_t algorithm,
-			      enum lc_alg_status_result expected,
-			      unsigned int is_fips)
+static inline int test_validate_expected_status(int ret,
+						enum lc_alg_status_val status,
+						enum lc_alg_status_val expected,
+						unsigned int is_fips)
 {
-	ret = test_validate_fips_status(ret, algorithm, is_fips);
+	ret = test_validate_fips_status(ret, status, is_fips);
 
 #ifdef LC_FIPS140_DEBUG
 	/* Set any recorded result to zero */
 	if (ret > 0)
 		ret = 0;
-	expected = lc_alg_status_result_failed;
+	expected = lc_alg_status_self_test_failed;
 #endif
 
-	if (lc_status_get_result(algorithm) != expected) {
+	if ((status & expected) != expected) {
 #ifdef LC_FIPS140_DEBUG
 		ret -= 1;
 		printf("FIPS negative test: ");
 #else
 		ret += 1;
 #endif
-		printf("Self test status for algorithm %llu unexpected: %u\n",
-		       (unsigned long long)algorithm,
-		       lc_status_get_result(algorithm));
+		printf("Self test status unexpected: %u\n",
+		       lc_status_get_result(status));
 	}
 #ifdef LC_FIPS140_DEBUG
 	else {
-		printf("FIPS negative test: Self test status for algorithm %llu failed as expected\n",
-		       (unsigned long long)algorithm);
+		printf("FIPS negative test: Self test status for failed as expected\n");
 	}
 #endif
 
 	return ret;
 }
 
-static inline int test_validate_status(int ret, uint64_t algorithm,
+static inline int test_validate_status(int ret, enum lc_alg_status_val status,
 				       unsigned int is_fips)
 {
 	return test_validate_expected_status(
-		ret, algorithm, lc_alg_status_result_passed, is_fips);
+		ret, status, lc_alg_status_self_test_passed, is_fips);
 }
 
 static inline int test_print_status(void)

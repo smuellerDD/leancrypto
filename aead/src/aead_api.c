@@ -20,6 +20,7 @@
 #include "ext_headers_internal.h"
 #include "lc_aead.h"
 #include "lc_memory_support.h"
+#include "status_algorithms.h"
 #include "visibility.h"
 
 LC_INTERFACE_FUNCTION(void, lc_aead_zero, struct lc_aead_ctx *ctx)
@@ -231,20 +232,21 @@ LC_INTERFACE_FUNCTION(int, lc_aead_dec_final, struct lc_aead_ctx *ctx,
 	return aead->dec_final(aead_state, tag, taglen);
 }
 
-LC_INTERFACE_FUNCTION(uint64_t, lc_aead_algorithm_type,
+LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_aead_alg_status,
 		      const struct lc_aead *aead)
 {
 	if (!aead)
-		return 0;
+		return lc_alg_status_unknown;
 
-	return aead->algorithm_type;
+	/* No algorithm is ruled out a-priori for FIPS compliance */
+	return lc_alg_status(aead->algorithm_type | LC_ALG_STATUS_FIPS);
 }
 
-LC_INTERFACE_FUNCTION(uint64_t, lc_aead_ctx_algorithm_type,
+LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_aead_ctx_alg_status,
 		      const struct lc_aead_ctx *ctx)
 {
 	if (!ctx)
-		return 0;
+		return lc_alg_status_unknown;
 
-	return lc_aead_algorithm_type(ctx->aead);
+	return lc_aead_alg_status(ctx->aead);
 }

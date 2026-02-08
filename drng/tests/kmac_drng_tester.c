@@ -143,9 +143,9 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = kmac_test();
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_KMAC_DRBG, 0);
+	ret = test_validate_status(ret, lc_rng_alg_status(lc_kmac256_drng), 0);
 #ifndef LC_FIPS140_DEBUG
-	ret = test_validate_status(ret, LC_ALG_STATUS_KMAC, 1);
+	ret = test_validate_status(ret, lc_kmac_alg_status(lc_cshake256), 1);
 #endif
 	ret += test_print_status();
 

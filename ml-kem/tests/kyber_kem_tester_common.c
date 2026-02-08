@@ -103,11 +103,24 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	 * disable the self tests.
 	 */
 	if (argc != 2) {
-		ret = test_validate_status(ret, LC_ALG_STATUS_MLKEM_KEYGEN, 1);
-		ret = test_validate_status(ret, LC_ALG_STATUS_MLKEM_ENC, 1);
-		ret = test_validate_status(ret, LC_ALG_STATUS_MLKEM_DEC, 1);
+		ret = test_validate_status(
+			ret,
+			lc_kyber_alg_status(LC_KYBER_1024,
+					    lc_alg_operation_kyber_keygen),
+			1);
+		ret = test_validate_status(
+			ret,
+			lc_kyber_alg_status(LC_KYBER_768,
+					    lc_alg_operation_kyber_enc),
+			1);
+		ret = test_validate_status(
+			ret,
+			lc_kyber_alg_status(LC_KYBER_512,
+					    lc_alg_operation_kyber_dec),
+			1);
 #ifndef LC_FIPS140_DEBUG
-		ret = test_validate_status(ret, LC_ALG_STATUS_SHAKE, 1);
+		ret = test_validate_status(ret, lc_hash_alg_status(lc_shake256),
+					   1);
 #endif
 	}
 

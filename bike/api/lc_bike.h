@@ -477,6 +477,34 @@ int lc_bike_dec(struct lc_bike_ss *ss, const struct lc_bike_ct *ct,
 int lc_bike_dec_kdf(uint8_t *ss, size_t ss_len, const struct lc_bike_ct *ct,
 		    const struct lc_bike_sk *sk);
 
+enum lc_bike_alg_operation {
+	/** Unknown operation */
+	lc_alg_operation_bike_unknown,
+	/** BIKE: key generation operation */
+	lc_alg_operation_bike_keygen,
+	/** BIKE: encapsulation operation */
+	lc_alg_operation_bike_enc,
+	/** BIKE: decapsulation operation */
+	lc_alg_operation_bike_dec,
+	/** BIKE: encapsulation operation with KDF */
+	lc_alg_operation_bike_enc_kdf,
+	/** BIKE: decapsulation operation with KDF */
+	lc_alg_operation_bike_dec_kdf,
+};
+
+/**
+ * @ingroup BIKE
+ * @brief Obtain algorithm status
+ *
+ * @param [in] bike_type BIKE algorithm type
+ * @param [in] operation BIKE algorithm operation
+ *
+ * @return algorithm status
+ */
+enum lc_alg_status_val
+lc_bike_alg_status(const enum lc_bike_type bike_type,
+		   const enum lc_bike_alg_operation operation);
+
 #ifdef __cplusplus
 }
 #endif

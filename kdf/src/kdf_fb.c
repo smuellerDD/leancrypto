@@ -22,6 +22,7 @@
 #include "conv_be_le.h"
 #include "ext_headers_internal.h"
 #include "fips_mode.h"
+#include "hash_common.h"
 #include "lc_hmac.h"
 #include "lc_kdf_fb.h"
 #include "lc_memset_secure.h"
@@ -179,4 +180,14 @@ LC_INTERFACE_FUNCTION(int, lc_kdf_fb, const struct lc_hash *hash,
 out:
 	lc_hmac_zero(hmac_ctx);
 	return ret;
+}
+
+LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_kdf_fb_alg_status,
+		      const struct lc_hash *hash)
+{
+	if (!hash)
+		return lc_alg_status_unknown;
+
+	return lc_alg_status(LC_ALG_STATUS_FB_KDF |
+			     lc_hash_is_fips_eligible(hash));
 }

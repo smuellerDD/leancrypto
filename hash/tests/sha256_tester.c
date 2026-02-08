@@ -96,7 +96,21 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = sha256_tester();
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_SHA256, 1);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha256), 1);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha256_c),
+				   lc_sha256 == lc_sha256_c);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha256_avx2),
+				   lc_sha256 == lc_sha256_avx2);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha256_shani),
+				   lc_sha256 == lc_sha256_shani);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha256_arm_ce),
+				   lc_sha256 == lc_sha256_arm_ce);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha256_arm_neon),
+				   lc_sha256 == lc_sha256_arm_neon);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha256_riscv),
+				   lc_sha256 == lc_sha256_riscv);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_sha256_riscv_zbb),
+				   lc_sha256 == lc_sha256_riscv_zbb);
 	ret += test_print_status();
 
 	return ret;

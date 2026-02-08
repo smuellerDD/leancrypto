@@ -97,7 +97,11 @@ int lc_x509_cert_encode(const struct lc_x509_certificate *x509, uint8_t *data,
  * @ingroup X509Gen
  * @brief Encode a private key DER structure
  *
- * The function generates a DER data blob from the private keys
+ * The function generates a DER data blob from the private keys.
+ *
+ * \note Only a raw DER data blob is generated from this encoding operation.
+ * Typically, however, you want a PKCS#8 message to encode the secret key.
+ * For that, please consider \p lc_pkcs8_encode.
  *
  * @param [in] gendata The data structure holding the private keys
  * @param [in,out] data Raw X.509 data blob in DER / BER format - the caller

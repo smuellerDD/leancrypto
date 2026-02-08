@@ -254,9 +254,9 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = xdrbg512_drng_test();
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_XDRBG512, 0);
+	ret = test_validate_status(ret, lc_rng_alg_status(lc_xdrbg512_drng), 0);
 #ifndef LC_FIPS140_DEBUG
-	ret = test_validate_status(ret, LC_ALG_STATUS_SHAKE512, 0);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_shake512), 0);
 #endif
 	ret += test_print_status();
 

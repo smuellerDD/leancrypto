@@ -21,6 +21,7 @@
 #include "ext_headers_internal.h"
 #include "lc_memory_support.h"
 #include "lc_rng.h"
+#include "status_algorithms.h"
 #include "visibility.h"
 
 LC_INTERFACE_FUNCTION(void, lc_rng_check, struct lc_rng_ctx **ctx)
@@ -87,19 +88,21 @@ LC_INTERFACE_FUNCTION(int, lc_rng_seed, struct lc_rng_ctx *ctx,
 	return rng->seed(rng_state, seed, seedlen, persbuf, perslen);
 }
 
-LC_INTERFACE_FUNCTION(uint64_t, lc_rng_algorithm_type, const struct lc_rng *rng)
+LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_rng_alg_status,
+		      const struct lc_rng *rng)
 {
 	if (!rng)
-		return 0;
+		return lc_alg_status_unknown;
 
-	return rng->algorithm_type;
+	/* A priori, all algorithms are eligible for FIPS */
+	return lc_alg_status(rng->algorithm_type | LC_ALG_STATUS_FIPS);
 }
 
-LC_INTERFACE_FUNCTION(uint64_t, lc_rng_ctx_algorithm_type,
+LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_rng_ctx_alg_status,
 		      const struct lc_rng_ctx *ctx)
 {
 	if (!ctx)
-		return 0;
+		return lc_alg_status_unknown;
 
-	return lc_rng_algorithm_type(ctx->rng);
+	return lc_rng_alg_status(ctx->rng);
 }

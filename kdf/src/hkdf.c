@@ -21,6 +21,7 @@
 #include "build_bug_on.h"
 #include "compare.h"
 #include "fips_mode.h"
+#include "hash_common.h"
 #include "lc_hkdf.h"
 #include "lc_memset_secure.h"
 #include "lc_rng.h"
@@ -271,6 +272,16 @@ LC_INTERFACE_FUNCTION(int, lc_hkdf, const struct lc_hash *hash,
 out:
 	lc_hkdf_zero(hkdf);
 	return ret;
+}
+
+LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_hkdf_alg_status,
+		      const struct lc_hash *hash)
+{
+	if (!hash)
+		return lc_alg_status_unknown;
+
+	return lc_alg_status(LC_ALG_STATUS_HKDF |
+			     lc_hash_is_fips_eligible(hash));
 }
 
 static int lc_hkdf_rng_seed(void *_state, const uint8_t *seed, size_t seedlen,

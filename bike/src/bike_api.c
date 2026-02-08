@@ -667,3 +667,38 @@ LC_INTERFACE_FUNCTION(int, lc_bike_dec_kdf, uint8_t *ss, size_t ss_len,
 		return -EOPNOTSUPP;
 	}
 }
+
+LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_bike_alg_status,
+		      const enum lc_bike_type bike_type,
+		      const enum lc_bike_alg_operation operation)
+{
+	(void)bike_type;
+
+	// TODO: implement self-test
+#if 0
+	/* A-priori, all algorithms are eligible for FIPS checks */
+	switch (operation) {
+	case lc_alg_operation_bike_keygen:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_BIKE_KEYGEN);
+	case lc_alg_operation_bike_enc:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_BIKE_ENC);
+	case lc_alg_operation_bike_dec:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_BIKE_DEC);
+	case lc_alg_operation_bike_enc_kdf:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_BIKE_ENC_KDF);
+	case lc_alg_operation_bike_dec_kdf:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_BIKE_DEC_KDF);
+	case lc_alg_operation_bike_unknown:
+	default:
+		return lc_alg_status_unknown;
+	}
+#else
+	(void)operation;
+#endif
+	return lc_alg_status_unknown;
+}

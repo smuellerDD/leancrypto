@@ -153,7 +153,7 @@ void lc_pkcs8_message_clear(struct lc_pkcs8_message *pkcs8);
  *			    so, it is indicated by this parameter which points
  *			    to the used message digest the caller used to
  *			    generate the prehashed message digest. This
- *			    forces the use of the Hash[ML|SLH|Composite]-DSA.
+ *			    forces the use of the Hash[ML|SLH]-DSA.
  *
  * @return 0 on success or < 0 on error
  */

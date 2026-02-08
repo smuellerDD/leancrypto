@@ -22,7 +22,7 @@
 #include "ext_headers_arm.h"
 #include "lc_chacha20.h"
 #include "lc_chacha20_private.h"
-#include "lc_status.h"
+#include "status_algorithms.h"
 #include "lc_sym.h"
 #include "visibility.h"
 

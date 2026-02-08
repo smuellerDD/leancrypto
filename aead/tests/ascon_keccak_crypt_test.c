@@ -392,15 +392,16 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_EXEC_ONE_TEST_256(lc_sha3_256_avx512);
 	LC_EXEC_ONE_TEST_256(lc_sha3_256_riscv_asm);
 
-	if (!(lc_alg_status(lc_aead_algorithm_type(lc_ascon_keccak_aead)) &
+	if (!(lc_aead_alg_status(lc_ascon_keccak_aead) &
 	      lc_alg_status_self_test_passed)) {
-		printf("lc_aead_algorithm_type failure\n");
+		printf("lc_aead_alg_status failure\n");
 		ret++;
 	} else {
-		printf("lc_aead_algorithm_type pass\n");
+		printf("lc_aead_alg_status pass\n");
 	}
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_ASCON_KECCAK, 0);
+	ret = test_validate_status(ret,
+				   lc_aead_alg_status(lc_ascon_keccak_aead), 0);
 	ret += test_print_status();
 
 	return ret;

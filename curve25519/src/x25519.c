@@ -23,6 +23,7 @@
 #include "ret_checkers.h"
 #include "lc_x25519.h"
 #include "timecop.h"
+#include "visibility.h"
 #include "x25519_scalarmult.h"
 
 static void lc_x25519_keypair_selftest(void)
@@ -179,4 +180,22 @@ int lc_x25519_ss(struct lc_x25519_ss *ss, const struct lc_x25519_pk *pk,
 
 out:
 	return ret;
+}
+
+LC_INTERFACE_FUNCTION(enum lc_alg_status_val,
+lc_x25519_alg_status, const enum lc_x25519_alg_operation operation)
+{
+	/* A priori, all algorithms are elegible for FIPS check */
+	switch (operation) {
+	case lc_alg_operation_x25519_keygen:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_X25519_KEYGEN);
+	case lc_alg_operation_x25519_ss:
+		return lc_alg_status(LC_ALG_STATUS_FIPS |
+				     LC_ALG_STATUS_X25519_SS);
+	case lc_alg_operation_x25519_unknown:
+	default:
+		return lc_alg_status_unknown;
+	}
+	return lc_alg_status_unknown;
 }

@@ -170,9 +170,12 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	ret += ed448_sigver_neg_tester();
 	ret += ed448_siggen_tester();
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_ED448_KEYGEN, 1);
-	ret = test_validate_status(ret, LC_ALG_STATUS_ED448_SIGGEN, 1);
-	ret = test_validate_status(ret, LC_ALG_STATUS_ED448_SIGVER, 1);
+	ret = test_validate_status(
+		ret, lc_ed448_alg_status(lc_alg_operation_ed448_keygen), 1);
+	ret = test_validate_status(
+		ret, lc_ed448_alg_status(lc_alg_operation_ed448_siggen), 1);
+	ret = test_validate_status(
+		ret, lc_ed448_alg_status(lc_alg_operation_ed448_sigver), 1);
 	ret += test_print_status();
 
 	return ret;

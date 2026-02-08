@@ -20,7 +20,7 @@
 #include "ext_headers_internal.h"
 #include "lc_sha3.h"
 #include "lc_hmac.h"
-#include "lc_status.h"
+#include "status_algorithms.h"
 #include "visibility.h"
 
 static int rerun_selftest_tester(void)

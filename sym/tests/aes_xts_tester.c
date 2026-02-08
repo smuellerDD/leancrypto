@@ -277,15 +277,23 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_EXEC_ONE_TEST(lc_aes_xts_riscv64);
 	ret += test_xts_common();
 
-	if (!(lc_alg_status(lc_sym_algorithm_type(lc_aes_xts)) &
+	if (!(lc_sym_alg_status(lc_aes_xts) &
 	      (lc_alg_status_self_test_passed | lc_alg_status_fips_approved))) {
-		printf("lc_sym_algorithm_type failure\n");
+		printf("lc_sym_alg_status failure\n");
 		ret++;
 	} else {
-		printf("lc_sym_algorithm_type pass\n");
+		printf("lc_sym_alg_status pass\n");
 	}
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_AES_XTS, 1);
+	ret = test_validate_status(ret, lc_sym_alg_status(lc_aes_xts), 1);
+	ret = test_validate_status(ret, lc_sym_alg_status(lc_aes_xts_aesni),
+				   lc_aes_xts == lc_aes_xts_aesni);
+	ret = test_validate_status(ret, lc_sym_alg_status(lc_aes_xts_armce),
+				   lc_aes_xts == lc_aes_xts_armce);
+	ret = test_validate_status(ret, lc_sym_alg_status(lc_aes_xts_c),
+				   lc_aes_xts == lc_aes_xts_c);
+	ret = test_validate_status(ret, lc_sym_alg_status(lc_aes_xts_riscv64),
+				   lc_aes_xts == lc_aes_xts_riscv64);
 	ret += test_print_status();
 
 	return ret;

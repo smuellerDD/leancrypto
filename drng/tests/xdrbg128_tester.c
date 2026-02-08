@@ -212,9 +212,9 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = xdrbg128_drng_test();
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_XDRBG128, 0);
+	ret = test_validate_status(ret, lc_rng_alg_status(lc_xdrbg128_drng), 0);
 #ifndef LC_FIPS140_DEBUG
-	ret = test_validate_status(ret, LC_ALG_STATUS_ASCONXOF, 1);
+	ret = test_validate_status(ret, lc_hash_alg_status(lc_ascon_xof), 1);
 #endif
 	ret += test_print_status();
 

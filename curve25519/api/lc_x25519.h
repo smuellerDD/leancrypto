@@ -21,6 +21,7 @@
 #define LC_X25519_H
 
 #include "lc_rng.h"
+#include "lc_status.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,6 +47,25 @@ int lc_x25519_keypair(struct lc_x25519_pk *pk, struct lc_x25519_sk *sk,
 		      struct lc_rng_ctx *rng_ctx);
 int lc_x25519_ss(struct lc_x25519_ss *ss, const struct lc_x25519_pk *pk,
 		 const struct lc_x25519_sk *sk);
+
+enum lc_x25519_alg_operation {
+	/** Unknown operation */
+	lc_alg_operation_x25519_unknown,
+	/** ED25519: key generation operation */
+	lc_alg_operation_x25519_keygen,
+	/** ED25519: shared secret generation operation */
+	lc_alg_operation_x25519_ss,
+};
+
+/**
+ * @brief Obtain algorithm status
+ *
+ * @param [in] operation X25519 algorithm type
+ *
+ * @return algorithm status
+ */
+enum lc_alg_status_val
+lc_x25519_alg_status(const enum lc_x25519_alg_operation operation);
 
 #ifdef __cplusplus
 }

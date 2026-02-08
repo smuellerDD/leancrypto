@@ -24,6 +24,7 @@
 #include "lc_chacha20_private.h"
 #include "ret_checkers.h"
 #include "test_helper_common.h"
+#include "ret_checkers.h"
 #include "visibility.h"
 
 static inline void chacha20_bswap32(uint32_t *ptr, uint32_t words)
@@ -37,8 +38,9 @@ static inline void chacha20_bswap32(uint32_t *ptr, uint32_t words)
 	}
 }
 
-static int chacha20_drng_selftest(struct lc_chacha20_drng_ctx *cc20_ctx)
+static int chacha20_drng_selftest(struct lc_rng_ctx *cc20_rng)
 {
+	struct lc_chacha20_drng_ctx *cc20_ctx = cc20_rng->rng_state;
 	struct lc_sym_ctx *sym_ctx = &cc20_ctx->cc20;
 	struct lc_sym_state *chacha20_state = sym_ctx->sym_state;
 	uint8_t outbuf[LC_CC20_KEY_SIZE * 2] __align(sizeof(uint32_t));
@@ -119,33 +121,31 @@ static int chacha20_drng_selftest(struct lc_chacha20_drng_ctx *cc20_ctx)
 	/* Generate with zero state */
 	chacha20_state->counter[0] = 0;
 
-	lc_cc20_drng_generate(cc20_ctx, outbuf, sizeof(expected_block));
+	CKINT(lc_rng_generate(cc20_rng, NULL, 0, outbuf, sizeof(expected_block)));
 	if (lc_compare(outbuf, expected_block, sizeof(expected_block),
 		       "zero block"))
 		return 1;
 
 	/* Clear state of DRNG */
-	if (lc_cc20_drng_zero(cc20_ctx))
-		return 1;
+	lc_rng_zero(cc20_rng);
 
 	/* Reseed with 2 blocks */
 	chacha20_state->counter[0] = 0;
-	CKINT(lc_cc20_drng_seed(cc20_ctx, seed.b, sizeof(expected_twoblocks)));
-	lc_cc20_drng_generate(cc20_ctx, outbuf, sizeof(expected_twoblocks));
+	CKINT(lc_rng_seed(cc20_rng, seed.b, sizeof(expected_twoblocks), NULL, 0));
+	CKINT(lc_rng_generate(cc20_rng, NULL, 0, outbuf, sizeof(expected_twoblocks)));
 	if (lc_compare(outbuf, expected_twoblocks, sizeof(expected_twoblocks),
 		       "twoblocks"))
 		return ret;
 
 	/* Clear state of DRNG */
-	if (lc_cc20_drng_zero(cc20_ctx))
-		return 1;
+	lc_rng_zero(cc20_rng);
 
 	/* Reseed with 1 block and one byte */
 	chacha20_state->counter[0] = 0;
-	CKINT(lc_cc20_drng_seed(cc20_ctx, seed.b,
-				sizeof(expected_block_nonaligned)));
-	lc_cc20_drng_generate(cc20_ctx, outbuf,
-			      sizeof(expected_block_nonaligned));
+	CKINT(lc_rng_seed(cc20_rng, seed.b,
+				sizeof(expected_block_nonaligned), NULL, 0));
+	CKINT(lc_rng_generate(cc20_rng, NULL, 0, outbuf,
+			      sizeof(expected_block_nonaligned)));
 	ret += lc_compare(outbuf, expected_block_nonaligned,
 			  sizeof(expected_block_nonaligned),
 			  "block nonaligned");
@@ -156,14 +156,14 @@ out:
 
 static int chacha20_tester(void)
 {
-	struct lc_chacha20_drng_ctx *cc20_ctx_heap = NULL;
+	struct lc_rng_ctx *cc20_ctx_heap = NULL;
 	int ret;
 	LC_CC20_DRNG_CTX_ON_STACK(cc20_ctx);
 
 	CKINT_LOG(chacha20_drng_selftest(cc20_ctx),
 		  "ChaCha20 DRNG self test failure: %d\n", ret);
 
-	CKINT(lc_cc20_drng_zero(cc20_ctx));
+	lc_rng_zero(cc20_ctx);
 
 	CKINT_LOG(lc_cc20_drng_alloc(&cc20_ctx_heap),
 		  "ChaCha20 DRNG heap allocation failure: %d\n", ret);
@@ -171,7 +171,7 @@ static int chacha20_tester(void)
 	ret = chacha20_drng_selftest(cc20_ctx_heap);
 
 out:
-	lc_cc20_drng_zero_free(cc20_ctx_heap);
+	lc_rng_zero_free(cc20_ctx_heap);
 	return ret;
 }
 
@@ -185,9 +185,9 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	ret = !!chacha20_tester();
 
 #ifndef LC_FIPS140_DEBUG
-	ret = test_validate_status(ret, LC_ALG_STATUS_CHACHA20_DRNG, 0);
+	ret = test_validate_status(ret, lc_rng_alg_status(lc_cc20_drng), 0);
 #endif
-	ret = test_validate_status(ret, LC_ALG_STATUS_CHACHA20, 0);
+	ret = test_validate_status(ret, lc_sym_alg_status(lc_chacha20), 0);
 	ret += test_print_status();
 
 	return ret;

@@ -22,7 +22,7 @@
 
 #include "bitshift.h"
 #include "ext_headers_arm.h"
-#include "lc_status.h"
+#include "status_algorithms.h"
 #include "sha256_arm_ce.h"
 #include "sha2_common.h"
 #include "visibility.h"

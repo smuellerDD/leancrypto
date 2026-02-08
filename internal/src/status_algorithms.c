@@ -160,12 +160,6 @@ struct alg_status_show {
 	uint8_t strlen;
 };
 
-/*
- * Marker for an algorithm whether it is FIPS-approved - this marker uses the high
- * bits in the algorithm type which are not accessible via the types.
- */
-#define LC_ALG_STATUS_FIPS (1UL << 31)
-
 // clang-format off
 static const struct alg_status_show alg_status_show_aead[] = {
 #if (defined(LC_AES_GCM) || defined(CONFIG_LEANCRYPTO_AES_GCM))
@@ -524,8 +518,9 @@ alg_status_is_fips_one(uint64_t flag,
 		       size_t array_size, atomic_t *status)
 {
 	const struct alg_status_show *alg_status_show;
-	alg_status_t alg = flag & ~LC_ALG_STATUS_TYPE_MASK;
-	unsigned int i;
+	unsigned int i, fips_requested = flag & LC_ALG_STATUS_FIPS;
+	alg_status_t alg = (alg_status_t)(flag & ~(LC_ALG_STATUS_TYPE_MASK |
+						   LC_ALG_STATUS_FIPS));
 	enum lc_alg_status_result result = alg_status_result(status, alg);
 	enum lc_alg_status_val val = lc_alg_status_unknown;
 
@@ -546,13 +541,16 @@ alg_status_is_fips_one(uint64_t flag,
 	 * Find the definition in the array for the given algorithm and
 	 * extract the FIPS approved marker.
 	 */
-	for (i = 0, alg_status_show = alg_status_show_arr; i < array_size;
-	     i++, alg_status_show++) {
-		if ((alg_status_show->flag & ~LC_ALG_STATUS_TYPE_MASK) == alg) {
-			if (alg_status_show->flag & LC_ALG_STATUS_FIPS)
-				val |= lc_alg_status_fips_approved;
+	if (fips_requested) {
+		for (i = 0, alg_status_show = alg_status_show_arr;
+		     i < array_size; i++, alg_status_show++) {
+			if ((alg_status_show->flag &
+			     ~LC_ALG_STATUS_TYPE_MASK) == alg) {
+				if (alg_status_show->flag & LC_ALG_STATUS_FIPS)
+					val |= lc_alg_status_fips_approved;
 
-			break;
+				break;
+			}
 		}
 	}
 
@@ -561,9 +559,17 @@ alg_status_is_fips_one(uint64_t flag,
 
 enum lc_alg_status_result alg_status_get_result(uint64_t flag)
 {
-	alg_status_t alg = flag & ~LC_ALG_STATUS_TYPE_MASK;
+	alg_status_t alg;
 
-	switch (flag & LC_ALG_STATUS_TYPE_MASK) {
+	/*
+	 * Remove the FIPS requested flag as this is of no interest here. This
+	 * function only returns the test status.
+	 */
+	flag &= ~LC_ALG_STATUS_FIPS;
+
+	alg = (alg_status_t)(flag & ~LC_ALG_STATUS_TYPE_MASK);
+
+	switch (flag & (LC_ALG_STATUS_TYPE_MASK)) {
 	case LC_ALG_STATUS_TYPE_AEAD:
 		return alg_status_result(&lc_alg_status_aead, alg);
 		break;

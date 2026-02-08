@@ -210,7 +210,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret = lc_aes_gcm_test(argc);
 
-	ret = test_validate_status(ret, LC_ALG_STATUS_AES_GCM, 1);
+	ret = test_validate_status(ret, lc_aead_alg_status(lc_aes_gcm_aead), 1);
 	ret += test_print_status();
 
 	lc_cpu_feature_enable();

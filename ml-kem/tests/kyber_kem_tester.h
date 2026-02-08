@@ -63,6 +63,33 @@ int _kyber_kem_kdf_tester(
 				 const struct lc_kyber_ct *ct,
 				 const struct lc_kyber_sk *sk));
 
+/* Unfortunately, a duplication is necessary as lc_kyber.h cannot be included */
+enum lc_kyber_type {
+	LC_KYBER_UNKNOWN, /** Unknown key type */
+	LC_KYBER_1024, /** Kyber 1024 */
+	LC_KYBER_768, /** Kyber 768 */
+	LC_KYBER_512, /** Kyber 512 */
+};
+
+enum lc_kyber_alg_operation {
+	/** Unknown operation */
+	lc_alg_operation_kyber_unknown,
+	/** ML-KEM: key generation operation */
+	lc_alg_operation_kyber_keygen,
+	/** ML-KEM: encapsulation operation */
+	lc_alg_operation_kyber_enc,
+	/** ML-KEM: decapsulation operation */
+	lc_alg_operation_kyber_dec,
+	/** ML-KEM: encapsulation operation with KDF */
+	lc_alg_operation_kyber_enc_kdf,
+	/** ML-KEM: decapsulation operation with KDF */
+	lc_alg_operation_kyber_dec_kdf,
+};
+
+enum lc_alg_status_val
+lc_kyber_alg_status(const enum lc_kyber_type kyber_type,
+		    const enum lc_kyber_alg_operation operation);
+
 #ifdef __cplusplus
 }
 #endif

@@ -23,6 +23,7 @@
 #include "ext_headers.h"
 #include "lc_memset_secure.h"
 #include "lc_memory_support.h"
+#include "lc_status.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -399,23 +400,23 @@ int lc_sponge_newstate(const struct lc_hash *hash, void *state,
 
 /**
  * @ingroup Hashing
- * @brief Obtain algorithm type usable with lc_alg_status
+ * @brief Obtain algorithm status
  *
  * @param [in] hash Hash algorithm instance
  *
- * @return algorithm type
+ * @return algorithm status
  */
-uint64_t lc_hash_algorithm_type(const struct lc_hash *hash);
+enum lc_alg_status_val lc_hash_alg_status(const struct lc_hash *hash);
 
 /**
  * @ingroup Hashing
- * @brief Obtain algorithm type usable with lc_alg_status
+ * @brief Obtain algorithm status
  *
  * @param [in] ctx Hash context handle
  *
- * @return algorithm type
+ * @return algorithm status
  */
-uint64_t lc_hash_ctx_algorithm_type(const struct lc_hash_ctx *ctx);
+enum lc_alg_status_val lc_hash_ctx_alg_status(const struct lc_hash_ctx *ctx);
 
 
 #ifdef __cplusplus
