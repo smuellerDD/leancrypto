@@ -314,7 +314,8 @@ if get_option('ascon').enabled()
 	else
 		src += files([ 'ascon_arm_neon_null.c' ])
 	endif
-
+else
+	lc_ascon_null = 1
 endif
 
 if get_option('chacha20poly1305').enabled()
