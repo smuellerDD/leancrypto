@@ -21,7 +21,7 @@
 
 #include "compare.h"
 #include "keccak_asm_glue.h"
-#include "lc_status.h"
+#include "status_algorithms.h"
 #include "sha3_riscv_asm.h"
 #include "sha3_common.h"
 #include "sha3_selftest.h"

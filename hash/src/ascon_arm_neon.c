@@ -24,7 +24,7 @@
 #include "ascon_hash_common.h"
 #include "ext_headers_arm.h"
 #include "lc_ascon_hash.h"
-#include "lc_status.h"
+#include "status_algorithms.h"
 #include "visibility.h"
 
 static void ascon_arm_neon_permutation(void *state, unsigned int rounds)

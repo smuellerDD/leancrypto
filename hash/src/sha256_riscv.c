@@ -21,7 +21,7 @@
 #include "asm/riscv64/sha2-256-riscv.h"
 
 #include "bitshift.h"
-#include "lc_status.h"
+#include "status_algorithms.h"
 #include "sha256_riscv.h"
 #include "sha2_common.h"
 #include "visibility.h"

@@ -26,7 +26,7 @@
 #include "ext_headers_arm.h"
 #include "lc_memset_secure.h"
 #include "lc_sha3.h"
-#include "lc_status.h"
+#include "status_algorithms.h"
 #include "sha3_arm_ce.h"
 #include "sha3_common.h"
 #include "sha3_selftest.h"

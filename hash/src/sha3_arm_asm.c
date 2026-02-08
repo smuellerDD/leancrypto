@@ -25,7 +25,7 @@
 #include "ext_headers_internal.h"
 #include "ext_headers_arm.h"
 #include "lc_sha3.h"
-#include "lc_status.h"
+#include "status_algorithms.h"
 #include "sha3_arm_asm.h"
 #include "sha3_common.h"
 #include "sha3_selftest.h"

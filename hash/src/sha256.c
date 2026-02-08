@@ -25,7 +25,7 @@
 #include "hash_common.h"
 #include "lc_sha256.h"
 #include "lc_memset_secure.h"
-#include "lc_status.h"
+#include "status_algorithms.h"
 #include "sha2_common.h"
 #include "sha256_c.h"
 #include "visibility.h"

@@ -22,7 +22,7 @@
 #include "compare.h"
 #include "ext_headers_x86.h"
 #include "keccak_asm_glue.h"
-#include "lc_status.h"
+#include "status_algorithms.h"
 #include "sha3_avx512.h"
 #include "sha3_selftest.h"
 #include "visibility.h"

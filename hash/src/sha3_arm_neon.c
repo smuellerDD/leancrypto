@@ -22,7 +22,7 @@
 #include "compare.h"
 #include "ext_headers_arm.h"
 #include "keccak_asm_glue.h"
-#include "lc_status.h"
+#include "status_algorithms.h"
 #include "sha3_arm_neon.h"
 #include "sha3_selftest.h"
 #include "visibility.h"

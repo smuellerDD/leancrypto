@@ -23,7 +23,7 @@
 #include "ascon_hash.h"
 #include "ascon_hash_common.h"
 #include "lc_ascon_hash.h"
-#include "lc_status.h"
+#include "status_algorithms.h"
 #include "visibility.h"
 
 static inline void

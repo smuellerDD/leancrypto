@@ -22,7 +22,7 @@
 
 #include "bitshift.h"
 #include "ext_headers_x86.h"
-#include "lc_status.h"
+#include "status_algorithms.h"
 #include "sha512_avx2.h"
 #include "sha2_common.h"
 #include "visibility.h"
