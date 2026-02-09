@@ -51,6 +51,8 @@ Changes 1.7.0-prerelease
 
 * ChaCha20 DRNG wrapped in common wrapper
 
+* Seeded RNG: always insert the current time stamp as additional data during a generate operation - this is cheap as the time stamp is always gathered and the insertion of additional 8 bytes into the DRBG state requires minimal operations
+
 Changes 1.6.0
 * ASN.1: use stack for small generator for small use cases
 

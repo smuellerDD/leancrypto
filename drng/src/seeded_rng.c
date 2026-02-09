@@ -201,7 +201,8 @@ static time64_t get_time(void)
 
 #endif /* LINUX_KERNEL */
 
-static int lc_seed_seeded_rng(struct lc_seeded_rng_ctx *rng, int init,
+static int lc_seed_seeded_rng(struct lc_seeded_rng_ctx *rng,
+			      const uint8_t *pers, size_t pers_len, int init,
 			      pid_t newpid)
 {
 	/* We provide twice the buffer size for the kernel seed sources */
@@ -229,8 +230,8 @@ static int lc_seed_seeded_rng(struct lc_seeded_rng_ctx *rng, int init,
 		    (size_t)datasize > sizeof(seed))
 			return -EFAULT;
 
-		CKINT(lc_rng_seed(rng->rng_ctx, seed, (size_t)datasize, NULL,
-				  0));
+		CKINT(lc_rng_seed(rng->rng_ctx, seed, (size_t)datasize, pers,
+				  pers_len));
 	}
 
 	rng->bytes = 0;
@@ -260,23 +261,41 @@ void lc_seeded_rng_zero_state(void)
 	rng = seeded_rng.rng_ctx;
 	if (!rng)
 		return;
-	seeded_rng.rng_ctx = NULL;
+
+	mutex_w_lock(&seeded_rng.lock);
 
 	if (seeded_rng.last_seeded)
 		lc_rng_zero(rng);
 
+	/*
+	 * Set the state such that in case the seeded_rng is used after this
+	 * function, it is automatically newly instantiated. Surely any use
+	 * after this call of the seeded_rng is a programming bug, but
+	 * leancrypto tries to be as gracefully as possible especially in the
+	 * realm of random numbers - the pillar of all cryptography.
+	 *
+	 * seeded.rng does not need to be reinitialized as lc_rng_zero only
+	 * clears the state, but leaves the RNG handle fully in tact.
+	 */
+	seeded_rng.pid = 0;
+	seeded_rng.last_seeded = 0;
+	seeded_rng.bytes = LC_SEEDED_RNG_MAX_BYTES + 1,
+
+	mutex_w_unlock(&seeded_rng.lock);
+
 	seeded_rng_noise_fini();
 }
 
-static time64_t time_after_now(time64_t base)
+static time64_t time_after_now(time64_t base, time64_t *curr_time)
 {
 	time64_t curr = get_time();
 
+	*curr_time = curr;
 	return time64_after(curr, base) ? (curr - base) : 0;
 }
 
 static int lc_seeded_rng_must_reseed(struct lc_seeded_rng_ctx *rng,
-				     pid_t *newpid)
+				     pid_t *newpid, time64_t *curr_time)
 {
 	pid_t pid;
 
@@ -287,7 +306,8 @@ static int lc_seeded_rng_must_reseed(struct lc_seeded_rng_ctx *rng,
 		return 1;
 
 	/* ... or our seeding was too long ago ... */
-	if (time_after_now(rng->last_seeded + LC_SEEDED_RNG_MAX_TIME))
+	if (time_after_now(rng->last_seeded + LC_SEEDED_RNG_MAX_TIME,
+			   curr_time))
 		return 1;
 
 	/*
@@ -303,7 +323,8 @@ static int lc_seeded_rng_must_reseed(struct lc_seeded_rng_ctx *rng,
 	return 0;
 }
 
-static int lc_get_seeded_rng(struct lc_seeded_rng_ctx **rng_ret)
+static int lc_get_seeded_rng(struct lc_seeded_rng_ctx **rng_ret,
+			     time64_t *curr_time)
 {
 	pid_t newpid = 0;
 	int ret = 0, init = 0;
@@ -317,9 +338,11 @@ static int lc_get_seeded_rng(struct lc_seeded_rng_ctx **rng_ret)
 		init = 1;
 	}
 
-	/* Force reseed if needed */
-	if (lc_seeded_rng_must_reseed(&seeded_rng, &newpid))
-		CKINT(lc_seed_seeded_rng(&seeded_rng, init, newpid));
+	/* Force reseed if needed using the time stamp as additional data. */
+	if (lc_seeded_rng_must_reseed(&seeded_rng, &newpid, curr_time)) {
+		CKINT(lc_seed_seeded_rng(&seeded_rng, (uint8_t *)&curr_time,
+					 sizeof(curr_time), init, newpid));
+	}
 
 	*rng_ret = &seeded_rng;
 
@@ -335,19 +358,39 @@ static int lc_seeded_rng_generate(void *_state, const uint8_t *addtl_input,
 {
 	struct lc_seeded_rng_ctx *rng = NULL;
 	size_t updated_len;
+	time64_t curr_time;
 	int ret;
 
 	if (_state)
 		return -EINVAL;
 
 	/* Get the DRNG state that is fully seeded */
-	CKINT(lc_get_seeded_rng(&rng));
+	CKINT(lc_get_seeded_rng(&rng, &curr_time));
 
 	mutex_w_lock(&rng->lock);
 
-	/* Generate random numbers */
-	CKINT(lc_rng_generate(rng->rng_ctx, addtl_input, addtl_input_len, out,
-			      outlen));
+	/*
+	 * Generate random numbers
+	 *
+	 * Always insert the gathered time as additional input into the DRBG.
+	 * This is intended to ensure different DRBG states in case there
+	 * was any address space duplication that the getpid() operation did
+	 * not detect (which we hope does not occur).
+	 */
+	if (addtl_input) {
+		/*
+		 * Insert the current time as a reseed operation - this
+		 * operation is not considered to add entropy, but shall just
+		 * mix the state.
+		 */
+		CKINT(lc_rng_seed(rng->rng_ctx, (uint8_t *)&curr_time,
+				  sizeof(curr_time), NULL, 0));
+		CKINT(lc_rng_generate(rng->rng_ctx, addtl_input,
+				      addtl_input_len, out, outlen));
+	} else {
+		CKINT(lc_rng_generate(rng->rng_ctx, (uint8_t *)&curr_time,
+				      sizeof(curr_time), out, outlen));
+	}
 
 	/* Check wrap around and avoid a wrap for the rng->bytes state */
 	updated_len = rng->bytes + outlen;
@@ -366,15 +409,26 @@ static int lc_seeded_rng_seed(void *_state, const uint8_t *seed, size_t seedlen,
 			      const uint8_t *persbuf, size_t perslen)
 {
 	struct lc_seeded_rng_ctx *rng = NULL;
+	time64_t curr_time;
 	int ret;
 
 	if (_state)
 		return -EINVAL;
 
-	CKINT(lc_get_seeded_rng(&rng));
+	CKINT(lc_get_seeded_rng(&rng, &curr_time));
 
 	mutex_w_lock(&rng->lock);
-	CKINT(lc_seed_seeded_rng(rng, 0, 0));
+
+	/*
+	 * Use the time stamp as additional data to seed the DRBG with the
+	 * internal entropy sources to ensure proper seeding with all required
+	 * entropy. The use of internal entropy sources is unconditional to
+	 * not rely on the caller-provided data.
+	 */
+	CKINT(lc_seed_seeded_rng(rng, (uint8_t *)&curr_time, sizeof(curr_time),
+				 0, 0));
+
+	/* Now insert the caller-provided data. */
 	CKINT(lc_rng_seed(rng->rng_ctx, seed, seedlen, persbuf, perslen));
 
 out:
@@ -385,9 +439,25 @@ out:
 
 static void lc_seeded_rng_zero(void *_state)
 {
+	struct lc_seeded_rng_ctx *rng = NULL;
+	time64_t curr_time;
+
 	(void)_state;
 
-	/* Do nothing */
+	/*
+	 * Instead of zeroizing the state, we simply reseed the state to
+	 * obliterate any potential information an adversay may have about
+	 * the current state. This implies that the seeded_rng is always ready
+	 * for action in case there is a programming error in the caller and
+	 * he calls zeroize by immediately following a generate operation.
+	 */
+
+	if (lc_get_seeded_rng(&rng, &curr_time))
+		return;
+
+	mutex_w_lock(&rng->lock);
+	lc_seed_seeded_rng(rng, (uint8_t *)&curr_time, sizeof(curr_time), 0, 0);
+	mutex_w_unlock(&rng->lock);
 }
 
 static const struct lc_rng _lc_seeded_rng = {
