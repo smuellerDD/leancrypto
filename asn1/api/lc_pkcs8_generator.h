@@ -58,6 +58,15 @@
  *
  * The signature of the data using the signer is created within this call.
  *
+ * This API offers generation of PKCS#8 messages with:
+ * * ML-DSA expanded key (i.e. full ML-DSA key) following RFC 9881 chapter 6.
+ *   This is enabled by generating a new key pair as seed with
+ *   lc_x509_keypair_gen.
+ * * ML-DSA seed which is expanded into the full ML-DSA key during parsing
+ *   following RFC 9881 chapter 6. This is enabled by generating a new key pair
+ *   without defining it as seed using lc_x509_keypair_gen.
+ * * For all other algorithms, the common key type
+ *
  * @param [in] pkcs8 The data structure that is filled by the caller before this
  *		     invocation using the various setter functions.
  * @param [in,out] data Raw PKCS#8 data blob in DER / BER format - the caller

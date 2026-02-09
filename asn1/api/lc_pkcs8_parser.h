@@ -90,11 +90,18 @@
  * \p data pointer constant as long as the \p pkcs8 pointer is valid.
  *
  * \note This function only loads and parses the PKCS#8 message into the data
- * structure to allow leancrypto to immediately access the information. This
- * function call does not validate the PKCS#8 message (except for a self-signed
- * signature). Thus, the caller MUST apply the PKCS#8 verification API to
- * validate the PKCS#8 message considering that the loading of the PKCS#8
- * message has no information about the use case.
+ * structure to allow leancrypto to immediately access the information. In
+ * addition, the PKCS#8 decoding parses the private key into the leancrypto
+ * internal representation of the key. I.e. an ML-DSA key is parsed such
+ * that it can be directly used with all leancrypto APIs.
+ *
+ * This API offers parsing of:
+ * * ML-DSA expanded key (i.e. full ML-DSA key) - RFC 9881 chapter 6
+ * * ML-DSA seed which is expanded into the full ML-DSA key during parsing -
+ *   RFC 9881 chapter 6.
+ * * ML-DSA expanded and seed key where the parsing operation verifies that both
+ *   correspond - RFC 9881 chapter 6.
+ * * For all other algorithms, the common key type
  *
  * @param [in,out] pkcs8 The data structure that is filled with all parameters
  *			from the PKCS#8 message data buffer. The buffer must
@@ -115,6 +122,9 @@ int lc_pkcs8_decode(struct lc_pkcs8_message *pkcs8, const uint8_t *data,
  * The function sets the pointers to the private key in the PKCS#8 message
  * correctly. For encoding, the private key is read, for decoding, the
  * private key buffer is filled by the parser.
+ *
+ * \note Without this call, the parsing or generation of a PKCS#8 message will
+ * fail as the main goal of a PKCS#8 message is to transport private keys.
  *
  * @param [in,out] pkcs8 The PKCS#8 data structure that shall receive the
  *			 private key.
