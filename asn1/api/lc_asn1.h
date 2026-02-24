@@ -192,7 +192,7 @@ enum OID {
 	OID_id_MLDSA65_Ed25519, /* 1.3.6.1.5.5.7.6.48 */
 	OID_id_MLDSA87_Ed448, /* 1.3.6.1.5.5.7.6.51 */
 
-	/* OIDs from https://github.com/IETF-Hackathon/pqc-certificates/blob/master/docs/oid_mapping.md */
+	/* OIDs from RFC9814 */
 	OID_id_SLHDSA_SHAKE_128S, /* 2.16.840.1.101.3.4.3.26 */
 	OID_id_SLHDSA_SHAKE_128F, /* 2.16.840.1.101.3.4.3.27 */
 	OID_id_SLHDSA_SHAKE_192S, /* 2.16.840.1.101.3.4.3.28 */
