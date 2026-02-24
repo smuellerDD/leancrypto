@@ -970,6 +970,20 @@ int lc_x509_note_serial_enc(void *context, uint8_t *data, size_t *avail_datalen,
 	 * CAs MUST force the serialNumber to be a non-negative integer, that
 	 * is, the sign bit in the DER encoding of the INTEGER value MUST be
 	 * zero.
+	 *
+	 * We could also simply eliminate the high bit via
+	 * cert->raw_serial[0] &= ~0x80, but this would either require a
+	 * modification of a caller-providd data, duplication of the serial
+	 * number or modification on the fly. None of these options are desired
+	 * as the resulting certificate would then show a different serial
+	 * than set by the caller. As this is absolutely non-transparent, we
+	 * simply add a leading zero in case the high bit is set.
+	 *
+	 * Yes, in the worst case, this would imply that the serial number
+	 * is in total 21 bytes long considering lc_x509_cert_set_serial: 20
+	 * bytes of the value and 21st byte holding the zero as sign
+	 * information. The RFC is not clear whether the 20 bytes are including
+	 * or excluding the sign information.
 	 */
 	if (cert->raw_serial[0] & 0x80) {
 		serial_size++;
