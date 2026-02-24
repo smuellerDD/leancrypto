@@ -93,7 +93,7 @@ static inline void PartialStore(const __m512i val, uint8_t *Dest, uint64_t Size)
 	lc_memset_secure(BuffForPartialOp, 0, sizeof(BuffForPartialOp));
 }
 
-#define DISABLE_16_BLOCKS
+#undef DISABLE_16_BLOCKS
 int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 			    uint64_t len)
 {
@@ -159,7 +159,7 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 		ws->T3 = _mm512_set_epi64(0, 15, 0, 14, 0, 13, 0, 12);
 
 		ws->state3_2 = _mm512_add_epi32(ws->T1, ws->T2);
-		ws->ws->state3_3 = _mm512_add_epi32(ws->T1, ws->T3);
+		ws->state3_3 = _mm512_add_epi32(ws->T1, ws->T3);
 
 		ws->ctr_increment =
 			_mm512_set_epi64(0, 16, 0, 16, 0, 16, 0, 16);
@@ -311,7 +311,7 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 
 				ws->X0_3 = _mm512_xor_si512(ws->X0_3, ws->X0_0);
 				ws->X1_3 = _mm512_xor_si512(ws->X1_3, ws->X1_0);
-				ws->X2_3 = _mm512_xor_si512(ws->X2_3, ws->X3_0);
+				ws->X2_3 = _mm512_xor_si512(ws->X2_3, ws->X2_0);
 				ws->X3_3 = _mm512_xor_si512(ws->X3_3, ws->X3_0);
 
 				ws->X0_3 = _mm512_rol_epi32(ws->X0_3, 8);
@@ -321,8 +321,8 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 
 				ws->X0_2 = _mm512_add_epi32(ws->X0_2, ws->X0_3);
 				ws->X1_2 = _mm512_add_epi32(ws->X1_2, ws->X1_3);
-				ws->X2_2 = _mm512_add_epi32(ws->X2_2, ws->X3_3);
-				ws->X3_2 = _mm512_add_epi32(ws->X2_2, ws->X3_3);
+				ws->X2_2 = _mm512_add_epi32(ws->X2_2, ws->X2_3);
+				ws->X3_2 = _mm512_add_epi32(ws->X3_2, ws->X3_3);
 
 				ws->X0_1 = _mm512_xor_si512(ws->X0_1, ws->X0_2);
 				ws->X1_1 = _mm512_xor_si512(ws->X1_1, ws->X1_2);
@@ -543,7 +543,7 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 					(const __m512i *)(CurrentIn + 13 * 64));
 				ws->T3 = _mm512_loadu_si512(
 					(const __m512i *)(CurrentIn + 14 * 64));
-				T4 = _mm512_loadu_si512(
+				ws->T4 = _mm512_loadu_si512(
 					(const __m512i *)(CurrentIn + 15 * 64));
 #pragma GCC diagnostic pop
 
