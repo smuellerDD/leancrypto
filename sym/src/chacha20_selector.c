@@ -43,6 +43,9 @@ LC_CONSTRUCTOR(chacha20_fastest_impl, LC_INIT_PRIO_ALGO)
 
 	/* Check if NULL pointers are present */
 	LC_FILL_ACCEL_NULL(neon)
+	LC_FILL_ACCEL_NULL(avx512)
+	LC_FILL_ACCEL_NULL(avx2)
+	LC_FILL_ACCEL_NULL(riscv64_v_zbb)
 
 #define LC_FILL_DFLT_IMPL(accel) lc_chacha20 = lc_chacha20_##accel;
 
