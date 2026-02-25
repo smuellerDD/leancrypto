@@ -340,8 +340,7 @@ static int lc_get_seeded_rng(struct lc_seeded_rng_ctx **rng_ret,
 
 	/* Force reseed if needed using the time stamp as additional data. */
 	if (lc_seeded_rng_must_reseed(&seeded_rng, &newpid, curr_time)) {
-		CKINT(lc_seed_seeded_rng(&seeded_rng, (uint8_t *)&curr_time,
-					 sizeof(curr_time), init, newpid));
+		CKINT(lc_seed_seeded_rng(&seeded_rng, NULL, 0, init, newpid));
 	}
 
 	*rng_ret = &seeded_rng;
