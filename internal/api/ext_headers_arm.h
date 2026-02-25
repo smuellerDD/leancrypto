@@ -23,9 +23,22 @@
 #ifdef LINUX_KERNEL
 
 #include <asm/neon.h>
+#include <linux/version.h>
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 19, 0)
+#include <asm/simd.h>
+
+#define LC_NEON_ENABLE                                                         \
+	scoped_ksimd()                                                         \
+	{
+#define LC_NEON_DISABLE }
+
+#else
 
 #define LC_NEON_ENABLE kernel_neon_begin()
 #define LC_NEON_DISABLE kernel_neon_end()
+
+#endif
 
 #define UINT64_C U64_C
 
