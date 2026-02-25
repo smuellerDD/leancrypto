@@ -18,7 +18,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y meson gnu-efi
     - name: Meson setup
-      run: meson setup build -Dsmall_stack=enabled -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled
+      run: meson setup build -Dsmall_stack=enabled -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled  -Dsbsigntools=enabled
     - name: Meson compile
       run: meson compile -C build
     - name: Meson test

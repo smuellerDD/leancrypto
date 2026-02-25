@@ -18,7 +18,7 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y meson gnu-efi
     - name: Meson setup
-      run: meson setup build -Dfips140_negative=enabled
+      run: meson setup build -Dfips140_negative=enabled -Dsbsigntools=enabled
     - name: Meson compile
       run: meson compile -C build
     - name: Meson test

@@ -18,6 +18,6 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y meson clang clang-tools gnu-efi
     - name: Meson setup
-      run: CC=clang meson setup build -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled
+      run: CC=clang meson setup build -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled -Dsbsigntools=enabled
     - name: Clang Scanner
       run: SCANBUILD=$(pwd)/addon/scan-build.sh ninja -C build/ scan-build
