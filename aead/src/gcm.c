@@ -347,19 +347,28 @@ static int gcm_setkey(struct lc_aes_gcm_cryptor *ctx, const uint8_t *key,
 	H[1] = ptr_to_be64(h + 8);
 
 	/* Accelerated GCM init */
+#ifdef LC_HOST_AARCH64
 	if (feat & LC_CPU_FEATURE_ARM_PMULL) {
 		gfmul_init_armv8((uint64_t *)ctx->gcm_ctx.HL, H);
 		ctx->gcm_ctx.gcm_gmult_accel = gfmul_armv8;
 		goto out;
-	} else if (feat & LC_CPU_FEATURE_INTEL_PCLMUL) {
+	} else
+#endif
+#ifdef LC_HOST_X86_64
+	if (feat & LC_CPU_FEATURE_INTEL_PCLMUL) {
 		gfmu_x8664_init((uint64_t *)ctx->gcm_ctx.HL, H);
 		ctx->gcm_ctx.gcm_gmult_accel = gfmu_x8664;
 		goto out;
-	} else if (feat & LC_CPU_FEATURE_RISCV_ASM_ZBB) {
+	} else
+#endif
+#ifdef LC_HOST_RISCV64
+	if (feat & LC_CPU_FEATURE_RISCV_ASM_ZBB) {
 		gfmul_init_riscv64_zbb((uint64_t *)ctx->gcm_ctx.HL, H);
 		ctx->gcm_ctx.gcm_gmult_accel = gfmul_riscv64;
 		goto out;
-	} else if (feat & LC_CPU_FEATURE_RISCV) {
+	} else
+#endif
+	if (feat & LC_CPU_FEATURE_RISCV) {
 		gfmul_init_riscv64((uint64_t *)ctx->gcm_ctx.HL, H);
 		ctx->gcm_ctx.gcm_gmult_accel = gfmul_riscv64;
 		goto out;
