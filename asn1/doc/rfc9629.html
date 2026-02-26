@@ -1,0 +1,2184 @@
+
+<!DOCTYPE html>
+<html lang="en" class="RFC">
+<head>
+<meta charset="utf-8">
+<meta content="Common,Latin" name="scripts">
+<meta content="initial-scale=1.0" name="viewport">
+<title>RFC 9629: Using Key Encapsulation Mechanism (KEM) Algorithms in the Cryptographic Message Syntax (CMS)</title>
+<meta content="Russ Housley" name="author">
+<meta content="John Gray" name="author">
+<meta content="大久保　智史 (Tomofumi Okubo)" name="author">
+<meta content="
+       The Cryptographic Message Syntax (CMS) supports key transport and
+key agreement algorithms.  In recent years, cryptographers have been
+specifying Key Encapsulation Mechanism (KEM) algorithms, including
+quantum-secure KEM algorithms.  This document defines conventions for
+the use of KEM algorithms by the originator and recipients to encrypt
+and decrypt CMS content.  This document updates RFC 5652. 
+    " name="description">
+<meta content="xml2rfc 3.22.0" name="generator">
+<meta content="kemri" name="keyword">
+<meta content="KEMRecipientInfo" name="keyword">
+<meta content="9629" name="rfc.number">
+<!-- Generator version information:
+  xml2rfc 3.22.0
+    Python 3.9.15
+    ConfigArgParse 1.5.3
+    google-i18n-address 3.0.0
+    intervaltree 3.1.0
+    Jinja2 3.1.2
+    lxml 4.9.0
+    platformdirs 3.8.0
+    pycountry 22.3.5
+    PyYAML 6.0
+    requests 2.28.0
+    setuptools 44.1.1
+    wcwidth 0.2.5
+    weasyprint 62.3
+-->
+<link href="rfc9629.xml" rel="alternate" type="application/rfc+xml">
+<link href="#copyright" rel="license">
+<style type="text/css">/*
+
+  NOTE: Changes at the bottom of this file overrides some earlier settings.
+
+  Once the style has stabilized and has been adopted as an official RFC style,
+  this can be consolidated so that style settings occur only in one place, but
+  for now the contents of this file consists first of the initial CSS work as
+  provided to the RFC Formatter (xml2rfc) work, followed by itemized and
+  commented changes found necessary during the development of the v3
+  formatters.
+
+*/
+
+/* fonts */
+@import url('https://fonts.googleapis.com/css?family=Noto+Sans'); /* Sans-serif */
+@import url('https://fonts.googleapis.com/css?family=Noto+Serif'); /* Serif (print) */
+@import url('https://fonts.googleapis.com/css?family=Roboto+Mono'); /* Monospace */
+
+:root {
+  --font-sans: 'Noto Sans', Arial, Helvetica, sans-serif;
+  --font-serif: 'Noto Serif', 'Times', 'Times New Roman', serif;
+  --font-mono: 'Roboto Mono', Courier, 'Courier New', monospace;
+}
+
+@viewport {
+  zoom: 1.0;
+}
+@-ms-viewport {
+  width: extend-to-zoom;
+  zoom: 1.0;
+}
+/* general and mobile first */
+html {
+}
+body {
+  max-width: 90%;
+  margin: 1.5em auto;
+  color: #222;
+  background-color: #fff;
+  font-size: 14px;
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  scroll-behavior: smooth;
+  overflow-wrap: break-word;
+}
+.ears {
+  display: none;
+}
+
+/* headings */
+#title, h1, h2, h3, h4, h5, h6 {
+  margin: 1em 0 0.5em;
+  font-weight: bold;
+  line-height: 1.3;
+}
+#title {
+  clear: both;
+  border-bottom: 1px solid #ddd;
+  margin: 0 0 0.5em 0;
+  padding: 1em 0 0.5em;
+}
+.author {
+  padding-bottom: 4px;
+}
+h1 {
+  font-size: 26px;
+  margin: 1em 0;
+}
+h2 {
+  font-size: 22px;
+  margin-top: -20px;  /* provide offset for in-page anchors */
+  padding-top: 33px;
+}
+h3 {
+  font-size: 18px;
+  margin-top: -36px;  /* provide offset for in-page anchors */
+  padding-top: 42px;
+}
+h4 {
+  font-size: 16px;
+  margin-top: -36px;  /* provide offset for in-page anchors */
+  padding-top: 42px;
+}
+h5, h6 {
+  font-size: 14px;
+}
+#n-copyright-notice {
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 1em;
+  margin-bottom: 1em;
+}
+/* general structure */
+p {
+  padding: 0;
+  margin: 0 0 1em 0;
+  text-align: left;
+}
+div, span {
+  position: relative;
+}
+div {
+  margin: 0;
+}
+.alignRight.art-text {
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 3px;
+  padding: 1em 1em 0;
+  margin-bottom: 1.5em;
+}
+.alignRight.art-text pre {
+  padding: 0;
+}
+.alignRight {
+  margin: 1em 0;
+}
+.alignRight > *:first-child {
+  border: none;
+  margin: 0;
+  float: right;
+  clear: both;
+}
+.alignRight > *:nth-child(2) {
+  clear: both;
+  display: block;
+  border: none;
+}
+svg {
+  display: block;
+}
+svg[font-family~="serif" i], svg [font-family~="serif" i] {
+  font-family: var(--font-serif);
+}
+svg[font-family~="sans-serif" i], svg [font-family~="sans-serif" i] {
+  font-family: var(--font-sans);
+}
+svg[font-family~="monospace" i], svg [font-family~="monospace" i] {
+  font-family: var(--font-mono);
+}
+.alignCenter.art-text {
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 3px;
+  padding: 1em 1em 0;
+  margin-bottom: 1.5em;
+}
+.alignCenter.art-text pre {
+  padding: 0;
+}
+.alignCenter {
+  margin: 1em 0;
+}
+.alignCenter > *:first-child {
+  display: table;
+  border: none;
+  margin: 0 auto;
+}
+
+/* lists */
+ol, ul {
+  padding: 0;
+  margin: 0 0 1em 2em;
+}
+ol ol, ul ul, ol ul, ul ol {
+  margin-left: 1em;
+}
+li {
+  margin: 0 0 0.25em 0;
+}
+.ulCompact li {
+  margin: 0;
+}
+ul.empty, .ulEmpty {
+  list-style-type: none;
+}
+ul.empty li, .ulEmpty li {
+  margin-top: 0.5em;
+}
+ul.ulBare, li.ulBare {
+  margin-left: 0em !important;
+}
+ul.compact, .ulCompact,
+ol.compact, .olCompact {
+  line-height: 100%;
+  margin: 0 0 0 2em;
+}
+
+/* definition lists */
+dl {
+}
+dl > dt {
+  float: left;
+  margin-right: 1em;
+}
+/* 
+dl.nohang > dt {
+  float: none;
+}
+*/
+dl > dd {
+  margin-bottom: .8em;
+  min-height: 1.3em;
+}
+dl.compact > dd, .dlCompact > dd {
+  margin-bottom: 0em;
+}
+dl > dd > dl {
+  margin-top: 0.5em;
+  margin-bottom: 0em;
+}
+
+/* links */
+a {
+  text-decoration: none;
+}
+a[href] {
+  color: #22e; /* Arlen: WCAG 2019 */
+}
+a[href]:hover {
+  background-color: #f2f2f2;
+}
+figcaption a[href],
+a[href].selfRef {
+  color: #222;
+}
+/* XXX probably not this:
+a.selfRef:hover {
+  background-color: transparent;
+  cursor: default;
+} */
+
+/* Figures */
+tt, code, pre {
+  background-color: #f9f9f9;
+  font-family: var(--font-mono);
+}
+pre {
+  border: 1px solid #eee;
+  margin: 0;
+  padding: 1em;
+}
+img {
+  max-width: 100%;
+}
+figure {
+  margin: 0;
+}
+figure blockquote {
+  margin: 0.8em 0.4em 0.4em;
+}
+figcaption {
+  font-style: italic;
+  margin: 0 0 1em 0;
+}
+@media screen {
+  pre {
+    overflow-x: auto;
+    max-width: 100%;
+    max-width: calc(100% - 22px);
+  }
+}
+
+/* aside, blockquote */
+aside, blockquote {
+  margin-left: 0;
+  padding: 1.2em 2em;
+}
+blockquote {
+  background-color: #f9f9f9;
+  color: #111; /* Arlen: WCAG 2019 */
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  margin: 1em 0;
+}
+blockquote > *:last-child {
+  margin-bottom: 0;
+}
+cite {
+  display: block;
+  text-align: right;
+  font-style: italic;
+}
+.xref {
+  overflow-wrap: normal;
+}
+
+/* tables */
+table {
+  width: 100%;
+  margin: 0 0 1em;
+  border-collapse: collapse;
+  border: 1px solid #eee;
+}
+th, td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.5em 0.75em;
+}
+th {
+  text-align: left;
+  background-color: #e9e9e9;
+}
+tr:nth-child(2n+1) > td {
+  background-color: #f5f5f5;
+}
+table caption {
+  font-style: italic;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+table p {
+  /* XXX to avoid bottom margin on table row signifiers. If paragraphs should
+     be allowed within tables more generally, it would be far better to select on a class. */
+  margin: 0;
+}
+
+/* pilcrow */
+a.pilcrow {
+  color: #666; /* Arlen: AHDJ 2019 */
+  text-decoration: none;
+  visibility: hidden;
+  user-select: none;
+  -ms-user-select: none;
+  -o-user-select:none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+@media screen {
+  aside:hover > a.pilcrow,
+  p:hover > a.pilcrow,
+  blockquote:hover > a.pilcrow,
+  div:hover > a.pilcrow,
+  li:hover > a.pilcrow,
+  pre:hover > a.pilcrow {
+    visibility: visible;
+  }
+  a.pilcrow:hover {
+    background-color: transparent;
+  }
+}
+
+/* misc */
+hr {
+  border: 0;
+  border-top: 1px solid #eee;
+}
+.bcp14 {
+  font-variant: small-caps;
+}
+
+.role {
+  font-variant: all-small-caps;
+}
+
+/* info block */
+#identifiers {
+  margin: 0;
+  font-size: 0.9em;
+}
+#identifiers dt {
+  width: 3em;
+  clear: left;
+}
+#identifiers dd {
+  float: left;
+  margin-bottom: 0;
+}
+/* Fix PDF info block run off issue */
+@media print {
+  #identifiers dd {
+    float: none;
+  }
+}
+#identifiers .authors .author {
+  display: inline-block;
+  margin-right: 1.5em;
+}
+#identifiers .authors .org {
+  font-style: italic;
+}
+
+/* The prepared/rendered info at the very bottom of the page */
+.docInfo {
+  color: #666; /* Arlen: WCAG 2019 */
+  font-size: 0.9em;
+  font-style: italic;
+  margin-top: 2em;
+}
+.docInfo .prepared {
+  float: left;
+}
+.docInfo .prepared {
+  float: right;
+}
+
+/* table of contents */
+#toc  {
+  padding: 0.75em 0 2em 0;
+  margin-bottom: 1em;
+}
+nav.toc ul {
+  margin: 0 0.5em 0 0;
+  padding: 0;
+  list-style: none;
+}
+nav.toc li {
+  line-height: 1.3em;
+  margin: 0.75em 0;
+  padding-left: 1.2em;
+  text-indent: -1.2em;
+}
+/* references */
+.references dt {
+  text-align: right;
+  font-weight: bold;
+  min-width: 7em;
+}
+.references dd {
+  margin-left: 8em;
+  overflow: auto;
+}
+
+.refInstance {
+  margin-bottom: 1.25em;
+}
+
+.refSubseries {
+  margin-bottom: 1.25em;
+}
+
+.references .ascii {
+  margin-bottom: 0.25em;
+}
+
+/* index */
+.index ul {
+  margin: 0 0 0 1em;
+  padding: 0;
+  list-style: none;
+}
+.index ul ul {
+  margin: 0;
+}
+.index li {
+  margin: 0;
+  text-indent: -2em;
+  padding-left: 2em;
+  padding-bottom: 5px;
+}
+.indexIndex {
+  margin: 0.5em 0 1em;
+}
+.index a {
+  font-weight: 700;
+}
+/* make the index two-column on all but the smallest screens */
+@media (min-width: 600px) {
+  .index ul {
+    -moz-column-count: 2;
+    -moz-column-gap: 20px;
+  }
+  .index ul ul {
+    -moz-column-count: 1;
+    -moz-column-gap: 0;
+  }
+}
+
+/* authors */
+address.vcard {
+  font-style: normal;
+  margin: 1em 0;
+}
+
+address.vcard .nameRole {
+  font-weight: 700;
+  margin-left: 0;
+}
+address.vcard .label {
+  font-family: var(--font-sans);
+  margin: 0.5em 0;
+}
+address.vcard .type {
+  display: none;
+}
+.alternative-contact {
+  margin: 1.5em 0 1em;
+}
+hr.addr {
+  border-top: 1px dashed;
+  margin: 0;
+  color: #ddd;
+  max-width: calc(100% - 16px);
+}
+
+/* temporary notes */
+.rfcEditorRemove::before {
+  position: absolute;
+  top: 0.2em;
+  right: 0.2em;
+  padding: 0.2em;
+  content: "The RFC Editor will remove this note";
+  color: #9e2a00; /* Arlen: WCAG 2019 */
+  background-color: #ffd; /* Arlen: WCAG 2019 */
+}
+.rfcEditorRemove {
+  position: relative;
+  padding-top: 1.8em;
+  background-color: #ffd; /* Arlen: WCAG 2019 */
+  border-radius: 3px;
+}
+.cref {
+  background-color: #ffd; /* Arlen: WCAG 2019 */
+  padding: 2px 4px;
+}
+.crefSource {
+  font-style: italic;
+}
+/* alternative layout for smaller screens */
+@media screen and (max-width: 1023px) {
+  body {
+    padding-top: 2em;
+  }
+  #title {
+    padding: 1em 0;
+  }
+  h1 {
+    font-size: 24px;
+  }
+  h2 {
+    font-size: 20px;
+    margin-top: -18px;  /* provide offset for in-page anchors */
+    padding-top: 38px;
+  }
+  #identifiers dd {
+    max-width: 60%;
+  }
+  #toc {
+    position: fixed;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    padding: 0;
+    margin: 0;
+    background-color: inherit;
+    border-bottom: 1px solid #ccc;
+  }
+  #toc h2 {
+    margin: -1px 0 0 0;
+    padding: 4px 0 4px 6px;
+    padding-right: 1em;
+    min-width: 190px;
+    font-size: 1.1em;
+    text-align: right;
+    background-color: #444;
+    color: white;
+    cursor: pointer;
+  }
+  #toc h2::before { /* css hamburger */
+    float: right;
+    position: relative;
+    width: 1em;
+    height: 1px;
+    left: -164px;
+    margin: 6px 0 0 0;
+    background: white none repeat scroll 0 0;
+    box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+    content: "";
+  }
+  #toc nav {
+    display: none;
+    padding: 0.5em 1em 1em;
+    overflow: auto;
+    height: calc(100vh - 48px);
+    border-left: 1px solid #ddd;
+  }
+}
+
+/* alternative layout for wide screens */
+@media screen and (min-width: 1024px) {
+  body {
+    max-width: 724px;
+    margin: 42px auto;
+    padding-left: 1.5em;
+    padding-right: 29em;
+  }
+  #toc {
+    position: fixed;
+    top: 42px;
+    right: 42px;
+    width: 25%;
+    margin: 0;
+    padding: 0 1em;
+    z-index: 1;
+  }
+  #toc h2 {
+    border-top: none;
+    border-bottom: 1px solid #ddd;
+    font-size: 1em;
+    font-weight: normal;
+    margin: 0;
+    padding: 0.25em 1em 1em 0;
+  }
+  #toc nav {
+    display: block;
+    height: calc(90vh - 84px);
+    bottom: 0;
+    padding: 0.5em 0 0;
+    overflow: auto;
+  }
+  img { /* future proofing */
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* pagination */
+@media print {
+  body {
+    width: 100%;
+  }
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+  #n-copyright-notice {
+    border-bottom: none;
+  }
+  #toc, #n-introduction {
+    page-break-before: always;
+  }
+  #toc {
+    border-top: none;
+    padding-top: 0;
+  }
+  figure, pre {
+    page-break-inside: avoid;
+  }
+  figure {
+    overflow: scroll;
+  }
+  .breakable pre {
+    break-inside: auto;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+  h2+*, h3+*, h4+*, h5+*, h6+* {
+    page-break-before: avoid;
+  }
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 10pt;
+  }
+  table {
+    border: 1px solid #ddd;
+  }
+  td {
+    border-top: 1px solid #ddd;
+  }
+}
+
+/* This is commented out here, as the string-set: doesn't
+   pass W3C validation currently */
+/*
+.ears thead .left {
+  string-set: ears-top-left content();
+}
+
+.ears thead .center {
+  string-set: ears-top-center content();
+}
+
+.ears thead .right {
+  string-set: ears-top-right content();
+}
+
+.ears tfoot .left {
+  string-set: ears-bottom-left content();
+}
+
+.ears tfoot .center {
+  string-set: ears-bottom-center content();
+}
+
+.ears tfoot .right {
+  string-set: ears-bottom-right content();
+}
+*/
+
+@page :first {
+  padding-top: 0;
+  @top-left {
+    content: normal;
+    border: none;
+  }
+  @top-center {
+    content: normal;
+    border: none;
+  }
+  @top-right {
+    content: normal;
+    border: none;
+  }
+}
+
+@page {
+  size: A4;
+  margin-bottom: 45mm;
+  padding-top: 20px;
+  /* The following is commented out here, but set appropriately by in code, as
+     the content depends on the document */
+  /*
+  @top-left {
+    content: 'Internet-Draft';
+    vertical-align: bottom;
+    border-bottom: solid 1px #ccc;
+  }
+  @top-left {
+    content: string(ears-top-left);
+    vertical-align: bottom;
+    border-bottom: solid 1px #ccc;
+  }
+  @top-center {
+    content: string(ears-top-center);
+    vertical-align: bottom;
+    border-bottom: solid 1px #ccc;
+  }
+  @top-right {
+    content: string(ears-top-right);
+    vertical-align: bottom;
+    border-bottom: solid 1px #ccc;
+  }
+  @bottom-left {
+    content: string(ears-bottom-left);
+    vertical-align: top;
+    border-top: solid 1px #ccc;
+  }
+  @bottom-center {
+    content: string(ears-bottom-center);
+    vertical-align: top;
+    border-top: solid 1px #ccc;
+  }
+  @bottom-right {
+      content: '[Page ' counter(page) ']';
+      vertical-align: top;
+      border-top: solid 1px #ccc;
+  }
+  */
+
+}
+
+/* Changes introduced to fix issues found during implementation */
+/* Make sure links are clickable even if overlapped by following H* */
+a {
+  z-index: 2;
+}
+/* Separate body from document info even without intervening H1 */
+section {
+  clear: both;
+}
+
+
+/* Top align author divs, to avoid names without organization dropping level with org names */
+.author {
+  vertical-align: top;
+}
+
+/* Leave room in document info to show Internet-Draft on one line */
+#identifiers dt {
+  width: 8em;
+}
+
+/* Don't waste quite as much whitespace between label and value in doc info */
+#identifiers dd {
+  margin-left: 1em;
+}
+
+/* Give floating toc a background color (needed when it's a div inside section */
+#toc {
+  background-color: white;
+}
+
+/* Make the collapsed ToC header render white on gray also when it's a link */
+@media screen and (max-width: 1023px) {
+  #toc h2 a,
+  #toc h2 a:link,
+  #toc h2 a:focus,
+  #toc h2 a:hover,
+  #toc a.toplink,
+  #toc a.toplink:hover {
+    color: white;
+    background-color: #444;
+    text-decoration: none;
+  }
+}
+
+/* Give the bottom of the ToC some whitespace */
+@media screen and (min-width: 1024px) {
+  #toc {
+    padding: 0 0 1em 1em;
+  }
+}
+
+/* Style section numbers with more space between number and title */
+.section-number {
+  padding-right: 0.5em;
+}
+
+/* prevent monospace from becoming overly large */
+tt, code, pre {
+  font-size: 95%;
+}
+
+/* Fix the height/width aspect for ascii art*/
+.sourcecode pre,
+.art-text pre {
+  line-height: 1.12;
+}
+
+
+/* Add styling for a link in the ToC that points to the top of the document */
+a.toplink {
+  float: right;
+  margin-right: 0.5em;
+}
+
+/* Fix the dl styling to match the RFC 7992 attributes */
+dl > dt,
+dl.dlParallel > dt {
+  float: left;
+  margin-right: 1em;
+}
+dl.dlNewline > dt {
+  float: none;
+}
+
+/* Provide styling for table cell text alignment */
+table td.text-left,
+table th.text-left {
+  text-align: left;
+}
+table td.text-center,
+table th.text-center {
+  text-align: center;
+}
+table td.text-right,
+table th.text-right {
+  text-align: right;
+}
+
+/* Make the alternative author contact information look less like just another
+   author, and group it closer with the primary author contact information */
+.alternative-contact {
+  margin: 0.5em 0 0.25em 0;
+}
+address .non-ascii {
+  margin: 0 0 0 2em;
+}
+
+/* With it being possible to set tables with alignment
+  left, center, and right, { width: 100%; } does not make sense */
+table {
+  width: auto;
+}
+
+/* Avoid reference text that sits in a block with very wide left margin,
+   because of a long floating dt label.*/
+.references dd {
+  overflow: visible;
+}
+
+/* Control caption placement */
+caption {
+  caption-side: bottom;
+}
+
+/* Limit the width of the author address vcard, so names in right-to-left
+   script don't end up on the other side of the page. */
+
+address.vcard {
+  max-width: 30em;
+  margin-right: auto;
+}
+
+/* For address alignment dependent on LTR or RTL scripts */
+address div.left {
+  text-align: left;
+}
+address div.right {
+  text-align: right;
+}
+
+/* Provide table alignment support.  We can't use the alignX classes above
+   since they do unwanted things with caption and other styling. */
+table.right {
+ margin-left: auto;
+ margin-right: 0;
+}
+table.center {
+ margin-left: auto;
+ margin-right: auto;
+}
+table.left {
+ margin-left: 0;
+ margin-right: auto;
+}
+
+/* Give the table caption label the same styling as the figcaption */
+caption a[href] {
+  color: #222;
+}
+
+@media print {
+  .toplink {
+    display: none;
+  }
+
+  /* avoid overwriting the top border line with the ToC header */
+  #toc {
+    padding-top: 1px;
+  }
+
+  /* Avoid page breaks inside dl and author address entries */
+  .vcard {
+    page-break-inside: avoid;
+  }
+
+}
+/* Tweak the bcp14 keyword presentation */
+.bcp14 {
+  font-variant: small-caps;
+  font-weight: bold;
+  font-size: 0.9em;
+}
+/* Tweak the invisible space above H* in order not to overlay links in text above */
+ h2 {
+  margin-top: -18px;  /* provide offset for in-page anchors */
+  padding-top: 31px;
+ }
+ h3 {
+  margin-top: -18px;  /* provide offset for in-page anchors */
+  padding-top: 24px;
+ }
+ h4 {
+  margin-top: -18px;  /* provide offset for in-page anchors */
+  padding-top: 24px;
+ }
+/* Float artwork pilcrow to the right */
+@media screen {
+  .artwork a.pilcrow {
+    display: block;
+    line-height: 0.7;
+    margin-top: 0.15em;
+  }
+}
+/* Make pilcrows on dd visible */
+@media screen {
+  dd:hover > a.pilcrow {
+    visibility: visible;
+  }
+}
+/* Make the placement of figcaption match that of a table's caption
+   by removing the figure's added bottom margin */
+.alignLeft.art-text,
+.alignCenter.art-text,
+.alignRight.art-text {
+   margin-bottom: 0;
+}
+.alignLeft,
+.alignCenter,
+.alignRight {
+  margin: 1em 0 0 0;
+}
+/* In print, the pilcrow won't show on hover, so prevent it from taking up space,
+   possibly even requiring a new line */
+@media print {
+  a.pilcrow {
+    display: none;
+  }
+}
+/* Styling for the external metadata */
+div#external-metadata {
+  background-color: #eee;
+  padding: 0.5em;
+  margin-bottom: 0.5em;
+  display: none;
+}
+div#internal-metadata {
+  padding: 0.5em;                       /* to match the external-metadata padding */
+}
+/* Styling for title RFC Number */
+h1#rfcnum {
+  clear: both;
+  margin: 0 0 -1em;
+  padding: 1em 0 0 0;
+}
+/* Make .olPercent look the same as <ol><li> */
+dl.olPercent > dd {
+  margin-bottom: 0.25em;
+  min-height: initial;
+}
+/* Give aside some styling to set it apart */
+aside {
+  border-left: 1px solid #ddd;
+  margin: 1em 0 1em 2em;
+  padding: 0.2em 2em;
+}
+aside > dl,
+aside > ol,
+aside > ul,
+aside > table,
+aside > p {
+  margin-bottom: 0.5em;
+}
+/* Additional page break settings */
+@media print {
+  figcaption, table caption {
+    page-break-before: avoid;
+  }
+}
+/* Font size adjustments for print */
+@media print {
+  body  { font-size: 10pt;      line-height: normal; max-width: 96%; }
+  h1    { font-size: 1.72em;    padding-top: 1.5em; } /* 1*1.2*1.2*1.2 */
+  h2    { font-size: 1.44em;    padding-top: 1.5em; } /* 1*1.2*1.2 */
+  h3    { font-size: 1.2em;     padding-top: 1.5em; } /* 1*1.2 */
+  h4    { font-size: 1em;       padding-top: 1.5em; }
+  h5, h6 { font-size: 1em;      margin: initial; padding: 0.5em 0 0.3em; }
+}
+/* Sourcecode margin in print, when there's no pilcrow */
+@media print {
+  .artwork,
+  .artwork > pre,
+  .sourcecode {
+    margin-bottom: 1em;
+  }
+}
+/* Avoid narrow tables forcing too narrow table captions, which may render badly */
+table {
+  min-width: 20em;
+}
+/* ol type a */
+ol.type-a { list-style-type: lower-alpha; }
+ol.type-A { list-style-type: upper-alpha; }
+ol.type-i { list-style-type: lower-roman; }
+ol.type-I { list-style-type: upper-roman; }
+/* Apply the print table and row borders in general, on request from the RPC,
+and increase the contrast between border and odd row background slightly */
+table {
+  border: 1px solid #ddd;
+}
+td {
+  border-top: 1px solid #ddd;
+}
+tr {
+  break-inside: avoid;
+}
+tr:nth-child(2n+1) > td {
+  background-color: #f8f8f8;
+}
+/* Use style rules to govern display of the TOC. */
+@media screen and (max-width: 1023px) {
+  #toc nav { display: none; }
+  #toc.active nav { display: block; }
+}
+/* Add support for keepWithNext */
+.keepWithNext {
+  break-after: avoid-page;
+  break-after: avoid-page;
+}
+/* Add support for keepWithPrevious */
+.keepWithPrevious {
+  break-before: avoid-page;
+}
+/* Change the approach to avoiding breaks inside artwork etc. */
+figure, pre, table, .artwork, .sourcecode  {
+  break-before: auto;
+  break-after: auto;
+}
+/* Avoid breaks between <dt> and <dd> */
+dl {
+  break-before: auto;
+  break-inside: auto;
+}
+dt {
+  break-before: auto;
+  break-after: avoid-page;
+}
+dd {
+  break-before: avoid-page;
+  break-after: auto;
+  orphans: 3;
+  widows: 3
+}
+span.break, dd.break {
+  margin-bottom: 0;
+  min-height: 0;
+  break-before: auto;
+  break-inside: auto;
+  break-after: auto;
+}
+/* Undo break-before ToC */
+@media print {
+  #toc {
+    break-before: auto;
+  }
+}
+/* Text in compact lists should not get extra bottom margin space,
+   since that would makes the list not compact */
+ul.compact p, .ulCompact p,
+ol.compact p, .olCompact p {
+ margin: 0;
+}
+/* But the list as a whole needs the extra space at the end */
+section ul.compact,
+section .ulCompact,
+section ol.compact,
+section .olCompact {
+  margin-bottom: 1em;                    /* same as p not within ul.compact etc. */
+}
+/* The tt and code background above interferes with for instance table cell
+   backgrounds.  Changed to something a bit more selective. */
+tt, code {
+  background-color: transparent;
+}
+p tt, p code, li tt, li code {
+  background-color: #f8f8f8;
+}
+/* Tweak the pre margin -- 0px doesn't come out well */
+pre {
+   margin-top: 0.5px;
+}
+/* Tweak the compact list text */
+ul.compact, .ulCompact,
+ol.compact, .olCompact,
+dl.compact, .dlCompact {
+  line-height: normal;
+}
+/* Don't add top margin for nested lists */
+li > ul, li > ol, li > dl,
+dd > ul, dd > ol, dd > dl,
+dl > dd > dl {
+  margin-top: initial;
+}
+/* Elements that should not be rendered on the same line as a <dt> */
+/* This should match the element list in writer.text.TextWriter.render_dl() */
+dd > div.artwork:first-child,
+dd > aside:first-child,
+dd > figure:first-child,
+dd > ol:first-child,
+dd > div.sourcecode:first-child,
+dd > table:first-child,
+dd > ul:first-child {
+  clear: left;
+}
+/* fix for weird browser behaviour when <dd/> is empty */
+dt+dd:empty::before{
+  content: "\00a0";
+}
+/* Make paragraph spacing inside <li> smaller than in body text, to fit better within the list */
+li > p {
+  margin-bottom: 0.5em
+}
+/* Don't let p margin spill out from inside list items */
+li > p:last-of-type:only-child {
+  margin-bottom: 0;
+}
+</style>
+<link href="rfc-local.css" rel="stylesheet" type="text/css">
+<link href="https://datatracker.ietf.org/doc/draft-ietf-lamps-cms-kemri-08" rel="prev">
+  <link href="https://dx.doi.org/10.17487/rfc9629" rel="alternate">
+  <link href="urn:issn:2070-1721" rel="alternate">
+  </head>
+<body class="xml2rfc">
+<script src="https://www.rfc-editor.org/js/metadata.min.js"></script>
+<table class="ears">
+<thead><tr>
+<td class="left">RFC 9629</td>
+<td class="center">CMS KEMRecipientInfo</td>
+<td class="right">August 2024</td>
+</tr></thead>
+<tfoot><tr>
+<td class="left">Housley, et al.</td>
+<td class="center">Standards Track</td>
+<td class="right">[Page]</td>
+</tr></tfoot>
+</table>
+<div id="external-metadata" class="document-information"></div>
+<div id="internal-metadata" class="document-information">
+<dl id="identifiers">
+<dt class="label-stream">Stream:</dt>
+<dd class="stream">Internet Engineering Task Force (IETF)</dd>
+<dt class="label-rfc">RFC:</dt>
+<dd class="rfc"><a href="https://www.rfc-editor.org/rfc/rfc9629" class="eref">9629</a></dd>
+<dt class="label-updates">Updates:</dt>
+<dd class="updates">
+<a href="https://www.rfc-editor.org/rfc/rfc5652" class="eref">5652</a> </dd>
+<dt class="label-category">Category:</dt>
+<dd class="category">Standards Track</dd>
+<dt class="label-published">Published:</dt>
+<dd class="published">
+<time datetime="2024-08" class="published">August 2024</time>
+    </dd>
+<dt class="label-issn">ISSN:</dt>
+<dd class="issn">2070-1721</dd>
+<dt class="label-authors">Authors:</dt>
+<dd class="authors">
+<div class="author">
+      <div class="author-name">R. Housley</div>
+<div class="org">Vigil Security</div>
+</div>
+<div class="author">
+      <div class="author-name">J. Gray</div>
+<div class="org">Entrust</div>
+</div>
+<div class="author">
+      <div class="author-name">
+<span class="non-ascii">大久保　智史</span> (<span class="ascii">T. Okubo</span>)</div>
+<div class="org">Penguin Securities Pte. Ltd.</div>
+</div>
+</dd>
+</dl>
+</div>
+<h1 id="rfcnum">RFC 9629</h1>
+<h1 id="title">Using Key Encapsulation Mechanism (KEM) Algorithms in the Cryptographic Message Syntax (CMS)</h1>
+<section id="section-abstract">
+      <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
+<p id="section-abstract-1">The Cryptographic Message Syntax (CMS) supports key transport and
+key agreement algorithms.  In recent years, cryptographers have been
+specifying Key Encapsulation Mechanism (KEM) algorithms, including
+quantum-secure KEM algorithms.  This document defines conventions for
+the use of KEM algorithms by the originator and recipients to encrypt
+and decrypt CMS content.  This document updates RFC 5652.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+</section>
+<div id="status-of-memo">
+<section id="section-boilerplate.1">
+        <h2 id="name-status-of-this-memo">
+<a href="#name-status-of-this-memo" class="section-name selfRef">Status of This Memo</a>
+        </h2>
+<p id="section-boilerplate.1-1">
+            This is an Internet Standards Track document.<a href="#section-boilerplate.1-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-2">
+            This document is a product of the Internet Engineering Task Force
+            (IETF).  It represents the consensus of the IETF community.  It has
+            received public review and has been approved for publication by
+            the Internet Engineering Steering Group (IESG).  Further
+            information on Internet Standards is available in Section 2 of 
+            RFC 7841.<a href="#section-boilerplate.1-2" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-3">
+            Information about the current status of this document, any
+            errata, and how to provide feedback on it may be obtained at
+            <span><a href="https://www.rfc-editor.org/info/rfc9629">https://www.rfc-editor.org/info/rfc9629</a></span>.<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="copyright">
+<section id="section-boilerplate.2">
+        <h2 id="name-copyright-notice">
+<a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
+        </h2>
+<p id="section-boilerplate.2-1">
+            Copyright (c) 2024 IETF Trust and the persons identified as the
+            document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.2-2">
+            This document is subject to BCP 78 and the IETF Trust's Legal
+            Provisions Relating to IETF Documents
+            (<span><a href="https://trustee.ietf.org/license-info">https://trustee.ietf.org/license-info</a></span>) in effect on the date of
+            publication of this document. Please review these documents
+            carefully, as they describe your rights and restrictions with
+            respect to this document. Code Components extracted from this
+            document must include Revised BSD License text as described in
+            Section 4.e of the Trust Legal Provisions and are provided without
+            warranty as described in the Revised BSD License.<a href="#section-boilerplate.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="toc">
+<section id="section-toc.1">
+        <a href="#" onclick="scroll(0,0)" class="toplink">▲</a><h2 id="name-table-of-contents">
+<a href="#name-table-of-contents" class="section-name selfRef">Table of Contents</a>
+        </h2>
+<nav class="toc"><ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1">
+            <p id="section-toc.1-1.1.1"><a href="#section-1" class="auto internal xref">1</a>.  <a href="#name-introduction" class="internal xref">Introduction</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1">
+                <p id="section-toc.1-1.1.2.1.1" class="keepWithNext"><a href="#section-1.1" class="auto internal xref">1.1</a>.  <a href="#name-terminology" class="internal xref">Terminology</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.2">
+                <p id="section-toc.1-1.1.2.2.1" class="keepWithNext"><a href="#section-1.2" class="auto internal xref">1.2</a>.  <a href="#name-asn1" class="internal xref">ASN.1</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.3">
+                <p id="section-toc.1-1.1.2.3.1" class="keepWithNext"><a href="#section-1.3" class="auto internal xref">1.3</a>.  <a href="#name-cms-version-numbers" class="internal xref">CMS Version Numbers</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
+            <p id="section-toc.1-1.2.1"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-kem-processing-overview" class="internal xref">KEM Processing Overview</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-kem-recipient-information" class="internal xref">KEM Recipient Information</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-kem-algorithm-identifier" class="internal xref">KEM Algorithm Identifier</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-key-derivation" class="internal xref">Key Derivation</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-asn1-modules" class="internal xref">ASN.1 Modules</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.1">
+                <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="auto internal xref">6.1</a>.  <a href="#name-kemalgorithminformation-202" class="internal xref">KEMAlgorithmInformation-2023 ASN.1 Module</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.2">
+                <p id="section-toc.1-1.6.2.2.1"><a href="#section-6.2" class="auto internal xref">6.2</a>.  <a href="#name-cms-kemrecipientinfo-2023-a" class="internal xref">CMS-KEMRecipientInfo-2023 ASN.1 Module</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
+            <p id="section-toc.1-1.9.1"><a href="#section-9" class="auto internal xref">9</a>.  <a href="#name-references" class="internal xref">References</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.1">
+                <p id="section-toc.1-1.9.2.1.1"><a href="#section-9.1" class="auto internal xref">9.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9.2.2">
+                <p id="section-toc.1-1.9.2.2.1"><a href="#section-9.2" class="auto internal xref">9.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
+            <p id="section-toc.1-1.10.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgements" class="internal xref">Acknowledgements</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
+            <p id="section-toc.1-1.11.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
+</li>
+        </ul>
+</nav>
+</section>
+</div>
+<div id="intro">
+<section id="section-1">
+      <h2 id="name-introduction">
+<a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
+      </h2>
+<p id="section-1-1">This document updates "<a href="#RFC5652" class="internal xref">Cryptographic Message Syntax (CMS)</a>" <span>[<a href="#RFC5652" class="cite xref">RFC5652</a>]</span>.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">The CMS enveloped-data content type
+<span>[<a href="#RFC5652" class="cite xref">RFC5652</a>]</span> and the CMS authenticated-enveloped-data content type
+<span>[<a href="#RFC5083" class="cite xref">RFC5083</a>]</span> support both key transport and key agreement algorithms to
+establish the key used to encrypt and decrypt the content.  In recent
+years, cryptographers have been specifying Key Encapsulation Mechanism
+(KEM) algorithms, including quantum-secure KEM algorithms.  This document
+defines conventions for the use of KEM algorithms for the CMS
+enveloped-data content type and the CMS authenticated-enveloped-data
+content type.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3">A KEM algorithm is a one-pass (store-and-forward) mechanism for
+transporting random keying material to a recipient using the recipient's
+public key.  This means that the originator and the recipients do not need
+to be online at the same time.  The recipient's private key is needed to
+recover the random keying material, which is then treated as a pairwise
+shared secret (ss) between the originator and recipient.<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-4">The KEMRecipientInfo structure defined in this document uses the pairwise
+shared secret as an input to a key derivation function (KDF) to produce a
+pairwise key-encryption key (KEK).  Then, the pairwise KEK is used to encrypt a
+content-encryption key (CEK) or a content-authenticated-encryption key (CAEK)
+for that recipient.  All of the recipients receive the same CEK or CAEK.<a href="#section-1-4" class="pilcrow">¶</a></p>
+<p id="section-1-5">In this environment, security depends on three things.  First, the KEM algorithm
+must be secure against adaptive chosen ciphertext attacks.  Second, the
+key-encryption algorithm must provide confidentiality and integrity protection.  Third,
+the choices of the KDF and the key-encryption algorithm need to provide the same
+level of security as the KEM algorithm.<a href="#section-1-5" class="pilcrow">¶</a></p>
+<p id="section-1-6">A KEM algorithm provides three functions:<a href="#section-1-6" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlNewline" id="section-1-7">
+        <dt id="section-1-7.1">KeyGen() -&gt; (pk, sk):</dt>
+        <dd style="margin-left: 1.5em" id="section-1-7.2">Generate the public key (pk) and a private key (sk).<a href="#section-1-7.2" class="pilcrow">¶</a>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-1-7.3">Encapsulate(pk) -&gt; (ct, ss):</dt>
+        <dd style="margin-left: 1.5em" id="section-1-7.4">Given the recipient's public key (pk), produce a ciphertext (ct) to be
+passed to the recipient and shared secret (ss) for the originator.<a href="#section-1-7.4" class="pilcrow">¶</a>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-1-7.5">Decapsulate(sk, ct) -&gt; ss:</dt>
+        <dd style="margin-left: 1.5em" id="section-1-7.6">Given the private key (sk) and the ciphertext (ct), produce the
+shared secret (ss) for the recipient.<a href="#section-1-7.6" class="pilcrow">¶</a>
+</dd>
+      <dd class="break"></dd>
+</dl>
+<p id="section-1-8">To support a particular KEM algorithm, the CMS originator <span class="bcp14">MUST</span> implement
+the KEM Encapsulate() function.<a href="#section-1-8" class="pilcrow">¶</a></p>
+<p id="section-1-9">To support a particular KEM algorithm, the CMS recipient <span class="bcp14">MUST</span> implement the KEM
+KeyGen() function and the KEM Decapsulate() function.  The recipient's public key
+is usually carried in a certificate <span>[<a href="#RFC5280" class="cite xref">RFC5280</a>]</span>.<a href="#section-1-9" class="pilcrow">¶</a></p>
+<div id="terms">
+<section id="section-1.1">
+        <h3 id="name-terminology">
+<a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-terminology" class="section-name selfRef">Terminology</a>
+        </h3>
+<p id="section-1.1-1">The key words "<span class="bcp14">MUST</span>", "<span class="bcp14">MUST NOT</span>",
+         "<span class="bcp14">REQUIRED</span>", "<span class="bcp14">SHALL</span>",
+         "<span class="bcp14">SHALL NOT</span>", "<span class="bcp14">SHOULD</span>",
+         "<span class="bcp14">SHOULD NOT</span>",
+         "<span class="bcp14">RECOMMENDED</span>", "<span class="bcp14">NOT RECOMMENDED</span>",
+         "<span class="bcp14">MAY</span>", and "<span class="bcp14">OPTIONAL</span>" in this document
+         are to be interpreted as described in BCP 14
+         <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</span> <span>[<a href="#RFC8174" class="cite xref">RFC8174</a>]</span> when, and only
+         when, they appear in all capitals, as shown here.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="asn1">
+<section id="section-1.2">
+        <h3 id="name-asn1">
+<a href="#section-1.2" class="section-number selfRef">1.2. </a><a href="#name-asn1" class="section-name selfRef">ASN.1</a>
+        </h3>
+<p id="section-1.2-1">CMS values are generated using ASN.1 <span>[<a href="#X.680" class="cite xref">X.680</a>]</span>, which uses the Basic
+Encoding Rules (BER) and the Distinguished Encoding Rules (DER) <span>[<a href="#X.690" class="cite xref">X.690</a>]</span>.<a href="#section-1.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="cms-version-numbers">
+<section id="section-1.3">
+        <h3 id="name-cms-version-numbers">
+<a href="#section-1.3" class="section-number selfRef">1.3. </a><a href="#name-cms-version-numbers" class="section-name selfRef">CMS Version Numbers</a>
+        </h3>
+<p id="section-1.3-1">As described in <span><a href="https://rfc-editor.org/rfc/rfc5652#section-1.3" class="relref">Section 1.3</a> of [<a href="#RFC5652" class="cite xref">RFC5652</a>]</span>, the major data structures
+include a version number as the first item in
+the data structure.  The version number is intended to avoid ASN.1 decode
+errors.  Some implementations do not check the version number prior to
+attempting a decode, and then if a decode error occurs, the version
+number is checked as part of the error-handling routine.  This is a
+reasonable approach; it places error processing outside of the fast path.
+This approach is also forgiving when an incorrect version number is used
+by the originator.<a href="#section-1.3-1" class="pilcrow">¶</a></p>
+<p id="section-1.3-2">Whenever the structure is updated, a higher version number will be
+assigned.  However, to ensure maximum interoperability, the higher
+version number is only used when the new syntax feature is employed.  That
+is, the lowest version number that supports the generated syntax is used.<a href="#section-1.3-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="kem-processing-overview">
+<section id="section-2">
+      <h2 id="name-kem-processing-overview">
+<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-kem-processing-overview" class="section-name selfRef">KEM Processing Overview</a>
+      </h2>
+<p id="section-2-1">KEM algorithms can be used with  three CMS content types: the
+enveloped-data content type <span>[<a href="#RFC5652" class="cite xref">RFC5652</a>]</span>, the authenticated-data
+content type <span>[<a href="#RFC5652" class="cite xref">RFC5652</a>]</span>, or the authenticated-enveloped-data
+content type <span>[<a href="#RFC5083" class="cite xref">RFC5083</a>]</span>.  For simplicity, the terminology associated
+with the enveloped-data content type will be used in this overview.<a href="#section-2-1" class="pilcrow">¶</a></p>
+<p id="section-2-2">The originator randomly generates the CEK (or the CAEK), and then
+all recipients obtain that key as an encrypted object within the KEMRecipientInfo
+encryptedKey field explained in <a href="#kemri" class="auto internal xref">Section 3</a>.  All recipients use
+the originator-generated symmetric key to decrypt the CMS message.<a href="#section-2-2" class="pilcrow">¶</a></p>
+<p id="section-2-3">A KEM algorithm and a key derivation function are used to securely
+establish a pairwise symmetric KEK, which is used to encrypt
+the originator-generated CEK (or the CAEK).<a href="#section-2-3" class="pilcrow">¶</a></p>
+<p id="section-2-4">In advance, each recipient uses the KEM KeyGen() function to create a key pair.
+The recipient will often obtain a certificate <span>[<a href="#RFC5280" class="cite xref">RFC5280</a>]</span> that includes the newly
+generated public key.  Whether the public key is certified or not, the newly
+generated public key is made available to potential originators.<a href="#section-2-4" class="pilcrow">¶</a></p>
+<p id="section-2-5">The originator establishes the CEK (or the CAEK) using these steps:<a href="#section-2-5" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2-6">
+<li id="section-2-6.1">
+          <p id="section-2-6.1.1">The CEK (or the CAEK) is generated at random.<a href="#section-2-6.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li id="section-2-6.2">
+          <p id="section-2-6.2.1">For each recipient:<a href="#section-2-6.2.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-2-6.2.2.1">
+              <p id="section-2-6.2.2.1.1">The recipient's public key is used with the KEM Encapsulate() function to obtain a pairwise shared secret (ss) and the ciphertext for the recipient.<a href="#section-2-6.2.2.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-2-6.2.2.2">
+              <p id="section-2-6.2.2.2.1">The key derivation function is used to derive a pairwise symmetric KEK, from the pairwise ss and other data that is optionally sent in the ukm field.<a href="#section-2-6.2.2.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-2-6.2.2.3">
+              <p id="section-2-6.2.2.3.1">The KEK is used to encrypt the CEK for this recipient.<a href="#section-2-6.2.2.3.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+</li>
+        <li id="section-2-6.3">
+          <p id="section-2-6.3.1">The CEK (or the CAEK) is used to encrypt the content for all recipients.<a href="#section-2-6.3.1" class="pilcrow">¶</a></p>
+</li>
+      </ol>
+<p id="section-2-7">The recipient obtains the CEK (or the CAEK) using these steps:<a href="#section-2-7" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2-8">
+<li id="section-2-8.1">
+          <p id="section-2-8.1.1">The recipient's private key and the ciphertext are used with the KEM Decapsulate() function to obtain a pairwise ss.<a href="#section-2-8.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li id="section-2-8.2">
+          <p id="section-2-8.2.1">The key derivation function is used to derive a pairwise symmetric KEK, from the pairwise ss and other data that is optionally sent in the ukm field.<a href="#section-2-8.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li id="section-2-8.3">
+          <p id="section-2-8.3.1">The KEK is used to decrypt the CEK (or the CAEK).<a href="#section-2-8.3.1" class="pilcrow">¶</a></p>
+</li>
+        <li id="section-2-8.4">
+          <p id="section-2-8.4.1">The CEK (or the CAEK) is used to decrypt the content.<a href="#section-2-8.4.1" class="pilcrow">¶</a></p>
+</li>
+      </ol>
+</section>
+</div>
+<div id="kemri">
+<section id="section-3">
+      <h2 id="name-kem-recipient-information">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-kem-recipient-information" class="section-name selfRef">KEM Recipient Information</a>
+      </h2>
+<p id="section-3-1">This document defines KEMRecipientInfo for use with KEM algorithms.
+As specified in <span><a href="https://rfc-editor.org/rfc/rfc5652#section-6.2.5" class="relref">Section 6.2.5</a> of [<a href="#RFC5652" class="cite xref">RFC5652</a>]</span>,
+recipient information for
+additional key management techniques is represented in the
+OtherRecipientInfo type. Each key management technique is identified by a unique
+ASN.1 object identifier.<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-3-2">The object identifier associated with KEMRecipientInfo is:<a href="#section-3-2" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3-3">
+<pre>
+  id-ori OBJECT IDENTIFIER ::= { iso(1) member-body(2) us(840)
+    rsadsi(113549) pkcs(1) pkcs-9(9) smime(16) 13 }
+
+  id-ori-kem OBJECT IDENTIFIER ::= { id-ori 3 }
+</pre><a href="#section-3-3" class="pilcrow">¶</a>
+</div>
+<p id="section-3-4">The KEMRecipientInfo type is:<a href="#section-3-4" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3-5">
+<pre>
+  KEMRecipientInfo ::= SEQUENCE {
+    version CMSVersion,  -- always set to 0
+    rid RecipientIdentifier,
+    kem KEMAlgorithmIdentifier,
+    kemct OCTET STRING,
+    kdf KeyDerivationAlgorithmIdentifier,
+    kekLength INTEGER (1..65535),
+    ukm [0] EXPLICIT UserKeyingMaterial OPTIONAL,
+    wrap KeyEncryptionAlgorithmIdentifier,
+    encryptedKey EncryptedKey }
+</pre><a href="#section-3-5" class="pilcrow">¶</a>
+</div>
+<p id="section-3-6">The fields of the KEMRecipientInfo type have the following meanings:<a href="#section-3-6" class="pilcrow">¶</a></p>
+<p style="margin-left: 1.5em" id="section-3-7">version is the syntax version number.  The version <span class="bcp14">MUST</span> be 0.  The
+CMSVersion type is described in <span><a href="https://rfc-editor.org/rfc/rfc5652#section-10.2.5" class="relref">Section 10.2.5</a> of [<a href="#RFC5652" class="cite xref">RFC5652</a>]</span>.<a href="#section-3-7" class="pilcrow">¶</a></p>
+<p style="margin-left: 1.5em" id="section-3-8">rid specifies the recipient's certificate or key that was used by
+the originator with the KEM Encapsulate() function.  The
+RecipientIdentifier provides two alternatives for specifying the
+recipient's certificate <span>[<a href="#RFC5280" class="cite xref">RFC5280</a>]</span>, and thereby the recipient's public
+key.  The recipient's certificate <span class="bcp14">MUST</span> contain a KEM public key.  Therefore,
+a recipient X.509 version 3 certificate that contains a key usage
+extension <span class="bcp14">MUST</span> assert the keyEncipherment bit.  The issuerAndSerialNumber
+alternative identifies the recipient's certificate by the issuer's
+distinguished name and the certificate serial number; the
+subjectKeyIdentifier alternative identifies the recipient's certificate by a key
+identifier.  When an X.509 certificate is referenced, the key identifier
+matches the X.509 subjectKeyIdentifier extension value.  When other
+certificate formats are referenced, the documents that specify the certificate
+format and their use with the CMS must include details on matching
+the key identifier to the appropriate certificate field.  For recipient
+processing, implementations <span class="bcp14">MUST</span> support both of these alternatives for
+specifying the recipient's certificate.  For originator processing,
+implementations <span class="bcp14">MUST</span> support at least one of these alternatives.<a href="#section-3-8" class="pilcrow">¶</a></p>
+<p style="margin-left: 1.5em" id="section-3-9">kem identifies the KEM algorithm, and any associated parameters, used
+by the originator.  The KEMAlgorithmIdentifier is described in <a href="#kemalg" class="auto internal xref">Section 4</a>.<a href="#section-3-9" class="pilcrow">¶</a></p>
+<p style="margin-left: 1.5em" id="section-3-10">kemct is the ciphertext produced by the KEM Encapsulate() function for
+this recipient.<a href="#section-3-10" class="pilcrow">¶</a></p>
+<p style="margin-left: 1.5em" id="section-3-11">kdf identifies the key derivation function, and any associated parameters,
+used by the originator to generate the KEK.  The
+KeyDerivationAlgorithmIdentifier is described in <span><a href="https://rfc-editor.org/rfc/rfc5652#section-10.1.6" class="relref">Section 10.1.6</a> of [<a href="#RFC5652" class="cite xref">RFC5652</a>]</span>.<a href="#section-3-11" class="pilcrow">¶</a></p>
+<p style="margin-left: 1.5em" id="section-3-12">kekLength is the size of the KEK in octets.  This value is one
+of the inputs to the key derivation function.  The upper bound on the integer
+value is provided to make it clear to implementers that support for very
+large integer values is not needed.  Implementations <span class="bcp14">MUST</span> confirm that
+the value provided is consistent with the key-encryption algorithm
+identified in the wrap field below.<a href="#section-3-12" class="pilcrow">¶</a></p>
+<p style="margin-left: 1.5em" id="section-3-13">ukm is optional user keying material.  When the ukm value is provided,
+it is used as part of the info structure described in <a href="#kdf" class="auto internal xref">Section 5</a> to
+provide a context input to the key derivation function.  For example, the
+ukm value could include a nonce, application-specific context information,
+or an identifier for the originator.  A KEM algorithm may place
+requirements on the ukm value.  Implementations that do not support the
+ukm field <span class="bcp14">SHOULD</span> gracefully discontinue processing when the ukm field is
+present.  Note that this requirement expands the original purpose of the
+ukm described in <span><a href="https://rfc-editor.org/rfc/rfc5652#section-10.2.6" class="relref">Section 10.2.6</a> of [<a href="#RFC5652" class="cite xref">RFC5652</a>]</span>; it is not limited to being
+used with key agreement algorithms.<a href="#section-3-13" class="pilcrow">¶</a></p>
+<p style="margin-left: 1.5em" id="section-3-14">wrap identifies a key-encryption algorithm used to encrypt the
+CEK.  The KeyEncryptionAlgorithmIdentifier
+is described in <span><a href="https://rfc-editor.org/rfc/rfc5652#section-10.1.3" class="relref">Section 10.1.3</a> of [<a href="#RFC5652" class="cite xref">RFC5652</a>]</span>.<a href="#section-3-14" class="pilcrow">¶</a></p>
+<p style="margin-left: 1.5em" id="section-3-15">encryptedKey is the result of encrypting the CEK or the
+CAEK (the content-authenticated-encryption key, as discussed in <span>[<a href="#RFC5083" class="cite xref">RFC5083</a>]</span>) with the KEK.
+EncryptedKey is an OCTET STRING.<a href="#section-3-15" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="kemalg">
+<section id="section-4">
+      <h2 id="name-kem-algorithm-identifier">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-kem-algorithm-identifier" class="section-name selfRef">KEM Algorithm Identifier</a>
+      </h2>
+<p id="section-4-1">The KEMAlgorithmIdentifier type identifies a KEM algorithm used to
+establish a pairwise ss.  The details of establishment depend on
+the KEM algorithm used.  A key derivation function is used to transform
+the pairwise ss value into a KEK.<a href="#section-4-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4-2">
+<pre>
+  KEMAlgorithmIdentifier ::= AlgorithmIdentifier{ KEM-ALGORITHM, {...} }
+</pre><a href="#section-4-2" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="kdf">
+<section id="section-5">
+      <h2 id="name-key-derivation">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-key-derivation" class="section-name selfRef">Key Derivation</a>
+      </h2>
+<p id="section-5-1">This section describes the conventions of using the KDF to compute the
+KEK for KEMRecipientInfo.  For simplicity, the
+terminology used in the HKDF specification <span>[<a href="#RFC5869" class="cite xref">RFC5869</a>]</span> is used here.<a href="#section-5-1" class="pilcrow">¶</a></p>
+<p id="section-5-2">Many KDFs internally employ a one-way hash function.  When this is
+the case, the hash function that is used is indirectly indicated by
+the KeyDerivationAlgorithmIdentifier.  Other KDFs internally employ an
+encryption algorithm.  When this is the case, the encryption that is
+used is indirectly indicated by the KeyDerivationAlgorithmIdentifier.<a href="#section-5-2" class="pilcrow">¶</a></p>
+<p id="section-5-3">The KDF inputs are as follows:<a href="#section-5-3" class="pilcrow">¶</a></p>
+<p style="margin-left: 1.5em" id="section-5-4">IKM is the input keying material. It is a symmetric secret input to
+the KDF. The KDF may use a hash function or an encryption algorithm
+to generate a pseudorandom key. The algorithm used to derive the
+IKM is dependent on the algorithm identified in the
+KeyDerivationAlgorithmIdentifier.<a href="#section-5-4" class="pilcrow">¶</a></p>
+<p style="margin-left: 1.5em" id="section-5-5">L is the length of the output keying material in octets. L is
+identified in the kekLength of the KEMRecipientInfo.  The
+value is dependent on the key-encryption algorithm used;
+the key-encryption algorithm is identified in the KeyEncryptionAlgorithmIdentifier.<a href="#section-5-5" class="pilcrow">¶</a></p>
+<p style="margin-left: 1.5em" id="section-5-6">info is contextual input to the KDF.  The DER-encoded
+CMSORIforKEMOtherInfo structure is created from elements of the
+KEMRecipientInfo structure.  CMSORIforKEMOtherInfo is defined as:<a href="#section-5-6" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-5-7">
+<pre>
+      CMSORIforKEMOtherInfo ::= SEQUENCE {
+        wrap KeyEncryptionAlgorithmIdentifier,
+        kekLength INTEGER (1..65535),
+        ukm [0] EXPLICIT UserKeyingMaterial OPTIONAL }
+</pre><a href="#section-5-7" class="pilcrow">¶</a>
+</div>
+<p id="section-5-8">The CMSORIforKEMOtherInfo structure contains the following:<a href="#section-5-8" class="pilcrow">¶</a></p>
+<p style="margin-left: 1.5em" id="section-5-9">wrap identifies a key-encryption algorithm; the output of the
+key derivation function will be used as a key for this algorithm.<a href="#section-5-9" class="pilcrow">¶</a></p>
+<p style="margin-left: 1.5em" id="section-5-10">kekLength is the length of the KEK in octets; the
+output of the key derivation function will be exactly this size.<a href="#section-5-10" class="pilcrow">¶</a></p>
+<p style="margin-left: 1.5em" id="section-5-11">ukm is optional user keying material; see <a href="#kemri" class="auto internal xref">Section 3</a>.<a href="#section-5-11" class="pilcrow">¶</a></p>
+<p id="section-5-12">The KDF output is as follows:<a href="#section-5-12" class="pilcrow">¶</a></p>
+<p style="margin-left: 1.5em" id="section-5-13">OKM is the output keying material with the exact length of L octets.
+The OKM is the KEK that is used to encrypt the CEK or the CAEK.<a href="#section-5-13" class="pilcrow">¶</a></p>
+<p id="section-5-14">An acceptable KDF <span class="bcp14">MUST</span> accept an IKM, L, and info as inputs.  An acceptable
+KDF <span class="bcp14">MAY</span> also accept a salt input value, which is carried as a parameter to
+the KeyDerivationAlgorithmIdentifier if present.  All of these
+inputs <span class="bcp14">MUST</span> influence the output of the KDF.<a href="#section-5-14" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="asn1-mod">
+<section id="section-6">
+      <h2 id="name-asn1-modules">
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-asn1-modules" class="section-name selfRef">ASN.1 Modules</a>
+      </h2>
+<p id="section-6-1">This section provides two ASN.1 modules <span>[<a href="#X.680" class="cite xref">X.680</a>]</span>.  The first ASN.1
+module is an extension to the AlgorithmInformation-2009 module discussed in
+<span>[<a href="#RFC5912" class="cite xref">RFC5912</a>]</span>; it defines the KEM-ALGORITHM CLASS.  The second
+ASN.1 module defines the structures needed to use KEM algorithms
+with CMS <span>[<a href="#RFC5652" class="cite xref">RFC5652</a>]</span>.<a href="#section-6-1" class="pilcrow">¶</a></p>
+<p id="section-6-2">The first ASN.1 module uses EXPLICIT tagging, and the second
+ASN.1 module uses IMPLICIT tagging.<a href="#section-6-2" class="pilcrow">¶</a></p>
+<p id="section-6-3">Both ASN.1 modules follow the conventions established in
+<span>[<a href="#RFC5911" class="cite xref">RFC5911</a>]</span>, <span>[<a href="#RFC5912" class="cite xref">RFC5912</a>]</span>, and <span>[<a href="#RFC6268" class="cite xref">RFC6268</a>]</span>.<a href="#section-6-3" class="pilcrow">¶</a></p>
+<div id="asn1-mod-1">
+<section id="section-6.1">
+        <h3 id="name-kemalgorithminformation-202">
+<a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-kemalgorithminformation-202" class="section-name selfRef">KEMAlgorithmInformation-2023 ASN.1 Module</a>
+        </h3>
+<div class="breakable lang-asn.1 sourcecode" id="section-6.1-1">
+<pre>&lt;CODE BEGINS&gt;
+  KEMAlgorithmInformation-2023
+    { iso(1) identified-organization(3) dod(6) internet(1)
+      security(5) mechanisms(5) pkix(7) id-mod(0)
+          id-mod-kemAlgorithmInformation-2023(109) }
+
+  DEFINITIONS EXPLICIT TAGS ::=
+  BEGIN
+  -- EXPORTS ALL;
+  IMPORTS
+    ParamOptions, PUBLIC-KEY, SMIME-CAPS
+    FROM AlgorithmInformation-2009
+      { iso(1) identified-organization(3) dod(6) internet(1)
+        security(5) mechanisms(5) pkix(7) id-mod(0)
+        id-mod-algorithmInformation-02(58) } ;
+
+  -- KEM-ALGORITHM
+  --
+  -- Describes the basic properties of a KEM algorithm
+  --
+  -- Suggested prefix for KEM algorithm objects is: kema-
+  --
+  --  &amp;id - contains the OID identifying the KEM algorithm
+  --  &amp;Value - if present, contains a type definition for the kemct;
+  --               if absent, implies that no ASN.1 encoding is
+  --               performed on the kemct value
+  --  &amp;Params - if present, contains the type for the algorithm
+  --               parameters; if absent, implies no parameters
+  --  &amp;paramPresence - parameter presence requirement
+  --  &amp;PublicKeySet - specifies which public keys are used with
+  --               this algorithm
+  --  &amp;Ukm - if absent, type for user keying material
+  --  &amp;ukmPresence - specifies the requirements to define the UKM
+  --               field
+  --  &amp;smimeCaps - contains the object describing how the S/MIME
+  --               capabilities are presented.
+  --
+  -- Example:
+  -- kema-kem-rsa KEM-ALGORITHM ::= {
+  --    IDENTIFIER id-kem-rsa
+  --    PARAMS TYPE RsaKemParameters ARE optional
+  --    PUBLIC-KEYS { pk-rsa | pk-rsa-kem }
+  --    UKM ARE optional
+  --    SMIME-CAPS { TYPE GenericHybridParameters
+  --        IDENTIFIED BY id-rsa-kem }
+  -- }
+
+  KEM-ALGORITHM ::= CLASS {
+    &amp;id             OBJECT IDENTIFIER UNIQUE,
+    &amp;Value          OPTIONAL,
+    &amp;Params         OPTIONAL,
+    &amp;paramPresence  ParamOptions DEFAULT absent,
+    &amp;PublicKeySet   PUBLIC-KEY OPTIONAL,
+    &amp;Ukm            OPTIONAL,
+    &amp;ukmPresence    ParamOptions DEFAULT absent,
+    &amp;smimeCaps      SMIME-CAPS OPTIONAL
+  } WITH SYNTAX {
+    IDENTIFIER &amp;id
+    [VALUE &amp;Value]
+    [PARAMS [TYPE &amp;Params] ARE &amp;paramPresence]
+    [PUBLIC-KEYS &amp;PublicKeySet]
+    [UKM [TYPE &amp;Ukm] ARE &amp;ukmPresence]
+    [SMIME-CAPS &amp;smimeCaps]
+  }
+
+  END
+
+&lt;CODE ENDS&gt;</pre><a href="#section-6.1-1" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="asn1-mod-2">
+<section id="section-6.2">
+        <h3 id="name-cms-kemrecipientinfo-2023-a">
+<a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-cms-kemrecipientinfo-2023-a" class="section-name selfRef">CMS-KEMRecipientInfo-2023 ASN.1 Module</a>
+        </h3>
+<div class="breakable lang-asn.1 sourcecode" id="section-6.2-1">
+<pre>&lt;CODE BEGINS&gt;
+  CMS-KEMRecipientInfo-2023
+    { iso(1) member-body(2) us(840) rsadsi(113549)
+      pkcs(1) pkcs-9(9) smime(16) modules(0)
+      id-mod-cms-kemri-2023(77) }
+
+  DEFINITIONS IMPLICIT TAGS ::=
+  BEGIN
+  -- EXPORTS ALL;
+  IMPORTS
+    OTHER-RECIPIENT, CMSVersion, RecipientIdentifier,
+    EncryptedKey, KeyDerivationAlgorithmIdentifier,
+    KeyEncryptionAlgorithmIdentifier, UserKeyingMaterial
+      FROM CryptographicMessageSyntax-2010  -- RFC 6268
+        { iso(1) member-body(2) us(840) rsadsi(113549)
+          pkcs(1) pkcs-9(9) smime(16) modules(0)
+          id-mod-cms-2009(58) }
+    KEM-ALGORITHM
+      FROM KEMAlgorithmInformation-2023  -- RFC 9629
+        { iso(1) identified-organization(3) dod(6) internet(1)
+          security(5) mechanisms(5) pkix(7) id-mod(0)
+          id-mod-kemAlgorithmInformation-2023(109) }
+    AlgorithmIdentifier{}
+      FROM AlgorithmInformation-2009  -- RFC 5912
+        { iso(1) identified-organization(3) dod(6) internet(1)
+          security(5) mechanisms(5) pkix(7) id-mod(0)
+          id-mod-algorithmInformation-02(58) } ;
+
+  --
+  -- OtherRecipientInfo Types (ori-)
+  --
+
+  SupportedOtherRecipInfo OTHER-RECIPIENT ::= { ori-KEM, ... }
+
+  ori-KEM OTHER-RECIPIENT ::= {
+    KEMRecipientInfo IDENTIFIED BY id-ori-kem }
+
+  id-ori OBJECT IDENTIFIER ::= { iso(1) member-body(2) us(840)
+    rsadsi(113549) pkcs(1) pkcs-9(9) smime(16) 13 }
+
+  id-ori-kem OBJECT IDENTIFIER ::= { id-ori 3 }
+
+  --
+  -- KEMRecipientInfo
+  --
+
+  KEMRecipientInfo ::= SEQUENCE {
+    version CMSVersion,  -- always set to 0
+    rid RecipientIdentifier,
+    kem KEMAlgorithmIdentifier,
+    kemct OCTET STRING,
+    kdf KeyDerivationAlgorithmIdentifier,
+    kekLength INTEGER (1..65535),
+    ukm [0] EXPLICIT UserKeyingMaterial OPTIONAL,
+    wrap KeyEncryptionAlgorithmIdentifier,
+    encryptedKey EncryptedKey }
+
+  KEMAlgSet KEM-ALGORITHM ::= { ... }
+
+  KEMAlgorithmIdentifier ::=
+    AlgorithmIdentifier{ KEM-ALGORITHM, {KEMAlgSet} }
+
+  --
+  -- CMSORIforKEMOtherInfo
+  --
+
+  CMSORIforKEMOtherInfo ::= SEQUENCE {
+    wrap KeyEncryptionAlgorithmIdentifier,
+    kekLength INTEGER (1..65535),
+    ukm [0] EXPLICIT UserKeyingMaterial OPTIONAL }
+
+  END
+
+&lt;CODE ENDS&gt;</pre><a href="#section-6.2-1" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+</section>
+</div>
+<div id="sec-cons">
+<section id="section-7">
+      <h2 id="name-security-considerations">
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+      </h2>
+<p id="section-7-1">The security considerations discussed in <span>[<a href="#RFC5652" class="cite xref">RFC5652</a>]</span> are applicable to this document.<a href="#section-7-1" class="pilcrow">¶</a></p>
+<p id="section-7-2">To be appropriate for use with this specification, the KEM algorithm <span class="bcp14">MUST</span>
+explicitly be designed to be secure when the public key is used many
+times.  For example, a KEM algorithm with a single-use public key is not
+appropriate, because the public key is expected to be carried in a
+long-lived certificate <span>[<a href="#RFC5280" class="cite xref">RFC5280</a>]</span> and used over and over.  Thus, KEM
+algorithms that offer indistinguishability under adaptive chosen ciphertext
+attack (IND-CCA2) security are appropriate.  A common design pattern for
+obtaining IND-CCA2 security with public key reuse is to apply the
+Fujisaki-Okamoto (FO) transform <span>[<a href="#FO" class="cite xref">FO</a>]</span> or a variant of the FO
+transform <span>[<a href="#HHK" class="cite xref">HHK</a>]</span>.<a href="#section-7-2" class="pilcrow">¶</a></p>
+<p id="section-7-3">The KDF <span class="bcp14">SHOULD</span> offer at least the security level of the KEM.<a href="#section-7-3" class="pilcrow">¶</a></p>
+<p id="section-7-4">The choice of the key-encryption algorithm and the size of the
+KEK <span class="bcp14">SHOULD</span> be made based on the security level
+provided by the KEM. The key-encryption algorithm and the
+KEK <span class="bcp14">SHOULD</span> offer at least the security level of
+the KEM.<a href="#section-7-4" class="pilcrow">¶</a></p>
+<p id="section-7-5">KEM algorithms do not provide data origin authentication; therefore, when
+a KEM algorithm is used with the authenticated-data content type, the
+contents are delivered with integrity from an unknown source.<a href="#section-7-5" class="pilcrow">¶</a></p>
+<p id="section-7-6">Implementations <span class="bcp14">MUST</span> protect the KEM private key, the KEK, and the CEK (or the
+CAEK).  Compromise of the KEM private key may
+result in the disclosure of all contents protected with that KEM private key.
+However, compromise of the KEK, the CEK, or the CAEK may result in disclosure
+of the encrypted content of a single message.<a href="#section-7-6" class="pilcrow">¶</a></p>
+<p id="section-7-7">The KEM produces the IKM input value for the KDF.  This IKM value <span class="bcp14">MUST NOT</span>
+be reused for any other purpose.  Likewise, any random value used by
+the KEM algorithm to produce the shared secret or its encapsulation <span class="bcp14">MUST NOT</span>
+be reused for any other purpose.  That is, the originator <span class="bcp14">MUST</span> generate a
+fresh KEM shared secret for each recipient in the KEMRecipientInfo
+structure, including any random value used by the KEM algorithm to produce
+the KEM shared secret.  In addition, the originator <span class="bcp14">MUST</span> discard the KEM shared
+secret, including any random value used by the KEM algorithm to produce
+the KEM shared secret, after constructing the entry in the KEMRecipientInfo
+structure for the corresponding recipient.  Similarly, the recipient <span class="bcp14">MUST</span>
+discard the KEM shared secret, including any random value used by the KEM
+algorithm to produce the KEM shared secret, after constructing the
+KEK from the KEMRecipientInfo structure.<a href="#section-7-7" class="pilcrow">¶</a></p>
+<p id="section-7-8">Implementations <span class="bcp14">MUST</span> randomly generate content-encryption keys,
+content-authenticated-encryption keys, and message-authentication keys.
+Also, the generation of KEM key pairs relies on random numbers.  The use
+of inadequate pseudorandom number generators (PRNGs) to generate these
+keys can result in little or no security.  An attacker may find it much
+easier to reproduce the PRNG environment that produced the keys,
+searching the resulting small set of possibilities, rather than brute-force searching the whole key space.  The generation of quality random
+numbers is difficult.  <span>[<a href="#RFC4086" class="cite xref">RFC4086</a>]</span> offers important guidance in this area.<a href="#section-7-8" class="pilcrow">¶</a></p>
+<p id="section-7-9">If the cipher and key sizes used for the key-encryption algorithm and the
+content-encryption algorithm are different, the effective security is
+determined by the weaker of the two algorithms.  If, for example, the
+content is encrypted with AES-CBC using a 128-bit CEK and the CEK is
+wrapped with AES-KEYWRAP using a 256-bit KEK, then at most 128 bits of
+protection is provided.<a href="#section-7-9" class="pilcrow">¶</a></p>
+<p id="section-7-10">If the cipher and key sizes used for the key-encryption algorithm and the
+content-authenticated-encryption algorithm are different, the effective
+security is determined by the weaker of the two algorithms.  If, for example,
+the content is encrypted with AES-GCM using a 128-bit
+CAEK and the CAEK is wrapped with AES-KEYWRAP using a 192-bit KEK, then at
+most 128 bits of protection is provided.<a href="#section-7-10" class="pilcrow">¶</a></p>
+<p id="section-7-11">If the cipher and key sizes used for the key-encryption algorithm and the
+message-authentication algorithm are different, the effective security is
+determined by the weaker of the two algorithms.  If, for example, the
+content is authenticated with HMAC-SHA256 using a 512-bit
+message-authentication key and the message-authentication key is wrapped
+with AES-KEYWRAP using a 256-bit KEK, then at most 256 bits of
+protection is provided.<a href="#section-7-11" class="pilcrow">¶</a></p>
+<p id="section-7-12">Implementers should be aware that cryptographic algorithms, including KEM
+algorithms, become weaker with time.  As new cryptoanalysis techniques are
+developed and computing capabilities advance, the work factor to break a
+particular cryptographic algorithm will be reduced.  As a result,
+cryptographic algorithm implementations should be modular, allowing new
+algorithms to be readily inserted.  That is, implementers should be prepared
+for the set of supported algorithms to change over time.<a href="#section-7-12" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="iana">
+<section id="section-8">
+      <h2 id="name-iana-considerations">
+<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+      </h2>
+<p id="section-8-1">For KEMRecipientInfo as defined in <a href="#kemri" class="auto internal xref">Section 3</a>, IANA has
+      assigned the following OID in the "SMI Security for
+      S/MIME Other Recipient Info Identifiers (1.2.840.113549.1.9.16.13)"
+      registry:<a href="#section-8-1" class="pilcrow">¶</a></p>
+<div id="iana-table1">
+<table class="left" id="table-1">
+        <caption><a href="#table-1" class="selfRef">Table 1</a></caption>
+<thead>
+          <tr>
+            <th class="text-left" rowspan="1" colspan="1">Decimal</th>
+            <th class="text-left" rowspan="1" colspan="1">Description</th>
+            <th class="text-left" rowspan="1" colspan="1">References</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">3</td>
+            <td class="text-left" rowspan="1" colspan="1">id-ori-kem</td>
+            <td class="text-left" rowspan="1" colspan="1">RFC 9629</td>
+          </tr>
+        </tbody>
+      </table>
+</div>
+<p id="section-8-3">For the ASN.1 module defined in <a href="#asn1-mod-1" class="auto internal xref">Section 6.1</a>, IANA has
+      assigned the following OID in the "SMI Security for PKIX Module
+      Identifier" registry (1.3.6.1.5.5.7.0):<a href="#section-8-3" class="pilcrow">¶</a></p>
+<div id="iana-table2">
+<table class="left" id="table-2">
+        <caption><a href="#table-2" class="selfRef">Table 2</a></caption>
+<thead>
+          <tr>
+            <th class="text-left" rowspan="1" colspan="1">Decimal</th>
+            <th class="text-left" rowspan="1" colspan="1">Description</th>
+            <th class="text-left" rowspan="1" colspan="1">References</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">109</td>
+            <td class="text-left" rowspan="1" colspan="1">id-mod-kemAlgorithmInformation-2023</td>
+            <td class="text-left" rowspan="1" colspan="1">RFC 9629</td>
+          </tr>
+        </tbody>
+      </table>
+</div>
+<p id="section-8-5">For the ASN.1 module defined in <a href="#asn1-mod-2" class="auto internal xref">Section 6.2</a>, IANA has
+      assigned the following OID in the "SMI Security for S/MIME Module
+      Identifier (1.2.840.113549.1.9.16.0)" registry:<a href="#section-8-5" class="pilcrow">¶</a></p>
+<div id="iana-table3">
+<table class="left" id="table-3">
+        <caption><a href="#table-3" class="selfRef">Table 3</a></caption>
+<thead>
+          <tr>
+            <th class="text-left" rowspan="1" colspan="1">Decimal</th>
+            <th class="text-left" rowspan="1" colspan="1">Description</th>
+            <th class="text-left" rowspan="1" colspan="1">References</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">77</td>
+            <td class="text-left" rowspan="1" colspan="1">id-mod-cms-kemri-2023</td>
+            <td class="text-left" rowspan="1" colspan="1">RFC 9629</td>
+          </tr>
+        </tbody>
+      </table>
+</div>
+</section>
+</div>
+<section id="section-9">
+      <h2 id="name-references">
+<a href="#section-9" class="section-number selfRef">9. </a><a href="#name-references" class="section-name selfRef">References</a>
+      </h2>
+<div id="sec-normative-references">
+<section id="section-9.1">
+        <h3 id="name-normative-references">
+<a href="#section-9.1" class="section-number selfRef">9.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+        </h3>
+<dl class="references">
+<dt id="RFC2119">[RFC2119]</dt>
+        <dd>
+<span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc2119">https://www.rfc-editor.org/info/rfc2119</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC5083">[RFC5083]</dt>
+        <dd>
+<span class="refAuthor">Housley, R.</span>, <span class="refTitle">"Cryptographic Message Syntax (CMS) Authenticated-Enveloped-Data Content Type"</span>, <span class="seriesInfo">RFC 5083</span>, <span class="seriesInfo">DOI 10.17487/RFC5083</span>, <time datetime="2007-11" class="refDate">November 2007</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc5083">https://www.rfc-editor.org/info/rfc5083</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC5280">[RFC5280]</dt>
+        <dd>
+<span class="refAuthor">Cooper, D.</span>, <span class="refAuthor">Santesson, S.</span>, <span class="refAuthor">Farrell, S.</span>, <span class="refAuthor">Boeyen, S.</span>, <span class="refAuthor">Housley, R.</span>, and <span class="refAuthor">W. Polk</span>, <span class="refTitle">"Internet X.509 Public Key Infrastructure Certificate and Certificate Revocation List (CRL) Profile"</span>, <span class="seriesInfo">RFC 5280</span>, <span class="seriesInfo">DOI 10.17487/RFC5280</span>, <time datetime="2008-05" class="refDate">May 2008</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc5280">https://www.rfc-editor.org/info/rfc5280</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC5652">[RFC5652]</dt>
+        <dd>
+<span class="refAuthor">Housley, R.</span>, <span class="refTitle">"Cryptographic Message Syntax (CMS)"</span>, <span class="seriesInfo">STD 70</span>, <span class="seriesInfo">RFC 5652</span>, <span class="seriesInfo">DOI 10.17487/RFC5652</span>, <time datetime="2009-09" class="refDate">September 2009</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc5652">https://www.rfc-editor.org/info/rfc5652</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC5911">[RFC5911]</dt>
+        <dd>
+<span class="refAuthor">Hoffman, P.</span> and <span class="refAuthor">J. Schaad</span>, <span class="refTitle">"New ASN.1 Modules for Cryptographic Message Syntax (CMS) and S/MIME"</span>, <span class="seriesInfo">RFC 5911</span>, <span class="seriesInfo">DOI 10.17487/RFC5911</span>, <time datetime="2010-06" class="refDate">June 2010</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc5911">https://www.rfc-editor.org/info/rfc5911</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC5912">[RFC5912]</dt>
+        <dd>
+<span class="refAuthor">Hoffman, P.</span> and <span class="refAuthor">J. Schaad</span>, <span class="refTitle">"New ASN.1 Modules for the Public Key Infrastructure Using X.509 (PKIX)"</span>, <span class="seriesInfo">RFC 5912</span>, <span class="seriesInfo">DOI 10.17487/RFC5912</span>, <time datetime="2010-06" class="refDate">June 2010</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc5912">https://www.rfc-editor.org/info/rfc5912</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8174">[RFC8174]</dt>
+        <dd>
+<span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc8174">https://www.rfc-editor.org/info/rfc8174</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="X.680">[X.680]</dt>
+        <dd>
+<span class="refAuthor">ITU-T</span>, <span class="refTitle">"Information technology - Abstract Syntax Notation One (ASN.1): Specification of basic notation"</span>, <span class="seriesInfo">ITU-T Recommendation X.680</span>, <span class="seriesInfo">ISO/IEC 8824-1:2021</span>, <time datetime="2021-02" class="refDate">February 2021</time>, <span>&lt;<a href="https://www.itu.int/rec/T-REC-X.680">https://www.itu.int/rec/T-REC-X.680</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="X.690">[X.690]</dt>
+      <dd>
+<span class="refAuthor">ITU-T</span>, <span class="refTitle">"Information technology - ASN.1 encoding rules: Specification of Basic Encoding Rules (BER), Canonical Encoding Rules (CER) and Distinguished Encoding Rules (DER)"</span>, <span class="seriesInfo">ITU-T Recommendation X.690</span>, <span class="seriesInfo">ISO/IEC 8825-1:2021</span>, <time datetime="2021-02" class="refDate">February 2021</time>, <span>&lt;<a href="https://www.itu.int/rec/T-REC-X.690">https://www.itu.int/rec/T-REC-X.690</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="sec-informative-references">
+<section id="section-9.2">
+        <h3 id="name-informative-references">
+<a href="#section-9.2" class="section-number selfRef">9.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+        </h3>
+<dl class="references">
+<dt id="FO">[FO]</dt>
+        <dd>
+<span class="refAuthor">Fujisaki, E.</span> and <span class="refAuthor">T. Okamoto</span>, <span class="refTitle">"Secure Integration of Asymmetric and Symmetric Encryption Schemes"</span>, <span class="refContent">Springer Science and Business Media LLC</span>, <span class="refContent">Journal of Cryptology, vol. 26, no. 1, pp. 80-101</span>, <span class="seriesInfo">DOI 10.1007/s00145-011-9114-1</span>, <time datetime="2011-12" class="refDate">December 2011</time>, <span>&lt;<a href="https://doi.org/10.1007/s00145-011-9114-1">https://doi.org/10.1007/s00145-011-9114-1</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="HHK">[HHK]</dt>
+        <dd>
+<span class="refAuthor">Hofheinz, D.</span>, <span class="refAuthor">Hövelmanns, K.</span>, and <span class="refAuthor">E. Kiltz</span>, <span class="refTitle">"A Modular Analysis of the Fujisaki-Okamoto Transformation"</span>, <span class="refContent">Springer International Publishing</span>, <span class="refContent">Theory of Cryptography, TCC 2017, Lecture Notes in Computer Science, vol. 10677, pp. 341-371</span>, <span class="refContent">Print ISBN 9783319704999, Online ISBN 9783319705002</span>, <span class="seriesInfo">DOI 10.1007/978-3-319-70500-2_12</span>, <time datetime="2017-11" class="refDate">November 2017</time>, <span>&lt;<a href="https://doi.org/10.1007/978-3-319-70500-2_12">https://doi.org/10.1007/978-3-319-70500-2_12</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC4086">[RFC4086]</dt>
+        <dd>
+<span class="refAuthor">Eastlake 3rd, D.</span>, <span class="refAuthor">Schiller, J.</span>, and <span class="refAuthor">S. Crocker</span>, <span class="refTitle">"Randomness Requirements for Security"</span>, <span class="seriesInfo">BCP 106</span>, <span class="seriesInfo">RFC 4086</span>, <span class="seriesInfo">DOI 10.17487/RFC4086</span>, <time datetime="2005-06" class="refDate">June 2005</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc4086">https://www.rfc-editor.org/info/rfc4086</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC5869">[RFC5869]</dt>
+        <dd>
+<span class="refAuthor">Krawczyk, H.</span> and <span class="refAuthor">P. Eronen</span>, <span class="refTitle">"HMAC-based Extract-and-Expand Key Derivation Function (HKDF)"</span>, <span class="seriesInfo">RFC 5869</span>, <span class="seriesInfo">DOI 10.17487/RFC5869</span>, <time datetime="2010-05" class="refDate">May 2010</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc5869">https://www.rfc-editor.org/info/rfc5869</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC6268">[RFC6268]</dt>
+      <dd>
+<span class="refAuthor">Schaad, J.</span> and <span class="refAuthor">S. Turner</span>, <span class="refTitle">"Additional New ASN.1 Modules for the Cryptographic Message Syntax (CMS) and the Public Key Infrastructure Using X.509 (PKIX)"</span>, <span class="seriesInfo">RFC 6268</span>, <span class="seriesInfo">DOI 10.17487/RFC6268</span>, <time datetime="2011-07" class="refDate">July 2011</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc6268">https://www.rfc-editor.org/info/rfc6268</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
+</section>
+<div id="acknowledgements">
+<section id="appendix-A">
+      <h2 id="name-acknowledgements">
+<a href="#name-acknowledgements" class="section-name selfRef">Acknowledgements</a>
+      </h2>
+<p id="appendix-A-1">Our thanks to <span class="contact-name">Burt Kaliski</span> for his guidance and design review.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+<p id="appendix-A-2">Our thanks to <span class="contact-name">Carl Wallace</span> for his careful review of the ASN.1 modules.<a href="#appendix-A-2" class="pilcrow">¶</a></p>
+<p id="appendix-A-3">Our thanks to
+<span class="contact-name">Hendrik Brockhaus</span>,
+<span class="contact-name">Jonathan Hammell</span>,
+<span class="contact-name">Mike Jenkins</span>,
+<span class="contact-name">David von Oheimb</span>,
+<span class="contact-name">Francois Rousseau</span>, and
+<span class="contact-name">Linda Dunbar</span>
+for their careful reviews and thoughtful comments.<a href="#appendix-A-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="authors-addresses">
+<section id="appendix-B">
+      <h2 id="name-authors-addresses">
+<a href="#name-authors-addresses" class="section-name selfRef">Authors' Addresses</a>
+      </h2>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Russ Housley</span></div>
+<div dir="auto" class="left"><span class="org">Vigil Security, LLC</span></div>
+<div dir="auto" class="left">
+<span class="locality">Herndon</span>, <span class="region">VA</span> </div>
+<div dir="auto" class="left"><span class="country-name">United States of America</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:housley@vigilsec.com" class="email">housley@vigilsec.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">John Gray</span></div>
+<div dir="auto" class="left"><span class="org">Entrust</span></div>
+<div dir="auto" class="left">
+<span class="locality">Minneapolis</span>, <span class="region">MN</span> </div>
+<div dir="auto" class="left"><span class="country-name">United States of America</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:john.gray@entrust.com" class="email">john.gray@entrust.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div class="ascii">
+<div dir="auto" class="left"><span class="fn nameRole">Tomofumi Okubo</span></div>
+<div dir="auto" class="left"><span class="org">Penguin Securities Pte. Ltd.</span></div>
+<div dir="auto" class="left"><span class="country-name">Singapore</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:tomofumi.okubo+ietf@gmail.com" class="email">tomofumi.okubo+ietf@gmail.com</a>
+</div>
+</div>
+<div class="alternative-contact">Additional contact information:</div>
+<div class="non-ascii">
+<div dir="auto" class="left"><span class="fn nameRole">大久保　智史</span></div>
+<div dir="auto" class="left"><span class="org">Penguin Securities Pte. Ltd.</span></div>
+<div dir="auto" class="left"><span class="country-name">Singapore</span></div>
+</div>
+</address>
+</section>
+</div>
+<script>const toc = document.getElementById("toc");
+toc.querySelector("h2").addEventListener("click", e => {
+  toc.classList.toggle("active");
+});
+toc.querySelector("nav").addEventListener("click", e => {
+  toc.classList.remove("active");
+});
+</script>
+</body>
+</html>
+

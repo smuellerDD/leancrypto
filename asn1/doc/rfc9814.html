@@ -1,0 +1,2262 @@
+
+<!DOCTYPE html>
+<html lang="en" class="RFC">
+<head>
+<meta charset="utf-8">
+<meta content="Common,Latin" name="scripts">
+<meta content="initial-scale=1.0" name="viewport">
+<title>RFC 9814: Use of the SLH-DSA Signature Algorithm in the Cryptographic Message Syntax (CMS)</title>
+<meta content="Russ Housley" name="author">
+<meta content="Scott Fluhrer" name="author">
+<meta content="Panos Kampanakis" name="author">
+<meta content="Bas Westerbaan" name="author">
+<meta content="
+       SLH-DSA is a stateless hash-based signature algorithm.  This document
+specifies the conventions for using the SLH-DSA signature algorithm
+with the Cryptographic Message Syntax (CMS).  In addition, the
+algorithm identifier and public key syntax are provided. 
+    " name="description">
+<meta content="xml2rfc 3.30.0" name="generator">
+<meta content="9814" name="rfc.number">
+<!-- Generator version information:
+  xml2rfc 3.30.0
+    Python 3.9.15
+    ConfigArgParse 1.5.3
+    google-i18n-address 3.0.0
+    intervaltree 3.1.0
+    Jinja2 3.1.2
+    lxml 5.3.0
+    platformdirs 3.8.0
+    pycountry 22.3.5
+    PyYAML 6.0
+    requests 2.28.0
+    setuptools 44.1.1
+    six 1.16.0
+    wcwidth 0.2.5
+    weasyprint 65.0
+-->
+<link href="rfc9814.xml" rel="alternate" type="application/rfc+xml">
+<link href="#copyright" rel="license">
+<style type="text/css">/*
+
+  NOTE: Changes at the bottom of this file overrides some earlier settings.
+
+  Once the style has stabilized and has been adopted as an official RFC style,
+  this can be consolidated so that style settings occur only in one place, but
+  for now the contents of this file consists first of the initial CSS work as
+  provided to the RFC Formatter (xml2rfc) work, followed by itemized and
+  commented changes found necessary during the development of the v3
+  formatters.
+
+*/
+
+/* fonts */
+@import url('https://fonts.googleapis.com/css?family=Noto+Sans'); /* Sans-serif */
+@import url('https://fonts.googleapis.com/css?family=Noto+Serif'); /* Serif (print) */
+@import url('https://fonts.googleapis.com/css?family=Roboto+Mono'); /* Monospace */
+
+:root {
+  --font-sans: 'Noto Sans', Arial, Helvetica, sans-serif;
+  --font-serif: 'Noto Serif', 'Times', 'Times New Roman', serif;
+  --font-mono: 'Roboto Mono', Courier, 'Courier New', monospace;
+}
+
+@viewport {
+  zoom: 1.0;
+}
+@-ms-viewport {
+  width: extend-to-zoom;
+  zoom: 1.0;
+}
+/* general and mobile first */
+html {
+}
+body {
+  max-width: 90%;
+  margin: 1.5em auto;
+  color: #222;
+  background-color: #fff;
+  font-size: 14px;
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  scroll-behavior: smooth;
+  overflow-wrap: break-word;
+}
+.ears {
+  display: none;
+}
+
+/* headings */
+#title, h1, h2, h3, h4, h5, h6 {
+  margin: 1em 0 0.5em;
+  font-weight: bold;
+  line-height: 1.3;
+}
+#title {
+  clear: both;
+  border-bottom: 1px solid #ddd;
+  margin: 0 0 0.5em 0;
+  padding: 1em 0 0.5em;
+}
+.author {
+  padding-bottom: 4px;
+}
+h1 {
+  font-size: 26px;
+  margin: 1em 0;
+}
+h2 {
+  font-size: 22px;
+  margin-top: -20px;  /* provide offset for in-page anchors */
+  padding-top: 33px;
+}
+h3 {
+  font-size: 18px;
+  margin-top: -36px;  /* provide offset for in-page anchors */
+  padding-top: 42px;
+}
+h4 {
+  font-size: 16px;
+  margin-top: -36px;  /* provide offset for in-page anchors */
+  padding-top: 42px;
+}
+h5, h6 {
+  font-size: 14px;
+}
+#n-copyright-notice {
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 1em;
+  margin-bottom: 1em;
+}
+/* general structure */
+p {
+  padding: 0;
+  margin: 0 0 1em 0;
+  text-align: left;
+}
+div, span {
+  position: relative;
+}
+div {
+  margin: 0;
+}
+.alignRight.art-text {
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 3px;
+  padding: 1em 1em 0;
+  margin-bottom: 1.5em;
+}
+.alignRight.art-text pre {
+  padding: 0;
+}
+.alignRight {
+  margin: 1em 0;
+}
+.alignRight > *:first-child {
+  border: none;
+  margin: 0;
+  float: right;
+  clear: both;
+}
+.alignRight > *:nth-child(2) {
+  clear: both;
+  display: block;
+  border: none;
+}
+svg {
+  display: block;
+}
+@media print {
+  svg {
+    max-height: 850px;
+    max-width: 660px;
+  }
+}
+svg[font-family~="serif" i], svg [font-family~="serif" i] {
+  font-family: var(--font-serif);
+}
+svg[font-family~="sans-serif" i], svg [font-family~="sans-serif" i] {
+  font-family: var(--font-sans);
+}
+svg[font-family~="monospace" i], svg [font-family~="monospace" i] {
+  font-family: var(--font-mono);
+}
+.alignCenter.art-text {
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 3px;
+  padding: 1em 1em 0;
+  margin-bottom: 1.5em;
+}
+.alignCenter.art-text pre {
+  padding: 0;
+}
+.alignCenter {
+  margin: 1em 0;
+}
+.alignCenter > *:first-child {
+  display: table;
+  border: none;
+  margin: 0 auto;
+}
+
+/* lists */
+ol, ul {
+  padding: 0;
+  margin: 0 0 1em 2em;
+}
+ol ol, ul ul, ol ul, ul ol {
+  margin-left: 1em;
+}
+li {
+  margin: 0 0 0.25em 0;
+}
+.ulCompact li {
+  margin: 0;
+}
+ul.empty, .ulEmpty {
+  list-style-type: none;
+}
+ul.empty li, .ulEmpty li {
+  margin-top: 0.5em;
+}
+ul.ulBare, li.ulBare {
+  margin-left: 0em !important;
+}
+ul.compact, .ulCompact,
+ol.compact, .olCompact {
+  line-height: 100%;
+  margin: 0 0 0 2em;
+}
+
+/* definition lists */
+dl {
+}
+dl > dt {
+  float: left;
+  margin-right: 1em;
+}
+/* 
+dl.nohang > dt {
+  float: none;
+}
+*/
+dl > dd {
+  margin-bottom: .8em;
+  min-height: 1.3em;
+}
+dl.compact > dd, .dlCompact > dd {
+  margin-bottom: 0em;
+}
+dl > dd > dl {
+  margin-top: 0.5em;
+  margin-bottom: 0em;
+}
+
+/* links */
+a {
+  text-decoration: none;
+}
+a[href] {
+  color: #22e; /* Arlen: WCAG 2019 */
+}
+a[href]:hover {
+  background-color: #f2f2f2;
+}
+figcaption a[href],
+a[href].selfRef {
+  color: #222;
+}
+/* XXX probably not this:
+a.selfRef:hover {
+  background-color: transparent;
+  cursor: default;
+} */
+
+/* Figures */
+tt, code, pre {
+  background-color: #f9f9f9;
+  font-family: var(--font-mono);
+}
+pre {
+  border: 1px solid #eee;
+  margin: 0;
+  padding: 1em;
+}
+img {
+  max-width: 100%;
+}
+figure {
+  margin: 0;
+}
+figure blockquote {
+  margin: 0.8em 0.4em 0.4em;
+}
+figcaption {
+  font-style: italic;
+  margin: 0 0 1em 0;
+}
+@media screen {
+  pre {
+    overflow-x: auto;
+    max-width: 100%;
+    max-width: calc(100% - 22px);
+  }
+}
+
+/* aside, blockquote */
+aside, blockquote {
+  margin-left: 0;
+  padding: 1.2em 2em;
+}
+blockquote {
+  background-color: #f9f9f9;
+  color: #111; /* Arlen: WCAG 2019 */
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  margin: 1em 0;
+}
+blockquote > *:last-child {
+  margin-bottom: 0;
+}
+cite {
+  display: block;
+  text-align: right;
+  font-style: italic;
+}
+.xref {
+  overflow-wrap: normal;
+}
+
+/* tables */
+table {
+  width: 100%;
+  margin: 0 0 1em;
+  border-collapse: collapse;
+  border: 1px solid #eee;
+}
+th, td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.5em 0.75em;
+}
+th {
+  text-align: left;
+  background-color: #e9e9e9;
+}
+tr:nth-child(2n+1) > td {
+  background-color: #f5f5f5;
+}
+table caption {
+  font-style: italic;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+table p {
+  /* XXX to avoid bottom margin on table row signifiers. If paragraphs should
+     be allowed within tables more generally, it would be far better to select on a class. */
+  margin: 0;
+}
+
+/* pilcrow */
+a.pilcrow {
+  color: #666; /* Arlen: AHDJ 2019 */
+  text-decoration: none;
+  visibility: hidden;
+  user-select: none;
+  -ms-user-select: none;
+  -o-user-select:none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+@media screen {
+  aside:hover > a.pilcrow,
+  p:hover > a.pilcrow,
+  blockquote:hover > a.pilcrow,
+  div:hover > a.pilcrow,
+  li:hover > a.pilcrow,
+  pre:hover > a.pilcrow {
+    visibility: visible;
+  }
+  a.pilcrow:hover {
+    background-color: transparent;
+  }
+}
+
+/* misc */
+hr {
+  border: 0;
+  border-top: 1px solid #eee;
+}
+.bcp14 {
+  font-variant: small-caps;
+}
+
+.role {
+  font-variant: all-small-caps;
+}
+
+/* info block */
+#identifiers {
+  margin: 0;
+  font-size: 0.9em;
+}
+#identifiers dt {
+  width: 3em;
+  clear: left;
+}
+#identifiers dd {
+  float: left;
+  margin-bottom: 0;
+}
+/* Fix PDF info block run off issue */
+@media print {
+  #identifiers dd {
+    max-width: 100%;
+  }
+}
+#identifiers .authors .author {
+  display: inline-block;
+  margin-right: 1.5em;
+}
+#identifiers .authors .org {
+  font-style: italic;
+}
+
+/* The prepared/rendered info at the very bottom of the page */
+.docInfo {
+  color: #666; /* Arlen: WCAG 2019 */
+  font-size: 0.9em;
+  font-style: italic;
+  margin-top: 2em;
+}
+.docInfo .prepared {
+  float: left;
+}
+.docInfo .prepared {
+  float: right;
+}
+
+/* table of contents */
+#toc  {
+  padding: 0.75em 0 2em 0;
+  margin-bottom: 1em;
+}
+nav.toc ul {
+  margin: 0 0.5em 0 0;
+  padding: 0;
+  list-style: none;
+}
+nav.toc li {
+  line-height: 1.3em;
+  margin: 0.75em 0;
+  padding-left: 1.2em;
+  text-indent: -1.2em;
+}
+/* references */
+.references dt {
+  text-align: right;
+  font-weight: bold;
+  min-width: 7em;
+}
+.references dd {
+  margin-left: 8em;
+  overflow: auto;
+}
+
+.refInstance {
+  margin-bottom: 1.25em;
+}
+
+.refSubseries {
+  margin-bottom: 1.25em;
+}
+
+.references .ascii {
+  margin-bottom: 0.25em;
+}
+
+/* index */
+.index ul {
+  margin: 0 0 0 1em;
+  padding: 0;
+  list-style: none;
+}
+.index ul ul {
+  margin: 0;
+}
+.index li {
+  margin: 0;
+  text-indent: -2em;
+  padding-left: 2em;
+  padding-bottom: 5px;
+}
+.indexIndex {
+  margin: 0.5em 0 1em;
+}
+.index a {
+  font-weight: 700;
+}
+/* make the index two-column on all but the smallest screens */
+@media (min-width: 600px) {
+  .index ul {
+    -moz-column-count: 2;
+    -moz-column-gap: 20px;
+  }
+  .index ul ul {
+    -moz-column-count: 1;
+    -moz-column-gap: 0;
+  }
+}
+
+/* authors */
+address.vcard {
+  font-style: normal;
+  margin: 1em 0;
+}
+
+address.vcard .nameRole {
+  font-weight: 700;
+  margin-left: 0;
+}
+address.vcard .label {
+  font-family: var(--font-sans);
+  margin: 0.5em 0;
+}
+address.vcard .type {
+  display: none;
+}
+.alternative-contact {
+  margin: 1.5em 0 1em;
+}
+hr.addr {
+  border-top: 1px dashed;
+  margin: 0;
+  color: #ddd;
+  max-width: calc(100% - 16px);
+}
+
+/* temporary notes */
+.rfcEditorRemove::before {
+  position: absolute;
+  top: 0.2em;
+  right: 0.2em;
+  padding: 0.2em;
+  content: "The RFC Editor will remove this note";
+  color: #9e2a00; /* Arlen: WCAG 2019 */
+  background-color: #ffd; /* Arlen: WCAG 2019 */
+}
+.rfcEditorRemove {
+  position: relative;
+  padding-top: 1.8em;
+  background-color: #ffd; /* Arlen: WCAG 2019 */
+  border-radius: 3px;
+}
+.cref {
+  background-color: #ffd; /* Arlen: WCAG 2019 */
+  padding: 2px 4px;
+}
+.crefSource {
+  font-style: italic;
+}
+/* alternative layout for smaller screens */
+@media screen and (max-width: 1023px) {
+  body {
+    padding-top: 2em;
+  }
+  #title {
+    padding: 1em 0;
+  }
+  h1 {
+    font-size: 24px;
+  }
+  h2 {
+    font-size: 20px;
+    margin-top: -18px;  /* provide offset for in-page anchors */
+    padding-top: 38px;
+  }
+  #identifiers dd {
+    max-width: 60%;
+  }
+  #toc {
+    position: fixed;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    padding: 0;
+    margin: 0;
+    background-color: inherit;
+    border-bottom: 1px solid #ccc;
+  }
+  #toc h2 {
+    margin: -1px 0 0 0;
+    padding: 4px 0 4px 6px;
+    padding-right: 1em;
+    min-width: 190px;
+    font-size: 1.1em;
+    text-align: right;
+    background-color: #444;
+    color: white;
+    cursor: pointer;
+  }
+  #toc h2::before { /* css hamburger */
+    float: right;
+    position: relative;
+    width: 1em;
+    height: 1px;
+    left: -164px;
+    margin: 6px 0 0 0;
+    background: white none repeat scroll 0 0;
+    box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+    content: "";
+  }
+  #toc nav {
+    display: none;
+    padding: 0.5em 1em 1em;
+    overflow: auto;
+    height: calc(100vh - 48px);
+    border-left: 1px solid #ddd;
+  }
+}
+
+/* alternative layout for wide screens */
+@media screen and (min-width: 1024px) {
+  body {
+    max-width: 724px;
+    margin: 42px auto;
+    padding-left: 1.5em;
+    padding-right: 29em;
+  }
+  #toc {
+    position: fixed;
+    top: 42px;
+    right: 42px;
+    width: 25%;
+    margin: 0;
+    padding: 0 1em;
+    z-index: 1;
+  }
+  #toc h2 {
+    border-top: none;
+    border-bottom: 1px solid #ddd;
+    font-size: 1em;
+    font-weight: normal;
+    margin: 0;
+    padding: 0.25em 1em 1em 0;
+  }
+  #toc nav {
+    display: block;
+    height: calc(90vh - 84px);
+    bottom: 0;
+    padding: 0.5em 0 0;
+    overflow: auto;
+  }
+  img { /* future proofing */
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* pagination */
+@media print {
+  body {
+    width: 100%;
+  }
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+  #n-copyright-notice {
+    border-bottom: none;
+  }
+  #toc, #n-introduction {
+    page-break-before: always;
+  }
+  #toc {
+    border-top: none;
+    padding-top: 0;
+  }
+  figure, pre {
+    page-break-inside: avoid;
+  }
+  figure {
+    overflow: scroll;
+  }
+  .breakable pre {
+    break-inside: auto;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+  h2+*, h3+*, h4+*, h5+*, h6+* {
+    page-break-before: avoid;
+  }
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 10pt;
+  }
+  table {
+    border: 1px solid #ddd;
+  }
+  td {
+    border-top: 1px solid #ddd;
+  }
+}
+
+/* This is commented out here, as the string-set: doesn't
+   pass W3C validation currently */
+/*
+.ears thead .left {
+  string-set: ears-top-left content();
+}
+
+.ears thead .center {
+  string-set: ears-top-center content();
+}
+
+.ears thead .right {
+  string-set: ears-top-right content();
+}
+
+.ears tfoot .left {
+  string-set: ears-bottom-left content();
+}
+
+.ears tfoot .center {
+  string-set: ears-bottom-center content();
+}
+
+.ears tfoot .right {
+  string-set: ears-bottom-right content();
+}
+*/
+
+@page :first {
+  padding-top: 0;
+  @top-left {
+    content: normal;
+    border: none;
+  }
+  @top-center {
+    content: normal;
+    border: none;
+  }
+  @top-right {
+    content: normal;
+    border: none;
+  }
+}
+
+@page {
+  size: A4;
+  margin-bottom: 45mm;
+  padding-top: 20px;
+  /* The following is commented out here, but set appropriately by in code, as
+     the content depends on the document */
+  /*
+  @top-left {
+    content: 'Internet-Draft';
+    vertical-align: bottom;
+    border-bottom: solid 1px #ccc;
+  }
+  @top-left {
+    content: string(ears-top-left);
+    vertical-align: bottom;
+    border-bottom: solid 1px #ccc;
+  }
+  @top-center {
+    content: string(ears-top-center);
+    vertical-align: bottom;
+    border-bottom: solid 1px #ccc;
+  }
+  @top-right {
+    content: string(ears-top-right);
+    vertical-align: bottom;
+    border-bottom: solid 1px #ccc;
+  }
+  @bottom-left {
+    content: string(ears-bottom-left);
+    vertical-align: top;
+    border-top: solid 1px #ccc;
+  }
+  @bottom-center {
+    content: string(ears-bottom-center);
+    vertical-align: top;
+    border-top: solid 1px #ccc;
+  }
+  @bottom-right {
+      content: '[Page ' counter(page) ']';
+      vertical-align: top;
+      border-top: solid 1px #ccc;
+  }
+  */
+
+}
+
+/* Changes introduced to fix issues found during implementation */
+/* Make sure links are clickable even if overlapped by following H* */
+a {
+  z-index: 2;
+}
+/* Separate body from document info even without intervening H1 */
+section {
+  clear: both;
+}
+
+
+/* Top align author divs, to avoid names without organization dropping level with org names */
+.author {
+  vertical-align: top;
+}
+
+/* Leave room in document info to show Internet-Draft on one line */
+#identifiers dt {
+  width: 8em;
+}
+
+/* Don't waste quite as much whitespace between label and value in doc info */
+#identifiers dd {
+  margin-left: 1em;
+}
+
+/* Give floating toc a background color (needed when it's a div inside section */
+#toc {
+  background-color: white;
+}
+
+/* Make the collapsed ToC header render white on gray also when it's a link */
+@media screen and (max-width: 1023px) {
+  #toc h2 a,
+  #toc h2 a:link,
+  #toc h2 a:focus,
+  #toc h2 a:hover,
+  #toc a.toplink,
+  #toc a.toplink:hover {
+    color: white;
+    background-color: #444;
+    text-decoration: none;
+  }
+}
+
+/* Give the bottom of the ToC some whitespace */
+@media screen and (min-width: 1024px) {
+  #toc {
+    padding: 0 0 1em 1em;
+  }
+}
+
+/* Style section numbers with more space between number and title */
+.section-number {
+  padding-right: 0.5em;
+}
+
+/* prevent monospace from becoming overly large */
+tt, code, pre {
+  font-size: 95%;
+}
+
+/* Fix the height/width aspect for ascii art*/
+.sourcecode pre,
+.art-text pre {
+  line-height: 1.12;
+}
+
+
+/* Add styling for a link in the ToC that points to the top of the document */
+a.toplink {
+  float: right;
+  margin-right: 0.5em;
+}
+
+/* Fix the dl styling to match the RFC 7992 attributes */
+dl > dt,
+dl.dlParallel > dt {
+  float: left;
+  margin-right: 1em;
+}
+dl.dlNewline > dt {
+  float: none;
+}
+
+/* Provide styling for table cell text alignment */
+table td.text-left,
+table th.text-left {
+  text-align: left;
+}
+table td.text-center,
+table th.text-center {
+  text-align: center;
+}
+table td.text-right,
+table th.text-right {
+  text-align: right;
+}
+
+/* Make the alternative author contact information look less like just another
+   author, and group it closer with the primary author contact information */
+.alternative-contact {
+  margin: 0.5em 0 0.25em 0;
+}
+address .non-ascii {
+  margin: 0 0 0 2em;
+}
+
+/* With it being possible to set tables with alignment
+  left, center, and right, { width: 100%; } does not make sense */
+table {
+  width: auto;
+}
+
+/* Avoid reference text that sits in a block with very wide left margin,
+   because of a long floating dt label.*/
+.references dd {
+  overflow: visible;
+}
+
+/* Control caption placement */
+caption {
+  caption-side: bottom;
+}
+
+/* Limit the width of the author address vcard, so names in right-to-left
+   script don't end up on the other side of the page. */
+
+address.vcard {
+  max-width: 30em;
+  margin-right: auto;
+}
+
+/* For address alignment dependent on LTR or RTL scripts */
+address div.left {
+  text-align: left;
+}
+address div.right {
+  text-align: right;
+}
+
+/* Provide table alignment support.  We can't use the alignX classes above
+   since they do unwanted things with caption and other styling. */
+table.right {
+ margin-left: auto;
+ margin-right: 0;
+}
+table.center {
+ margin-left: auto;
+ margin-right: auto;
+}
+table.left {
+ margin-left: 0;
+ margin-right: auto;
+}
+
+/* Give the table caption label the same styling as the figcaption */
+caption a[href] {
+  color: #222;
+}
+
+@media print {
+  .toplink {
+    display: none;
+  }
+
+  /* avoid overwriting the top border line with the ToC header */
+  #toc {
+    padding-top: 1px;
+  }
+
+  /* Avoid page breaks inside dl and author address entries */
+  .vcard {
+    page-break-inside: avoid;
+  }
+
+}
+/* Tweak the bcp14 keyword presentation */
+.bcp14 {
+  font-variant: small-caps;
+  font-weight: bold;
+  font-size: 0.9em;
+}
+/* Tweak the invisible space above H* in order not to overlay links in text above */
+ h2 {
+  margin-top: -18px;  /* provide offset for in-page anchors */
+  padding-top: 31px;
+ }
+ h3 {
+  margin-top: -18px;  /* provide offset for in-page anchors */
+  padding-top: 24px;
+ }
+ h4 {
+  margin-top: -18px;  /* provide offset for in-page anchors */
+  padding-top: 24px;
+ }
+/* Float artwork pilcrow to the right */
+@media screen {
+  .artwork a.pilcrow {
+    display: block;
+    line-height: 0.7;
+    margin-top: 0.15em;
+  }
+}
+/* Make pilcrows on dd visible */
+@media screen {
+  dd:hover > a.pilcrow {
+    visibility: visible;
+  }
+}
+/* Make the placement of figcaption match that of a table's caption
+   by removing the figure's added bottom margin */
+.alignLeft.art-text,
+.alignCenter.art-text,
+.alignRight.art-text {
+   margin-bottom: 0;
+}
+.alignLeft,
+.alignCenter,
+.alignRight {
+  margin: 1em 0 0 0;
+}
+/* In print, the pilcrow won't show on hover, so prevent it from taking up space,
+   possibly even requiring a new line */
+@media print {
+  a.pilcrow {
+    display: none;
+  }
+}
+/* Styling for the external metadata */
+div#external-metadata {
+  background-color: #eee;
+  padding: 0.5em;
+  margin-bottom: 0.5em;
+  display: none;
+}
+div#internal-metadata {
+  padding: 0.5em;                       /* to match the external-metadata padding */
+}
+/* Styling for title RFC Number */
+h1#rfcnum {
+  clear: both;
+  margin: 0 0 -1em;
+  padding: 1em 0 0 0;
+}
+/* Make .olPercent look the same as <ol><li> */
+dl.olPercent > dd {
+  margin-bottom: 0.25em;
+  min-height: initial;
+}
+/* Give aside some styling to set it apart */
+aside {
+  border-left: 1px solid #ddd;
+  margin: 1em 0 1em 2em;
+  padding: 0.2em 2em;
+}
+aside > dl,
+aside > ol,
+aside > ul,
+aside > table,
+aside > p {
+  margin-bottom: 0.5em;
+}
+/* Additional page break settings */
+@media print {
+  figcaption, table caption {
+    page-break-before: avoid;
+  }
+}
+/* Font size adjustments for print */
+@media print {
+  body  { font-size: 10pt;      line-height: normal; max-width: 96%; }
+  h1    { font-size: 1.72em;    padding-top: 1.5em; } /* 1*1.2*1.2*1.2 */
+  h2    { font-size: 1.44em;    padding-top: 1.5em; } /* 1*1.2*1.2 */
+  h3    { font-size: 1.2em;     padding-top: 1.5em; } /* 1*1.2 */
+  h4    { font-size: 1em;       padding-top: 1.5em; }
+  h5, h6 { font-size: 1em;      margin: initial; padding: 0.5em 0 0.3em; }
+}
+/* Sourcecode margin in print, when there's no pilcrow */
+@media print {
+  .artwork,
+  .artwork > pre,
+  .sourcecode {
+    margin-bottom: 1em;
+  }
+}
+/* Avoid narrow tables forcing too narrow table captions, which may render badly */
+table {
+  min-width: 20em;
+}
+/* ol type a */
+ol.type-a { list-style-type: lower-alpha; }
+ol.type-A { list-style-type: upper-alpha; }
+ol.type-i { list-style-type: lower-roman; }
+ol.type-I { list-style-type: upper-roman; }
+/* Apply the print table and row borders in general, on request from the RPC,
+and increase the contrast between border and odd row background slightly */
+table {
+  border: 1px solid #ddd;
+}
+td {
+  border-top: 1px solid #ddd;
+}
+tr {
+  break-inside: avoid;
+}
+tr:nth-child(2n+1) > td {
+  background-color: #f8f8f8;
+}
+/* Use style rules to govern display of the TOC. */
+@media screen and (max-width: 1023px) {
+  #toc nav { display: none; }
+  #toc.active nav { display: block; }
+}
+/* Add support for keepWithNext */
+.keepWithNext {
+  break-after: avoid-page;
+  break-after: avoid-page;
+}
+/* Add support for keepWithPrevious */
+.keepWithPrevious {
+  break-before: avoid-page;
+}
+/* Change the approach to avoiding breaks inside artwork etc. */
+figure, pre, table, .artwork, .sourcecode  {
+  break-before: auto;
+  break-after: auto;
+}
+/* Avoid breaks between <dt> and <dd> */
+dl {
+  break-before: auto;
+  break-inside: auto;
+}
+dt {
+  break-before: auto;
+  break-after: avoid-page;
+}
+dd {
+  break-before: avoid-page;
+  break-after: auto;
+  orphans: 3;
+  widows: 3
+}
+span.break, dd.break {
+  margin-bottom: 0;
+  min-height: 0;
+  break-before: auto;
+  break-inside: auto;
+  break-after: auto;
+}
+/* Undo break-before ToC */
+@media print {
+  #toc {
+    break-before: auto;
+  }
+}
+/* Text in compact lists should not get extra bottom margin space,
+   since that would makes the list not compact */
+ul.compact p, .ulCompact p,
+ol.compact p, .olCompact p {
+ margin: 0;
+}
+/* But the list as a whole needs the extra space at the end */
+section ul.compact,
+section .ulCompact,
+section ol.compact,
+section .olCompact {
+  margin-bottom: 1em;                    /* same as p not within ul.compact etc. */
+}
+/* The tt and code background above interferes with for instance table cell
+   backgrounds.  Changed to something a bit more selective. */
+tt, code {
+  background-color: transparent;
+}
+p tt, p code, li tt, li code, dt tt, dt code {
+  background-color: #f8f8f8;
+}
+/* Tweak the pre margin -- 0px doesn't come out well */
+pre {
+   margin-top: 0.5px;
+}
+/* Tweak the compact list text */
+ul.compact, .ulCompact,
+ol.compact, .olCompact,
+dl.compact, .dlCompact {
+  line-height: normal;
+}
+/* Don't add top margin for nested lists */
+li > ul, li > ol, li > dl,
+dd > ul, dd > ol, dd > dl,
+dl > dd > dl {
+  margin-top: initial;
+}
+/* Elements that should not be rendered on the same line as a <dt> */
+/* This should match the element list in writer.text.TextWriter.render_dl() */
+dd > div.artwork:first-child,
+dd > aside:first-child,
+dd > blockquote:first-child,
+dd > figure:first-child,
+dd > ol:first-child,
+dd > div.sourcecode:first-child,
+dd > table:first-child,
+dd > ul:first-child {
+  clear: left;
+}
+/* fix for weird browser behaviour when <dd/> is empty */
+dt+dd:empty::before{
+  content: "\00a0";
+}
+/* Make paragraph spacing inside <li> smaller than in body text, to fit better within the list */
+li > p {
+  margin-bottom: 0.5em
+}
+/* Don't let p margin spill out from inside list items */
+li > p:last-of-type:only-child {
+  margin-bottom: 0;
+}
+</style>
+<link href="rfc-local.css" rel="stylesheet" type="text/css">
+<link href="https://datatracker.ietf.org/doc/draft-ietf-lamps-cms-sphincs-plus-19" rel="prev">
+  <link href="https://dx.doi.org/10.17487/rfc9814" rel="alternate">
+  <link href="urn:issn:2070-1721" rel="alternate">
+  </head>
+<body class="xml2rfc">
+<script src="https://www.rfc-editor.org/js/metadata.min.js"></script>
+<table class="ears">
+<thead><tr>
+<td class="left">RFC 9814</td>
+<td class="center">SLH-DSA Signature Algorithm in CMS</td>
+<td class="right">July 2025</td>
+</tr></thead>
+<tfoot><tr>
+<td class="left">Housley, et al.</td>
+<td class="center">Standards Track</td>
+<td class="right">[Page]</td>
+</tr></tfoot>
+</table>
+<div id="external-metadata" class="document-information"></div>
+<div id="internal-metadata" class="document-information">
+<dl id="identifiers">
+<dt class="label-stream">Stream:</dt>
+<dd class="stream">Internet Engineering Task Force (IETF)</dd>
+<dt class="label-rfc">RFC:</dt>
+<dd class="rfc"><a href="https://www.rfc-editor.org/rfc/rfc9814" class="eref">9814</a></dd>
+<dt class="label-category">Category:</dt>
+<dd class="category">Standards Track</dd>
+<dt class="label-published">Published:</dt>
+<dd class="published">
+<time datetime="2025-07" class="published">July 2025</time>
+    </dd>
+<dt class="label-issn">ISSN:</dt>
+<dd class="issn">2070-1721</dd>
+<dt class="label-authors">Authors:</dt>
+<dd class="authors">
+<div class="author">
+      <div class="author-name">R. Housley</div>
+<div class="org">Vigil Security</div>
+</div>
+<div class="author">
+      <div class="author-name">S. Fluhrer</div>
+<div class="org">Cisco Systems</div>
+</div>
+<div class="author">
+      <div class="author-name">P. Kampanakis</div>
+<div class="org">Amazon Web Services</div>
+</div>
+<div class="author">
+      <div class="author-name">B. Westerbaan</div>
+<div class="org">Cloudflare</div>
+</div>
+</dd>
+</dl>
+</div>
+<h1 id="rfcnum">RFC 9814</h1>
+<h1 id="title">Use of the SLH-DSA Signature Algorithm in the Cryptographic Message Syntax (CMS)</h1>
+<section id="section-abstract">
+      <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
+<p id="section-abstract-1">SLH-DSA is a stateless hash-based signature algorithm.  This document
+specifies the conventions for using the SLH-DSA signature algorithm
+with the Cryptographic Message Syntax (CMS).  In addition, the
+algorithm identifier and public key syntax are provided.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+</section>
+<div id="status-of-memo">
+<section id="section-boilerplate.1">
+        <h2 id="name-status-of-this-memo">
+<a href="#name-status-of-this-memo" class="section-name selfRef">Status of This Memo</a>
+        </h2>
+<p id="section-boilerplate.1-1">
+            This is an Internet Standards Track document.<a href="#section-boilerplate.1-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-2">
+            This document is a product of the Internet Engineering Task Force
+            (IETF).  It represents the consensus of the IETF community.  It has
+            received public review and has been approved for publication by
+            the Internet Engineering Steering Group (IESG).  Further
+            information on Internet Standards is available in Section 2 of 
+            RFC 7841.<a href="#section-boilerplate.1-2" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-3">
+            Information about the current status of this document, any
+            errata, and how to provide feedback on it may be obtained at
+            <span><a href="https://www.rfc-editor.org/info/rfc9814">https://www.rfc-editor.org/info/rfc9814</a></span>.<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="copyright">
+<section id="section-boilerplate.2">
+        <h2 id="name-copyright-notice">
+<a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
+        </h2>
+<p id="section-boilerplate.2-1">
+            Copyright (c) 2025 IETF Trust and the persons identified as the
+            document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.2-2">
+            This document is subject to BCP 78 and the IETF Trust's Legal
+            Provisions Relating to IETF Documents
+            (<span><a href="https://trustee.ietf.org/license-info">https://trustee.ietf.org/license-info</a></span>) in effect on the date of
+            publication of this document. Please review these documents
+            carefully, as they describe your rights and restrictions with
+            respect to this document. Code Components extracted from this
+            document must include Revised BSD License text as described in
+            Section 4.e of the Trust Legal Provisions and are provided without
+            warranty as described in the Revised BSD License.<a href="#section-boilerplate.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="toc">
+<section id="section-toc.1">
+        <a href="#" onclick="scroll(0,0)" class="toplink">▲</a><h2 id="name-table-of-contents">
+<a href="#name-table-of-contents" class="section-name selfRef">Table of Contents</a>
+        </h2>
+<nav class="toc"><ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1">
+            <p id="section-toc.1-1.1.1"><a href="#section-1" class="auto internal xref">1</a>.  <a href="#name-introduction" class="internal xref">Introduction</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1">
+                <p id="section-toc.1-1.1.2.1.1" class="keepWithNext"><a href="#section-1.1" class="auto internal xref">1.1</a>.  <a href="#name-asn1" class="internal xref">ASN.1</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.2">
+                <p id="section-toc.1-1.1.2.2.1" class="keepWithNext"><a href="#section-1.2" class="auto internal xref">1.2</a>.  <a href="#name-motivation" class="internal xref">Motivation</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.3">
+                <p id="section-toc.1-1.1.2.3.1" class="keepWithNext"><a href="#section-1.3" class="auto internal xref">1.3</a>.  <a href="#name-terminology" class="internal xref">Terminology</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
+            <p id="section-toc.1-1.2.1"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-slh-dsa-hash-based-signatur" class="internal xref">SLH-DSA Hash-Based Signature Algorithm Overview</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-slh-dsa-public-key-identifi" class="internal xref">SLH-DSA Public Key Identifier</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-signed-data-conventions" class="internal xref">Signed-Data Conventions</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-operational-considerations" class="internal xref">Operational Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-references" class="internal xref">References</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.1">
+                <p id="section-toc.1-1.8.2.1.1"><a href="#section-8.1" class="auto internal xref">8.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.2">
+                <p id="section-toc.1-1.8.2.2.1"><a href="#section-8.2" class="auto internal xref">8.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
+            <p id="section-toc.1-1.9.1"><a href="#appendix-A" class="auto internal xref">Appendix A</a>.  <a href="#name-asn1-module" class="internal xref">ASN.1 Module</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
+            <p id="section-toc.1-1.10.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-acknowledgements" class="internal xref">Acknowledgements</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
+            <p id="section-toc.1-1.11.1"><a href="#appendix-C" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
+</li>
+        </ul>
+</nav>
+</section>
+</div>
+<div id="introduction">
+<section id="section-1">
+      <h2 id="name-introduction">
+<a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
+      </h2>
+<p id="section-1-1">This document specifies the conventions for using the SLH-DSA hash-based
+signature algorithm <span>[<a href="#FIPS205" class="cite xref">FIPS205</a>]</span> with the Cryptographic Message
+Syntax (CMS) <span>[<a href="#RFC5652" class="cite xref">RFC5652</a>]</span> signed-data content type.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">SLH-DSA offers two signature modes: pure mode and pre-hash mode.  SLH-DSA
+signature operations include a context string as input.  The context string
+has a maximum length of 255 bytes.  By default, the context string is the
+empty string.  This document only specifies the use of pure mode with an empty
+context string for the CMS signed-data content type.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3">SLH-DSA offers three security levels.  The parameters for each of the
+security levels were chosen to provide 128 bits of security, 192 bits of
+security, and 256 bits of security.  Separate algorithm identifiers have
+been assigned for SLH-DSA at each of these security levels.<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-4">SLH-DSA is a stateless hash-based signature algorithm.  Other hash-based
+signature algorithms are stateful, including Hierarchical Signature System (HSS) / Leighton-Micali Signatures (LMS) <span>[<a href="#RFC8554" class="cite xref">RFC8554</a>]</span> and
+eXtended Merkle Signature Scheme (XMSS) <span>[<a href="#RFC8391" class="cite xref">RFC8391</a>]</span>.  Without the need for state kept by the signer,
+SLH-DSA is much less fragile than the stateful hash-based signature algorithms.<a href="#section-1-4" class="pilcrow">¶</a></p>
+<div id="asn1">
+<section id="section-1.1">
+        <h3 id="name-asn1">
+<a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-asn1" class="section-name selfRef">ASN.1</a>
+        </h3>
+<p id="section-1.1-1">CMS values are generated with ASN.1 <span>[<a href="#X680" class="cite xref">X680</a>]</span> using the Basic
+Encoding Rules (BER) and the Distinguished Encoding Rules
+(DER) <span>[<a href="#X690" class="cite xref">X690</a>]</span>.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="motivation">
+<section id="section-1.2">
+        <h3 id="name-motivation">
+<a href="#section-1.2" class="section-number selfRef">1.2. </a><a href="#name-motivation" class="section-name selfRef">Motivation</a>
+        </h3>
+<p id="section-1.2-1">There have been recent advances in cryptanalysis and advances in the
+development of quantum computers.  Each of these advances pose a
+threat to widely deployed digital signature algorithms.<a href="#section-1.2-1" class="pilcrow">¶</a></p>
+<p id="section-1.2-2">If Cryptographically Relevant Quantum Computers (CRQCs) are ever built, they
+will be able to break many of the public key cryptosystems currently in use,
+including RSA, DSA, Elliptic Curve Digital Signature Algorithm (ECDSA), and Edwards-curve Digital Signature Algorithm (EdDSA).  A Post-Quantum Cryptosystem (PQC) is
+secure against quantum computers that have more than a trivial number of quantum
+bits (qu-bits).  It is open to conjecture when it will be feasible to build
+such quantum computers; however, it is prudent to use cryptographic
+algorithms that remain secure if a CRQC is invented.  SLH-DSA is a PQC
+signature algorithm.<a href="#section-1.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="terminology">
+<section id="section-1.3">
+        <h3 id="name-terminology">
+<a href="#section-1.3" class="section-number selfRef">1.3. </a><a href="#name-terminology" class="section-name selfRef">Terminology</a>
+        </h3>
+<p id="section-1.3-1">
+    The key words "<span class="bcp14">MUST</span>", "<span class="bcp14">MUST NOT</span>", "<span class="bcp14">REQUIRED</span>", "<span class="bcp14">SHALL</span>", "<span class="bcp14">SHALL NOT</span>", "<span class="bcp14">SHOULD</span>", "<span class="bcp14">SHOULD NOT</span>", "<span class="bcp14">RECOMMENDED</span>", "<span class="bcp14">NOT RECOMMENDED</span>",
+    "<span class="bcp14">MAY</span>", and "<span class="bcp14">OPTIONAL</span>" in this document are to be interpreted as
+    described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</span> <span>[<a href="#RFC8174" class="cite xref">RFC8174</a>]</span> 
+    when, and only when, they appear in all capitals, as shown here.<a href="#section-1.3-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="slh-dsa-hash-based-signature-algorithm-overview">
+<section id="section-2">
+      <h2 id="name-slh-dsa-hash-based-signatur">
+<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-slh-dsa-hash-based-signatur" class="section-name selfRef">SLH-DSA Hash-Based Signature Algorithm Overview</a>
+      </h2>
+<p id="section-2-1">SLH-DSA is a stateless hash-based signature algorithm.  SLH-DSA makes use of a few-time signature construction (Forest of Random Subsets (FORS))
+and a hypertree.  FORS signs a message with a private key. The
+corresponding FORS public keys are the leaves in k binary trees.
+The roots of these trees are hashed together to form a FORS root.
+SLH-DSA uses a one-time signature scheme called Winternitz One-Time Signature Plus (WOTS+).  The FORS
+tree roots are signed by a WOTS+ private
+key. The corresponding WOTS+ public keys form the leaves in d-layers
+of Merkle subtrees in the SLH-DSA hypertree. The bottom layer of
+that hypertree signs the FORS roots with WOTS+.  The roots of the
+bottom Merkle subtrees are then signed with WOTS+ and the
+corresponding WOTS+ public keys form the leaves of the next-level-up
+subtree. Subtree roots are consequently signed by their corresponding
+subtree layers until the top subtree is reached. The top-layer subtree
+forms the hypertree root, which is trusted at the verifier.<a href="#section-2-1" class="pilcrow">¶</a></p>
+<p id="section-2-2">An SLH-DSA signature consists of the randomization string, the FORS signature,
+the WOTS+ signature in each layer, and the path to the root of each subtree
+      until the root of the hypertree is reached.<a href="#section-2-2" class="pilcrow">¶</a></p>
+<p id="section-2-3">An SLH-DSA signature is verified using the FORS signature, the
+WOTS+ signatures, and the path to the root of each subtree. When reaching
+the root of the hypertree, the signature verifies only if it hashes to
+the pre-trusted root of the SLH-DSA hypertree.<a href="#section-2-3" class="pilcrow">¶</a></p>
+<p id="section-2-4">SLH-DSA is a stateless hash-based signature algorithm. Stateful
+hash-based signature schemes require that the WOTS+ private key
+(generated by using a state index) never be reused or the scheme
+loses its security.  FORS is used at the bottom of the SLH-DSA hypertree.  Security decreases 
+if the same private key is used to sign two or more different messages, but
+security does not collapse, as is the case in stateful hash-based signature
+algorithms.  Without the need for
+state kept by the signer to ensure it is not reused, SLH-DSA is much
+      less fragile.<a href="#section-2-4" class="pilcrow">¶</a></p>
+<p id="section-2-5">SLH-DSA was designed to sign up to 2<sup>64</sup> messages and offers three
+security levels.  The parameters of the SLH-DSA hypertree include the
+security parameter, the hash function, the tree height, the number of
+layers of subtrees, the Winternitz parameter of WOTS+, and the number of FORS
+trees and leaves in each.  The parameters for each of the security levels
+were chosen to be at least as secure as a generic block cipher of 128, 192,
+or 256 bits.<a href="#section-2-5" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="slh-dsa-public-key-identifier">
+<section id="section-3">
+      <h2 id="name-slh-dsa-public-key-identifi">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-slh-dsa-public-key-identifi" class="section-name selfRef">SLH-DSA Public Key Identifier</a>
+      </h2>
+<p id="section-3-1">The AlgorithmIdentifier for an SLH-DSA public key <span class="bcp14">MUST</span> use one of the
+twelve id-slh-dsa object identifiers listed below, based on the
+security level used to generate the SLH-DSA hypertree, the small or fast
+version of the algorithm, and the use of SHA2 <span>[<a href="#FIPS180" class="cite xref">FIPS180</a>]</span> or
+SHAKE <span>[<a href="#FIPS202" class="cite xref">FIPS202</a>]</span>.  For example, id-slh-dsa-shake-256s
+represents the 256-bit security level, the small version of the
+algorithm, and the use of SHAKE256.  The parameters field of the
+AlgorithmIdentifier for the SLH-DSA public key <span class="bcp14">MUST</span> be absent.<a href="#section-3-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3-2">
+<pre>
+   nistAlgorithms OBJECT IDENTIFIER ::= { joint-iso-itu-t(2)
+     country(16) us(840) organization(1) gov(101) csor(3) 4 }
+
+   sigAlgs OBJECT IDENTIFIER ::= { nistAlgorithms 3 }
+
+   id-slh-dsa-sha2-128s OBJECT IDENTIFIER ::= { sigAlgs 20 }
+
+   id-slh-dsa-sha2-128f OBJECT IDENTIFIER ::= { sigAlgs 21 }
+
+   id-slh-dsa-sha2-192s OBJECT IDENTIFIER ::= { sigAlgs 22 }
+
+   id-slh-dsa-sha2-192f OBJECT IDENTIFIER ::= { sigAlgs 23 }
+
+   id-slh-dsa-sha2-256s OBJECT IDENTIFIER ::= { sigAlgs 24 }
+
+   id-slh-dsa-sha2-256f OBJECT IDENTIFIER ::= { sigAlgs 25 }
+
+   id-slh-dsa-shake-128s OBJECT IDENTIFIER ::= { sigAlgs 26 }
+
+   id-slh-dsa-shake-128f OBJECT IDENTIFIER ::= { sigAlgs 27 }
+
+   id-slh-dsa-shake-192s OBJECT IDENTIFIER ::= { sigAlgs 28 }
+
+   id-slh-dsa-shake-192f OBJECT IDENTIFIER ::= { sigAlgs 29 }
+
+   id-slh-dsa-shake-256s OBJECT IDENTIFIER ::= { sigAlgs 30 }
+
+   id-slh-dsa-shake-256f OBJECT IDENTIFIER ::= { sigAlgs 31 }
+</pre><a href="#section-3-2" class="pilcrow">¶</a>
+</div>
+<p id="section-3-3">When this AlgorithmIdentifier appears in the SubjectPublicKeyInfo field of
+an X.509 certificate <span>[<a href="#RFC5280" class="cite xref">RFC5280</a>]</span>, the certificate key usage extension <span class="bcp14">MAY</span>
+contain digitalSignature, nonRepudiation, keyCertSign, and cRLSign; the
+certificate key usage extension <span class="bcp14">MUST NOT</span> contain other values.<a href="#section-3-3" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3-4">
+<pre>
+   pk-slh-dsa-sha2-128s PUBLIC-KEY ::= {
+       IDENTIFIER id-slh-dsa-sha2-128s
+       -- KEY no ASN.1 wrapping --
+       CERT-KEY-USAGE
+         { digitalSignature, nonRepudiation, keyCertSign, cRLSign }
+       -- PRIVATE-KEY no ASN.1 wrapping -- }
+
+   pk-slh-dsa-sha2-128f PUBLIC-KEY ::= {
+       IDENTIFIER id-slh-dsa-sha2-128f
+       -- KEY no ASN.1 wrapping --
+       CERT-KEY-USAGE
+         { digitalSignature, nonRepudiation, keyCertSign, cRLSign }
+       -- PRIVATE-KEY no ASN.1 wrapping -- }
+
+   pk-slh-dsa-sha2-192s PUBLIC-KEY ::= {
+       IDENTIFIER id-slh-dsa-sha2-192s
+       -- KEY no ASN.1 wrapping --
+       CERT-KEY-USAGE
+         { digitalSignature, nonRepudiation, keyCertSign, cRLSign }
+       -- PRIVATE-KEY no ASN.1 wrapping -- }
+
+   pk-slh-dsa-sha2-192f PUBLIC-KEY ::= {
+       IDENTIFIER id-slh-dsa-sha2-192f
+       -- KEY no ASN.1 wrapping --
+       CERT-KEY-USAGE
+         { digitalSignature, nonRepudiation, keyCertSign, cRLSign }
+       -- PRIVATE-KEY no ASN.1 wrapping -- }
+
+   pk-slh-dsa-sha2-256s PUBLIC-KEY ::= {
+       IDENTIFIER id-slh-dsa-sha2-256s
+       -- KEY no ASN.1 wrapping --
+       CERT-KEY-USAGE
+         { digitalSignature, nonRepudiation, keyCertSign, cRLSign }
+       -- PRIVATE-KEY no ASN.1 wrapping -- }
+
+   pk-slh-dsa-sha2-256f PUBLIC-KEY ::= {
+       IDENTIFIER id-slh-dsa-sha2-256f
+       -- KEY no ASN.1 wrapping --
+       CERT-KEY-USAGE
+         { digitalSignature, nonRepudiation, keyCertSign, cRLSign }
+       -- PRIVATE-KEY no ASN.1 wrapping -- }
+
+   pk-slh-dsa-shake-128s PUBLIC-KEY ::= {
+       IDENTIFIER id-slh-dsa-shake-128s
+       -- KEY no ASN.1 wrapping --
+       CERT-KEY-USAGE
+         { digitalSignature, nonRepudiation, keyCertSign, cRLSign }
+       -- PRIVATE-KEY no ASN.1 wrapping -- }
+
+   pk-slh-dsa-shake-128f PUBLIC-KEY ::= {
+       IDENTIFIER id-slh-dsa-shake-128f
+       -- KEY no ASN.1 wrapping --
+       CERT-KEY-USAGE
+         { digitalSignature, nonRepudiation, keyCertSign, cRLSign }
+       -- PRIVATE-KEY no ASN.1 wrapping -- }
+
+   pk-slh-dsa-shake-192s PUBLIC-KEY ::= {
+       IDENTIFIER id-slh-dsa-shake-192s
+       -- KEY no ASN.1 wrapping --
+       CERT-KEY-USAGE
+         { digitalSignature, nonRepudiation, keyCertSign, cRLSign }
+       -- PRIVATE-KEY no ASN.1 wrapping -- }
+
+   pk-slh-dsa-shake-192f PUBLIC-KEY ::= {
+       IDENTIFIER id-slh-dsa-shake-192f
+       -- KEY no ASN.1 wrapping --
+       CERT-KEY-USAGE
+         { digitalSignature, nonRepudiation, keyCertSign, cRLSign }
+       -- PRIVATE-KEY no ASN.1 wrapping -- }
+
+   pk-slh-dsa-shake-256s PUBLIC-KEY ::= {
+       IDENTIFIER id-slh-dsa-shake-256s
+       -- KEY no ASN.1 wrapping --
+       CERT-KEY-USAGE
+         { digitalSignature, nonRepudiation, keyCertSign, cRLSign }
+       -- PRIVATE-KEY no ASN.1 wrapping -- }
+
+   pk-slh-dsa-shake-256f PUBLIC-KEY ::= {
+       IDENTIFIER id-slh-dsa-shake-256f
+       -- KEY no ASN.1 wrapping --
+       CERT-KEY-USAGE
+         { digitalSignature, nonRepudiation, keyCertSign, cRLSign }
+       -- PRIVATE-KEY no ASN.1 wrapping -- }
+
+   SLH-DSA-PublicKey ::= OCTET STRING (SIZE (32 | 48 | 64))
+
+   SLH-DSA-PrivateKey ::= OCTET STRING (SIZE (64 | 96 | 128))
+</pre><a href="#section-3-4" class="pilcrow">¶</a>
+</div>
+<p id="section-3-5">No additional encoding of the SLH-DSA public key is applied in the
+SubjectPublicKeyInfo field of an X.509 certificate <span>[<a href="#RFC5280" class="cite xref">RFC5280</a>]</span>.<a href="#section-3-5" class="pilcrow">¶</a></p>
+<p id="section-3-6">No additional encoding of the SLH-DSA private key is applied in the
+PrivateKeyInfo field of the privateKey field of the OneAsymmetricKey
+type of an Asymmetric Key Package <span>[<a href="#RFC5958" class="cite xref">RFC5958</a>]</span>.<a href="#section-3-6" class="pilcrow">¶</a></p>
+<p id="section-3-7">When an SLH-DSA public key appears outside of a SubjectPublicKeyInfo type
+in an environment that uses ASN.1 encoding, the SLH-DSA public key
+can be encoded as an OCTET STRING by using the SLH-DSA-PublicKey type.<a href="#section-3-7" class="pilcrow">¶</a></p>
+<p id="section-3-8">When an SLH-DSA private key appears outside of an Asymmetric Key Package
+in an environment that uses ASN.1 encoding, the SLH-DSA private key
+can be encoded as an OCTET STRING by using the SLH-DSA-PrivateKey type.<a href="#section-3-8" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="signed-data-conventions">
+<section id="section-4">
+      <h2 id="name-signed-data-conventions">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-signed-data-conventions" class="section-name selfRef">Signed-Data Conventions</a>
+      </h2>
+<p id="section-4-1">As specified in CMS <span>[<a href="#RFC5652" class="cite xref">RFC5652</a>]</span>, the digital signature is produced from
+the message digest and the signer's private key. The signature is computed
+over different values depending on whether signed attributes are absent or
+present.<a href="#section-4-1" class="pilcrow">¶</a></p>
+<p id="section-4-2">When signed attributes are absent, the SLH-DSA (pure mode) signature is computed over
+the content.  When signed attributes are present, a hash <span class="bcp14">SHOULD</span> be computed over
+the DER-encoded signed attributes using the same hash function that is used in the SLH-DSA tree.  The
+signed attributes <span class="bcp14">MUST</span> include a content-type attribute and a message-digest
+attribute.  The message-digest attribute contains the hash value of the
+content.  The SLH-DSA signature is computed over the DER encoding of the set
+of signed attributes.  The SLH-DSA signature-generation operation is called
+slh_sign; see Section 10.2.1 of <span>[<a href="#FIPS205" class="cite xref">FIPS205</a>]</span>.  In summary:<a href="#section-4-2" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4-3">
+<pre>
+   IF (signed attributes are absent)
+   THEN slh_sign(content)
+   ELSE signed attributes message-digest attribute = Hash(content);
+        slh_sign(DER(SignedAttributes))
+</pre><a href="#section-4-3" class="pilcrow">¶</a>
+</div>
+<p id="section-4-4">In some implementations, performance may be significantly improved by
+signing and verifying DER(SignedAttributes) when the content is large. That
+is, passing an entire large message content to the signing function or the
+signature validation function can have an impact on performance. When the
+signed attributes are present, <span><a href="https://rfc-editor.org/rfc/rfc5652#section-5.3" class="relref">Section 5.3</a> of [<a href="#RFC5652" class="cite xref">RFC5652</a>]</span> requires the
+inclusion of the content-type attribute and the message-digest attribute. Other
+attributes can also be included.<a href="#section-4-4" class="pilcrow">¶</a></p>
+<p id="section-4-5">When using SLH-DSA and signed attributes are present in the SignerInfo, the
+digestAlgorithms field in the SignedData <span class="bcp14">MUST</span> include the identifier for the
+one-way hash function used to compute the message digest.<a href="#section-4-5" class="pilcrow">¶</a></p>
+<p id="section-4-6">When using SLH-DSA, the fields in the SignerInfo are used as follows:<a href="#section-4-6" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlNewline" id="section-4-7">
+        <dt id="section-4-7.1">digestAlgorithm:</dt>
+        <dd style="margin-left: 1.5em" id="section-4-7.2">
+          <p id="section-4-7.2.1">The digestAlgorithm <span class="bcp14">MUST</span> identify a one-way hash function.  When signed
+attributes are absent, the digestAlgorithm identifier <span class="bcp14">SHOULD</span> match the hash
+function used in the SLH-DSA tree (as shown in the list below).  The digestAlgorithm does not have any significance when signed
+attributes are absent as it is not used to pre-hash the message.  When there is a concern for failures with legacy implementations that
+     do not support all hash functions, signers <span class="bcp14">MAY</span> choose to always use the
+      SHA-256 algorithm identifier as the digestAlgorithm when signed
+      attributes are absent. When signed attributes are present, to ensure collision resistance, the identified hash
+function <span class="bcp14">MUST</span> produce a hash value that is at least twice the size of the
+hash function used in the SLH-DSA tree.  The hash functions defined in
+<span>[<a href="#FIPS180" class="cite xref">FIPS180</a>]</span> and <span>[<a href="#FIPS202" class="cite xref">FIPS202</a>]</span> <span class="bcp14">MUST</span> be supported for use with the variants of SLH-DSA as shown below:<a href="#section-4-7.2.1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4-7.2.2">
+<pre>
+      id-slh-dsa-sha2-128s:  SHA-256
+      id-slh-dsa-sha2-128f:  SHA-256
+      id-slh-dsa-sha2-192s:  SHA-512
+      id-slh-dsa-sha2-192f:  SHA-512
+      id-slh-dsa-sha2-256s:  SHA-512
+      id-slh-dsa-sha2-256f:  SHA-512
+      id-slh-dsa-shake-128s: SHAKE128 with 256-bit output
+      id-slh-dsa-shake-128f: SHAKE128 with 256-bit output
+      id-slh-dsa-shake-192s: SHAKE256 with 512-bit output
+      id-slh-dsa-shake-192f: SHAKE256 with 512-bit output
+      id-slh-dsa-shake-256s: SHAKE256 with 512-bit output
+      id-slh-dsa-shake-256f: SHAKE256 with 512-bit output
+</pre><a href="#section-4-7.2.2" class="pilcrow">¶</a>
+</div>
+<p id="section-4-7.2.3"> The object identifiers for SHA-256 and SHA-512 are included
+      in <span>[<a href="#RFC5754" class="cite xref">RFC5754</a>]</span>.  The object identifiers for SHAKE128 and
+      SHAKE256 are included in <span>[<a href="#RFC8702" class="cite xref">RFC8702</a>]</span>.  In all four cases, the
+      AlgorithmIdentifier <span class="bcp14">SHOULD NOT</span> include parameters.<a href="#section-4-7.2.3" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-4-7.3">signatureAlgorithm:</dt>
+        <dd style="margin-left: 1.5em" id="section-4-7.4">
+          <p id="section-4-7.4.1">The signatureAlgorithm <span class="bcp14">MUST</span> contain one of the SLH-DSA algorithm
+identifiers, and the algorithm parameters field <span class="bcp14">MUST</span> be absent.  The
+algorithm identifier <span class="bcp14">MUST</span> be one of the following:<a href="#section-4-7.4.1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4-7.4.2">
+<pre>
+      id-slh-dsa-sha2-128s,  id-slh-dsa-sha2-128f,
+      id-slh-dsa-sha2-192s,  id-slh-dsa-sha2-192f,
+      id-slh-dsa-sha2-256s,  id-slh-dsa-sha2-256f,
+      id-slh-dsa-shake-128s, id-slh-dsa-shake-128f,
+      id-slh-dsa-shake-192s, id-slh-dsa-shake-192f,
+      id-slh-dsa-shake-256s, id-slh-dsa-shake-256f.
+</pre><a href="#section-4-7.4.2" class="pilcrow">¶</a>
+</div>
+</dd>
+        <dd class="break"></dd>
+<dt id="section-4-7.5">signature:</dt>
+        <dd style="margin-left: 1.5em" id="section-4-7.6">
+          <p id="section-4-7.6.1">The signature contains the signature value resulting from the
+SLH-DSA signing operation with the parameters associated with the
+selected signatureAlgorithm.  The SLH-DSA signature-generation
+operation is specified in Section 10.2.1 of <span>[<a href="#FIPS205" class="cite xref">FIPS205</a>]</span>, and the
+SLH-DSA signature verification operation is specified in
+Section 10.3 of <span>[<a href="#FIPS205" class="cite xref">FIPS205</a>]</span>.  Signature verification <span class="bcp14">MUST</span> include
+checking that the signatureAlgorithm field identifies SLH-DSA
+parameters that are consistent with public key used to validate
+the signature.<a href="#section-4-7.6.1" class="pilcrow">¶</a></p>
+</dd>
+      <dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="security-considerations">
+<section id="section-5">
+      <h2 id="name-security-considerations">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+      </h2>
+<p id="section-5-1">Implementations <span class="bcp14">MUST</span> protect the private keys.  Compromise of the
+private keys may result in the ability to forge signatures.<a href="#section-5-1" class="pilcrow">¶</a></p>
+<p id="section-5-2">When generating an SLH-DSA key pair, an implementation <span class="bcp14">MUST</span> generate
+each key pair independently of all other key pairs in the SLH-DSA
+hypertree.<a href="#section-5-2" class="pilcrow">¶</a></p>
+<p id="section-5-3">A SLH-DSA tree <span class="bcp14">MUST NOT</span> be used for more than 2<sup>64</sup> signing operations.<a href="#section-5-3" class="pilcrow">¶</a></p>
+<p id="section-5-4">The generation of private keys relies on random numbers.  The use
+of inadequate Pseudorandom Number Generators (PRNGs) to generate
+these values can result in little or no security.  An attacker may
+find it much easier to reproduce the PRNG environment that produced
+the keys, searching the resulting small set of possibilities, rather
+than brute-force searching the whole key space.  The generation of
+quality random numbers is difficult, and <span>[<a href="#RFC4086" class="cite xref">RFC4086</a>]</span> offers
+important guidance in this area.<a href="#section-5-4" class="pilcrow">¶</a></p>
+<p id="section-5-5">To avoid algorithm-substitution attacks, the CMSAlgorithmProtection attribute
+defined in <span>[<a href="#RFC6211" class="cite xref">RFC6211</a>]</span> <span class="bcp14">SHOULD</span> be included in signed attributes.<a href="#section-5-5" class="pilcrow">¶</a></p>
+<p id="section-5-6">Implementers should consider their particular use cases and may
+choose to implement optional fault-attack countermeasures
+<span>[<a href="#CMP2018" class="cite xref">CMP2018</a>]</span> <span>[<a href="#Ge2023" class="cite xref">Ge2023</a>]</span>.  Verifying a signature before releasing the
+signature value is a typical fault-attack countermeasure; however, this
+countermeasure is not effective for SLH-DSA <span>[<a href="#Ge2023" class="cite xref">Ge2023</a>]</span>.  Redundancy
+by replicating the signature-generation process <span class="bcp14">MAY</span> be used as an
+effective fault-attack countermeasure for SLH-DSA <span>[<a href="#Ge2023" class="cite xref">Ge2023</a>]</span>;
+however, the SLH-DSA signature generation is already considered slow.<a href="#section-5-6" class="pilcrow">¶</a></p>
+<p id="section-5-7">Likewise, implementers should consider their particular use cases and may
+choose to implement protections against passive power and emissions
+side-channel attacks <span>[<a href="#SLotH" class="cite xref">SLotH</a>]</span>.<a href="#section-5-7" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="operational-considerations">
+<section id="section-6">
+      <h2 id="name-operational-considerations">
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-operational-considerations" class="section-name selfRef">Operational Considerations</a>
+      </h2>
+<p id="section-6-1">If slh_sign is implemented in a hardware device such as Hardware
+Security Module (HSM) or portable cryptographic token, implementations
+can avoid sending the full content to the device.  By including signed
+attributes, which necessarily include the message-digest attribute and
+the content-type attribute as described in <span><a href="https://rfc-editor.org/rfc/rfc5652#section-5.3" class="relref">Section 5.3</a> of [<a href="#RFC5652" class="cite xref">RFC5652</a>]</span>,
+the much smaller set of signed attributes are sent to the device for signing.<a href="#section-6-1" class="pilcrow">¶</a></p>
+<p id="section-6-2">By including signed attributes in the SignerInfo, one can obtain similar
+interface characteristics to SLH-DSA in pre-hash mode.  With pre-hash mode, the
+hash of the content is passed to the SLH-DSA signature operation instead of the
+full message content.  By including signed attributes in the SignerInfo, a
+relatively small to-be-signed value is passed to the SLH-DSA signature
+operation.  For this reason, SLH-DSA pre-hash mode is not specified for use
+with the CMS SignedData.  Note SLH-DSA pre-hash mode always yields a different
+signature value than SLH-DSA pure mode, even if the to-be-signed content is
+the same.<a href="#section-6-2" class="pilcrow">¶</a></p>
+<p id="section-6-3">When using SLH-DSA in pure mode, it is not possible to single-pass process
+the content to verify a SignedData message that does not contain signed
+attributes.  To assist recipients that might make use of stream-based APIs,
+implementers <span class="bcp14">SHOULD</span> include signed attributes within any SignerInfo that uses
+SLH-DSA as signature algorithm.  Doing so allows the recipient implementation
+to avoid keeping the signed content in memory.  Recall that when signed
+attributes are present, they <span class="bcp14">MUST</span> contain a content-type attribute and a
+message-digest attribute, and they <span class="bcp14">SHOULD</span> contain a CMSAlgorithmProtection
+attribute.<a href="#section-6-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="iana">
+<section id="section-7">
+      <h2 id="name-iana-considerations">
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+      </h2>
+<p id="section-7-1">For the ASN.1 Module in <a href="#appendix-asn1" class="auto internal xref">Appendix A</a>, IANA
+has assigned an Object Identifier (OID) for the module
+identifier (81) with a Description of "id-mod-slh-dsa-2024".
+The OID for the module has been allocated in the
+"SMI Security for S/MIME Module Identifier (1.2.840.113549.1.9.16.0)" registry.<a href="#section-7-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="sec-combined-references">
+<section id="section-8">
+      <h2 id="name-references">
+<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-references" class="section-name selfRef">References</a>
+      </h2>
+<div id="sec-normative-references">
+<section id="section-8.1">
+        <h3 id="name-normative-references">
+<a href="#section-8.1" class="section-number selfRef">8.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+        </h3>
+<dl class="references">
+<dt id="FIPS180">[FIPS180]</dt>
+        <dd>
+<span class="refAuthor">National Institute of Standards and Technology (NIST)</span>, <span class="refTitle">"Secure Hash Standard (SHS)"</span>, <span class="seriesInfo">NIST FIPS 180-4</span>, <span class="seriesInfo">DOI 10.6028/NIST.FIPS.180-4</span>, <time datetime="2015-08" class="refDate">August 2015</time>, <span>&lt;<a href="https://doi.org/10.6028/NIST.FIPS.180-4">https://doi.org/10.6028/NIST.FIPS.180-4</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="FIPS202">[FIPS202]</dt>
+        <dd>
+<span class="refAuthor">National Institute of Standards and Technology (NIST)</span>, <span class="refTitle">"SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions"</span>, <span class="seriesInfo">NIST FIPS 202</span>, <span class="seriesInfo">DOI 10.6028/NIST.FIPS.202</span>, <time datetime="2015-08" class="refDate">August 2015</time>, <span>&lt;<a href="https://doi.org/10.6028/NIST.FIPS.202">https://doi.org/10.6028/NIST.FIPS.202</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="FIPS205">[FIPS205]</dt>
+        <dd>
+<span class="refAuthor">National Institute of Standards and Technology (NIST)</span>, <span class="refTitle">"Stateless Hash-Based Digital Signature Standard"</span>, <span class="seriesInfo">NIST FIPS 205</span>, <span class="seriesInfo">DOI 10.6028/NIST.FIPS.205</span>, <time datetime="2024-08-13" class="refDate">13 August 2024</time>, <span>&lt;<a href="https://doi.org/10.6028/NIST.FIPS.205">https://doi.org/10.6028/NIST.FIPS.205</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC2119">[RFC2119]</dt>
+        <dd>
+<span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc2119">https://www.rfc-editor.org/info/rfc2119</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC5280">[RFC5280]</dt>
+        <dd>
+<span class="refAuthor">Cooper, D.</span>, <span class="refAuthor">Santesson, S.</span>, <span class="refAuthor">Farrell, S.</span>, <span class="refAuthor">Boeyen, S.</span>, <span class="refAuthor">Housley, R.</span>, and <span class="refAuthor">W. Polk</span>, <span class="refTitle">"Internet X.509 Public Key Infrastructure Certificate and Certificate Revocation List (CRL) Profile"</span>, <span class="seriesInfo">RFC 5280</span>, <span class="seriesInfo">DOI 10.17487/RFC5280</span>, <time datetime="2008-05" class="refDate">May 2008</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc5280">https://www.rfc-editor.org/info/rfc5280</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC5652">[RFC5652]</dt>
+        <dd>
+<span class="refAuthor">Housley, R.</span>, <span class="refTitle">"Cryptographic Message Syntax (CMS)"</span>, <span class="seriesInfo">STD 70</span>, <span class="seriesInfo">RFC 5652</span>, <span class="seriesInfo">DOI 10.17487/RFC5652</span>, <time datetime="2009-09" class="refDate">September 2009</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc5652">https://www.rfc-editor.org/info/rfc5652</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC5754">[RFC5754]</dt>
+        <dd>
+<span class="refAuthor">Turner, S.</span>, <span class="refTitle">"Using SHA2 Algorithms with Cryptographic Message Syntax"</span>, <span class="seriesInfo">RFC 5754</span>, <span class="seriesInfo">DOI 10.17487/RFC5754</span>, <time datetime="2010-01" class="refDate">January 2010</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc5754">https://www.rfc-editor.org/info/rfc5754</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC5958">[RFC5958]</dt>
+        <dd>
+<span class="refAuthor">Turner, S.</span>, <span class="refTitle">"Asymmetric Key Packages"</span>, <span class="seriesInfo">RFC 5958</span>, <span class="seriesInfo">DOI 10.17487/RFC5958</span>, <time datetime="2010-08" class="refDate">August 2010</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc5958">https://www.rfc-editor.org/info/rfc5958</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC6211">[RFC6211]</dt>
+        <dd>
+<span class="refAuthor">Schaad, J.</span>, <span class="refTitle">"Cryptographic Message Syntax (CMS) Algorithm Identifier Protection Attribute"</span>, <span class="seriesInfo">RFC 6211</span>, <span class="seriesInfo">DOI 10.17487/RFC6211</span>, <time datetime="2011-04" class="refDate">April 2011</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc6211">https://www.rfc-editor.org/info/rfc6211</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8174">[RFC8174]</dt>
+        <dd>
+<span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc8174">https://www.rfc-editor.org/info/rfc8174</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8702">[RFC8702]</dt>
+        <dd>
+<span class="refAuthor">Kampanakis, P.</span> and <span class="refAuthor">Q. Dang</span>, <span class="refTitle">"Use of the SHAKE One-Way Hash Functions in the Cryptographic Message Syntax (CMS)"</span>, <span class="seriesInfo">RFC 8702</span>, <span class="seriesInfo">DOI 10.17487/RFC8702</span>, <time datetime="2020-01" class="refDate">January 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc8702">https://www.rfc-editor.org/info/rfc8702</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="X680">[X680]</dt>
+        <dd>
+<span class="refAuthor">ITU-T</span>, <span class="refTitle">"Information technology -- Abstract Syntax Notation One (ASN.1): Specification of basic notation"</span>, <span class="seriesInfo">ITU-T Recommendation X.680</span>, <span class="seriesInfo">ISO/IEC 8824-1:2021</span>, <time datetime="2021-02" class="refDate">February 2021</time>, <span>&lt;<a href="https://www.itu.int/rec/T-REC-X.680">https://www.itu.int/rec/T-REC-X.680</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="X690">[X690]</dt>
+      <dd>
+<span class="refAuthor">ITU-T</span>, <span class="refTitle">"Information technology -- ASN.1 encoding rules: Specification of Basic Encoding Rules (BER), Canonical Encoding Rules (CER) and Distinguished Encoding Rules (DER)"</span>, <span class="seriesInfo">ITU-T Recommendation X.690</span>, <span class="seriesInfo">ISO/IEC 8825-1-2021</span>, <time datetime="2021-02" class="refDate">February 2021</time>, <span>&lt;<a href="https://www.itu.int/rec/T-REC-X.690">https://www.itu.int/rec/T-REC-X.690</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="sec-informative-references">
+<section id="section-8.2">
+        <h3 id="name-informative-references">
+<a href="#section-8.2" class="section-number selfRef">8.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+        </h3>
+<dl class="references">
+<dt id="CMP2018">[CMP2018]</dt>
+        <dd>
+<span class="refAuthor">Castelnovi, L.</span>, <span class="refAuthor">Martinelli, A.</span>, and <span class="refAuthor">T. Prest</span>, <span class="refTitle">"Grafting Trees: A Fault Attack Against the SPHINCS Framework"</span>, <span class="refContent">Post-Quantum Cryptography (PQCrypto 2018), Lecture Notes in Computer Science, vol. 10786, pp. 165-184</span>, <span class="seriesInfo">DOI 10.1007/978-3-319-79063-3_8</span>, <time datetime="2018" class="refDate">2018</time>, <span>&lt;<a href="https://link.springer.com/chapter/10.1007/978-3-319-79063-3_8">https://link.springer.com/chapter/10.1007/978-3-319-79063-3_8</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="Ge2023">[Ge2023]</dt>
+        <dd>
+<span class="refAuthor">Genêt, A.</span>, <span class="refTitle">"On Protecting SPHINCS+ Against Fault Attacks"</span>, <span class="refContent">IACR Transactions on Cryptographic Hardware and Embedded Systems, vol. 2023, no. 2, pp. 80-114</span>, <span class="seriesInfo">DOI 10.46586/tches.v2023.i2.80-114</span>, <time datetime="2023" class="refDate">2023</time>, <span>&lt;<a href="https://tches.iacr.org/index.php/TCHES/article/view/10278/9726">https://tches.iacr.org/index.php/TCHES/article/view/10278/9726</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC4086">[RFC4086]</dt>
+        <dd>
+<span class="refAuthor">Eastlake 3rd, D.</span>, <span class="refAuthor">Schiller, J.</span>, and <span class="refAuthor">S. Crocker</span>, <span class="refTitle">"Randomness Requirements for Security"</span>, <span class="seriesInfo">BCP 106</span>, <span class="seriesInfo">RFC 4086</span>, <span class="seriesInfo">DOI 10.17487/RFC4086</span>, <time datetime="2005-06" class="refDate">June 2005</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc4086">https://www.rfc-editor.org/info/rfc4086</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC5911">[RFC5911]</dt>
+        <dd>
+<span class="refAuthor">Hoffman, P.</span> and <span class="refAuthor">J. Schaad</span>, <span class="refTitle">"New ASN.1 Modules for Cryptographic Message Syntax (CMS) and S/MIME"</span>, <span class="seriesInfo">RFC 5911</span>, <span class="seriesInfo">DOI 10.17487/RFC5911</span>, <time datetime="2010-06" class="refDate">June 2010</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc5911">https://www.rfc-editor.org/info/rfc5911</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8391">[RFC8391]</dt>
+        <dd>
+<span class="refAuthor">Huelsing, A.</span>, <span class="refAuthor">Butin, D.</span>, <span class="refAuthor">Gazdag, S.</span>, <span class="refAuthor">Rijneveld, J.</span>, and <span class="refAuthor">A. Mohaisen</span>, <span class="refTitle">"XMSS: eXtended Merkle Signature Scheme"</span>, <span class="seriesInfo">RFC 8391</span>, <span class="seriesInfo">DOI 10.17487/RFC8391</span>, <time datetime="2018-05" class="refDate">May 2018</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc8391">https://www.rfc-editor.org/info/rfc8391</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8554">[RFC8554]</dt>
+        <dd>
+<span class="refAuthor">McGrew, D.</span>, <span class="refAuthor">Curcio, M.</span>, and <span class="refAuthor">S. Fluhrer</span>, <span class="refTitle">"Leighton-Micali Hash-Based Signatures"</span>, <span class="seriesInfo">RFC 8554</span>, <span class="seriesInfo">DOI 10.17487/RFC8554</span>, <time datetime="2019-04" class="refDate">April 2019</time>, <span>&lt;<a href="https://www.rfc-editor.org/info/rfc8554">https://www.rfc-editor.org/info/rfc8554</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="SLotH">[SLotH]</dt>
+      <dd>
+<span class="refAuthor">Saarinen, M.-J.</span>, <span class="refTitle">"Accelerating SLH-DSA by Two Orders of Magnitude with a Single Hash Unit"</span>, <span class="refContent">Cryptology ePrint Archive, Paper 2024/367</span>, <time datetime="2024" class="refDate">2024</time>, <span>&lt;<a href="https://eprint.iacr.org/2024/367.pdf">https://eprint.iacr.org/2024/367.pdf</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
+</section>
+</div>
+<div id="appendix-asn1">
+<section id="appendix-A">
+      <h2 id="name-asn1-module">
+<a href="#appendix-A" class="section-number selfRef">Appendix A. </a><a href="#name-asn1-module" class="section-name selfRef">ASN.1 Module</a>
+      </h2>
+<p id="appendix-A-1">This ASN.1 Module builds upon the conventions established in <span>[<a href="#RFC5911" class="cite xref">RFC5911</a>]</span>.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+<div class="breakable lang-asn.1 sourcecode" id="appendix-A-2">
+<pre>&lt;CODE BEGINS&gt;
+SLH-DSA-Module-2024
+  { iso(1) member-body(2) us(840) rsadsi(113549) pkcs(1) pkcs9(9)
+    id-smime(16) id-mod(0) id-mod-slh-dsa-2024(81) }
+
+DEFINITIONS IMPLICIT TAGS ::= BEGIN
+
+EXPORTS ALL;
+
+IMPORTS
+  PUBLIC-KEY, SIGNATURE-ALGORITHM, SMIME-CAPS
+    FROM AlgorithmInformation-2009  -- in [RFC5911]
+    { iso(1) identified-organization(3) dod(6) internet(1)
+      security(5) mechanisms(5) pkix(7) id-mod(0)
+      id-mod-algorithmInformation-02(58) } ;
+
+--
+-- Object Identifiers
+--
+
+nistAlgorithms OBJECT IDENTIFIER ::= { joint-iso-itu-t(2)
+  country(16) us(840) organization(1) gov(101) csor(3) 4 }
+
+sigAlgs OBJECT IDENTIFIER ::= { nistAlgorithms 3 }
+
+id-slh-dsa-sha2-128s OBJECT IDENTIFIER ::= { sigAlgs 20 }
+
+id-slh-dsa-sha2-128f OBJECT IDENTIFIER ::= { sigAlgs 21 }
+
+id-slh-dsa-sha2-192s OBJECT IDENTIFIER ::= { sigAlgs 22 }
+
+id-slh-dsa-sha2-192f OBJECT IDENTIFIER ::= { sigAlgs 23 }
+
+id-slh-dsa-sha2-256s OBJECT IDENTIFIER ::= { sigAlgs 24 }
+
+id-slh-dsa-sha2-256f OBJECT IDENTIFIER ::= { sigAlgs 25 }
+
+id-slh-dsa-shake-128s OBJECT IDENTIFIER ::= { sigAlgs 26 }
+
+id-slh-dsa-shake-128f OBJECT IDENTIFIER ::= { sigAlgs 27 }
+
+id-slh-dsa-shake-192s OBJECT IDENTIFIER ::= { sigAlgs 28 }
+
+id-slh-dsa-shake-192f OBJECT IDENTIFIER ::= { sigAlgs 29 }
+
+id-slh-dsa-shake-256s OBJECT IDENTIFIER ::= { sigAlgs 30 }
+
+id-slh-dsa-shake-256f OBJECT IDENTIFIER ::= { sigAlgs 31 }
+
+--
+-- Signature Algorithm, Public Key, and Private Key
+--
+
+sa-slh-dsa-sha2-128s SIGNATURE-ALGORITHM ::= {
+    IDENTIFIER id-slh-dsa-sha2-128s
+    PARAMS ARE absent
+    PUBLIC-KEYS { pk-slh-dsa-sha2-128s }
+    SMIME-CAPS { IDENTIFIED BY id-slh-dsa-sha2-128s } }
+
+sa-slh-dsa-sha2-128f SIGNATURE-ALGORITHM ::= {
+    IDENTIFIER id-slh-dsa-sha2-128f
+    PARAMS ARE absent
+    PUBLIC-KEYS { pk-slh-dsa-sha2-128f }
+    SMIME-CAPS { IDENTIFIED BY id-slh-dsa-sha2-128f } }
+
+sa-slh-dsa-sha2-192s SIGNATURE-ALGORITHM ::= {
+    IDENTIFIER id-slh-dsa-sha2-192s
+    PARAMS ARE absent
+    PUBLIC-KEYS { pk-slh-dsa-sha2-192s }
+    SMIME-CAPS { IDENTIFIED BY id-slh-dsa-sha2-192s } }
+
+sa-slh-dsa-sha2-192f SIGNATURE-ALGORITHM ::= {
+    IDENTIFIER id-slh-dsa-sha2-192f
+    PARAMS ARE absent
+    PUBLIC-KEYS { pk-slh-dsa-sha2-192f }
+    SMIME-CAPS { IDENTIFIED BY id-slh-dsa-sha2-192f } }
+
+sa-slh-dsa-sha2-256s SIGNATURE-ALGORITHM ::= {
+    IDENTIFIER id-slh-dsa-sha2-256s
+    PARAMS ARE absent
+    PUBLIC-KEYS { pk-slh-dsa-sha2-256s }
+    SMIME-CAPS { IDENTIFIED BY id-slh-dsa-sha2-256s } }
+
+sa-slh-dsa-sha2-256f SIGNATURE-ALGORITHM ::= {
+    IDENTIFIER id-slh-dsa-sha2-256f
+    PARAMS ARE absent
+    PUBLIC-KEYS { pk-slh-dsa-sha2-256f }
+    SMIME-CAPS { IDENTIFIED BY id-slh-dsa-sha2-256f } }
+
+sa-slh-dsa-shake-128s SIGNATURE-ALGORITHM ::= {
+    IDENTIFIER id-slh-dsa-shake-128s
+    PARAMS ARE absent
+    PUBLIC-KEYS { pk-slh-dsa-shake-128s }
+    SMIME-CAPS { IDENTIFIED BY id-slh-dsa-shake-128s } }
+
+sa-slh-dsa-shake-128f SIGNATURE-ALGORITHM ::= {
+    IDENTIFIER id-slh-dsa-shake-128f
+    PARAMS ARE absent
+    PUBLIC-KEYS { pk-slh-dsa-shake-128f }
+    SMIME-CAPS { IDENTIFIED BY id-slh-dsa-shake-128f } }
+
+sa-slh-dsa-shake-192s SIGNATURE-ALGORITHM ::= {
+    IDENTIFIER id-slh-dsa-shake-192s
+    PARAMS ARE absent
+    PUBLIC-KEYS { pk-slh-dsa-shake-192s }
+    SMIME-CAPS { IDENTIFIED BY id-slh-dsa-shake-192s } }
+
+sa-slh-dsa-shake-192f SIGNATURE-ALGORITHM ::= {
+    IDENTIFIER id-slh-dsa-shake-192f
+    PARAMS ARE absent
+    PUBLIC-KEYS { pk-slh-dsa-shake-192f }
+    SMIME-CAPS { IDENTIFIED BY id-slh-dsa-shake-192f } }
+
+sa-slh-dsa-shake-256s SIGNATURE-ALGORITHM ::= {
+    IDENTIFIER id-slh-dsa-shake-256s
+    PARAMS ARE absent
+    PUBLIC-KEYS { pk-slh-dsa-shake-256s }
+    SMIME-CAPS { IDENTIFIED BY id-slh-dsa-shake-256s } }
+
+sa-slh-dsa-shake-256f SIGNATURE-ALGORITHM ::= {
+    IDENTIFIER id-slh-dsa-shake-256f
+    PARAMS ARE absent
+    PUBLIC-KEYS { pk-slh-dsa-shake-256f }
+    SMIME-CAPS { IDENTIFIED BY id-slh-dsa-shake-256f } }
+
+pk-slh-dsa-sha2-128s PUBLIC-KEY ::= {
+    IDENTIFIER id-slh-dsa-sha2-128s
+    -- KEY no ASN.1 wrapping --
+    CERT-KEY-USAGE
+      { digitalSignature, nonRepudiation, keyCertSign, cRLSign }
+    -- PRIVATE-KEY no ASN.1 wrapping -- }
+
+pk-slh-dsa-sha2-128f PUBLIC-KEY ::= {
+    IDENTIFIER id-slh-dsa-sha2-128f
+    -- KEY no ASN.1 wrapping --
+    CERT-KEY-USAGE
+      { digitalSignature, nonRepudiation, keyCertSign, cRLSign }
+    -- PRIVATE-KEY no ASN.1 wrapping -- }
+
+pk-slh-dsa-sha2-192s PUBLIC-KEY ::= {
+    IDENTIFIER id-slh-dsa-sha2-192s
+    -- KEY no ASN.1 wrapping --
+    CERT-KEY-USAGE
+      { digitalSignature, nonRepudiation, keyCertSign, cRLSign }
+    -- PRIVATE-KEY no ASN.1 wrapping -- }
+
+pk-slh-dsa-sha2-192f PUBLIC-KEY ::= {
+    IDENTIFIER id-slh-dsa-sha2-192f
+    -- KEY no ASN.1 wrapping --
+    CERT-KEY-USAGE
+      { digitalSignature, nonRepudiation, keyCertSign, cRLSign }
+    -- PRIVATE-KEY no ASN.1 wrapping -- }
+
+pk-slh-dsa-sha2-256s PUBLIC-KEY ::= {
+    IDENTIFIER id-slh-dsa-sha2-256s
+    -- KEY no ASN.1 wrapping --
+    CERT-KEY-USAGE
+      { digitalSignature, nonRepudiation, keyCertSign, cRLSign }
+    -- PRIVATE-KEY no ASN.1 wrapping -- }
+
+pk-slh-dsa-sha2-256f PUBLIC-KEY ::= {
+    IDENTIFIER id-slh-dsa-sha2-256f
+    -- KEY no ASN.1 wrapping --
+    CERT-KEY-USAGE
+      { digitalSignature, nonRepudiation, keyCertSign, cRLSign }
+    -- PRIVATE-KEY no ASN.1 wrapping -- }
+
+pk-slh-dsa-shake-128s PUBLIC-KEY ::= {
+    IDENTIFIER id-slh-dsa-shake-128s
+    -- KEY no ASN.1 wrapping --
+    CERT-KEY-USAGE
+      { digitalSignature, nonRepudiation, keyCertSign, cRLSign }
+    -- PRIVATE-KEY no ASN.1 wrapping -- }
+
+pk-slh-dsa-shake-128f PUBLIC-KEY ::= {
+    IDENTIFIER id-slh-dsa-shake-128f
+    -- KEY no ASN.1 wrapping --
+    CERT-KEY-USAGE
+      { digitalSignature, nonRepudiation, keyCertSign, cRLSign }
+    -- PRIVATE-KEY no ASN.1 wrapping -- }
+
+pk-slh-dsa-shake-192s PUBLIC-KEY ::= {
+    IDENTIFIER id-slh-dsa-shake-192s
+    -- KEY no ASN.1 wrapping --
+    CERT-KEY-USAGE
+      { digitalSignature, nonRepudiation, keyCertSign, cRLSign }
+    -- PRIVATE-KEY no ASN.1 wrapping -- }
+
+pk-slh-dsa-shake-192f PUBLIC-KEY ::= {
+    IDENTIFIER id-slh-dsa-shake-192f
+    -- KEY no ASN.1 wrapping --
+    CERT-KEY-USAGE
+      { digitalSignature, nonRepudiation, keyCertSign, cRLSign }
+    -- PRIVATE-KEY no ASN.1 wrapping -- }
+
+pk-slh-dsa-shake-256s PUBLIC-KEY ::= {
+    IDENTIFIER id-slh-dsa-shake-256s
+    -- KEY no ASN.1 wrapping --
+    CERT-KEY-USAGE
+      { digitalSignature, nonRepudiation, keyCertSign, cRLSign }
+    -- PRIVATE-KEY no ASN.1 wrapping -- }
+
+pk-slh-dsa-shake-256f PUBLIC-KEY ::= {
+    IDENTIFIER id-slh-dsa-shake-256f
+    -- KEY no ASN.1 wrapping --
+    CERT-KEY-USAGE
+      { digitalSignature, nonRepudiation, keyCertSign, cRLSign }
+    -- PRIVATE-KEY no ASN.1 wrapping -- }
+
+SLH-DSA-PublicKey ::= OCTET STRING (SIZE (32 | 48 | 64))
+
+SLH-DSA-PrivateKey ::= OCTET STRING (SIZE (64 | 96 | 128))
+
+--
+-- Expand the signature algorithm set used by CMS [RFC5911]
+--
+
+SignatureAlgorithmSet SIGNATURE-ALGORITHM ::=
+    { sa-slh-dsa-sha2-128s |
+      sa-slh-dsa-sha2-128f |
+      sa-slh-dsa-sha2-192s |
+      sa-slh-dsa-sha2-192f |
+      sa-slh-dsa-sha2-256s |
+      sa-slh-dsa-sha2-256f |
+      sa-slh-dsa-shake-128s |
+      sa-slh-dsa-shake-128f |
+      sa-slh-dsa-shake-192s |
+      sa-slh-dsa-shake-192f |
+      sa-slh-dsa-shake-256s |
+      sa-slh-dsa-shake-256f,
+      ... }
+
+--
+-- Expand the S/MIME capabilities set used by CMS [RFC5911]
+--
+
+SMimeCaps SMIME-CAPS ::=
+    { sa-slh-dsa-sha2-128s.&amp;smimeCaps |
+      sa-slh-dsa-sha2-128f.&amp;smimeCaps |
+      sa-slh-dsa-sha2-192s.&amp;smimeCaps |
+      sa-slh-dsa-sha2-192f.&amp;smimeCaps |
+      sa-slh-dsa-sha2-256s.&amp;smimeCaps |
+      sa-slh-dsa-sha2-256f.&amp;smimeCaps |
+      sa-slh-dsa-shake-128s.&amp;smimeCaps |
+      sa-slh-dsa-shake-128f.&amp;smimeCaps |
+      sa-slh-dsa-shake-192s.&amp;smimeCaps |
+      sa-slh-dsa-shake-192f.&amp;smimeCaps |
+      sa-slh-dsa-shake-256s.&amp;smimeCaps |
+      sa-slh-dsa-shake-256f.&amp;smimeCaps,
+      ... }
+
+END
+
+&lt;CODE ENDS&gt;</pre><a href="#appendix-A-2" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+<div id="acknowledgements">
+<section id="appendix-B">
+      <h2 id="name-acknowledgements">
+<a href="#name-acknowledgements" class="section-name selfRef">Acknowledgements</a>
+      </h2>
+<p id="appendix-B-1">Thanks to
+<span class="contact-name">Mike Ounsworth</span>,
+<span class="contact-name">Tomas Gustavsson</span>,
+<span class="contact-name">Daniel Van Geest</span>,
+<span class="contact-name">Carl Wallace</span>,
+<span class="contact-name">Phillip Hallam-Baker</span>,
+<span class="contact-name">Dieter Bratko</span>,
+<span class="contact-name">Vijay Gurbani</span>,
+<span class="contact-name">Paul Wouters</span>, and
+<span class="contact-name">Roman Danyliw</span>
+for their careful review and constructive comments.<a href="#appendix-B-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="authors-addresses">
+<section id="appendix-C">
+      <h2 id="name-authors-addresses">
+<a href="#name-authors-addresses" class="section-name selfRef">Authors' Addresses</a>
+      </h2>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Russ Housley</span></div>
+<div dir="auto" class="left"><span class="org">Vigil Security, LLC</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:housley@vigilsec.com" class="email">housley@vigilsec.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Scott Fluhrer</span></div>
+<div dir="auto" class="left"><span class="org">Cisco Systems</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:sfluhrer@cisco.com" class="email">sfluhrer@cisco.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Panos Kampanakis</span></div>
+<div dir="auto" class="left"><span class="org">Amazon Web Services</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:kpanos@amazon.com" class="email">kpanos@amazon.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Bas Westerbaan</span></div>
+<div dir="auto" class="left"><span class="org">Cloudflare</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:bas@westerbaan.name" class="email">bas@westerbaan.name</a>
+</div>
+</address>
+</section>
+</div>
+<script>const toc = document.getElementById("toc");
+toc.querySelector("h2").addEventListener("click", e => {
+  toc.classList.toggle("active");
+});
+toc.querySelector("nav").addEventListener("click", e => {
+  toc.classList.remove("active");
+});
+</script>
+</body>
+</html>
+
