@@ -18,6 +18,7 @@
  */
 
 #include "lc_sha3.h"
+#include "lc_memcpy_secure.h"
 #include "math_helper.h"
 #include "seeded_rng.h"
 #include "es_cpu/cpu_random.h"
@@ -128,4 +129,9 @@ int seeded_rng_noise_init(void)
 {
 	seeded_rng_cpu_data_multiplier = 0;
 	return 0;
+}
+
+void seeded_rng_status(char *buf, size_t len)
+{
+	lc_memcpy_secure(buf, len, "CPU instruction\n\0", 17);
 }

@@ -26,6 +26,7 @@
 #include "fips_mode.h"
 #include "helper.h"
 #include "lc_status.h"
+#include "seeded_rng.h"
 #include "sha256_arm_ce.h"
 #include "sha256_arm_neon.h"
 #include "sha256_avx2.h"
@@ -106,6 +107,10 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 		 "Self-Test Not Executed: %s\n"
 		 "Self-Test Failed: %s\n",
 		 ws->status_pass, ws->status_untested, ws->status_error);
+
+
+	len = strlen(outbuf);
+	lc_seeded_rng_status(outbuf + len, outlen - len);
 
 	len = strlen(outbuf);
 	snprintf(

@@ -24,6 +24,7 @@
 #include "lc_kmac256_drng.h"
 #include "lc_hash_drbg.h"
 #include "lc_hmac_drbg_sha512.h"
+#include "lc_memcpy_secure.h"
 #include "lc_rng.h"
 #include "lc_xdrbg.h"
 #include "mutex_w.h"
@@ -351,6 +352,17 @@ out:
 }
 
 /****************************** lc_rng Interface ******************************/
+
+void lc_seeded_rng_status(char *buf, size_t len)
+{
+	if (len < 17)
+		return;
+
+	/* Add the \0 as a safety-measure */
+	lc_memcpy_secure(buf, len, "Entropy Source: \0", 17);
+	seeded_rng_status(buf + 16, len - 16);
+}
+
 static int lc_seeded_rng_generate(void *_state, const uint8_t *addtl_input,
 				  size_t addtl_input_len, uint8_t *out,
 				  size_t outlen)

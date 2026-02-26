@@ -24,6 +24,7 @@
 #include <linux/module.h>
 #include <linux/random.h>
 
+#include "lc_memcpy_secure.h"
 #include "seeded_rng.h"
 
 static struct crypto_rng *jent = NULL;
@@ -72,4 +73,13 @@ int seeded_rng_noise_init(void)
 		pr_info("DRBG: Continuing without Jitter RNG\n");
 	}
 	return 0;
+}
+
+void seeded_rng_status(char *buf, size_t len)
+{
+	if (jent)
+		lc_memcpy_secure(buf, len, "Linux Kernel Jitter RNG\n\0", 25);
+	else
+		lc_memcpy_secure(buf, len, "Linux Kernel get_random_bytes\n\0",
+				 31);
 }

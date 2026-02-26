@@ -20,6 +20,7 @@
 #include <dlfcn.h>
 #include <errno.h>
 
+#include "lc_memcpy_secure.h"
 #include "seeded_rng.h"
 #include "seeded_rng_linux.h"
 #include "ret_checkers.h"
@@ -34,6 +35,7 @@ static void *esdm_rpc_client_handle = NULL;
 static ssize_t (*esdm_rpcc_get_random_bytes_full)(uint8_t *buf,
 						  size_t buflen) = NULL;
 static void (*esdm_rpcc_fini_unpriv_service)(void) = NULL;
+static int (*esdm_rpcc_status)(char *buf, size_t buflen) = NULL;
 
 /* Duplication from esdm_rpc_client.h */
 #define esdm_invoke(x)                                                         \
@@ -104,6 +106,15 @@ int seeded_rng_noise_init(void)
 	if (error != NULL)
 		return -EOPNOTSUPP;
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+	esdm_rpcc_status = (int (*)(char *buf, size_t buflen))dlsym(
+		esdm_rpc_client_handle, "esdm_rpcc_status");
+#pragma GCC diagnostic pop
+	error = dlerror();
+	if (error != NULL)
+		return -EOPNOTSUPP;
+
 	esdm_rpcc_set_max_online_nodes(1);
 	return esdm_rpcc_init_unpriv_service(NULL);
 }
@@ -118,6 +129,7 @@ void seeded_rng_noise_fini(void)
 	esdm_rpc_client_handle = NULL;
 	esdm_rpcc_fini_unpriv_service = NULL;
 	esdm_rpcc_get_random_bytes_full = NULL;
+	esdm_rpcc_status = NULL;
 
 	if (local_handle)
 		dlclose(local_handle);
@@ -141,4 +153,16 @@ ssize_t get_full_entropy(uint8_t *buffer, size_t bufferlen)
 		return getrandom_random(buffer, bufferlen);
 
 	return ret ? ret : (ssize_t)bufferlen;
+}
+
+void seeded_rng_status(char *buf, size_t len)
+{
+	if (!esdm_rpcc_status)
+		seeded_rng_noise_init();
+
+	if (esdm_rpcc_status)
+		esdm_rpcc_status(buf, len);
+	else
+		lc_memcpy_secure(buf, len, "ESDM\n\0", 6);
+
 }

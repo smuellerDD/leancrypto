@@ -22,6 +22,7 @@
 #include <jitterentropy.h>
 
 #include "fips_mode.h"
+#include "lc_memcpy_secure.h"
 #include "seeded_rng.h"
 #include "seeded_rng_jent_config.h"
 #include "ret_checkers.h"
@@ -200,4 +201,13 @@ ssize_t get_full_entropy(uint8_t *buffer, size_t bufferlen)
 	}
 
 	return ret;
+}
+
+void seeded_rng_status(char *buf, size_t len)
+{
+#if JENT_VERSION >= 3070000
+	jent_status(esdm_jent_state, buf, len);
+#else
+	lc_memcpy_secure(buf, len, "Jitter RNG\n\0", 12);
+#endif
 }

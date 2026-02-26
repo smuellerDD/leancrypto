@@ -90,7 +90,7 @@ static inline int test_validate_status(int ret, enum lc_alg_status_val status,
 static inline int test_print_status(void)
 {
 	struct workspace {
-		char status[2000];
+		char status[2300];
 	};
 	int ret = 0;
 	LC_DECLARE_MEM(ws, struct workspace, 8);

@@ -18,6 +18,7 @@
  */
 
 #include "ext_headers_internal.h"
+#include "lc_memcpy_secure.h"
 #include "math_helper.h"
 #include "seeded_rng.h"
 
@@ -54,4 +55,9 @@ void seeded_rng_noise_fini(void)
 int seeded_rng_noise_init(void)
 {
 	return 0;
+}
+
+void seeded_rng_status(char *buf, size_t len)
+{
+	lc_memcpy_secure(buf, len, "BSD getentropy\n\0", 16);
 }
