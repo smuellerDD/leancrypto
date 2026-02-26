@@ -33,7 +33,7 @@ void seeded_rng_status(char *buf, size_t len);
 
 void lc_seeded_rng_zero_state(void);
 
-#if LC_DRNG_PRESENT
+#ifdef LC_DRNG_PRESENT
 void lc_seeded_rng_status(char *buf, size_t len);
 #else
 static inline void lc_seeded_rng_status(char *buf, size_t len)
