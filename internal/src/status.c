@@ -56,6 +56,62 @@
 
 LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 {
+	const char __maybe_unused *avx2 =
+#if defined(LC_HOST_X86_64) || defined(CONFIG_X86_64)
+		(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
+			"AVX2 " : "";
+#else
+		"";
+#endif
+	const char __maybe_unused *avx512 =
+#if defined(LC_HOST_X86_64) || defined(CONFIG_X86_64)
+		((lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX512) &&
+		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_VPCLMUL)) ?
+			"AVX512 " : "";
+#else
+		"";
+#endif
+	const char __maybe_unused *pclmulqdq =
+#if defined(LC_HOST_X86_64) || defined(CONFIG_X86_64)
+		(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_PCLMUL) ?
+			"PCLMULQDQ " : "";
+#else
+		"";
+#endif
+	const char __maybe_unused *pmull =
+#if defined(LC_HOST_AARCH64) || defined(CONFIG_ARM64)
+		(lc_cpu_feature_available() & LC_CPU_FEATURE_ARM_PMULL) ?
+			"PMULL " : "";
+#else
+		"";
+#endif
+	const char __maybe_unused *riscv64_rvv =
+#if defined(LC_HOST_RISCV64) || defined(CONFIG_RISCV)
+		(lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV_ASM_RVV) ?
+			"RISCV64-RVV " : "";
+#else
+		"";
+#endif
+	const char __maybe_unused *riscv64_rvv_zbb =
+#if defined(LC_HOST_RISCV64) || defined(CONFIG_RISCV)
+		(lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV) ?
+			(lc_cpu_feature_available() &
+			 LC_CPU_FEATURE_RISCV_ASM_ZBB) ?
+			"RISCV64-Zbb " :
+			"RISCV64 " :
+			"";
+#else
+		"";
+#endif
+	const char __maybe_unused *riscv64_rvv_vlen =
+#if defined(LC_HOST_RISCV64) || defined(CONFIG_RISCV)
+		lc_riscv_rvv_is_vlen128() ? "RISV64-RVV128 " :
+		lc_riscv_rvv_is_vlen256() ? "RISV64-RVV256 " :
+					    "";
+#else
+		"";
+#endif
+
 	LC_FIPS_RODATA_SECTION
 	static const char __maybe_unused armv8[] =
 #if defined(LC_HOST_AARCH64) || defined(CONFIG_ARM64)
@@ -77,6 +133,9 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 #else
 		"";
 #endif
+
+
+
 
 #ifdef __clang__
 #pragma GCC diagnostic push
@@ -236,91 +295,49 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 	/* Kyber */
 #ifdef LC_KYBER
 		,
-		(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
-			"AVX2 " :
-			"",
-		armv7, armv8, riscv64,
-#if defined(LC_HOST_RISCV64) || defined(CONFIG_RISCV)
-		lc_riscv_rvv_is_vlen128() ? "RISV64-RVV128 " :
-		lc_riscv_rvv_is_vlen256() ? "RISV64-RVV256 " :
-					    ""
-#else
-		""
-#endif
+		avx2, armv7, armv8, riscv64, riscv64_rvv_vlen
 
 #endif /* LC_KYBER */
 
 	/* Dilithium */
 #ifdef LC_DILITHIUM
 		,
-		(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
-			"AVX2 " :
-			"",
-		armv7, armv8, riscv64,
-		(lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV_ASM_RVV) ?
-			"RISCV64-RVV " :
-			""
+		avx2, armv7, armv8, riscv64, riscv64_rvv
 #endif /* LC_DILITHIUM */
 
 	/* Sphincs+ */
 #ifdef LC_SPHINCS
 		,
-		(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
-			"AVX2 " :
-			"",
-		armv8
+		avx2, armv8
 #endif /* LC_DILITHIUM */
 
 	/* Bike */
 #ifdef LC_BIKE
 		,
-		(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
-			"AVX2 " :
-			"",
-		((lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX512) &&
-		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_VPCLMUL)) ?
-			"AVX512 " :
-			""
+		avx2, avx512
 #endif /* LC_BIKE */
 	/* HQC */
 #ifdef LC_HQC
 		,
-		(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
-			"AVX2 " :
-			""
+		avx2
 #endif /* LC_HQC */
 
 	/* Curve25519 */
 #ifdef LC_CURVE25519
 		,
-		(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
-			"AVX2 " :
-			"",
-		armv7, armv8
+		avx2, armv7, armv8
 #endif /* LC_CURVE25519 */
 
 	/* Curve448 */
 #ifdef LC_CURVE448
 		,
-		(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
-			"AVX2 " :
-			""
+		avx2
 #endif /* LC_CURVE448 */
 
 		/* GF */
 		,
-		(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_PCLMUL) ?
-			"PCLMULQDQ " :
-			"",
-		(lc_cpu_feature_available() & LC_CPU_FEATURE_ARM_PMULL) ?
-			"PMULL " :
-			"",
-		(lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV) ?
-			(lc_cpu_feature_available() &
-			 LC_CPU_FEATURE_RISCV_ASM_ZBB) ?
-			"RISCV64-Zbb " :
-			"RISCV64 " :
-			"");
+		pclmulqdq, pmull, riscv64_rvv_zbb
+	);
 
 #ifdef __clang__
 #pragma GCC diagnostic pop
