@@ -55,6 +55,8 @@ Changes 1.7.0-prerelease
 
 * ChaCha20: fix crasher when assembler support is not compiled
 
+* Jitter RNG: allow enabling NTG.1 mode and additional entropy-related options
+
 Changes 1.6.0
 * ASN.1: use stack for small generator for small use cases
 

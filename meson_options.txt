@@ -256,6 +256,61 @@ These include the known sha*sum applications.
 ''')
 
 ################################################################################
+# Entropy Source: Jitter RNG specific options
+#
+# These options only apply when setting the option seedsource=jent
+################################################################################
+option('lc_jent_osr', type: 'integer', min: 3, max: 20, value: 3,
+       description:'''Jitter RNG entropy source oversampling rate
+
+The option defines the oversampling multiplier used in jitterentropy.
+This is often adapted to get more conservative entropy estimates.
+Please note, that every increase reduces the output performance
+of this source due to increased internal sampling rounds.
+''')
+
+option('lc_jent_ntg1', type: 'feature', value: 'disabled',
+       description:'''Jitter RNG NTG.1 compliance mode
+
+The options enables the Jitter RNGs NTG.1 mode (an BSI AIS 20/31 functionality
+class). This internally also enables FIPS mode and health tests.
+Please make sure, that you configured jitterentropy according to
+entropy estimates on your target platform. Otherwise failing health tests
+may disable the output of this entropy source.
+''')
+
+option('lc_jent_max_mem', type: 'integer', min: -1, max: 20, value: -1,
+       description:'''Jitter RNG max memory buffer size
+
+The Jitter RNG performs random accesses on a memory buffer as part of
+its noise source. Use this option to adapt the size of the buffer after
+entropy measurements with differents memory sizes. Please consult the
+source code of your jitterentropy version for a current meaning of the
+values. At the time of writing this description text e.g. 16 would allocate
+32 MB.
+''')
+
+option('lc_jent_hash_loop_count', type: 'integer', min: -1, max: 7, value: -1,
+       description:'''Jitter RNG hash loop count
+
+The Jitter RNG performs SHA3-256 iterations as part of
+its noise source. Use this option to adapt the number of iterations.
+Please consult the source code of your jitterentropy version for a current
+meaning of the values. At the time of writing this description text e.g. 3
+would iterate 8 times.
+''')
+
+option('lc_jent_all_caches', type: 'feature', value: 'disabled',
+       description:'''Jitter RNG cache logic use all caches
+
+If no max memory size is given, the Jitter RNG estimates an
+adequate size of the memory buffer dependending on the cache
+size of the system. Typically only the size of the L1 is used for
+this. With this option, the sum all caches up to L3 is taken
+into account.
+''')
+
+################################################################################
 # Architecture-specific options
 ################################################################################
 option('riscv_rvv_vlen128', type: 'feature', value: 'enabled',

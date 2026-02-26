@@ -93,6 +93,18 @@ if (seeded_rng == 1)
 		#leancrypto_link += cc.find_library( 'esdm_rpc_client',
 		#				    required: true)
 	elif get_option('seedsource') == 'jent'
+		jent_conf_data = configuration_data()
+		jent_conf_data.set('LC_JENT_OSR', get_option('lc_jent_osr'))
+		jent_conf_data.set('LC_JENT_NTG1',
+				   get_option('lc_jent_ntg1').enabled())
+		jent_conf_data.set('LC_JENT_MAX_MEM',
+				   get_option('lc_jent_max_mem'))
+		jent_conf_data.set('LC_JENT_HASH_LOOP_COUNT',
+				   get_option('lc_jent_hash_loop_count'))
+		jent_conf_data.set('LC_JENT_ALL_CACHES',
+				   get_option('lc_jent_all_caches').enabled())
+		configure_file(output: 'seeded_rng_jent_config.h',
+			       configuration : jent_conf_data)
 		src += files([ 'seeded_rng_jent.c' ])
 		leancrypto_link += cc.find_library( 'jitterentropy',
 						    required: true)
