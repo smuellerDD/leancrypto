@@ -192,7 +192,7 @@ static const char *const asn1_universal_tags[32] = {
 };
 
 static const char *filename;
-static const char *grammar_name;
+static char *grammar_name;
 static const char *outputname;
 static const char *headername;
 
@@ -665,7 +665,7 @@ int main(int argc, char **argv)
 	}
 
 	/* Cut off ".asn1" */
-	p = (char *)strchr(grammar_name, '.');
+	p = strchr(grammar_name, '.');
 	if (p)
 		*p = '\0';
 
