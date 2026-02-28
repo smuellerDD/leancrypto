@@ -60,6 +60,7 @@ Compile Reduced LC    | GitHub                | [![Reduced LC](https://github.co
 EFI compilation       | GitHub                | [![EFI](https://github.com/smuellerDD/leancrypto/actions/workflows/efi.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/efi.yml)
 Rust                  | GitHub                | [![Rust](https://github.com/smuellerDD/leancrypto/actions/workflows/rust.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/rust.yml)
 FIPS140 Negative      | GitHub                | [![FIPS140 Negative](https://github.com/smuellerDD/leancrypto/actions/workflows/fips-negative-tests.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/fips-negative-tests.yml)
+No Acceleration       | GitHub                | [![No Acceleration](https://github.com/smuellerDD/leancrypto/actions/workflows/disable-asm.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/disable-asm.yml)
 
 ## Library Build
 
