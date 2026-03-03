@@ -20,6 +20,4 @@ include $(src)/Kbuild.chacha20
 include $(src)/Kbuild.bike
 include $(src)/Kbuild.slh-dsa
 include $(src)/Kbuild.hqc
-ifdef CONFIG_64BIT
 include $(src)/Kbuild.asn1
-endif

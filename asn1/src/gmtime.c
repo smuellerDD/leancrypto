@@ -72,7 +72,7 @@ LC_INTERFACE_FUNCTION(int, lc_gmtime, time64_t timeval, struct lc_tm *tm)
 	/*
 	 * Obtain the days and months since Epoch
 	 */
-	days = (unsigned int)(timeval / (LC_DAY));
+	days = (unsigned int)((unsigned int)timeval / (LC_DAY));
 	timeval -= days * (LC_DAY);
 	days += 1;
 
@@ -188,15 +188,15 @@ LC_INTERFACE_FUNCTION(int, lc_gmtime, time64_t timeval, struct lc_tm *tm)
 	} while (0);
 
 	/* Hour */
-	tm->hour = (unsigned char)(timeval / LC_HOUR);
+	tm->hour = (unsigned char)((unsigned int)timeval / LC_HOUR);
 	timeval -= tm->hour * LC_HOUR;
 
 	/* Minutes */
-	tm->min = (unsigned char)(timeval / LC_MIN);
+	tm->min = (unsigned char)((unsigned int)timeval / LC_MIN);
 	timeval -= tm->min * LC_MIN;
 
 	/* Second */
-	tm->sec = (unsigned char)(timeval / LC_SEC);
+	tm->sec = (unsigned char)((unsigned int)timeval / LC_SEC);
 
 	return 0;
 }

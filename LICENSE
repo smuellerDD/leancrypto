@@ -143,9 +143,6 @@ The only reason why this code is duplicated is the fact that the compiler code
 cannot be included into kernel code code as is. Thus, the functions used by
 leancrypto are extracted - I wished this would not have been necessary.
 
-In addition, the functions found in bike/src/compiler_support.c are derived
-from the LLVM project as well.
-
 Anyhow, the GCC code is: GPL 3. The LLVM code is: Apache License v2.0.
 
 NOTE: The presence of GPL 3 code is NOT considered to taint the leancrypto code
@@ -612,3 +609,14 @@ apps/src/efivars.h
 apps/src/sbvarsign.c
 apps/src/sbsiglist.c
 apps/src/sbattach.c
+
+================================================================================
+
+The GCC auxiliary support implementations are derived in parts from
+https://github.com/glitchub/arith64 which uses the following license:
+
+This software is released as-is into the public domain, as described at
+https://unlicense.org. Do whatever you like with it.
+
+This affects the following files:
+internal/src/arith64.c
