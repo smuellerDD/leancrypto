@@ -63,11 +63,13 @@ void seeded_rng_noise_fini(void)
 
 int seeded_rng_noise_init(void)
 {
+	if (!IS_ERR_OR_NULL(jent))
+		return 0;
+
 	jent = crypto_alloc_rng("jitterentropy_rng", 0, 0);
 	if (IS_ERR(jent)) {
 		const int err = PTR_ERR(jent);
 
-		jent = NULL;
 		if (fips_enabled)
 			return err;
 		pr_info("DRBG: Continuing without Jitter RNG\n");
@@ -77,7 +79,10 @@ int seeded_rng_noise_init(void)
 
 void seeded_rng_status(char *buf, size_t len)
 {
-	if (jent)
+	if (!jent)
+		seeded_rng_noise_init();
+
+	if (!IS_ERR_OR_NULL(jent))
 		lc_memcpy_secure(buf, len, "Linux Kernel Jitter RNG\n\0", 25);
 	else
 		lc_memcpy_secure(buf, len, "Linux Kernel get_random_bytes\n\0",
