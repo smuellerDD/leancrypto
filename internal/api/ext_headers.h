@@ -43,6 +43,7 @@
 #include <linux/errno.h>
 #include <linux/module.h>
 #include <linux/string.h>
+#include <linux/timekeeping.h>
 #include <linux/types.h>
 
 /* POSIX Support */
@@ -81,13 +82,16 @@ typedef s64 time64_t;
 
 static inline int lc_get_time(time64_t *time_since_epoch, time64_t *n_sec)
 {
+	u64 now = ktime_get_real_ns();
+
 	if (!time_since_epoch)
 		return -EINVAL;
 
-	*time_since_epoch = (time64_t)(jiffies / HZ);
-	//TODO
+	//*time_since_epoch = (time64_t)(jiffies / HZ);
+	*time_since_epoch =
+		(time64_t)div_u64(ktime_get_real_ns(), NSEC_PER_SEC);
 	if (n_sec)
-		*n_sec = 0;
+		*n_sec = (time64_t)(now - *time_since_epoch);
 
 	return 0;
 }
