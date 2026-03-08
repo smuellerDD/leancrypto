@@ -312,6 +312,7 @@ struct lc_dilithium_ctx {
 /// \endcond
 
 /**
+ * @ingroup Dilithium
  * @brief Allocate stack memory for the Dilithium stream context or additional
  * parameter relevant for the signature operation.
  *
