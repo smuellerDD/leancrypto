@@ -94,6 +94,9 @@ polyvec_matrix_expand_row(polyvecl **row, polyvecl buf[2],
 		*row = buf + 1;
 		break;
 #endif
+	default:
+		*row = 0;
+		break;
 	}
 }
 

@@ -341,6 +341,11 @@ int main(int argc, char *argv[])
 			case 28:
 				parsed_opts.pem_format_output = 1;
 				break;
+
+			default:
+				pkcs7_generator_usage();
+				ret = -1;
+				goto out;
 			}
 			break;
 

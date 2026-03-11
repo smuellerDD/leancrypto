@@ -1430,6 +1430,11 @@ int main(int argc, char *argv[])
 			case 58:
 				ws->parsed_opts.pem_format_output = 1;
 				break;
+
+			default:
+				x509_generator_usage();
+				ret = -1;
+				goto out;
 			}
 
 			break;

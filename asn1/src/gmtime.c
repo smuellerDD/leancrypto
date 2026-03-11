@@ -45,6 +45,9 @@ LC_INTERFACE_FUNCTION(int, lc_gmtime, time64_t timeval, struct lc_tm *tm)
 	while (timeval >= LC_YEAR) {
 		timeval -= LC_YEAR;
 
+		if (tm->year == 0)
+			return -EOVERFLOW;
+
 		/*
 		 * Adjust the days if we just had the leap year - then one day
 		 * goes to the old year as it had 366 days.

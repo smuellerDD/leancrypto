@@ -47,7 +47,8 @@ add_global_arguments([ '-fstack-protector-strong',
 		       '-Wvla',
 		       '-Wunused-function',
 		       '-Wunused-parameter',
-		       '-Wunreachable-code'
+		       '-Wunreachable-code',
+		       '-Wswitch-default'
 		        ],
 		       language : 'c')
 

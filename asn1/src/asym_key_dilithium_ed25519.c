@@ -119,6 +119,7 @@ int private_key_decode_dilithium_ed25519(struct lc_x509_key_data *keys,
 	case LC_SIG_SM2:
 	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_UNKNOWN:
+	default:
 		ret = -ENOPKG;
 		goto out;
 	}

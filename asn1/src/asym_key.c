@@ -465,6 +465,7 @@ int lc_privkey_key_encode(struct x509_generate_privkey_context *ctx,
 	case LC_SIG_SM2:
 	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_UNKNOWN:
+	default:
 		ret = -ENOPKG;
 		goto out;
 	}
@@ -522,6 +523,7 @@ int lc_privkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
 	case LC_SIG_SM2:
 	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_UNKNOWN:
+	default:
 		ret = -ENOPKG;
 		goto out;
 	}
@@ -716,6 +718,7 @@ int lc_pubkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
 	case LC_SIG_SM2:
 	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_UNKNOWN:
+	default:
 		ret = -ENOPKG;
 		goto out;
 	}

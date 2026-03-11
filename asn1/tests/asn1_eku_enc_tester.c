@@ -155,6 +155,11 @@ int main(int argc, char *argv[])
 			case 1:
 				CKINT(x509_enc_eku(&ws->parsed_opts, optarg));
 				break;
+
+			default:
+				asn1_usage();
+				ret = -1;
+				goto out;
 			}
 			break;
 

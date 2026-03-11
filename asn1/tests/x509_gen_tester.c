@@ -454,6 +454,11 @@ int main(int argc, char *argv[])
 			case 14:
 				ws->parsed_opts.noselfsigned = 1;
 				break;
+
+			default:
+				asn1_usage();
+				ret = -1;
+				goto out;
 			}
 			break;
 

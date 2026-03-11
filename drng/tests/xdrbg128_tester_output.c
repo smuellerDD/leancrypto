@@ -155,6 +155,8 @@ int main(int argc, char *argv[])
 			case 2:
 				opts.hex = 1;
 				break;
+			default:
+				return EINVAL;
 			}
 			break;
 

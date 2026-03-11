@@ -427,6 +427,7 @@ int lc_x509_mldsa_private_key_seed(void *context, size_t hdrlen,
 	case LC_SIG_SM2:
 	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_UNKNOWN:
+	default:
 		ret = -ENOPKG;
 		goto out;
 	}

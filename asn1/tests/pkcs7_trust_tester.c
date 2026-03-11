@@ -182,6 +182,11 @@ int main(int argc, char *argv[])
 			case 4:
 				parsed_opts.verified_file = optarg;
 				break;
+
+			default:
+				pkcs7_trust_usage();
+				ret = -1;
+				goto out;
 			}
 
 			break;

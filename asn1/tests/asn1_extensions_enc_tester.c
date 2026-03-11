@@ -576,6 +576,11 @@ int main(int argc, char *argv[])
 				CKINT(x509_enc_serial(&ws->parsed_opts,
 						      optarg));
 				break;
+
+			default:
+				asn1_usage();
+				ret = -1;
+				goto out;
 			}
 			break;
 

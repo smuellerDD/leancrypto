@@ -317,6 +317,11 @@ int main(int argc, char *argv[])
 				parsed_opts.asn1_type = asn1_type_verify;
 				parsed_opts.verified_file = optarg;
 				break;
+
+			default:
+				asn1_usage();
+				ret = -1;
+				goto out;
 			}
 			break;
 

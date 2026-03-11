@@ -530,6 +530,10 @@ int hasher_main(int argc, char *argv[], const struct lc_hash *hash)
 			case 3:
 				parsed_opts.quiet = 1;
 				break;
+			default:
+				hasher_usage(argv[0]);
+				ret = 1;
+				goto out;
 			}
 			break;
 

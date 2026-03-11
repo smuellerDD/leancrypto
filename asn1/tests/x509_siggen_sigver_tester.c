@@ -251,6 +251,11 @@ int main(int argc, char *argv[])
 			case 2:
 				ws->parsed_opts.x509_cert_file = optarg;
 				break;
+
+			default:
+				x509_generator_usage();
+				ret = -1;
+				goto out;
 			}
 			break;
 
