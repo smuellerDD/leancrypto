@@ -72,11 +72,11 @@ LC_INTERFACE_FUNCTION(int, lc_alloc_aligned_secure, void **memptr,
 		return ret;
 
 	/* prevent paging out of the memory state to swap space */
-	ret = mlock(memptr, size);
+	ret = mlock(*memptr, size);
 	if (ret && errno != EPERM && errno != EAGAIN) {
 		int errsv = errno;
 
-		lc_free(memptr);
+		lc_free(*memptr);
 		return -errsv;
 	}
 
