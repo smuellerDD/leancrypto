@@ -22,6 +22,7 @@
 #include "initialization.h"
 #include "lc_sha3.h"
 #include "ret_checkers.h"
+#include "sha3_selftest.h"
 
 int fips_integrity_check(const struct lc_fips_integrity_sections *secs,
 			 size_t n_secs,
@@ -38,6 +39,8 @@ int fips_integrity_check(const struct lc_fips_integrity_sections *secs,
 	 */
 	if (lc_activate_library_selftest_init(rerun))
 		goto out;
+
+	sha3_256_selftest_common(lc_sha3_256);
 
 	/*
 	 * As the SHA3-256 state is still in error state, invoke the nocheck

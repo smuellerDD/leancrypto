@@ -906,38 +906,38 @@ void alg_status_print(uint64_t flag, char *test_completed,
  */
 int lc_activate_library_selftest_init(int reinit)
 {
-	if (!reinit) {
-		/*
-		 * This is the initialization of the library: set the state to
-		 * ongoing in a race-free manner and ensure that this code path
-		 * is only executed once.
-		 */
-		int status;
 
-		/*
-		* Race-free: fetch the value of the status flag before ORing the
-		* ongoing flag. If the value before ORing already shows ongoing
-		* (or passed/failed), the ORing did not change the value.
-		*/
-		status = alg_status_set_testresult_val(
-			atomic_fetch_or, lc_alg_status_result_ongoing,
-			LC_ALG_STATUS_LIB, &lc_alg_status_aux);
-
-		/*
-		* Now analyze the fetched value before ORing: was it pending?
-		* If yes, initialize the library. If not, this function got
-		* invoked again and we ignore this invocation.
-		*/
-		if (alg_status_result_interpret(status,
-						LC_ALG_STATUS_FLAG_LIB) >
-		    lc_alg_status_result_pending)
-			return 1;
-	}
+	/*
+	 * This is the initialization of the library: set the state to
+	 * ongoing in a race-free manner and ensure that this code path
+	 * is only executed once.
+	 */
+	int status;
 
 	/*
 	 * Set the library to initialization state.
 	 */
-	alg_status_set_init_state();
+	if (reinit)
+		alg_status_set_init_state();
+
+	/*
+	 * Race-free: fetch the value of the status flag before ORing
+	 * the ongoing flag. If the value before ORing already shows
+	 * ongoing (or passed/failed), the ORing did not change the
+	 * value.
+	 */
+	status = alg_status_set_testresult_val(
+		atomic_fetch_or, lc_alg_status_result_ongoing,
+		LC_ALG_STATUS_LIB, &lc_alg_status_aux);
+
+	/*
+	 * Now analyze the fetched value before ORing: was it pending?
+	 * If yes, initialize the library. If not, this function got
+	 * invoked again and we ignore this invocation.
+	 */
+	if (alg_status_result_interpret(status, LC_ALG_STATUS_FLAG_LIB) >
+		lc_alg_status_result_pending)
+		return 1;
 
 	return 0;
 }
