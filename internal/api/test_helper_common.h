@@ -58,7 +58,8 @@ static inline int test_validate_expected_status(int ret,
 	/* Set any recorded result to zero */
 	if (ret > 0)
 		ret = 0;
-	expected = lc_alg_status_self_test_failed;
+	if (expected == lc_alg_status_self_test_passed)
+		expected = lc_alg_status_self_test_failed;
 #endif
 
 	if ((status & expected) != expected) {

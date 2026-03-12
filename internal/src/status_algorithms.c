@@ -466,9 +466,11 @@ static void alg_status_set_testresult(enum lc_alg_status_result test_ret,
 	 * the state, as all algorithms are in failure state and we want to stay
 	 * in failure mode.
 	 */
+#ifndef LC_FIPS140_DEBUG
 	if (test_ret == lc_alg_status_result_failed && fips140_mode_enabled() &&
 	    flag != LC_ALG_STATUS_LIB)
 		alg_status_unset_test_state(0);
+#endif
 
 	/*
 	 * This operation only works by assuming the state transition documented
