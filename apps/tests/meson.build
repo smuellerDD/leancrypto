@@ -4,6 +4,7 @@ sbsign_test_script = find_program('sbsign_test.sh', required: true)
 sbvarsign_test_script = find_program('sbvarsign_test.sh', required: true)
 sbsiglist_test_script = find_program('sbsiglist_test.sh', required: true)
 sbattach_test_script = find_program('sbattach_test.sh', required: true)
+convert_test_script = find_program('convert_tester.sh', required: true)
 
 # Application can be re-generated as outlined in README.md
 # "Library Build for EFI Environment"
@@ -318,6 +319,18 @@ if (host_machine.system() != 'windows' and
 			   ],
 		     timeout: 1000, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
+
+
+		if get_option('sha2-256').enabled()
+			test('Convert PEM <-> DER',
+			     convert_test_script,
+			     args: [
+				lc_x509_generator.full_path(),
+				sha256sum.full_path(),
+			     ],
+			     timeout: 300, suite: regression,
+			     should_fail: fips140_negative_expect_fail)
+		endif
 
 	endif
 

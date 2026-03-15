@@ -89,6 +89,7 @@ struct x509_generator_opts {
 	unsigned int sk_is_pkcs8 : 1;
 	unsigned int generate_sk_seed : 1;
 	unsigned int pem_format_output : 1;
+	unsigned int convert_pem_der : 1;
 };
 
 static int x509_check_file(const char *file)
@@ -854,6 +855,59 @@ out:
 	return ret;
 }
 
+static int x509_convert(struct x509_generator_opts *opts)
+{
+	int ret = 0;
+
+	if (opts->x509_signer_file) {
+		CKINT_LOG(get_data(opts->x509_signer_file, &opts->signer_data,
+				   &opts->signer_data_len,
+				   lc_pem_flag_certificate),
+			  "mmap failure\n");
+
+		if (!opts->outfile) {
+			bin2print(opts->signer_data, opts->signer_data_len,
+				  stdout, "X.509 Certificate");
+		} else {
+			if (opts->noout)
+				goto out;
+
+			CKINT_LOG(x509_gen_file(opts, opts->signer_data,
+				  opts->signer_data_len),
+				  "Writing of X.509 certificate failed\n");
+		}
+
+		CKINT(x509_enc_dump(opts, opts->signer_data,
+				    opts->signer_data_len));
+	}
+
+	if (opts->signer_sk_file) {
+		CKINT_LOG(get_data(opts->signer_sk_file, &opts->signer_sk_data,
+			  &opts->signer_sk_len, lc_pem_flag_priv_key),
+			  "Signer SK mmap failure\n");
+
+		if (!opts->sk_file) {
+			bin2print(opts->signer_sk_data, opts->signer_sk_len,
+				  stdout, "Secret key");
+		} else {
+			if (opts->noout)
+				goto out;
+
+			CKINT(x509_check_file(opts->sk_file));
+			CKINT_LOG(write_data(opts->sk_file,
+					     opts->signer_sk_data,
+					     opts->signer_sk_len,
+					     opts->pem_format_output ?
+					     lc_pem_flag_priv_key :
+					     lc_pem_flag_nopem),
+				  "Writing of secret key failed\n");
+		}
+	}
+
+out:
+	return ret;
+}
+
 static void x509_generator_usage(void)
 {
 	fprintf(stderr, "\nLeancrypto X.509 Certificate Generator\n");
@@ -903,6 +957,17 @@ static void x509_generator_usage(void)
 		"\t   --pem-output\t\t\tKey / certificate files are created\n");
 	fprintf(stderr, "\t\t\t\t\tin PEM format (input data PEM format\n");
 	fprintf(stderr, "\t\t\t\t\tis autodetected)\n");
+
+	fprintf(stderr, "\n\tOptions for conversion DER / PEM:\n");
+	fprintf(stderr, "\n\t   --convert\t\t\tConvert cerificate:\n");
+	fprintf(stderr, "\t\t\t\t\tConvert certificate DER to PEM:\n");
+	fprintf(stderr, "\t\t\t\t\t--x509-signer --outfile --pem-output\n");
+	fprintf(stderr, "\t\t\t\t\tConvert certificate PEM to DER:\n");
+	fprintf(stderr, "\t\t\t\t\t--x509-signer --outfile\n");
+	fprintf(stderr, "\t\t\t\t\tConvert secret key DER to PEM:\n");
+	fprintf(stderr, "\t\t\t\t\t--signer-sk-file --sk-file --pem-output\n");
+	fprintf(stderr, "\t\t\t\t\tConvert secret key PEM to DER:\n");
+	fprintf(stderr, "\t\t\t\t\t--signer-sk-file --sk-file\n");
 
 	fprintf(stderr, "\n\tOptions for X.509 meta data:\n");
 	fprintf(stderr, "\t   --eku <FLAG>\t\t\tSet Extended Key Usage flag\n");
@@ -1084,6 +1149,7 @@ int main(int argc, char *argv[])
 		{ "create-keypair-pkcs8-seed", 1, 0, 0 },
 		{ "create-keypair-pkcs8", 1, 0, 0 },
 		{ "pem-output", 0, 0, 0 },
+		{ "convert", 0, 0, 0 },
 
 		{ 0, 0, 0, 0 }
 	};
@@ -1431,6 +1497,11 @@ int main(int argc, char *argv[])
 				ws->parsed_opts.pem_format_output = 1;
 				break;
 
+			/* convert */
+			case 59:
+				ws->parsed_opts.convert_pem_der = 1;
+				break;
+
 			default:
 				x509_generator_usage();
 				ret = -1;
@@ -1465,6 +1536,11 @@ int main(int argc, char *argv[])
 			CKINT(x509_enc_set_signer(&ws->parsed_opts));
 
 		CKINT(x509_dump_file(&ws->parsed_opts));
+		goto out;
+	}
+
+	if (ws->parsed_opts.convert_pem_der) {
+		CKINT(x509_convert(&ws->parsed_opts));
 		goto out;
 	}
 
