@@ -171,6 +171,7 @@ static int pkcs7_find_key(struct lc_pkcs7_message *pkcs7,
 			continue;
 		printf_debug("Sig %u: Found cert serial match X.509[%u]\n",
 			     sinfo->index, certix);
+		(void)certix;
 
 		sinfo->signer = x509;
 		return 0;
