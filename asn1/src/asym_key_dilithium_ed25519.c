@@ -31,6 +31,7 @@ int private_key_encode_dilithium_ed25519(
 	uint8_t *data, size_t *avail_datalen,
 	struct x509_generate_privkey_context *ctx)
 {
+#ifdef LC_X509_GENERATOR
 	const struct lc_x509_key_data *keys = ctx->keys;
 	size_t ml_dsa_sklen, ed25519_sklen;
 	uint8_t *ml_dsa_ptr, *ed25519_ptr;
@@ -62,6 +63,12 @@ int private_key_encode_dilithium_ed25519(
 
 out:
 	return ret;
+#else
+	(void)data;
+	(void)avail_datalen;
+	(void)ctx;
+	return -EOPNOTSUPP;
+#endif
 }
 
 int private_key_decode_dilithium_ed25519(struct lc_x509_key_data *keys,

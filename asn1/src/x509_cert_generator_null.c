@@ -56,6 +56,12 @@ int lc_x509_san_OID_enc(void *context, uint8_t *data, size_t *avail_datalen,
 	X509_FUNC_UNDEF
 }
 
+int lc_x509_san_email_enc(void *context, uint8_t *data, size_t *avail_datalen,
+			  uint8_t *tag)
+{
+	X509_FUNC_UNDEF
+}
+
 int lc_x509_extract_name_segment_enc(void *context, uint8_t *data,
 				     size_t *avail_datalen, uint8_t *tag)
 {

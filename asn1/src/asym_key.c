@@ -202,6 +202,7 @@ out:
 int lc_public_key_extract(struct x509_generate_context *ctx, uint8_t *dst_data,
 			  size_t *available_len)
 {
+#ifdef LC_X509_GENERATOR
 	const struct lc_x509_certificate *cert = ctx->cert;
 	const struct lc_x509_key_data *keys = &cert->pub_gen_data;
 	size_t pklen = 0;
@@ -264,6 +265,12 @@ int lc_public_key_extract(struct x509_generate_context *ctx, uint8_t *dst_data,
 
 out:
 	return ret;
+#else
+	(void)ctx;
+	(void)dst_data;
+	(void)available_len;
+	return -EOPNOTSUPP;
+#endif
 }
 
 /*
