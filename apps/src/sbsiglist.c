@@ -258,6 +258,9 @@ int main(int argc, char **argv)
 			usage();
 			ret = 0;
 			goto out;
+		default:
+			ret = 1;
+			goto out;
 		}
 	}
 

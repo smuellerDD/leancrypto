@@ -612,6 +612,9 @@ int main(int argc, char **argv)
 		case 'p':
 			ws->parsed_opts.print_pkcs7 = true;
 			break;
+		default:
+			ret = 1;
+			goto out;
 		}
 	}
 

@@ -512,6 +512,9 @@ int main(int argc, char **argv)
 			parsed_opts.verify_rules_set = 1;
 			break;
 #endif
+		default:
+			ret = 1;
+			goto out;
 		}
 	}
 

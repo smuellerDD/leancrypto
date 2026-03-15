@@ -1093,6 +1093,9 @@ int main(int argc, char **argv)
 		case 'h':
 			usage();
 			goto out;
+		default:
+			ret = 1;
+			goto out;
 		}
 	}
 
