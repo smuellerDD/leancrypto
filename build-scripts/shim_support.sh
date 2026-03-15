@@ -101,6 +101,7 @@ CFLAGS="-I/usr/include/efi/x86_64 -I/usr/include/efi/aarch64" \
 meson setup leancrypto-build-shim \
  -Dbuildtype=release \
  -Defi=enabled \
+ -Dbuildtype=release \
  $DISABLE_AEAD \
  $DISABLE_SYM \
  $DISABLE_SIGNATURE \
