@@ -71,19 +71,27 @@ static int lc_pem_envelope_label_len(size_t *olen, enum lc_pem_flags flags)
 	return 0;
 }
 
-static int lc_pem_envelope_begin_len(size_t *olen, enum lc_pem_flags flags)
+static void lc_pem_markers_begin_len(size_t *olen)
 {
 	/* Header without label, but with LF */
 	*olen += lc_pem_marker_begin_len + lc_pem_marker_trailer_len + 1;
+}
 
+static void lc_pem_markers_end_len(size_t *olen)
+{
+	/* End without label, but with LF at the beginning */
+	*olen += 1 + lc_pem_marker_end_len + lc_pem_marker_trailer_len;
+}
+
+static int lc_pem_envelope_begin_len(size_t *olen, enum lc_pem_flags flags)
+{
+	lc_pem_markers_begin_len(olen);
 	return lc_pem_envelope_label_len(olen, flags);
 }
 
 static int lc_pem_envelope_end_len(size_t *olen, enum lc_pem_flags flags)
 {
-	/* End without label, but with LF at the beginning */
-	*olen += 1 + lc_pem_marker_end_len + lc_pem_marker_trailer_len;
-
+	lc_pem_markers_end_len(olen);
 	return lc_pem_envelope_label_len(olen, flags);
 }
 
@@ -245,50 +253,51 @@ out:
 	return ret;
 }
 
-static int lc_pem_decode_type(const char **idata, size_t *ilen,
-			      enum lc_pem_flags flags)
+static int lc_pem_decode_type(enum lc_pem_flags *flags, const char **idata,
+			      size_t *ilen)
 {
-	switch (flags) {
-	case lc_pem_flag_certificate:
-		if (*ilen < lc_pem_marker_certificate_len)
-			return -EINVAL;
-		if (lc_memcmp_secure(*idata, lc_pem_marker_certificate_len,
-				     lc_pem_marker_certificate,
-				     lc_pem_marker_certificate_len))
-			return -EINVAL;
-		*ilen -= lc_pem_marker_certificate_len;
-		*idata += lc_pem_marker_certificate_len;
-		break;
-	case lc_pem_flag_priv_key:
-		if (*ilen < lc_pem_marker_priv_key_len)
-			return -EINVAL;
-		if (lc_memcmp_secure(*idata, lc_pem_marker_priv_key_len,
-				     lc_pem_marker_priv_key,
-				     lc_pem_marker_priv_key_len))
-			return -EINVAL;
-		*ilen -= lc_pem_marker_priv_key_len;
-		*idata += lc_pem_marker_priv_key_len;
-		break;
-	case lc_pem_flag_cms:
-		if (*ilen < lc_pem_marker_cms_len)
-			return -EINVAL;
-		if (lc_memcmp_secure(*idata, lc_pem_marker_cms_len,
-				     lc_pem_marker_cms, lc_pem_marker_cms_len))
-			return -EINVAL;
-		*ilen -= lc_pem_marker_cms_len;
-		*idata += lc_pem_marker_cms_len;
-		break;
-	case lc_pem_flag_nopem:
-	default:
-		return -EINVAL;
+	size_t ilen_local = *ilen;
+	const char *idata_local = *idata;
+
+	if (ilen_local > lc_pem_marker_certificate_len) {
+		if (!lc_memcmp_secure(idata_local,
+				      lc_pem_marker_certificate_len,
+				      lc_pem_marker_certificate,
+				      lc_pem_marker_certificate_len)) {
+			*flags |= lc_pem_flag_certificate;
+			ilen_local -= lc_pem_marker_certificate_len;
+			idata_local += lc_pem_marker_certificate_len;
+		}
 	}
+
+	if (ilen_local > lc_pem_marker_priv_key_len) {
+		if (!lc_memcmp_secure(idata_local, lc_pem_marker_priv_key_len,
+				      lc_pem_marker_priv_key,
+				      lc_pem_marker_priv_key_len)) {
+			*flags |= lc_pem_flag_priv_key;
+			ilen_local -= lc_pem_marker_priv_key_len;
+			idata_local += lc_pem_marker_priv_key_len;
+		}
+	}
+
+	if (ilen_local > lc_pem_marker_cms_len) {
+		if (!lc_memcmp_secure(idata_local, lc_pem_marker_cms_len,
+				      lc_pem_marker_cms,
+				      lc_pem_marker_cms_len)) {
+			*flags |= lc_pem_flag_cms;
+			ilen_local -= lc_pem_marker_cms_len;
+			idata_local += lc_pem_marker_cms_len;
+		}
+	}
+
+	*ilen = ilen_local;
+	*idata = idata_local;
 
 	return 0;
 }
 
-/* Verify header */
-static int lc_pem_decode_verify_header(const char **idata, size_t *ilen,
-				       enum lc_pem_flags flags)
+static int lc_pem_decode_header(enum lc_pem_flags *flags, const char **idata,
+				size_t *ilen)
 {
 	size_t ilen_local = *ilen;
 	const char *idata_local = *idata;
@@ -302,7 +311,9 @@ static int lc_pem_decode_verify_header(const char **idata, size_t *ilen,
 		return -EINVAL;
 	ilen_local -= lc_pem_marker_begin_len;
 	idata_local += lc_pem_marker_begin_len;
-	CKINT(lc_pem_decode_type(&idata_local, &ilen_local, flags));
+
+	CKINT(lc_pem_decode_type(flags, &idata_local, &ilen_local));
+
 	if (ilen_local < lc_pem_marker_trailer_len)
 		return -EINVAL;
 	if (lc_memcmp_secure(idata_local, lc_pem_marker_trailer_len,
@@ -313,6 +324,34 @@ static int lc_pem_decode_verify_header(const char **idata, size_t *ilen,
 
 	*ilen = ilen_local;
 	*idata = idata_local;
+
+out:
+	return ret;
+}
+
+static int lc_pem_decode_verify_header(const char **idata, size_t *ilen,
+				       enum lc_pem_flags flags)
+{
+	enum lc_pem_flags found_type;
+	int ret;
+
+	CKINT(lc_pem_decode_header(&found_type, idata, ilen));
+	if (found_type != flags)
+		ret = -EINVAL;
+
+out:
+	return ret;
+}
+
+static int lc_pem_decode_verify_type(const char **idata, size_t *ilen,
+				     enum lc_pem_flags flags)
+{
+	enum lc_pem_flags found_type;
+	int ret;
+
+	CKINT(lc_pem_decode_type(&found_type, idata, ilen));
+	if (found_type != flags)
+		ret = -EINVAL;
 
 out:
 	return ret;
@@ -330,6 +369,25 @@ LC_INTERFACE_FUNCTION(int, lc_pem_is_encoded, const char *idata, size_t ilen,
 		return -EOVERFLOW;
 
 	CKINT(lc_pem_decode_verify_header(&idata, &ilen, flags));
+
+out:
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_pem_type, enum lc_pem_flags *flags,
+		      const char *idata, size_t ilen)
+{
+	size_t envelope_begin_len = 0;
+	int ret;
+
+	*flags = lc_pem_flag_nopem;
+
+	lc_pem_markers_begin_len(&envelope_begin_len);
+
+	if (ilen < envelope_begin_len)
+		return -EOVERFLOW;
+
+	CKINT(lc_pem_decode_header(flags, &idata, &ilen));
 
 out:
 	return ret;
@@ -418,7 +476,7 @@ LC_INTERFACE_FUNCTION(int, lc_pem_decode, const char *idata, size_t ilen,
 		return -EINVAL;
 	ilen -= lc_pem_marker_end_len;
 	idata += lc_pem_marker_end_len;
-	CKINT(lc_pem_decode_type(&idata, &ilen, flags));
+	CKINT(lc_pem_decode_verify_type(&idata, &ilen, flags));
 	if (ilen < lc_pem_marker_trailer_len)
 		return -EINVAL;
 	if (lc_memcmp_secure(idata, lc_pem_marker_trailer_len,

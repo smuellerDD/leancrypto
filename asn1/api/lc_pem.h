@@ -127,6 +127,20 @@ int lc_pem_decode(const char *idata, size_t ilen, uint8_t *odata, size_t olen,
  */
 int lc_pem_is_encoded(const char *idata, size_t ilen, enum lc_pem_flags flags);
 
+/**
+ * @ingroup X509
+ * @brief Decode the PEM file type
+ *
+ * Function checks the PEM header and decodes the data type found in there
+ *
+ * @param [out] flags Flag representing the data type
+ * @param [in] idata Buffer holding the PEM encoded data
+ * @param [in] ilen Length of the output data
+ *
+ * @return 0 when data is PEM encoded, < 0 when data is not PEM encoded
+ */
+int lc_pem_type(enum lc_pem_flags *flags, const char *idata, size_t ilen);
+
 #ifdef __cplusplus
 }
 #endif
