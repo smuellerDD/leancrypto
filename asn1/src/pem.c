@@ -259,6 +259,8 @@ static int lc_pem_decode_type(enum lc_pem_flags *flags, const char **idata,
 	size_t ilen_local = *ilen;
 	const char *idata_local = *idata;
 
+	*flags = lc_pem_flag_nopem;
+
 	if (ilen_local > lc_pem_marker_certificate_len) {
 		if (!lc_memcmp_secure(idata_local,
 				      lc_pem_marker_certificate_len,
@@ -379,8 +381,6 @@ LC_INTERFACE_FUNCTION(int, lc_pem_type, enum lc_pem_flags *flags,
 {
 	size_t envelope_begin_len = 0;
 	int ret;
-
-	*flags = lc_pem_flag_nopem;
 
 	lc_pem_markers_begin_len(&envelope_begin_len);
 
