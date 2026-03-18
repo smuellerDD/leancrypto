@@ -371,7 +371,7 @@ int lc_x509_sk_decode(struct lc_x509_key_data *key, enum lc_sig_types key_type,
  * @ingroup X509
  * @brief Decode a public key in raw format
  *
- * The function parses a private data buffer into a data structure that allows
+ * The function parses a public data buffer into a data structure that allows
  * immediate use of the parsed key data with the cryptographic primitives.
  *
  * \note The \p key data structure will contain the data of the
