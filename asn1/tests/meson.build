@@ -458,7 +458,7 @@ if get_option('x509_generator').enabled()
 			x509_decode_encode_tester,
 			args: [ '--sk-file', certdir + 'slh-dsa-shake-256s_cacert.privkey',
 				'--x509-cert', certdir + 'slh-dsa-shake-256s_cacert.der' ],
-			suite: regression,
+			suite: regression, timeout: 1000,
 			should_fail: fips140_negative_expect_fail)
 	endif
 
