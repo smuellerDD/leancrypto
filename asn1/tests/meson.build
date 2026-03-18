@@ -428,6 +428,15 @@ if get_option('x509_generator').enabled()
 						include_internal_dirs ],
 			 link_with: leancrypto_static_lib
 			 )
+	x509_decode_encode_tester = executable('x509_decode_encode_tester',
+			 [ 'x509_decode_encode_tester.c',
+			   '../../apps/src/lc_x509_generator_file_helper.c',
+			   '../../apps/src/lc_x509_generator_print.c',
+			   internal_src ],
+			 include_directories: [ include_dirs,
+						include_internal_dirs ],
+			 dependencies: leancrypto
+			 )
 
 	if (get_option('dilithium_87').enabled())
 		test('X.509 ML-DSA87 Leaf Signature', x509_siggen_sigver_tester,
@@ -438,10 +447,17 @@ if get_option('x509_generator').enabled()
 	endif
 
 	if (get_option('sphincs_shake_128f').enabled())
-		test('X.509 SLH-DSA-SHAKE-128f Leaf Signature',
+		test('X.509 SLH-DSA-SHAKE-128f Signature',
 			x509_siggen_sigver_tester,
 			args: [ '--sk-file', certdir + 'slh-dsa-shake-128f_leaf.privkey',
 				'--x509-cert', certdir + 'slh-dsa-shake-128f_leaf.der' ],
+			suite: regression,
+			should_fail: fips140_negative_expect_fail)
+
+		test('X.509 SLH-DSA-SHAKE-256s Encap/Decap',
+			x509_decode_encode_tester,
+			args: [ '--sk-file', certdir + 'slh-dsa-shake-256s_cacert.privkey',
+				'--x509-cert', certdir + 'slh-dsa-shake-256s_cacert.der' ],
 			suite: regression,
 			should_fail: fips140_negative_expect_fail)
 	endif
@@ -457,6 +473,13 @@ if get_option('x509_generator').enabled()
 	if get_option('dilithium_ed448').enabled()
 		test('X.509 Composite-ML-DSA87 Signature',
 			x509_siggen_sigver_tester,
+			args: [ '--sk-file', certdir + 'ml-dsa87-ed448_cacert.privkey',
+				'--x509-cert', certdir + 'ml-dsa87-ed448_cacert.der' ],
+			suite: regression,
+			should_fail: fips140_negative_expect_fail)
+
+		test('X.509 Composite-ML-DSA87 Encap/Decap',
+			x509_decode_encode_tester,
 			args: [ '--sk-file', certdir + 'ml-dsa87-ed448_cacert.privkey',
 				'--x509-cert', certdir + 'ml-dsa87-ed448_cacert.der' ],
 			suite: regression,

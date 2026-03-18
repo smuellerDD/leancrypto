@@ -507,6 +507,7 @@ int lc_x509_extract_key_data(void *context, size_t hdrlen, unsigned char tag,
 
 	CKINT(lc_x509_oid_to_sig_type(ctx->last_oid, &pub->pkey_algo));
 
+
 #if 0
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wswitch-enum"
@@ -1382,6 +1383,106 @@ LC_INTERFACE_FUNCTION(int, lc_x509_keys_alloc, struct lc_x509_key_data **keys)
 	return lc_x509_keys_dilithium_ed25519_alloc(keys);
 #else
 	return lc_x509_keys_dilithium_alloc(keys);
+#endif
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x509_privkeys_dilithium_ed25519_alloc,
+		      struct lc_x509_key_data **keys)
+{
+#ifdef LC_DILITHIUM_ED25519
+	struct lc_x509_key_data *out_keys;
+	int ret;
+
+	CKINT(lc_alloc_aligned((void **)&out_keys, LC_HASH_COMMON_ALIGNMENT,
+			       LC_X509_PRIVKEYS_DILITHIUM_ED25519_SIZE));
+
+	LC_X509_PRIVKEYS_DILITHIUM_ED25519_SET(out_keys);
+
+	*keys = out_keys;
+
+out:
+	return ret;
+#else
+	(void)keys;
+	return -ENOPKG;
+#endif
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x509_privkeys_dilithium_ed448_alloc,
+		      struct lc_x509_key_data **keys)
+{
+#ifdef LC_DILITHIUM_ED448
+	struct lc_x509_key_data *out_keys;
+	int ret;
+
+	CKINT(lc_alloc_aligned((void **)&out_keys, LC_HASH_COMMON_ALIGNMENT,
+			       LC_X509_PRIVKEYS_DILITHIUM_ED448_SIZE));
+
+	LC_X509_PRIVKEYS_DILITHIUM_ED448_SET(out_keys);
+
+	*keys = out_keys;
+
+out:
+	return ret;
+#else
+	(void)keys;
+	return -ENOPKG;
+#endif
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x509_privkeys_dilithium_alloc,
+		      struct lc_x509_key_data **keys)
+{
+#ifdef LC_DILITHIUM
+	struct lc_x509_key_data *out_keys;
+	int ret;
+
+	CKINT(lc_alloc_aligned((void **)&out_keys, LC_HASH_COMMON_ALIGNMENT,
+			       LC_X509_PRIVKEYS_DILITHIUM_SIZE));
+
+	LC_X509_PRIVKEYS_DILITHIUM_SET(out_keys);
+
+	*keys = out_keys;
+
+out:
+	return ret;
+#else
+	(void)keys;
+	return -ENOPKG;
+#endif
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x509_privkeys_sphincs_alloc,
+		      struct lc_x509_key_data **keys)
+{
+#ifdef LC_SPHINCS
+	struct lc_x509_key_data *out_keys;
+	int ret;
+
+	CKINT(lc_alloc_aligned((void **)&out_keys, LC_HASH_COMMON_ALIGNMENT,
+			       LC_X509_PRIVKEYS_SPHINCS_SIZE));
+
+	LC_X509_PRIVKEYS_SPHINCS_SET(out_keys);
+
+	*keys = out_keys;
+
+out:
+	return ret;
+#else
+	(void)keys;
+	return -ENOPKG;
+#endif
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x509_privkeys_alloc,
+		      struct lc_x509_key_data **keys)
+{
+#ifdef LC_DILITHIUM_ED448
+	return lc_x509_privkeys_dilithium_ed448_alloc(keys);
+#elif defined(LC_DILITHIUM_ED25519)
+	return lc_x509_privkeys_dilithium_ed25519_alloc(keys);
+#else
+	return lc_x509_privkeys_dilithium_alloc(keys);
 #endif
 }
 

@@ -182,9 +182,7 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs8_decode, struct lc_pkcs8_message *pkcs8,
 	ctx.privkey = pkcs8->privkey_ptr;
 
 	/* Attempt to decode the PKCS#8 blob */
-	CKINT_LOG(
-		lc_asn1_ber_decoder(&lc_pkcs8_decoder, &ctx, data, datalen),
-		"Parsing of data as PKCS#8 failed - perhaps it is a raw secret key?\n");
+	CKINT(lc_asn1_ber_decoder(&lc_pkcs8_decoder, &ctx, data, datalen));
 
 out:
 	return ret;

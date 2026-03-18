@@ -209,50 +209,71 @@ int lc_public_key_extract(struct x509_generate_context *ctx, uint8_t *dst_data,
 	uint8_t *ptr;
 	int ret;
 
-	switch (keys->sig_type) {
-	case LC_SIG_DILITHIUM_44:
-	case LC_SIG_DILITHIUM_65:
-	case LC_SIG_DILITHIUM_87:
-#ifdef LC_DILITHIUM
-		CKINT(lc_dilithium_pk_ptr(&ptr, &pklen, keys->pk.dilithium_pk));
-#else
-		return -ENOPKG;
-#endif
-		break;
-	case LC_SIG_SPINCS_SHAKE_128F:
-	case LC_SIG_SPINCS_SHAKE_128S:
-	case LC_SIG_SPINCS_SHAKE_192F:
-	case LC_SIG_SPINCS_SHAKE_192S:
-	case LC_SIG_SPINCS_SHAKE_256F:
-	case LC_SIG_SPINCS_SHAKE_256S:
-#ifdef LC_SPHINCS
-		CKINT(lc_sphincs_pk_ptr(&ptr, &pklen, keys->pk.sphincs_pk));
-#else
-		return -ENOPKG;
-#endif
-		break;
-	case LC_SIG_DILITHIUM_44_ED25519:
-	case LC_SIG_DILITHIUM_65_ED25519:
-	case LC_SIG_DILITHIUM_87_ED25519:
-		CKINT(public_key_encode_dilithium_ed25519(dst_data,
-							  available_len, ctx));
-		goto out;
-		break;
-	case LC_SIG_DILITHIUM_44_ED448:
-	case LC_SIG_DILITHIUM_65_ED448:
-	case LC_SIG_DILITHIUM_87_ED448:
-		CKINT(public_key_encode_dilithium_ed448(dst_data, available_len,
-							ctx));
-		goto out;
-		break;
+	if (keys->pk.dilithium_pk) {
+		/*
+		 * The caller provided the key data, e.g. from a key generation
+		 * call.
+		 */
 
-	case LC_SIG_ECDSA_X963:
-	case LC_SIG_ECRDSA_PKCS1:
-	case LC_SIG_RSA_PKCS1:
-	case LC_SIG_SM2:
-	case LC_SIG_UNKNOWN:
-	default:
-		return -ENOPKG;
+		switch (keys->sig_type) {
+		case LC_SIG_DILITHIUM_44:
+		case LC_SIG_DILITHIUM_65:
+		case LC_SIG_DILITHIUM_87:
+#ifdef LC_DILITHIUM
+			CKINT(lc_dilithium_pk_ptr(&ptr, &pklen,
+						  keys->pk.dilithium_pk));
+#else
+			return -ENOPKG;
+#endif
+			break;
+		case LC_SIG_SPINCS_SHAKE_128F:
+		case LC_SIG_SPINCS_SHAKE_128S:
+		case LC_SIG_SPINCS_SHAKE_192F:
+		case LC_SIG_SPINCS_SHAKE_192S:
+		case LC_SIG_SPINCS_SHAKE_256F:
+		case LC_SIG_SPINCS_SHAKE_256S:
+#ifdef LC_SPHINCS
+			CKINT(lc_sphincs_pk_ptr(&ptr, &pklen,
+						keys->pk.sphincs_pk));
+#else
+			return -ENOPKG;
+#endif
+			break;
+		case LC_SIG_DILITHIUM_44_ED25519:
+		case LC_SIG_DILITHIUM_65_ED25519:
+		case LC_SIG_DILITHIUM_87_ED25519:
+			CKINT(public_key_encode_dilithium_ed25519(dst_data,
+								  available_len,
+								  ctx));
+			goto out;
+			break;
+		case LC_SIG_DILITHIUM_44_ED448:
+		case LC_SIG_DILITHIUM_65_ED448:
+		case LC_SIG_DILITHIUM_87_ED448:
+			CKINT(public_key_encode_dilithium_ed448(dst_data,
+								available_len,
+								ctx));
+			goto out;
+			break;
+
+		case LC_SIG_ECDSA_X963:
+		case LC_SIG_ECRDSA_PKCS1:
+		case LC_SIG_RSA_PKCS1:
+		case LC_SIG_SM2:
+		case LC_SIG_UNKNOWN:
+		default:
+			return -ENOPKG;
+		}
+	} else {
+		/*
+		 * The caller may, however, also provide a public key straight
+		 * from a parsed certificate where decoded key is present.
+		 */
+		const struct lc_public_key *pub = &cert->pub;
+
+		/* unconstify harmless as pointer is only read */
+		ptr = (uint8_t *)pub->key;
+		pklen = pub->keylen;
 	}
 
 	CKINT(lc_x509_sufficient_size(available_len, pklen));

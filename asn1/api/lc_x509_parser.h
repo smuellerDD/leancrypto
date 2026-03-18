@@ -110,12 +110,24 @@ int lc_x509_cert_decode(struct lc_x509_certificate *cert, const uint8_t *data,
 					 sizeof(struct lc_sphincs_pk));        \
 	(name)->data_struct_size = LC_X509_KEYS_SPHINCS_SIZE;                  \
 	_Pragma("GCC diagnostic pop")
+
+#define LC_X509_PRIVKEYS_SPHINCS_SIZE                                          \
+	(sizeof(struct lc_sphincs_sk) + sizeof(struct lc_x509_key_data))
+#define LC_X509_PRIVKEYS_SPHINCS_SET(name)                                     \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wcast-align\"")(name)               \
+		->pk.sphincs_pk = NULL,                                        \
+	 (name)->sk.sphincs_sk =                                               \
+		 (struct lc_sphincs_sk *)((uint8_t *)(name) +                  \
+					  sizeof(struct lc_x509_key_data));    \
+	(name)->data_struct_size = LC_X509_PRIVKEYS_SPHINCS_SIZE;              \
+	_Pragma("GCC diagnostic pop")
 /// \endcond
 
 /**
  * @ingroup X509
  * @brief Allocate memory for struct lc_x509_keys_data holding Sphincs Plus keys
- *	   on stack
+ *	  on stack
  *
  * @param [in] name Name of stack variable
  */
@@ -127,6 +139,25 @@ int lc_x509_cert_decode(struct lc_x509_certificate *cert, const uint8_t *data,
 	struct lc_x509_key_data *name =                                        \
 		(struct lc_x509_key_data *)name##_ctx_buf;                     \
 	LC_X509_KEYS_SPHINCS_SET(name);                                        \
+	_Pragma("GCC diagnostic pop")
+
+/**
+ * @ingroup X509
+ * @brief Allocate memory for struct lc_x509_keys_data holding Sphincs Plus
+ *	  private keys on stack. This call is intended when only the private key
+ *	  shall be held (e.g. only a siggen is intended).
+ *
+ * @param [in] name Name of stack variable
+ */
+#define LC_X509_PRIVKEYS_SPHINCS_ON_STACK(name)                                \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(name##_ctx_buf,                              \
+				  LC_X509_PRIVKEYS_SPHINCS_SIZE,               \
+				  LC_HASH_COMMON_ALIGNMENT);                   \
+	struct lc_x509_key_data *name =                                        \
+		(struct lc_x509_key_data *)name##_ctx_buf;                     \
+	LC_X509_PRIVKEYS_SPHINCS_SET(name);                                    \
 	_Pragma("GCC diagnostic pop")
 
 /// \cond DO_NOT_DOCUMENT
@@ -145,12 +176,24 @@ int lc_x509_cert_decode(struct lc_x509_certificate *cert, const uint8_t *data,
 					   sizeof(struct lc_dilithium_pk));    \
 	(name)->data_struct_size = LC_X509_KEYS_DILITHIUM_SIZE;                \
 	_Pragma("GCC diagnostic pop")
+
+#define LC_X509_PRIVKEYS_DILITHIUM_SIZE                                        \
+	(sizeof(struct lc_dilithium_sk) + sizeof(struct lc_x509_key_data))
+#define LC_X509_PRIVKEYS_DILITHIUM_SET(name)                                   \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wcast-align\"")(name)               \
+		->pk.dilithium_pk = NULL,                                      \
+	 (name)->sk.dilithium_sk =                                             \
+		 (struct lc_dilithium_sk *)((uint8_t *)(name) +                \
+					    sizeof(struct lc_x509_key_data));  \
+	(name)->data_struct_size = LC_X509_PRIVKEYS_DILITHIUM_SIZE;            \
+	_Pragma("GCC diagnostic pop")
 /// \endcond
 
 /**
  * @ingroup X509
  * @brief Allocate memory for struct lc_x509_keys_data holding Dilithium keys
- *	   on stack
+ *	  on stack
  *
  * @param [in] name Name of stack variable
  */
@@ -162,6 +205,25 @@ int lc_x509_cert_decode(struct lc_x509_certificate *cert, const uint8_t *data,
 	struct lc_x509_key_data *name =                                        \
 		(struct lc_x509_key_data *)name##_ctx_buf;                     \
 	LC_X509_KEYS_DILITHIUM_SET(name);                                      \
+	_Pragma("GCC diagnostic pop")
+
+/**
+ * @ingroup X509
+ * @brief Allocate memory for struct lc_x509_keys_data holding Dilithium
+ *	  private keys on stack. This call is intended when only the private key
+ *	  shall be held (e.g. only a siggen is intended).
+ *
+ * @param [in] name Name of stack variable
+ */
+#define LC_X509_PRIVKEYS_DILITHIUM_ON_STACK(name)                              \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(name##_ctx_buf,                              \
+				  LC_X509_PRIVKEYS_DILITHIUM_SIZE,             \
+				  LC_HASH_COMMON_ALIGNMENT);                   \
+	struct lc_x509_key_data *name =                                        \
+		(struct lc_x509_key_data *)name##_ctx_buf;                     \
+	LC_X509_PRIVKEYS_DILITHIUM_SET(name);                                  \
 	_Pragma("GCC diagnostic pop")
 
 /// \cond DO_NOT_DOCUMENT
@@ -184,6 +246,20 @@ int lc_x509_cert_decode(struct lc_x509_certificate *cert, const uint8_t *data,
 			    sizeof(struct lc_dilithium_ed25519_pk));           \
 	(name)->data_struct_size = LC_X509_KEYS_DILITHIUM_ED25519_SIZE;        \
 	_Pragma("GCC diagnostic pop")
+
+#define LC_X509_PRIVKEYS_DILITHIUM_ED25519_SIZE                                \
+	(sizeof(struct lc_dilithium_ed25519_sk) +                              \
+	 sizeof(struct lc_x509_key_data))
+#define LC_X509_PRIVKEYS_DILITHIUM_ED25519_SET(name)                           \
+	_Pragma("GCC diagnostic push")                                         \
+		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")(name)       \
+			->pk.dilithium_ed25519_pk = NULL,                      \
+		 (name)->sk.dilithium_ed25519_sk =                             \
+			 (struct lc_dilithium_ed25519_sk                       \
+				  *)((uint8_t *)(name) +                       \
+				     sizeof(struct lc_x509_key_data));         \
+	(name)->data_struct_size = LC_X509_PRIVKEYS_DILITHIUM_ED25519_SIZE;    \
+	_Pragma("GCC diagnostic pop")
 #endif
 
 #ifdef LC_DILITHIUM_ED448_SIG
@@ -204,6 +280,19 @@ int lc_x509_cert_decode(struct lc_x509_certificate *cert, const uint8_t *data,
 			    sizeof(struct lc_x509_key_data) +                  \
 			    sizeof(struct lc_dilithium_ed448_pk));             \
 	(name)->data_struct_size = LC_X509_KEYS_DILITHIUM_ED448_SIZE;          \
+	_Pragma("GCC diagnostic pop")
+
+#define LC_X509_PRIVKEYS_DILITHIUM_ED448_SIZE                                  \
+	(sizeof(struct lc_dilithium_ed448_sk) + sizeof(struct lc_x509_key_data))
+#define LC_X509_PRIVKEYS_DILITHIUM_ED448_SET(name)                             \
+	_Pragma("GCC diagnostic push")                                         \
+		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")(name)       \
+			->pk.dilithium_ed448_pk = NULL,                        \
+		 (name)->sk.dilithium_ed448_sk =                               \
+			 (struct lc_dilithium_ed448_sk                         \
+				  *)((uint8_t *)(name) +                       \
+				     sizeof(struct lc_x509_key_data));         \
+	(name)->data_struct_size = LC_X509_PRIVKEYS_DILITHIUM_ED448_SIZE;      \
 	_Pragma("GCC diagnostic pop")
 #endif
 /// \endcond
@@ -229,6 +318,27 @@ int lc_x509_cert_decode(struct lc_x509_certificate *cert, const uint8_t *data,
 
 /**
  * @ingroup X509
+ * @brief Allocate memory for struct lc_x509_keys_data holding Dilithium-ED25519
+ *	  private keys on stack. This call is intended when only the private key
+ *	  shall be held (e.g. only a siggen is intended).
+ *
+ * @param [in] name Name of stack variable
+ */
+#define LC_X509_PRIVKEYS_DILITHIUM_ED25519_ON_STACK(name)                      \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")             \
+			LC_ALIGNED_BUFFER(                                     \
+				name##_ctx_buf,                                \
+				LC_X509_PRIVKEYS_DILITHIUM_ED25519_SIZE,       \
+				LC_HASH_COMMON_ALIGNMENT);                     \
+	struct lc_x509_key_data *name =                                        \
+		(struct lc_x509_key_data *)name##_ctx_buf;                     \
+	LC_X509_PRIVKEYS_DILITHIUM_ED25519_SET(name);                          \
+	_Pragma("GCC diagnostic pop")
+
+/**
+ * @ingroup X509
  * @brief Allocate memory for struct lc_x509_keys_data holding Dilithium-ED448
  *	  keys on stack
  *
@@ -248,6 +358,27 @@ int lc_x509_cert_decode(struct lc_x509_certificate *cert, const uint8_t *data,
 
 /**
  * @ingroup X509
+ * @brief Allocate memory for struct lc_x509_keys_data holding Dilithium-ED448
+ *	  private keys on stack. This call is intended when only the private key
+ *	  shall be held (e.g. only a siggen is intended).
+ *
+ * @param [in] name Name of stack variable
+ */
+#define LC_X509_PRIVKEYS_DILITHIUM_ED448_ON_STACK(name)                        \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")             \
+			LC_ALIGNED_BUFFER(                                     \
+				name##_ctx_buf,                                \
+				LC_X509_PRIVKEYS_DILITHIUM_ED448_SIZE,         \
+				LC_HASH_COMMON_ALIGNMENT);                     \
+	struct lc_x509_key_data *name =                                        \
+		(struct lc_x509_key_data *)name##_ctx_buf;                     \
+	LC_X509_PRIVKEYS_DILITHIUM_ED448_SET(name);                            \
+	_Pragma("GCC diagnostic pop")
+
+/**
+ * @ingroup X509
  * @brief Allocate memory for struct lc_x509_keys_data holding any kind of key
  *	  type on stack
  *
@@ -255,20 +386,27 @@ int lc_x509_cert_decode(struct lc_x509_certificate *cert, const uint8_t *data,
  */
 #ifdef LC_DILITHIUM_ED448_SIG
 #define LC_X509_KEYS_ON_STACK(name) LC_X509_KEYS_DILITHIUM_ED448_ON_STACK(name)
+#define LC_X509_PRIVKEYS_ON_STACK(name)                                        \
+	LC_X509_PRIVKEYS_DILITHIUM_ED448_ON_STACK(name)
 #elif defined LC_DILITHIUM_ED25519_SIG
 #define LC_X509_KEYS_ON_STACK(name)                                            \
 	LC_X509_KEYS_DILITHIUM_ED25519_ON_STACK(name)
-#elif defined(LC_SPHINCS_ENABLED)
-#define LC_X509_KEYS_ON_STACK(name) LC_X509_KEYS_SPHINCS_ON_STACK(name)
+#define LC_X509_PRIVKEYS_ON_STACK(name)                                        \
+	LC_X509_PRIVKEYS_DILITHIUM_ED25519_ON_STACK(name)
 #elif defined(LC_DILITHIUM_ENABLED)
 #define LC_X509_KEYS_ON_STACK(name) LC_X509_KEYS_DILITHIUM_ON_STACK(name)
+#define LC_X509_PRIVKEYS_ON_STACK(name)                                        \
+	LC_X509_PRIVKEYS_DILITHIUM_ON_STACK(name)
+#elif defined(LC_SPHINCS_ENABLED)
+#define LC_X509_KEYS_ON_STACK(name) LC_X509_KEYS_SPHINCS_ON_STACK(name)
+#define LC_X509_PRIVKEYS_ON_STACK(name) LC_X509_PRIVKEYS_SPHINCS_ON_STACK(name)
 #else
 #error "No known signature schemas enabled"
 #endif
 
 /**
  * @brief Zeroize Dilithium context allocated with
- *	  LC_X509_KEYS*_ON_STACK
+ *	  LC_X509_*KEYS*_ON_STACK
  *
  * @param [in] keys Keys to be zeroized
  */
@@ -333,6 +471,66 @@ int lc_x509_keys_sphincs_alloc(struct lc_x509_key_data **keys);
  * @return 0 on success or < 0 on error
  */
 int lc_x509_keys_alloc(struct lc_x509_key_data **keys);
+
+/**
+ * @ingroup X509
+ * @brief Allocate memory for struct lc_x509_keys_data holding Dilithium-ED25519
+ *	  private keys on heap. This call is intended when only the private key
+ *	  shall be held (e.g. only a siggen is intended).
+ *
+ * @param [in] keys Variable to allocate
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_privkeys_dilithium_ed25519_alloc(struct lc_x509_key_data **keys);
+
+/**
+ * @ingroup X509
+ * @brief Allocate memory for struct lc_x509_keys_data holding Dilithium-ED448
+ *	  private keys on heap. This call is intended when only the private key
+ *	  shall be held (e.g. only a siggen is intended).
+ *
+ * @param [in] keys Variable to allocate
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_privkeys_dilithium_ed448_alloc(struct lc_x509_key_data **keys);
+
+/**
+ * @ingroup X509
+ * @brief Allocate memory for struct lc_x509_keys_data holding Dilithium
+ *	  private keys on heap. This call is intended when only the private key
+ *	  shall be held (e.g. only a siggen is intended).
+ *
+ * @param [in] keys Variable to allocate
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_privkeys_dilithium_alloc(struct lc_x509_key_data **keys);
+
+/**
+ * @ingroup X509
+ * @brief Allocate memory for struct lc_x509_keys_data holding Sphincs Plus
+ *	  private keys on heap. This call is intended when only the private key
+ *	  shall be held (e.g. only a siggen is intended).
+ *
+ * @param [in] keys Variable to allocate
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_privkeys_sphincs_alloc(struct lc_x509_key_data **keys);
+
+/**
+ * @ingroup X509
+ * @brief Allocate memory for struct lc_x509_keys_data holding holding any kind
+ *	  of private key type on heap. This call is intended when only the
+ *	  private key shall be held (e.g. only a siggen is intended).
+ *
+ * @param [in] keys Variable to allocate
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_privkeys_alloc(struct lc_x509_key_data **keys);
 
 /**
  * @ingroup X509
