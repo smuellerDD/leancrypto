@@ -119,6 +119,20 @@ endif
 if get_option('debug')
 	add_global_arguments([ '-DLC_DEBUG' ], language: 'c')
 endif
+
+# Strip build directory paths from debug info to avoid buildpaths warnings
+# in debug packages
+if cc.has_argument('-ffile-prefix-map=/dev/null=/dev/null')
+	add_global_arguments([
+		'-ffile-prefix-map=' + meson.project_source_root() + '/=',
+		'-ffile-prefix-map=' + meson.project_build_root() + '/=',
+	], language: 'c')
+	add_project_link_arguments([
+		'-ffile-prefix-map=' + meson.project_source_root() + '/=',
+		'-ffile-prefix-map=' + meson.project_build_root() + '/=',
+	], language : 'c')
+endif
+
 if get_option('kyber_debug').enabled()
 	add_global_arguments([ '-DLC_KYBER_DEBUG' ], language: 'c')
 endif
