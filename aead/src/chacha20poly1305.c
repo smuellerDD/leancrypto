@@ -1,6 +1,6 @@
 /* RFC 7539: ChaCha20 Poly1305 AEAD cipher
  *
- * Copyright (C) 2025, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2025 - 2026, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *

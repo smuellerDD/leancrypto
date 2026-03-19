@@ -1,6 +1,6 @@
 /* XDRBG with SHAKE-512 support functions
  *
- * Copyright (C) 2024 - 2025, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2024 - 2026, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *

@@ -1,6 +1,6 @@
 /* Generic SHA-512 implementation
  *
- * Copyright (C) 2025, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2025 - 2026, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *

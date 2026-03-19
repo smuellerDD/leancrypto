@@ -2,7 +2,7 @@
 /*
  * Hash heap memory management
  *
- * Copyright (C) 2022 - 2025, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2022 - 2026, Stephan Mueller <smueller@chronox.de>
  */
 
 #include "ext_headers_internal.h"
