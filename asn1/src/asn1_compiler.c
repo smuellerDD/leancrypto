@@ -456,12 +456,12 @@ static void tokenise(char *buffer, char *end)
 				/* Otherwise we need to search the directive
 				 * table
 				 */
-				dir = (const char **)bsearch(&tokens[tix],
-					      directives,
-					      sizeof(directives) /
-						      sizeof(directives[1]),
-					      sizeof(directives[1]),
-					      directive_compare);
+				dir = (const char **)bsearch(
+					&tokens[tix], directives,
+					sizeof(directives) /
+						sizeof(directives[1]),
+					sizeof(directives[1]),
+					directive_compare);
 				if (dir) {
 					tokens[tix++].token_type =
 						(enum token_type)(dir -

@@ -40,8 +40,7 @@ static int rerun_selftest_tester(void)
 	if (lc_lib_alg_status() & lc_alg_status_fips_approved)
 		lib_approved = 1;
 
-	ret += test_validate_status(ret, lc_lib_alg_status(),
-				    lib_approved);
+	ret += test_validate_status(ret, lc_lib_alg_status(), lib_approved);
 
 	/*
 	 * In the Linux kernel there may be other callers that already
@@ -84,8 +83,7 @@ static int rerun_selftest_tester(void)
 	)
 		ret += 1;
 
-	ret += test_validate_status(ret, lc_lib_alg_status(),
-				    lib_approved);
+	ret += test_validate_status(ret, lc_lib_alg_status(), lib_approved);
 	ret += test_validate_status(ret, lc_hash_alg_status(lc_sha3_256), 1);
 	ret += test_validate_status(ret, lc_hmac_alg_status(lc_sha256), 1);
 	ret += test_print_status();
@@ -93,8 +91,7 @@ static int rerun_selftest_tester(void)
 	printf("Rerun self tests\n");
 	lc_rerun_selftests();
 
-	ret += test_validate_status(ret, lc_lib_alg_status(),
-				    lib_approved);
+	ret += test_validate_status(ret, lc_lib_alg_status(), lib_approved);
 
 #ifdef LC_FIPS140_DEBUG
 	ret += test_validate_status(ret, lc_hash_alg_status(lc_sha3_256), 1);
@@ -124,8 +121,7 @@ static int rerun_selftest_tester(void)
 	)
 		ret += 1;
 
-	ret += test_validate_status(ret, lc_lib_alg_status(),
-				    lib_approved);
+	ret += test_validate_status(ret, lc_lib_alg_status(), lib_approved);
 	ret += test_validate_status(ret, lc_hash_alg_status(lc_sha3_256), 1);
 	ret += test_validate_status(ret, lc_hmac_alg_status(lc_sha256), 1);
 	ret += test_print_status();

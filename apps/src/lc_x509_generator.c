@@ -873,7 +873,7 @@ static int x509_convert(struct x509_generator_opts *opts)
 				goto out;
 
 			CKINT_LOG(x509_gen_file(opts, opts->signer_data,
-				  opts->signer_data_len),
+						opts->signer_data_len),
 				  "Writing of X.509 certificate failed\n");
 		}
 
@@ -883,7 +883,7 @@ static int x509_convert(struct x509_generator_opts *opts)
 
 	if (opts->signer_sk_file) {
 		CKINT_LOG(get_data(opts->signer_sk_file, &opts->signer_sk_data,
-			  &opts->signer_sk_len, lc_pem_flag_priv_key),
+				   &opts->signer_sk_len, lc_pem_flag_priv_key),
 			  "Signer SK mmap failure\n");
 
 		if (!opts->sk_file) {
@@ -898,8 +898,8 @@ static int x509_convert(struct x509_generator_opts *opts)
 					     opts->signer_sk_data,
 					     opts->signer_sk_len,
 					     opts->pem_format_output ?
-					     lc_pem_flag_priv_key :
-					     lc_pem_flag_nopem),
+						     lc_pem_flag_priv_key :
+						     lc_pem_flag_nopem),
 				  "Writing of secret key failed\n");
 		}
 	}

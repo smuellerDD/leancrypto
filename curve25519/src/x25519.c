@@ -182,8 +182,8 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(enum lc_alg_status_val,
-lc_x25519_alg_status, const enum lc_x25519_alg_operation operation)
+LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_x25519_alg_status,
+		      const enum lc_x25519_alg_operation operation)
 {
 	/* A priori, all algorithms are elegible for FIPS check */
 	switch (operation) {

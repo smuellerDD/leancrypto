@@ -152,8 +152,8 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 			   lc_pem_flag_nopem),
 		  "Secret key mmap failure\n");
 	/* Parse the secret key */
-	CKINT_LOG(x509_sk_decode(opts, keys, cert->pub.pkey_algo,
-				 opts->sk_data, opts->sk_len),
+	CKINT_LOG(x509_sk_decode(opts, keys, cert->pub.pkey_algo, opts->sk_data,
+				 opts->sk_len),
 		  "Parsing of secret key failed\n");
 
 	/*

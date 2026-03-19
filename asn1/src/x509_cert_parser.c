@@ -507,7 +507,6 @@ int lc_x509_extract_key_data(void *context, size_t hdrlen, unsigned char tag,
 
 	CKINT(lc_x509_oid_to_sig_type(ctx->last_oid, &pub->pkey_algo));
 
-
 #if 0
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wswitch-enum"

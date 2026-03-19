@@ -242,17 +242,15 @@ int lc_public_key_extract(struct x509_generate_context *ctx, uint8_t *dst_data,
 		case LC_SIG_DILITHIUM_44_ED25519:
 		case LC_SIG_DILITHIUM_65_ED25519:
 		case LC_SIG_DILITHIUM_87_ED25519:
-			CKINT(public_key_encode_dilithium_ed25519(dst_data,
-								  available_len,
-								  ctx));
+			CKINT(public_key_encode_dilithium_ed25519(
+				dst_data, available_len, ctx));
 			goto out;
 			break;
 		case LC_SIG_DILITHIUM_44_ED448:
 		case LC_SIG_DILITHIUM_65_ED448:
 		case LC_SIG_DILITHIUM_87_ED448:
-			CKINT(public_key_encode_dilithium_ed448(dst_data,
-								available_len,
-								ctx));
+			CKINT(public_key_encode_dilithium_ed448(
+				dst_data, available_len, ctx));
 			goto out;
 			break;
 

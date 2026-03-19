@@ -42,14 +42,14 @@ void seeded_rng_noise_fini(void)
 #if JENT_VERSION >= 3070000
 static int seeded_rng_jent_ntg1()
 {
-        const int jent_secure_memory = jent_secure_memory_supported();
-# ifdef LC_JENT_NTG1
-        const int jent_ntg1 = 1;
-# else
-        const int jent_ntg1 = 0;
-# endif
+	const int jent_secure_memory = jent_secure_memory_supported();
+#ifdef LC_JENT_NTG1
+	const int jent_ntg1 = 1;
+#else
+	const int jent_ntg1 = 0;
+#endif
 
-        return jent_secure_memory && jent_ntg1;
+	return jent_secure_memory && jent_ntg1;
 }
 #endif /* JENT_VERSION */
 

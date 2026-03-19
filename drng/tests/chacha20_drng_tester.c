@@ -121,7 +121,8 @@ static int chacha20_drng_selftest(struct lc_rng_ctx *cc20_rng)
 	/* Generate with zero state */
 	chacha20_state->counter[0] = 0;
 
-	CKINT(lc_rng_generate(cc20_rng, NULL, 0, outbuf, sizeof(expected_block)));
+	CKINT(lc_rng_generate(cc20_rng, NULL, 0, outbuf,
+			      sizeof(expected_block)));
 	if (lc_compare(outbuf, expected_block, sizeof(expected_block),
 		       "zero block"))
 		return 1;
@@ -131,8 +132,10 @@ static int chacha20_drng_selftest(struct lc_rng_ctx *cc20_rng)
 
 	/* Reseed with 2 blocks */
 	chacha20_state->counter[0] = 0;
-	CKINT(lc_rng_seed(cc20_rng, seed.b, sizeof(expected_twoblocks), NULL, 0));
-	CKINT(lc_rng_generate(cc20_rng, NULL, 0, outbuf, sizeof(expected_twoblocks)));
+	CKINT(lc_rng_seed(cc20_rng, seed.b, sizeof(expected_twoblocks), NULL,
+			  0));
+	CKINT(lc_rng_generate(cc20_rng, NULL, 0, outbuf,
+			      sizeof(expected_twoblocks)));
 	if (lc_compare(outbuf, expected_twoblocks, sizeof(expected_twoblocks),
 		       "twoblocks"))
 		return ret;
@@ -142,8 +145,8 @@ static int chacha20_drng_selftest(struct lc_rng_ctx *cc20_rng)
 
 	/* Reseed with 1 block and one byte */
 	chacha20_state->counter[0] = 0;
-	CKINT(lc_rng_seed(cc20_rng, seed.b,
-				sizeof(expected_block_nonaligned), NULL, 0));
+	CKINT(lc_rng_seed(cc20_rng, seed.b, sizeof(expected_block_nonaligned),
+			  NULL, 0));
 	CKINT(lc_rng_generate(cc20_rng, NULL, 0, outbuf,
 			      sizeof(expected_block_nonaligned)));
 	ret += lc_compare(outbuf, expected_block_nonaligned,

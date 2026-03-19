@@ -908,7 +908,6 @@ void alg_status_print(uint64_t flag, char *test_completed,
  */
 int lc_activate_library_selftest_init(int reinit)
 {
-
 	/*
 	 * This is the initialization of the library: set the state to
 	 * ongoing in a race-free manner and ensure that this code path
@@ -928,9 +927,10 @@ int lc_activate_library_selftest_init(int reinit)
 	 * ongoing (or passed/failed), the ORing did not change the
 	 * value.
 	 */
-	status = alg_status_set_testresult_val(
-		atomic_fetch_or, lc_alg_status_result_ongoing,
-		LC_ALG_STATUS_LIB, &lc_alg_status_aux);
+	status = alg_status_set_testresult_val(atomic_fetch_or,
+					       lc_alg_status_result_ongoing,
+					       LC_ALG_STATUS_LIB,
+					       &lc_alg_status_aux);
 
 	/*
 	 * Now analyze the fetched value before ORing: was it pending?
@@ -938,7 +938,7 @@ int lc_activate_library_selftest_init(int reinit)
 	 * invoked again and we ignore this invocation.
 	 */
 	if (alg_status_result_interpret(status, LC_ALG_STATUS_FLAG_LIB) >
-		lc_alg_status_result_pending)
+	    lc_alg_status_result_pending)
 		return 1;
 
 	return 0;

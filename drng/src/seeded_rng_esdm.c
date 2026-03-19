@@ -164,5 +164,4 @@ void seeded_rng_status(char *buf, size_t len)
 		esdm_rpcc_status(buf, len);
 	else
 		lc_memcpy_secure(buf, len, "ESDM\n\0", 6);
-
 }

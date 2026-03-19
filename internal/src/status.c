@@ -59,7 +59,8 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 	const char __maybe_unused *avx2 =
 #if defined(LC_HOST_X86_64) || defined(CONFIG_X86_64)
 		(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
-			"AVX2 " : "";
+			"AVX2 " :
+			"";
 #else
 		"";
 #endif
@@ -67,28 +68,32 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 #if defined(LC_HOST_X86_64) || defined(CONFIG_X86_64)
 		((lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX512) &&
 		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_VPCLMUL)) ?
-			"AVX512 " : "";
+			"AVX512 " :
+			"";
 #else
 		"";
 #endif
 	const char __maybe_unused *pclmulqdq =
 #if defined(LC_HOST_X86_64) || defined(CONFIG_X86_64)
 		(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_PCLMUL) ?
-			"PCLMULQDQ " : "";
+			"PCLMULQDQ " :
+			"";
 #else
 		"";
 #endif
 	const char __maybe_unused *pmull =
 #if defined(LC_HOST_AARCH64) || defined(CONFIG_ARM64)
 		(lc_cpu_feature_available() & LC_CPU_FEATURE_ARM_PMULL) ?
-			"PMULL " : "";
+			"PMULL " :
+			"";
 #else
 		"";
 #endif
 	const char __maybe_unused *riscv64_rvv =
 #if defined(LC_HOST_RISCV64) || defined(CONFIG_RISCV)
 		(lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV_ASM_RVV) ?
-			"RISCV64-RVV " : "";
+			"RISCV64-RVV " :
+			"";
 #else
 		"";
 #endif
@@ -163,7 +168,6 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 		 "Self-Test Not Executed: %s\n"
 		 "Self-Test Failed: %s\n",
 		 ws->status_pass, ws->status_untested, ws->status_error);
-
 
 	len = strlen(outbuf);
 	lc_seeded_rng_status(outbuf + len, outlen - len);
@@ -333,8 +337,7 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 
 		/* GF */
 		,
-		pclmulqdq, pmull, riscv64_rvv_zbb
-	);
+		pclmulqdq, pmull, riscv64_rvv_zbb);
 
 #ifdef __clang__
 #pragma GCC diagnostic pop

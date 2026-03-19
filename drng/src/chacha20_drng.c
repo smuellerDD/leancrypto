@@ -192,7 +192,7 @@ static int lc_cc20_drng_seed(void *_state, const uint8_t *seed, size_t seedlen,
 	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_CHACHA20_DRNG);
 
 	return lc_cc20_drng_seed_nocheck(_state, seed, seedlen, alpha,
-					  alphalen);
+					 alphalen);
 }
 
 /**
@@ -274,8 +274,7 @@ static void lc_cc20_drng_zero(void *_state)
 
 	sym_ctx = &state->cc20;
 
-	lc_memset_secure((uint8_t *)state +
-				 sizeof(struct lc_chacha20_drng_ctx),
+	lc_memset_secure((uint8_t *)state + sizeof(struct lc_chacha20_drng_ctx),
 			 0, LC_CC20_DRNG_STATE_SIZE);
 	lc_sym_init(sym_ctx);
 }
