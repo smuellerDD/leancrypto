@@ -68,7 +68,7 @@ struct lc_aes_gcm_cryptor {
 #define LC_AES_GCM_CTX_SIZE_LEN(len)                                           \
 	(LC_AES_GCM_CTX_COMMON_SIZE + LC_AES_GCM_STATE_SIZE_LEN(len))
 
-/* AES-CBC with HMAC based AEAD-algorithm */
+/* AES-GCM AEAD-algorithm */
 extern const struct lc_aead *lc_aes_gcm_aead;
 
 #define _LC_AES_GCM_SET_CTX(name)                                              \
