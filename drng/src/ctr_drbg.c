@@ -574,7 +574,7 @@ static int drbg_ctr_generate_internal(struct lc_drbg_ctr_state *drbg,
 				      struct lc_drbg_string *addtl)
 {
 	struct lc_sym_ctx *ctr_ctx = &drbg->ctr_ctx;
-	int ret;
+	int ret = 0;
 
 	/* 10.2.1.5.2 step 2 */
 	if (addtl)
