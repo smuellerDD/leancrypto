@@ -66,6 +66,7 @@ static inline pid_t getpid(void)
 #define restrict
 
 #define printf printk
+#define UINT64_C U64_C
 
 #ifndef assert
 #define assert(x) WARN_ON(!(x))
