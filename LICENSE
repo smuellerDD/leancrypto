@@ -163,6 +163,7 @@ duplicated code can be removed.
 The following files are licensed under the Apache License 2.0, copyright:
 Copyright 2022 The OpenSSL Project Authors. All Rights Reserved.
 
+sym/src/aes_ct.c
 sym/src/asm/riscv64/riscv64_aes_asm.S
 sym/src/asm/riscv64/riscv64_aes_zkn_asm.S
 

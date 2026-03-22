@@ -57,6 +57,8 @@ Changes 1.7.0-prerelease
 
 * Jitter RNG: allow enabling NTG.1 mode and additional entropy-related options
 
+* Add AES constant time C implementation accessible with the lc_aes_*ct references. Yet, it is about 3 times slower than the default C implementation. Thus is is only provided if somebody truly relies on a constant time implementation.
+
 Changes 1.6.0
 * ASN.1: use stack for small generator for small use cases
 

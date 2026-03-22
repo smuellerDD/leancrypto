@@ -289,7 +289,8 @@ endif
 
 if (lc_aes == 1)
 	src += files([
-			'aes_sbox.c',
+			'aes_sbox.c',	# Fast, but not constant time
+			'aes_ct.c',	# Constant time
 			'aes_selector.c'
 		     ])
 	include_files += files([ '../api/lc_aes.h' ])

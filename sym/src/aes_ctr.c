@@ -94,3 +94,32 @@ static const struct lc_sym _lc_aes_ctr_c = { .init = aes_ctr_init,
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_ctr_c) = &_lc_aes_ctr_c;
 
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_ctr) = &_lc_aes_ctr_c;
+
+static int aes_ctr_init_nocheck_ct(struct lc_sym_state *ctx)
+{
+	lc_mode_ctr_c->init(&ctx->ctr_state, lc_aes_ct, NULL, &ctx->block_ctx,
+			    NULL);
+	return 0;
+}
+
+static int aes_ctr_init_ct(struct lc_sym_state *ctx)
+{
+	mode_ctr_selftest(lc_aes_ctr_ct);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_AES_CTR);
+
+	return aes_ctr_init_nocheck_ct(ctx);
+}
+
+static const struct lc_sym _lc_aes_ctr_ct = {
+	.init = aes_ctr_init_ct,
+	.init_nocheck = aes_ctr_init_nocheck_ct,
+	.setkey = aes_ctr_setkey,
+	.setiv = aes_ctr_setiv,
+	.getiv = aes_ctr_getiv,
+	.encrypt = aes_ctr_crypt,
+	.decrypt = aes_ctr_crypt,
+	.statesize = LC_AES_CTR_BLOCK_SIZE,
+	.blocksize = 1,
+	.algorithm_type = LC_ALG_STATUS_AES_CTR
+};
+LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_ctr_ct) = &_lc_aes_ctr_ct;

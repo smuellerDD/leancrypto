@@ -159,6 +159,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_EXEC_ONE_TEST(lc_aes_cbc_aesni);
 	LC_EXEC_ONE_TEST(lc_aes_cbc_armce);
 	LC_EXEC_ONE_TEST(lc_aes_cbc_c);
+	LC_EXEC_ONE_TEST(lc_aes_cbc_ct);
 	LC_EXEC_ONE_TEST(lc_aes_cbc_riscv64);
 	ret += test_encrypt_cbc_common();
 

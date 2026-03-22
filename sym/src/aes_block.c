@@ -42,7 +42,9 @@ struct lc_sym_state {
 #define LC_AES_BLOCK_SIZE sizeof(struct lc_sym_state)
 
 static void aes_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
-			uint8_t *out, size_t len)
+			uint8_t *out, size_t len,
+			void (*encrypt)(state_t *state,
+					const struct aes_block_ctx *block_ctx))
 {
 	const struct aes_block_ctx *block_ctx;
 
@@ -57,14 +59,16 @@ static void aes_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 		memcpy(out, in, AES_BLOCKLEN);
 
 	/* In-place encryption operation of plaintext. */
-	aes_cipher((state_t *)out, block_ctx);
+	encrypt((state_t *)out, block_ctx);
 
 	/* Timecop: output is not sensitive regarding side-channels. */
 	unpoison(out, AES_BLOCKLEN);
 }
 
 static void aes_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
-			uint8_t *out, size_t len)
+			uint8_t *out, size_t len,
+			void (*decrypt)(state_t *state,
+					const struct aes_block_ctx *block_ctx))
 {
 	const struct aes_block_ctx *block_ctx;
 
@@ -79,7 +83,7 @@ static void aes_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 		memcpy(out, in, AES_BLOCKLEN);
 
 	/* In-place decryption operation of plaintext. */
-	aes_inv_cipher((state_t *)out, block_ctx);
+	decrypt((state_t *)out, block_ctx);
 
 	/* Timecop: output is not sensitive regarding side-channels. */
 	unpoison(out, AES_BLOCKLEN);
@@ -103,8 +107,9 @@ static int aes_init(struct lc_sym_state *ctx)
 	return 0;
 }
 
-static int aes_setkey(struct lc_sym_state *ctx, const uint8_t *key,
-		      size_t keylen)
+static int
+aes_setkey(struct lc_sym_state *ctx, const uint8_t *key, size_t keylen,
+	   void (*setkey)(struct aes_block_ctx *block_ctx, const uint8_t *key))
 {
 	int ret;
 
@@ -116,7 +121,7 @@ static int aes_setkey(struct lc_sym_state *ctx, const uint8_t *key,
 
 	ret = aes_set_type(&ctx->block_ctx, keylen);
 	if (!ret)
-		aes_key_expansion(&ctx->block_ctx, key);
+		setkey(&ctx->block_ctx, key);
 
 	return 0;
 }
@@ -137,17 +142,66 @@ static int aes_getiv(const struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen)
 	return -EOPNOTSUPP;
 }
 
+static int aes_setkey_c_internal(struct lc_sym_state *ctx, const uint8_t *key,
+				 size_t keylen)
+{
+	return aes_setkey(ctx, key, keylen, aes_setkey_c);
+}
+
+static void aes_encrypt_c_internal(struct lc_sym_state *ctx, const uint8_t *in,
+				   uint8_t *out, size_t len)
+{
+	aes_encrypt(ctx, in, out, len, aes_encrypt_c);
+}
+
+static void aes_decrypt_c_internal(struct lc_sym_state *ctx, const uint8_t *in,
+				   uint8_t *out, size_t len)
+{
+	aes_decrypt(ctx, in, out, len, aes_decrypt_c);
+}
+
 static const struct lc_sym _lc_aes_c = {
 	.init = aes_init,
 	.init_nocheck = NULL,
-	.setkey = aes_setkey,
+	.setkey = aes_setkey_c_internal,
 	.setiv = aes_setiv,
 	.getiv = aes_getiv,
-	.encrypt = aes_encrypt,
-	.decrypt = aes_decrypt,
+	.encrypt = aes_encrypt_c_internal,
+	.decrypt = aes_decrypt_c_internal,
 	.statesize = LC_AES_BLOCK_SIZE,
 	.blocksize = AES_BLOCKLEN,
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_c) = &_lc_aes_c;
 
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes) = &_lc_aes_c;
+
+static int aes_setkey_ct_internal(struct lc_sym_state *ctx, const uint8_t *key,
+				  size_t keylen)
+{
+	return aes_setkey(ctx, key, keylen, aes_setkey_ct);
+}
+
+static void aes_encrypt_ct_internal(struct lc_sym_state *ctx, const uint8_t *in,
+				    uint8_t *out, size_t len)
+{
+	aes_encrypt(ctx, in, out, len, aes_encrypt_ct);
+}
+
+static void aes_decrypt_ct_internal(struct lc_sym_state *ctx, const uint8_t *in,
+				    uint8_t *out, size_t len)
+{
+	aes_decrypt(ctx, in, out, len, aes_decrypt_ct);
+}
+
+static const struct lc_sym _lc_aes_ct = {
+	.init = aes_init,
+	.init_nocheck = NULL,
+	.setkey = aes_setkey_ct_internal,
+	.setiv = aes_setiv,
+	.getiv = aes_getiv,
+	.encrypt = aes_encrypt_ct_internal,
+	.decrypt = aes_decrypt_ct_internal,
+	.statesize = LC_AES_BLOCK_SIZE,
+	.blocksize = AES_BLOCKLEN,
+};
+LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_ct) = &_lc_aes_ct;

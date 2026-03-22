@@ -36,7 +36,7 @@ extern "C" {
 #define LC_DRBG_CTR_STATELEN (384 / 8)
 #define LC_DRBG_CTR_BLOCKLEN (128 / 8)
 
-#define LC_DRBG_CTR_SYM_STATE (244 + 48)
+#define LC_DRBG_CTR_SYM_STATE (LC_AES_C_INTERNAL_SIZE + 48)
 
 #define LC_DRBG_CTR_SCRATCHPAD_UPDATE                                          \
 	(LC_DRBG_CTR_STATELEN + LC_DRBG_CTR_BLOCKLEN)

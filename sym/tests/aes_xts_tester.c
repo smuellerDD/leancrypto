@@ -272,6 +272,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	LC_EXEC_ONE_TEST(lc_aes_xts);
 	LC_EXEC_ONE_TEST(lc_aes_xts_c);
+	LC_EXEC_ONE_TEST(lc_aes_xts_ct);
 	LC_EXEC_ONE_TEST(lc_aes_xts_aesni);
 	LC_EXEC_ONE_TEST(lc_aes_xts_armce);
 	LC_EXEC_ONE_TEST(lc_aes_xts_riscv64);

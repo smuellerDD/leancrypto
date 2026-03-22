@@ -29,6 +29,7 @@
 #include "aes_scr_helper.h"
 #include "alignment.h"
 #include "bitshift.h"
+#include "conv_be_le.h"
 #include "ext_headers_internal.h"
 #include "lc_aes.h"
 #include "rotate.h"
@@ -37,12 +38,24 @@
 #include "xor.h"
 
 /*
+ * When enabled, it uses the setkey implementation from aes_ct which is
+ * side-channel free and works on big-endian systems
+ */
+#define AES_USE_CT_KEYEXPANSION
+
+/*
  * When enabled, the code uses the SBox-free implementation of the key expansion
  * code. This code is significantly more inefficient, but reduces side channels.
  * Although it reduces side channels, it is not free of it. If you want to have
  * side-channel free ciphers, use others like Ascon or Ascon-Keccak.
  */
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 #define AES_SIDE_CHANNEL_RESISTANT_KEYEXPANSION
+#elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#undef AES_SIDE_CHANNEL_RESISTANT_KEYEXPANSION /* Big-endian support missing */
+#else
+#error "Endianess not defined"
+#endif
 
 /*****************************************************************************/
 /* Private variables:                                                        */
@@ -106,6 +119,15 @@ static uint8_t getSBoxValue(uint8_t num)
 	return sbox[num];
 }
 
+#ifdef AES_USE_CT_KEYEXPANSION
+
+void aes_setkey_c(struct aes_block_ctx *ctx, const uint8_t *key)
+{
+	aes_setkey_ct(ctx, key);
+}
+
+#else /* AES_USE_CT_KEYEXPANSION */
+
 #ifdef AES_SIDE_CHANNEL_RESISTANT_KEYEXPANSION
 
 static void aes_setkey(struct aes_block_ctx *ctx, const uint8_t *key)
@@ -127,15 +149,8 @@ static void aes_setkey(struct aes_block_ctx *ctx, const uint8_t *key)
 #pragma GCC diagnostic pop
 		}
 	} else {
-		for (i = 0; i < ctx->nk; i++) {
-#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+		for (i = 0; i < ctx->nk; i++)
 			w[i] = ptr_to_le32(key + (i * sizeof(uint32_t)));
-#elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-			w[i] = ptr_to_be32(key + (i * sizeof(uint32_t)));
-#else
-#error "Endianess not defined"
-#endif
-		}
 	}
 
 	for (i = ctx->nk; i < (unsigned int)(Nb * (ctx->nr + 1)); i++) {
@@ -155,11 +170,12 @@ static void aes_setkey(struct aes_block_ctx *ctx, const uint8_t *key)
 		w[i] = w[i - ctx->nk] ^ x;
 	}
 }
-void aes_key_expansion(struct aes_block_ctx *block_ctx, const uint8_t *Key)
+void aes_setkey_c(struct aes_block_ctx *block_ctx, const uint8_t *Key)
 {
 	aes_setkey(block_ctx, Key);
 }
-#else
+
+#else /* AES_SIDE_CHANNEL_RESISTANT_KEYEXPANSION */
 
 /*
  * The round constant word array, Rcon[i], contains the values given by
@@ -181,7 +197,7 @@ static const uint8_t Rcon[11] = { 0x8d, 0x01, 0x02, 0x04, 0x08, 0x10,
  * This function produces Nb(Nr+1) round keys. The round keys are used in each
  * round to decrypt the states.
  */
-void aes_key_expansion(struct aes_block_ctx *block_ctx, const uint8_t *Key)
+void aes_setkey_c(struct aes_block_ctx *block_ctx, const uint8_t *Key)
 {
 	uint8_t Nk = block_ctx->nk;
 	uint8_t Nr = block_ctx->nr;
@@ -260,7 +276,9 @@ void aes_key_expansion(struct aes_block_ctx *block_ctx, const uint8_t *Key)
 		RoundKey[j + 3] = RoundKey[k + 3] ^ tempa[3];
 	}
 }
-#endif
+#endif /* AES_SIDE_CHANNEL_RESISTANT_KEYEXPANSION */
+
+#endif /* AES_USE_CT_KEYEXPANSION */
 
 /*
  * This function adds the round key to state.
@@ -457,7 +475,7 @@ static void Invaes_shift_rows(state_t *state)
 /*
  * Cipher is the main function that encrypts the PlainText.
  */
-void aes_cipher(state_t *state, const struct aes_block_ctx *block_ctx)
+void aes_encrypt_c(state_t *state, const struct aes_block_ctx *block_ctx)
 {
 	const uint8_t *RoundKey = (uint8_t *)block_ctx->round_key;
 	uint8_t Nr = block_ctx->nr;
@@ -482,7 +500,7 @@ void aes_cipher(state_t *state, const struct aes_block_ctx *block_ctx)
 	aes_add_round_key(Nr, state, RoundKey);
 }
 
-void aes_inv_cipher(state_t *state, const struct aes_block_ctx *block_ctx)
+void aes_decrypt_c(state_t *state, const struct aes_block_ctx *block_ctx)
 {
 	const uint8_t *RoundKey = (uint8_t *)block_ctx->round_key;
 	uint8_t Nr = block_ctx->nr;

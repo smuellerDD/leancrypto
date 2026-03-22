@@ -60,7 +60,8 @@ struct aes_block_ctx {
 	 * AES-192: 208 bytes
 	 * AES-128: 176 bytes
 	 */
-	uint32_t round_key[Nb * (14 + 1)];
+	uint64_t round_key[Nb / 2 * (14 + 1)];
+	//uint32_t round_key[Nb * (14 + 1)];
 
 	uint8_t nk;
 	uint8_t nr;
@@ -112,15 +113,18 @@ typedef uint8_t state_t[4][4];
 #endif
 
 /* Key expansion operation */
-void aes_key_expansion(struct aes_block_ctx *block_ctx, const uint8_t *Key);
+void aes_setkey_c(struct aes_block_ctx *block_ctx, const uint8_t *Key);
+void aes_setkey_ct(struct aes_block_ctx *block_ctx, const uint8_t *Key);
 void aes_key_expansion_scr(struct aes_block_ctx *block_ctx, const uint8_t *Key);
 
 /* AES block cipher operation */
-void aes_cipher(state_t *state, const struct aes_block_ctx *block_ctx);
+void aes_encrypt_c(state_t *state, const struct aes_block_ctx *block_ctx);
+void aes_encrypt_ct(state_t *state, const struct aes_block_ctx *block_ctx);
 void aes_cipher_scr(state_t *state, const struct aes_block_ctx *block_ctx);
 
 /* AES inverse block cipher operation */
-void aes_inv_cipher(state_t *state, const struct aes_block_ctx *block_ctx);
+void aes_decrypt_c(state_t *state, const struct aes_block_ctx *block_ctx);
+void aes_decrypt_ct(state_t *state, const struct aes_block_ctx *block_ctx);
 void aes_inv_cipher_scr(state_t *state, const struct aes_block_ctx *block_ctx);
 
 #ifdef __cplusplus
