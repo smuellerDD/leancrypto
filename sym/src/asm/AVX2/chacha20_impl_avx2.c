@@ -1022,5 +1022,6 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 	}
 
 out:
+	LC_RELEASE_MEM(ws);
 	return 0;
 }
