@@ -29,6 +29,7 @@
 LC_INIT_FUNCTION(int, lc_init, unsigned int flags)
 {
 	switch (flags & LC_INIT_AES_MASK) {
+#if (defined(LC_AES) || defined(CONFIG_LEANCRYPTO_AES))
 	case LC_INIT_AES_SBOX:
 		lc_aes_c = lc_aes_sbox;
 		aes_fastest_impl();
@@ -37,6 +38,7 @@ LC_INIT_FUNCTION(int, lc_init, unsigned int flags)
 		lc_aes_c = lc_aes_ct;
 		aes_fastest_impl();
 		break;
+#endif
 	default:
 		return -EINVAL;
 	}
