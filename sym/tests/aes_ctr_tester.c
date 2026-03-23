@@ -29,6 +29,7 @@
 #include "aes_riscv64.h"
 #include "aes_internal.h"
 #include "lc_aes.h"
+#include "lc_init.h"
 #include "mode_ctr.h"
 #include "compare.h"
 #include "test_helper_common.h"
@@ -410,7 +411,6 @@ static int test_ctr(void)
 	LC_EXEC_ONE_TEST(lc_aes_ctr_aesni);
 	LC_EXEC_ONE_TEST(lc_aes_ctr_armce);
 	LC_EXEC_ONE_TEST(lc_aes_ctr_c);
-	LC_EXEC_ONE_TEST(lc_aes_ctr_ct);
 	LC_EXEC_ONE_TEST(lc_aes_ctr_riscv64);
 	ret += test_xcrypt_ctr_common();
 
@@ -421,8 +421,10 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	int ret;
 
-	(void)argc;
 	(void)argv;
+
+	if (argc >= 2)
+		lc_init(LC_INIT_AES_CT);
 
 	ret = test_ctr();
 

@@ -22,6 +22,14 @@
  *
  * This is free and unencumbered software released into the public domain.
  */
+/*
+ * AES C implementation using S-BOX
+ *
+ * This implementation is implements a side-channel-resistant key handling,
+ * but does not prevent side-channels regarding the plaintext or ciphertext.
+ * Furthermore it is decently fast compared to the full side-channel-resistant
+ * implementation.
+ */
 
 #define AES_SBOX
 

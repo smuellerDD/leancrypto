@@ -96,33 +96,3 @@ static const struct lc_sym _lc_aes_kw_c = { .init = aes_kw_init,
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_kw_c) = &_lc_aes_kw_c;
 
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_kw) = &_lc_aes_kw_c;
-
-static int aes_kw_init_nocheck_ct(struct lc_sym_state *ctx)
-{
-	lc_mode_kw_c->init(&ctx->kw_state, lc_aes_ct, NULL, &ctx->block_ctx,
-			   NULL);
-
-	return 0;
-}
-
-static int aes_kw_init_ct(struct lc_sym_state *ctx)
-{
-	mode_kw_selftest(lc_aes_kw_ct);
-	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_AES_KW);
-
-	return aes_kw_init_nocheck_ct(ctx);
-}
-
-static const struct lc_sym _lc_aes_kw_ct = { .init = aes_kw_init_ct,
-					     .init_nocheck =
-						     aes_kw_init_nocheck_ct,
-					     .setkey = aes_kw_setkey,
-					     .setiv = aes_kw_setiv,
-					     .getiv = aes_kw_getiv,
-					     .encrypt = aes_kw_encrypt,
-					     .decrypt = aes_kw_decrypt,
-					     .statesize = LC_AES_KW_BLOCK_SIZE,
-					     .blocksize = AES_BLOCKLEN,
-					     .algorithm_type =
-						     LC_ALG_STATUS_AES_KW };
-LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_kw_ct) = &_lc_aes_kw_ct;

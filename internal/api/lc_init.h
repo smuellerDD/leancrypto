@@ -25,6 +25,25 @@ extern "C" {
 #endif
 
 /**
+ * Use the AES C implementation based on an S-Box
+ *
+ * This is a fast implementation, but not guaranteed to be constant time and
+ * thus fully free of side-channels with respect to the plaintext or ciphertext.
+ * Yet, the key schedule generation is using a constant-time operation. This is
+ * the default.
+ */
+#define LC_INIT_AES_SBOX (1 << 0)
+
+/**
+ * Use the AES C implementation based on a constant time algorithm
+ *
+ * This is a slower implementation, but based on current understanding free
+ * of side channels. Use ths if you need to rely on a C implementation of AES
+ * and have extra requirements regarding security.
+ */
+#define LC_INIT_AES_CT (1 << 1)
+
+/**
  * @brief Initialization of leancrypto
  *
  * This function invokes all necessary initialization functions required at

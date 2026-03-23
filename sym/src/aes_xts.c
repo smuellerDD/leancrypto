@@ -99,33 +99,3 @@ static const struct lc_sym _lc_aes_xts_c = { .init = aes_xts_init,
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_xts_c) = &_lc_aes_xts_c;
 
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_xts) = &_lc_aes_xts_c;
-
-static int aes_xts_init_nocheck_ct(struct lc_sym_state *ctx)
-{
-	lc_mode_xts_c->init(&ctx->xts_state, lc_aes_ct, lc_aes_c,
-			    &ctx->block_ctx, &ctx->tweak_ctx);
-
-	return 0;
-}
-
-static int aes_xts_init_ct(struct lc_sym_state *ctx)
-{
-	mode_xts_selftest(lc_aes_xts_ct);
-	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_AES_XTS);
-
-	return aes_xts_init_nocheck_ct(ctx);
-}
-
-static const struct lc_sym _lc_aes_xts_ct = {
-	.init = aes_xts_init_ct,
-	.init_nocheck = aes_xts_init_nocheck_ct,
-	.setkey = aes_xts_setkey,
-	.setiv = aes_xts_setiv,
-	.getiv = aes_xts_getiv,
-	.encrypt = aes_xts_encrypt,
-	.decrypt = aes_xts_decrypt,
-	.statesize = LC_AES_XTS_BLOCK_SIZE,
-	.blocksize = AES_BLOCKLEN,
-	.algorithm_type = LC_ALG_STATUS_AES_XTS
-};
-LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_xts_ct) = &_lc_aes_xts_ct;

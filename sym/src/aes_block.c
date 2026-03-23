@@ -17,15 +17,6 @@
  * DAMAGE.
  */
 
-/*
- * AES C implementation using S-BOX
- *
- * This implementation is implements a side-channel-resistant key handling,
- * but does not prevent side-channels regarding the plaintext or ciphertext.
- * Furthermore it is decently fast compared to the full side-channel-resistant
- * implementation.
- */
-
 #include "aes_c.h"
 #include "aes_internal.h"
 #include "build_bug_on.h"
@@ -160,7 +151,7 @@ static void aes_decrypt_c_internal(struct lc_sym_state *ctx, const uint8_t *in,
 	aes_decrypt(ctx, in, out, len, aes_decrypt_c);
 }
 
-static const struct lc_sym _lc_aes_c = {
+static const struct lc_sym _lc_aes_sbox = {
 	.init = aes_init,
 	.init_nocheck = NULL,
 	.setkey = aes_setkey_c_internal,
@@ -171,7 +162,7 @@ static const struct lc_sym _lc_aes_c = {
 	.statesize = LC_AES_BLOCK_SIZE,
 	.blocksize = AES_BLOCKLEN,
 };
-LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_c) = &_lc_aes_c;
+LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_sbox) = &_lc_aes_sbox;
 
 static int aes_setkey_ct_internal(struct lc_sym_state *ctx, const uint8_t *key,
 				  size_t keylen)
@@ -204,12 +195,5 @@ static const struct lc_sym _lc_aes_ct = {
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_ct) = &_lc_aes_ct;
 
-/*
- * This definition implies that the default C implementation is used everywhere
- * where a non-accelerated implementation is requested.
- *
- * THIS would be the place if you want to use the AES constant time
- * implementation by default when a non-accelerated AES implementation is to
- * be used. In this case, replace `_lc_aes_c` with `_lc_aes_ct`.
- */
-LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes) = &_lc_aes_c;
+LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_c) = &_lc_aes_sbox;
+LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes) = &_lc_aes_sbox;

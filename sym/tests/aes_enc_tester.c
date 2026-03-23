@@ -128,6 +128,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_EXEC_ONE_TEST(lc_aes_aesni);
 	LC_EXEC_ONE_TEST(lc_aes_armce);
 	LC_EXEC_ONE_TEST(lc_aes_c);
+	LC_EXEC_ONE_TEST(lc_aes_sbox);
 	LC_EXEC_ONE_TEST(lc_aes_ct);
 	LC_EXEC_ONE_TEST(lc_aes_riscv64);
 	ret += test_encrypt_common();

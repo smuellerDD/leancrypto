@@ -23,6 +23,7 @@
 #include "aes_riscv64.h"
 #include "aes_internal.h"
 #include "lc_aes.h"
+#include "lc_init.h"
 #include "compare.h"
 #include "ret_checkers.h"
 #include "test_helper_common.h"
@@ -130,14 +131,15 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	int ret = 0;
 
-	(void)argc;
 	(void)argv;
+
+	if (argc >= 2)
+		lc_init(LC_INIT_AES_CT);
 
 	LC_EXEC_ONE_TEST(lc_aes_kw);
 	LC_EXEC_ONE_TEST(lc_aes_kw_aesni);
 	LC_EXEC_ONE_TEST(lc_aes_kw_armce);
 	LC_EXEC_ONE_TEST(lc_aes_kw_c);
-	LC_EXEC_ONE_TEST(lc_aes_kw_ct);
 	LC_EXEC_ONE_TEST(lc_aes_kw_riscv64);
 
 	ret = test_validate_status(ret, lc_sym_alg_status(lc_aes_kw), 1);

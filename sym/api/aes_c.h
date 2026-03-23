@@ -30,12 +30,8 @@ extern const struct lc_sym *lc_aes_kw_c;
 extern const struct lc_sym *lc_aes_c;
 extern const struct lc_sym *lc_aes_xts_c;
 
-extern const struct lc_sym *lc_aes_cbc_ct;
-extern const struct lc_sym *lc_aes_ctr_ct;
-extern const struct lc_sym *lc_aes_kw_ct;
+extern const struct lc_sym *lc_aes_sbox;
 extern const struct lc_sym *lc_aes_ct;
-extern const struct lc_sym *lc_aes_xts_ct;
-
 #ifdef __cplusplus
 }
 #endif

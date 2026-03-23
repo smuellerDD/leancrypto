@@ -17,15 +17,29 @@
  * DAMAGE.
  */
 
+#include "aes_c.h"
 #include "ext_headers_internal.h"
 #include "initialization.h"
 #include "lc_init.h"
 #include "status_algorithms.h"
 #include "visibility.h"
 
+#define LC_INIT_AES_MASK (LC_INIT_AES_SBOX | LC_INIT_AES_CT)
+
 LC_INIT_FUNCTION(int, lc_init, unsigned int flags)
 {
-	(void)flags;
+	switch (flags & LC_INIT_AES_MASK) {
+	case LC_INIT_AES_SBOX:
+		lc_aes_c = lc_aes_sbox;
+		aes_fastest_impl();
+		break;
+	case LC_INIT_AES_CT:
+		lc_aes_c = lc_aes_ct;
+		aes_fastest_impl();
+		break;
+	default:
+		return -EINVAL;
+	}
 
 	/*
 	 * Handle graceful the invocation of this functions multiple times

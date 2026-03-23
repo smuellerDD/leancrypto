@@ -22,6 +22,7 @@
 #include "compare.h"
 #include "cpufeatures.h"
 #include "lc_aes_gcm.h"
+#include "lc_init.h"
 #include "lc_status.h"
 #include "math_helper.h"
 #include "test_helper_common.h"
@@ -205,8 +206,12 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	(void)argc;
 	(void)argv;
 
-	if (argc >= 2)
-		lc_cpu_feature_disable();
+	if (argc >= 2) {
+		if (*argv[1] == 'c')
+			lc_cpu_feature_disable();
+		if (*argv[1] == 't')
+			lc_init(LC_INIT_AES_CT);
+	}
 
 	ret = lc_aes_gcm_test(argc);
 

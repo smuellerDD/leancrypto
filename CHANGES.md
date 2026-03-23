@@ -1,3 +1,6 @@
+Changes 1.7.1-prerelease
+* Offer a means to select the AES-C constant time implementation via lc_init API
+
 Changes 1.7.0
 * FIPS: mark only seeded DRBG instances as FIPS-approved
 

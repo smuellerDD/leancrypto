@@ -96,32 +96,3 @@ static const struct lc_sym _lc_aes_cbc_c = { .init = aes_cbc_init,
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_cbc_c) = &_lc_aes_cbc_c;
 
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_cbc) = &_lc_aes_cbc_c;
-
-static int aes_cbc_init_nocheck_ct(struct lc_sym_state *ctx)
-{
-	lc_mode_cbc_c->init(&ctx->cbc_state, lc_aes_ct, NULL, &ctx->block_ctx,
-			    NULL);
-	return 0;
-}
-
-static int aes_cbc_init_ct(struct lc_sym_state *ctx)
-{
-	mode_cbc_selftest(lc_aes_cbc_ct);
-	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_AES_CBC);
-
-	return aes_cbc_init_nocheck(ctx);
-}
-
-static const struct lc_sym _lc_aes_cbc_ct = {
-	.init = aes_cbc_init_ct,
-	.init_nocheck = aes_cbc_init_nocheck_ct,
-	.setkey = aes_cbc_setkey,
-	.setiv = aes_cbc_setiv,
-	.getiv = aes_cbc_getiv,
-	.encrypt = aes_cbc_encrypt,
-	.decrypt = aes_cbc_decrypt,
-	.statesize = LC_AES_CBC_BLOCK_SIZE,
-	.blocksize = AES_BLOCKLEN,
-	.algorithm_type = LC_ALG_STATUS_AES_CBC
-};
-LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_cbc_ct) = &_lc_aes_cbc_ct;

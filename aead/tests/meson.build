@@ -138,6 +138,8 @@ if get_option('aes_gcm').enabled()
 	     suite: regression)
 	test('AEAD AES GCM C', aes_gcm_tester,
 	     suite: regression, args: [ 'c' ])
+	test('AEAD AES GCM constant time', aes_gcm_tester,
+	     suite: regression, args: [ 't' ])
 	test('AEAD AES GCM large Common',
 	     aes_gcm_large_tester,
 	     timeout: 2500, is_parallel: false, suite: performance)
