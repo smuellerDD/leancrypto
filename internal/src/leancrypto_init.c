@@ -19,6 +19,7 @@
 
 #include "aes_c.h"
 #include "ext_headers_internal.h"
+#include "helper.h"
 #include "initialization.h"
 #include "lc_init.h"
 #include "status_algorithms.h"
@@ -28,17 +29,24 @@
 
 LC_INIT_FUNCTION(int, lc_init, unsigned int flags)
 {
+	int aes_done __maybe_unused = 0;
+
 	switch (flags & LC_INIT_AES_MASK) {
 #if (defined(LC_AES) || defined(CONFIG_LEANCRYPTO_AES))
 	case LC_INIT_AES_SBOX:
 		lc_aes_c = lc_aes_sbox;
 		aes_fastest_impl();
+		aes_done = 1;
 		break;
 	case LC_INIT_AES_CT:
 		lc_aes_c = lc_aes_ct;
 		aes_fastest_impl();
+		aes_done = 1;
 		break;
 #endif
+	case 0:
+		/* Caller does not want any specific AES setting. */
+		break;
 	default:
 		return -EINVAL;
 	}
@@ -68,7 +76,8 @@ LC_INIT_FUNCTION(int, lc_init, unsigned int flags)
 #endif
 
 #if (defined(LC_AES) || defined(CONFIG_LEANCRYPTO_AES))
-	aes_fastest_impl();
+	if (!aes_done)
+		aes_fastest_impl();
 #endif
 
 #if ((defined(LC_KYBER) || defined(CONFIG_LEANCRYPTO_KEM)) &&                  \
