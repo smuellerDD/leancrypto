@@ -57,7 +57,7 @@ extern "C" {
  * \note If this function is called, no other leancrypto service must be offered
  * as this function may alter the global leancrypto state.
  *
- * @param [in] flags currently unused
+ * @param [in] flags see LC_INIT_* flags
  *
  * @return 0 on success, < 0 on error
  */
