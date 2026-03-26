@@ -195,5 +195,5 @@ static const struct lc_sym _lc_aes_ct = {
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_ct) = &_lc_aes_ct;
 
-LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_c) = &_lc_aes_sbox;
-LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes) = &_lc_aes_sbox;
+LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_c) = &_lc_aes_ct;
+LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes) = &_lc_aes_ct;

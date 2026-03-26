@@ -29,8 +29,7 @@ extern "C" {
  *
  * This is a fast implementation, but not guaranteed to be constant time and
  * thus fully free of side-channels with respect to the plaintext or ciphertext.
- * Yet, the key schedule generation is using a constant-time operation. This is
- * the default.
+ * Yet, the key schedule generation is using a constant-time operation.
  */
 #define LC_INIT_AES_SBOX (1 << 0)
 
@@ -40,6 +39,13 @@ extern "C" {
  * This is a slower implementation, but based on current understanding free
  * of side channels. Use ths if you need to rely on a C implementation of AES
  * and have extra requirements regarding security.
+ *
+ * Leancrypto applies a security-by-default strategy which implies that this
+ * implementation is used as default if no accelerated implementations are
+ * available. Yet, this implementation is about 3 to 5 times slower compared
+ * to the AES with S-Boxes enabled with \p LC_INIT_AES_SBOX. If you are sure
+ * that side-channels are of lesser concern in your environment and you use
+ * the C implementation, you may use the S-Box variant.
  */
 #define LC_INIT_AES_CT (1 << 1)
 

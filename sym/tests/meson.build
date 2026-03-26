@@ -143,9 +143,9 @@ if get_option('aes_cbc').enabled()
 	     suite: regression)
 	test('Symmetric AES CBC decryption', aes_cbc_dec_tester,
 	     suite: regression)
-	test('Symmetric AES CBC encryption using constant time',
+	test('Symmetric AES CBC encryption using S-Box',
 	     aes_cbc_enc_tester, suite: regression, args: [ 'ct' ])
-	test('Symmetric AES CBC decryption using constant time',
+	test('Symmetric AES CBC decryption using S-Box',
 	     aes_cbc_dec_tester, suite: regression, args: [ 'ct' ])
 	test('AES CBC C large', aes_cbc_c_large_tester, timeout: 2000,
 	     is_parallel: false, suite: performance)
@@ -172,7 +172,7 @@ if get_option('aes_ctr').enabled()
 					)
 
 	test('Symmetric AES CTR en/decryption', aes_ctr_tester, suite: regression)
-	test('Symmetric AES CTR en/decryption using constant time',
+	test('Symmetric AES CTR en/decryption using S-Box',
 	     aes_ctr_tester, suite: regression, args: [ 'ct' ])
 	#test('AES CTR large', aes_ctr_large_tester, timeout: 300)
 endif
@@ -187,7 +187,7 @@ if get_option('aes_kw').enabled()
 					)
 
 	test('Symmetric AES KW en/decryption', aes_kw_tester, suite: regression)
-	test('Symmetric AES KW en/decryption using constant time',
+	test('Symmetric AES KW en/decryption using S-Box',
 	     aes_kw_tester, suite: regression, args: [ 'ct' ])
 endif
 
@@ -207,7 +207,7 @@ if get_option('aes_xts').enabled()
 
 	test('Symmetric AES XTS en/decryption', aes_xts_tester,
 	     suite: regression)
-	test('Symmetric AES XTS en/decryption using constant time', aes_xts_tester,
+	test('Symmetric AES XTS en/decryption using S-Box', aes_xts_tester,
 	     suite: regression, args: [ 'ct' ])
 	test('AES XTS Accel large', aes_xts_large_tester, timeout: 2000,
 	     is_parallel: false, suite: performance)

@@ -424,7 +424,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	(void)argv;
 
 	if (argc >= 2)
-		lc_init(LC_INIT_AES_CT);
+		lc_init(LC_INIT_AES_SBOX);
 
 	ret = test_ctr();
 

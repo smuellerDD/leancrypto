@@ -210,7 +210,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 		if (*argv[1] == 'c')
 			lc_cpu_feature_disable();
 		if (*argv[1] == 't')
-			lc_init(LC_INIT_AES_CT);
+			lc_init(LC_INIT_AES_SBOX);
 	}
 
 	ret = lc_aes_gcm_test(argc);
