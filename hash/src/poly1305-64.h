@@ -30,6 +30,7 @@
 #define POLY1305_64_H
 
 #include "ext_headers_internal.h"
+#include "visibility.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -121,7 +122,8 @@ static void U64TO8(uint8_t *p, unsigned long long v)
 	p[7] = (uint8_t)((v >> 56) & 0xff);
 }
 
-void lc_poly1305_init(struct lc_poly1305_context *ctx, const uint8_t key[32])
+LC_INTERFACE_FUNCTION(void, lc_poly1305_init, struct lc_poly1305_context *ctx,
+		      const uint8_t key[32])
 {
 	poly1305_state_internal_t *st = (poly1305_state_internal_t *)ctx;
 	unsigned long long t0, t1;
@@ -220,8 +222,8 @@ static void lc_poly1305_blocks(poly1305_state_internal_t *st, const uint8_t *m,
 	st->h[2] = h2;
 }
 
-noinline void lc_poly1305_final(struct lc_poly1305_context *ctx,
-				uint8_t mac[LC_POLY1305_TAGSIZE])
+LC_INTERFACE_FUNCTION(void, lc_poly1305_final, struct lc_poly1305_context *ctx,
+		      uint8_t mac[LC_POLY1305_TAGSIZE])
 {
 	poly1305_state_internal_t *st = (poly1305_state_internal_t *)ctx;
 	unsigned long long h0, h1, h2, c;

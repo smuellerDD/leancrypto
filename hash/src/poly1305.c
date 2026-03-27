@@ -29,9 +29,11 @@
  */
 
 #include "compare.h"
+#include "lc_hash.h"
 #include "lc_memcmp_secure.h"
 #include "lc_memset_secure.h"
 #include "poly1305_internal.h"
+#include "visibility.h"
 
 /* auto detect between 32bit / 64bit */
 #define HAS_SIZEOF_INT128_64BIT                                                \
@@ -48,8 +50,8 @@
 #include "poly1305-32.h"
 #endif
 
-void lc_poly1305_update(struct lc_poly1305_context *ctx, const uint8_t *m,
-			size_t bytes)
+LC_INTERFACE_FUNCTION(void, lc_poly1305_update, struct lc_poly1305_context *ctx,
+		      const uint8_t *m, size_t bytes)
 {
 	poly1305_state_internal_t *st = (poly1305_state_internal_t *)ctx;
 	size_t i;

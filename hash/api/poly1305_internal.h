@@ -31,27 +31,6 @@ extern "C" {
 #endif
 
 /*
- * @param key 32 byte key that is **only used for this message and is discarded
- *	      immediately after**
- */
-void lc_poly1305_init(struct lc_poly1305_context *ctx,
-		      const uint8_t key[LC_POLY1305_KEYSIZE]);
-
-/*
- * @param m pointer to the message fragment to be processed
- * @param bytes length of the message fragment
- */
-void lc_poly1305_update(struct lc_poly1305_context *ctx, const uint8_t *m,
-			size_t bytes);
-
-/*
- * @param mac buffer which receives the 16 byte authenticator. After calling
- *	      finish, the underlying implementation will zero out `ctx`
- */
-void lc_poly1305_final(struct lc_poly1305_context *ctx,
-		       uint8_t mac[LC_POLY1305_TAGSIZE]);
-
-/*
  * @param mac the buffer which receives the 16 byte authenticator
  * @param m pointer to the message to be processed
  * @param bytes number of bytes in the message
