@@ -257,6 +257,14 @@ if (seeded_selftest_enable == 1)
 				   include_directories: [ include_internal_dirs ],
 				   dependencies: leancrypto
 				   )
+	seeded_rng_tester_large = executable('seeded_rng_tester_large',
+				   [ 'seeded_rng_tester_large.c',
+				     internal_src ],
+				   include_directories: [ include_internal_dirs ],
+				   dependencies: leancrypto
+				   )
 	test('DRNG Seeded RNG', seeded_rng_tester, suite: regression,
 	     should_fail: fips140_negative_expect_fail)
+	test('DRNG Seeded RNG large', seeded_rng_tester_large, suite: performance,
+	     should_fail: fips140_negative_expect_fail, timeout: 1500, is_parallel: false)
 endif

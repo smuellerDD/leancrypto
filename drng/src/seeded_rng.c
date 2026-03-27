@@ -17,6 +17,7 @@
  * DAMAGE.
  */
 
+#include "build_bug_on.h"
 #include "ext_headers_internal.h"
 #include "lc_chacha20_drng.h"
 #include "lc_ctr_drbg.h"
@@ -27,11 +28,18 @@
 #include "lc_memcpy_secure.h"
 #include "lc_rng.h"
 #include "lc_xdrbg.h"
+#include "math_helper.h"
 #include "mutex_w.h"
 #include "ret_checkers.h"
 #include "seeded_rng.h"
 #include "status_algorithms.h"
 #include "visibility.h"
+
+/*
+ * The chosen value is derived from AIS 20/31 3.0 for DRG.4 compliance
+ * as well as the requirement for RBG2 in SP800-90C.
+ */
+#define LC_SEEDED_RNG_MAX_BYTES (1 << 14) /* Max bytes without reseed */
 
 /* Select the type of DRNG */
 
@@ -65,11 +73,13 @@
 #define LC_SEEDED_RNG_CTX(name) LC_XDRBG256_RNG_CTX(name)
 #define LC_SEEDED_RNG_SECURITY_STRENGTH (256)
 #define LC_SEEDED_RNG_TYPE LC_ALG_STATUS_XDRBG256
+#define LC_SEEDED_RNG_MAX_CHUNK LC_SEEDED_RNG_MAX_BYTES
 #elif defined(LC_DRNG_XDRBG128)
 #define LC_SEEDED_RNG_CTX_SIZE LC_XDRBG128_DRNG_CTX_SIZE
 #define LC_SEEDED_RNG_CTX(name) LC_XDRBG128_RNG_CTX(name)
 #define LC_SEEDED_RNG_SECURITY_STRENGTH (128)
 #define LC_SEEDED_RNG_TYPE LC_ALG_STATUS_XDRBG128
+#define LC_SEEDED_RNG_MAX_CHUNK LC_SEEDED_RNG_MAX_BYTES
 
 #elif defined(LC_DRNG_CSHAKE)
 /* Use cSHAKE 256 */
@@ -77,6 +87,7 @@
 #define LC_SEEDED_RNG_CTX(name) LC_CSHAKE256_RNG_CTX(name)
 #define LC_SEEDED_RNG_SECURITY_STRENGTH (256)
 #define LC_SEEDED_RNG_TYPE LC_ALG_STATUS_CSHAKE_DRBG
+#define LC_SEEDED_RNG_MAX_CHUNK LC_SEEDED_RNG_MAX_BYTES
 
 #elif defined(LC_DRNG_KMAC)
 /* Use KMAC 256 */
@@ -84,6 +95,7 @@
 #define LC_SEEDED_RNG_CTX(name) LC_KMAC256_RNG_CTX(name)
 #define LC_SEEDED_RNG_SECURITY_STRENGTH (256)
 #define LC_SEEDED_RNG_TYPE LC_ALG_STATUS_KMAC_DRBG
+#define LC_SEEDED_RNG_MAX_CHUNK LC_SEEDED_RNG_MAX_BYTES
 
 #elif defined(LC_DRNG_HASH_DRBG)
 /* Use Hash DRBG SHA512 */
@@ -91,6 +103,7 @@
 #define LC_SEEDED_RNG_CTX(name) LC_DRBG_HASH_RNG_CTX(name)
 #define LC_SEEDED_RNG_SECURITY_STRENGTH (256)
 #define LC_SEEDED_RNG_TYPE LC_ALG_STATUS_HASH_DRBG
+#define LC_SEEDED_RNG_MAX_CHUNK LC_SEEDED_RNG_MAX_BYTES
 
 #elif defined(LC_DRNG_HMAC_DRBG)
 /* Use HMAC DRBG SHA512 */
@@ -98,12 +111,14 @@
 #define LC_SEEDED_RNG_CTX(name) LC_DRBG_HMAC_RNG_CTX(name)
 #define LC_SEEDED_RNG_SECURITY_STRENGTH (256)
 #define LC_SEEDED_RNG_TYPE LC_ALG_STATUS_HMAC_DRBG
+#define LC_SEEDED_RNG_MAX_CHUNK LC_SEEDED_RNG_MAX_BYTES
 
 #elif defined(LC_DRNG_XDRBG512)
 #define LC_SEEDED_RNG_CTX_SIZE LC_XDRBG512_DRNG_CTX_SIZE
 #define LC_SEEDED_RNG_CTX(name) LC_XDRBG512_RNG_CTX(name)
 #define LC_SEEDED_RNG_SECURITY_STRENGTH (512)
 #define LC_SEEDED_RNG_TYPE LC_ALG_STATUS_XDRBG512
+#define LC_SEEDED_RNG_MAX_CHUNK (48 * (LC_XDRBG512_DRNG_MAX_CHUNK >> 3))
 
 #elif defined(LC_DRNG_CTR_DRBG)
 #define LC_SEEDED_RNG_CTX_SIZE LC_DRBG_CTR_CTX_SIZE_USE_DF
@@ -111,20 +126,17 @@
 	LC_DRBG_CTR_RNG_CTX(name, 1, LC_DRBG_CTR_SCRATCHPAD_USE_DF)
 #define LC_SEEDED_RNG_SECURITY_STRENGTH (256)
 #define LC_SEEDED_RNG_TYPE LC_ALG_STATUS_CTR_DRBG
+#define LC_SEEDED_RNG_MAX_CHUNK LC_SEEDED_RNG_MAX_BYTES
 
 #else
 #error "Undefined DRNG"
 #endif
 
-#define LC_SEEDED_RNG_PERS "Seeded RNG"
+#define LC_SEEDED_RNG_PERS1 "Seeded RNG 1"
+#define LC_SEEDED_RNG_PERS2 "Seeded RNG 2"
 
 struct lc_seeded_rng_ctx {
 	struct lc_rng_ctx *rng_ctx;
-	/*
-	 * The chosen value is derived from AIS 20/31 3.0 for DRG.4 compliance
-	 * as well as the requirement for RBG2 in SP800-90C.
-	 */
-#define LC_SEEDED_RNG_MAX_BYTES (1 << 14) /* Max bytes without reseed */
 	size_t bytes;
 #define LC_SEEDED_RNG_MAX_TIME 60 /* Max seconds without reseed */
 	time64_t last_seeded;
@@ -139,7 +151,7 @@ static struct lc_seeded_rng_ctx seeded_rng = {
 	.rng_ctx = (struct lc_rng_ctx *)rng_ctx_buf,
 
 	/* Initialize the state such that a seed is forced */
-	.bytes = LC_SEEDED_RNG_MAX_BYTES + 1,
+	.bytes = LC_SEEDED_RNG_MAX_CHUNK + 1,
 	.last_seeded = 0,
 	.pid = 0,
 	.lock = __MUTEX_W_INITIALIZER(false),
@@ -220,12 +232,27 @@ static int lc_seed_seeded_rng(struct lc_seeded_rng_ctx *rng,
 	    (size_t)datasize > sizeof(seed))
 		return -EFAULT;
 
-	CKINT(lc_rng_seed(rng->rng_ctx, seed, (size_t)datasize,
-			  (uint8_t *)LC_SEEDED_RNG_PERS,
-			  sizeof(LC_SEEDED_RNG_PERS) - 1));
+	/*
+	 * If the caller does not provide a personalization string, let us
+	 * use the first internal one.
+	 */
+	if (!pers) {
+		pers = (const uint8_t *)LC_SEEDED_RNG_PERS1;
+		pers_len = sizeof(LC_SEEDED_RNG_PERS1) - 1;
+	}
+	CKINT(lc_rng_seed(rng->rng_ctx, seed, (size_t)datasize, pers,
+			  pers_len));
 
 	/* Insert 128 additional bits of entropy to the DRNG */
 	if (init) {
+		/*
+		 * Insert our 2nd personalization string unconditionally during
+		 * initialization, no matter what the caller provided as this
+		 * caller-provided data was already consumed.
+		 */
+		pers = (const uint8_t *)LC_SEEDED_RNG_PERS2;
+		pers_len = sizeof(LC_SEEDED_RNG_PERS2) - 1;
+
 		datasize = get_full_entropy(seed, sizeof(seed) / 4);
 		if ((datasize < (ssize_t)sizeof(seed) / 4) ||
 		    (size_t)datasize > sizeof(seed))
@@ -280,7 +307,7 @@ void lc_seeded_rng_zero_state(void)
 	 */
 	seeded_rng.pid = 0;
 	seeded_rng.last_seeded = 0;
-	seeded_rng.bytes = LC_SEEDED_RNG_MAX_BYTES + 1,
+	seeded_rng.bytes = LC_SEEDED_RNG_MAX_CHUNK + 1,
 
 	mutex_w_unlock(&seeded_rng.lock);
 
@@ -303,7 +330,7 @@ static int lc_seeded_rng_must_reseed(struct lc_seeded_rng_ctx *rng,
 	/* Reseed if ... */
 
 	/* ... we generated too much data ... */
-	if (rng->bytes > LC_SEEDED_RNG_MAX_BYTES)
+	if (rng->bytes > LC_SEEDED_RNG_MAX_CHUNK)
 		return 1;
 
 	/* ... or our seeding was too long ago ... */
@@ -324,10 +351,25 @@ static int lc_seeded_rng_must_reseed(struct lc_seeded_rng_ctx *rng,
 	return 0;
 }
 
+/* Caller must have the rng ctx locked */
+static int lc_check_reseed(struct lc_seeded_rng_ctx *rng,
+			   time64_t *curr_time, int init)
+{
+	pid_t newpid = 0;
+
+	/* Force reseed if needed using the time stamp as additional data. */
+	if (lc_seeded_rng_must_reseed(rng, &newpid, curr_time)) {
+		return lc_seed_seeded_rng(rng, (uint8_t *)curr_time,
+					  sizeof(*curr_time), init, newpid);
+	}
+
+	return 0;
+}
+
 static int lc_get_seeded_rng(struct lc_seeded_rng_ctx **rng_ret,
 			     time64_t *curr_time)
 {
-	pid_t newpid = 0;
+
 	int ret = 0, init = 0;
 
 	mutex_w_lock(&seeded_rng.lock);
@@ -339,10 +381,7 @@ static int lc_get_seeded_rng(struct lc_seeded_rng_ctx **rng_ret,
 		init = 1;
 	}
 
-	/* Force reseed if needed using the time stamp as additional data. */
-	if (lc_seeded_rng_must_reseed(&seeded_rng, &newpid, curr_time)) {
-		CKINT(lc_seed_seeded_rng(&seeded_rng, NULL, 0, init, newpid));
-	}
+	CKINT(lc_check_reseed(&seeded_rng, curr_time, init));
 
 	*rng_ret = &seeded_rng;
 
@@ -387,28 +426,54 @@ static int lc_seeded_rng_generate(void *_state, const uint8_t *addtl_input,
 	 * This is intended to ensure different DRBG states in case there
 	 * was any address space duplication that the getpid() operation did
 	 * not detect (which we hope does not occur).
+	 *
+	 * This call allows generating more data than LC_SEEDED_RNG_MAX_CHUNK
+	 * since the last reseed. This is explicitly permissible in SP800-90C
+	 * which mandates that the next generate call would surpass the given
+	 * limit causes a forced reseeding.
+	 *
+	 * We use LC_SEEDED_RNG_MAX_CHUNK which is guaranteed to be not larger
+	 * than LC_SEEDED_RNG_MAX_BYTES, but which is set to a value that is
+	 * always a multiple of the block size of the used DRBG for efficiency
+	 * reason.
 	 */
-	if (addtl_input) {
-		/*
-		 * Insert the current time as a reseed operation - this
-		 * operation is not considered to add entropy, but shall just
-		 * mix the state.
-		 */
-		CKINT(lc_rng_seed(rng->rng_ctx, (uint8_t *)&curr_time,
-				  sizeof(curr_time), NULL, 0));
-		CKINT(lc_rng_generate(rng->rng_ctx, addtl_input,
-				      addtl_input_len, out, outlen));
-	} else {
-		CKINT(lc_rng_generate(rng->rng_ctx, (uint8_t *)&curr_time,
-				      sizeof(curr_time), out, outlen));
-	}
+	BUILD_BUG_ON(LC_SEEDED_RNG_MAX_CHUNK > LC_SEEDED_RNG_MAX_BYTES);
+	while (outlen) {
+		size_t todo = min_size(LC_SEEDED_RNG_MAX_CHUNK, outlen);
 
-	/* Check wrap around and avoid a wrap for the rng->bytes state */
-	updated_len = rng->bytes + outlen;
-	if (updated_len < rng->bytes)
-		rng->bytes = (size_t)~0;
-	else
-		rng->bytes = updated_len;
+		if (addtl_input) {
+			/*
+			* Insert the current time as a reseed operation - this
+			* operation is not considered to add entropy, but shall
+			* just mix the state.
+			*/
+			CKINT(lc_rng_seed(rng->rng_ctx, (uint8_t *)&curr_time,
+					  sizeof(curr_time), NULL, 0));
+			CKINT(lc_rng_generate(rng->rng_ctx, addtl_input,
+					      addtl_input_len, out, todo));
+		} else {
+			CKINT(lc_rng_generate(rng->rng_ctx,
+					      (uint8_t *)&curr_time,
+					      sizeof(curr_time), out, todo));
+		}
+
+		/*
+		 * Check wrap around and avoid a wrap for the rng->bytes state
+		 */
+		updated_len = rng->bytes + todo;
+		if (updated_len < rng->bytes)
+			rng->bytes = (size_t)~0;
+		else
+			rng->bytes = updated_len;
+
+		out += todo;
+		outlen -= todo;
+
+		/*
+		 * Check and enforce reseed unconditionally.
+		 */
+		CKINT(lc_check_reseed(&seeded_rng, &curr_time, 0));
+	}
 
 out:
 	if (rng)
