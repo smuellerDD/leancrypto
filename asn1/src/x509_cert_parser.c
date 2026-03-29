@@ -205,9 +205,6 @@ int lc_x509_note_serial(void *context, size_t hdrlen, unsigned char tag,
 	return 0;
 }
 
-/*
- * Note some of the name segments from which we'll fabricate a name.
- */
 int lc_x509_extract_name_segment(void *context, size_t hdrlen,
 				 unsigned char tag, const uint8_t *value,
 				 size_t vlen)
@@ -230,34 +227,28 @@ int lc_x509_extract_name_segment(void *context, size_t hdrlen,
 #pragma GCC diagnostic ignored "-Wswitch-enum"
 	switch (ctx->last_oid) {
 	case OID_commonName:
-		ctx->cn_size = (uint8_t)vlen;
-		ctx->cn_offset = (uint16_t)(value - ctx->data);
 		name->cn.value = (char *)value;
-		name->cn.size = (uint8_t)vlen;
+		name->cn.size = vlen;
 		break;
 	case OID_organizationName:
-		ctx->o_size = (uint8_t)vlen;
-		ctx->o_offset = (uint16_t)(value - ctx->data);
 		name->o.value = (char *)value;
-		name->o.size = (uint8_t)vlen;
+		name->o.size = vlen;
 		break;
 	case OID_email_address:
-		ctx->email_size = (uint8_t)vlen;
-		ctx->email_offset = (uint16_t)(value - ctx->data);
 		name->email.value = (char *)value;
-		name->email.size = (uint8_t)vlen;
+		name->email.size = vlen;
 		break;
 	case OID_countryName:
 		name->c.value = (char *)value;
-		name->c.size = (uint8_t)vlen;
+		name->c.size = vlen;
 		break;
 	case OID_stateOrProvinceName:
 		name->st.value = (char *)value;
-		name->st.size = (uint8_t)vlen;
+		name->st.size = vlen;
 		break;
 	case OID_organizationUnitName:
 		name->ou.value = (char *)value;
-		name->ou.size = (uint8_t)vlen;
+		name->ou.size = vlen;
 		break;
 	default:
 		break;
@@ -293,140 +284,6 @@ int lc_x509_attribute_value_continue(void *context, size_t hdrlen,
 	return 0;
 }
 
-/*
- * Fabricate and save the issuer and subject names
- */
-static int x509_fabricate_name(struct x509_parse_context *ctx, size_t hdrlen,
-			       unsigned char tag,
-			       char _name[LC_ASN1_MAX_ISSUER_NAME], size_t vlen,
-			       int subject)
-{
-	const uint8_t *name, *data = (const void *)ctx->data;
-	struct lc_x509_certificate *cert = ctx->cert;
-	size_t namesize;
-	int ret = 0;
-
-	(void)hdrlen;
-	(void)tag;
-	(void)vlen;
-
-	/*
-	 * A SAN takes precedence over the DN for identifying the certificate
-	 * and marking its subject.
-	 */
-	if (subject && cert->san_dns_len) {
-		namesize = min_size(cert->san_dns_len, LC_ASN1_MAX_ISSUER_NAME);
-		memcpy(_name, cert->san_dns, namesize);
-		_name[namesize] = '\0';
-
-		return 0;
-	}
-
-	if (subject && cert->san_email_len) {
-		namesize =
-			min_size(cert->san_email_len, LC_ASN1_MAX_ISSUER_NAME);
-		memcpy(_name, cert->san_email, namesize);
-		_name[namesize] = '\0';
-
-		return 0;
-	}
-
-	if (subject && cert->san_ip_len) {
-		if (cert->san_ip_len == 4) {
-			/* IPv4 Address */
-			snprintf(_name, LC_ASN1_MAX_ISSUER_NAME, "%u.%u.%u.%u",
-				 cert->san_ip[0], cert->san_ip[1],
-				 cert->san_ip[2], cert->san_ip[3]);
-
-		} else if (cert->san_ip_len == 16) {
-			/* IPv6 Address */
-			size_t i, offset;
-
-			for (i = 0; i < cert->san_ip_len; i++) {
-				offset = i * 3;
-				snprintf(_name + offset,
-					 LC_ASN1_MAX_ISSUER_NAME - offset,
-					 "%.02x:", cert->san_ip[i]);
-			}
-			/* Eliminate the last ":" and place a NULL terminator */
-			_name[(i * 3) - 1] = '\0';
-
-		} else {
-			/*
-			 * Something else, do a best-effort by converting it
-			 * into Hex.
-			 */
-			lc_bin2hex(cert->san_ip, cert->san_ip_len, _name,
-				   LC_ASN1_MAX_ISSUER_NAME, 1);
-			_name[min_size(cert->san_ip_len,
-				       LC_ASN1_MAX_ISSUER_NAME)] = '\0';
-		}
-
-		return 0;
-	}
-
-	/* Empty name string if no material */
-	if (!ctx->cn_size && !ctx->o_size && !ctx->email_size) {
-		_name[0] = 0;
-		goto out;
-	}
-
-	if (ctx->cn_size && ctx->o_size) {
-		/* Consider combining O and CN, but use only the CN if it is
-		 * prefixed by the O, or a significant portion thereof.
-		 */
-		namesize = ctx->cn_size;
-		name = data + ctx->cn_offset;
-		if (ctx->cn_size >= ctx->o_size &&
-		    lc_memcmp_secure(data + ctx->cn_offset, ctx->cn_size,
-				     data + ctx->o_offset, ctx->o_size) == 0)
-			goto single_component;
-		if (ctx->cn_size >= 7 && ctx->o_size >= 7 &&
-		    lc_memcmp_secure(data + ctx->cn_offset, 7,
-				     data + ctx->o_offset, 7) == 0)
-			goto single_component;
-
-		if (ctx->o_size + 2 + ctx->cn_size + 1 >=
-		    LC_ASN1_MAX_ISSUER_NAME) {
-			ret = -EOVERFLOW;
-			goto out;
-		}
-
-		memcpy(_name, data + ctx->o_offset, ctx->o_size);
-		_name[ctx->o_size + 0] = ':';
-		_name[ctx->o_size + 1] = ' ';
-		memcpy(_name + ctx->o_size + 2, data + ctx->cn_offset,
-		       ctx->cn_size);
-		_name[ctx->o_size + 2 + ctx->cn_size] = '\0';
-
-		goto out;
-
-	} else if (ctx->cn_size) {
-		namesize = ctx->cn_size;
-		name = data + ctx->cn_offset;
-	} else if (ctx->o_size) {
-		namesize = ctx->o_size;
-		name = data + ctx->o_offset;
-	} else {
-		namesize = ctx->email_size;
-		name = data + ctx->email_offset;
-	}
-
-single_component:
-	if (namesize >= LC_ASN1_MAX_ISSUER_NAME) {
-		ret = -EOVERFLOW;
-		goto out;
-	}
-	memcpy(_name, name, namesize);
-	_name[namesize] = '\0';
-
-out:
-	ctx->cn_size = 0;
-	ctx->o_size = 0;
-	ctx->email_size = 0;
-	return ret;
-}
-
 int lc_x509_note_issuer(void *context, size_t hdrlen, unsigned char tag,
 			const uint8_t *value, size_t vlen)
 {
@@ -435,6 +292,9 @@ int lc_x509_note_issuer(void *context, size_t hdrlen, unsigned char tag,
 	struct lc_public_key_signature *sig = &cert->sig;
 	int ret = 0;
 
+	(void)hdrlen;
+	(void)tag;
+
 	cert->raw_issuer = value;
 	cert->raw_issuer_size = vlen;
 
@@ -442,8 +302,6 @@ int lc_x509_note_issuer(void *context, size_t hdrlen, unsigned char tag,
 		CKINT(lc_asymmetric_key_generate_id(&sig->auth_ids[2], value,
 						    vlen, NULL, 0));
 	}
-
-	CKINT(x509_fabricate_name(ctx, hdrlen, tag, cert->issuer, vlen, 0));
 
 out:
 	return ret;
@@ -458,9 +316,12 @@ int lc_x509_note_subject(void *context, size_t hdrlen, unsigned char tag,
 	struct x509_parse_context *ctx = context;
 	struct lc_x509_certificate *cert = ctx->cert;
 
+	(void)hdrlen;
+	(void)tag;
+
 	cert->raw_subject = value;
 	cert->raw_subject_size = vlen;
-	return x509_fabricate_name(ctx, hdrlen, tag, cert->subject, vlen, 1);
+	return 0;
 }
 
 /*
@@ -631,7 +492,7 @@ int lc_x509_san_email(void *context, size_t hdrlen, unsigned char tag,
 	cert->san_email = (char *)value;
 	cert->san_email_len = vlen;
 
-	return x509_fabricate_name(ctx, hdrlen, tag, cert->subject, vlen, 1);
+	return 0;
 }
 
 /*
@@ -649,7 +510,7 @@ int lc_x509_san_dns(void *context, size_t hdrlen, unsigned char tag,
 	cert->san_dns = (char *)value;
 	cert->san_dns_len = vlen;
 
-	return x509_fabricate_name(ctx, hdrlen, tag, cert->subject, vlen, 1);
+	return 0;
 }
 
 /*

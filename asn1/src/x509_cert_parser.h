@@ -42,15 +42,9 @@ struct x509_parse_context {
 	const uint8_t *akid_raw_issuer; /* Raw directoryName in authorityKeyId */
 	size_t akid_raw_issuer_size;
 	unsigned int extension_critical : 1;
-	uint16_t o_offset; /* Offset of organizationName (O) */
-	uint16_t cn_offset; /* Offset of commonName (CN) */
-	uint16_t email_offset; /* Offset of emailAddress */
 	enum OID key_algo; /* Algorithm used by the cert's key */
 	enum OID last_oid; /* Last OID encountered */
 	enum OID sig_algo; /* Algorithm used to sign the cert */
-	uint8_t o_size; /* Size of organizationName (O) */
-	uint8_t cn_size; /* Size of commonName (CN) */
-	uint8_t email_size; /* Size of emailAddress */
 };
 
 struct x509_flag_name {

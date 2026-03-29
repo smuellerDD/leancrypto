@@ -30,6 +30,18 @@
  * X.509 tests
  ******************************************************************************/
 
+static void
+print_x509_name_component(const struct lc_x509_certificate_name_component *comp)
+{
+	char buf[LC_ASN1_MAX_ISSUER_NAME + 1] = { 0 };
+
+	if (!comp->size)
+		return;
+
+	memcpy(buf, comp->value, min_size(comp->size, LC_ASN1_MAX_ISSUER_NAME));
+	printf("%s", buf);
+}
+
 int apply_checks_x509(const struct lc_x509_certificate *x509,
 		      const struct x509_checker_options *parsed_opts)
 {
@@ -175,7 +187,7 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 		struct lc_x509_certificate_name
 			search_name = { .cn = {
 						.value = parsed_opts->issuer_cn,
-						.size = (uint8_t)strlen(
+						.size = strlen(
 							parsed_opts->issuer_cn),
 					} };
 
@@ -183,8 +195,10 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 			    x509, &search_name,
 			    lc_x509_policy_cert_subject_match_issuer_only) ==
 		    LC_X509_POL_FALSE) {
-			printf("Issuers mismatch, expected %s, actual %s\n",
-			       parsed_opts->issuer_cn, x509->issuer);
+			printf("Issuers mismatch, expected %s, actual ",
+			       parsed_opts->issuer_cn);
+			print_x509_name_component(&x509->issuer_segments.cn);
+			printf("\n");
 			return -EINVAL;
 		} else {
 			printf("Issuer matches expected value\n");
@@ -195,7 +209,7 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 			search_name = { .cn = {
 						.value =
 							parsed_opts->subject_cn,
-						.size = (uint8_t)strlen(
+						.size = strlen(
 							parsed_opts->subject_cn),
 					} };
 
@@ -203,8 +217,10 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 			    x509, &search_name,
 			    lc_x509_policy_cert_subject_match_dn_only) ==
 		    LC_X509_POL_FALSE) {
-			printf("Subject mismatch, expected %s, actual %s\n",
-			       parsed_opts->subject_cn, x509->subject);
+			printf("Subject mismatch, expected %s, actual \n",
+			       parsed_opts->subject_cn);
+			print_x509_name_component(&x509->subject_segments.cn);
+			printf("\n");
 			return -EINVAL;
 		} else {
 			printf("Subject matches expected value\n");
@@ -250,7 +266,7 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 		struct lc_x509_certificate_name
 			search_name = { .cn = {
 						.value = parsed_opts->san_email,
-						.size = (uint8_t)strlen(
+						.size = strlen(
 							parsed_opts->san_email),
 					} };
 
@@ -270,7 +286,7 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 		struct lc_x509_certificate_name
 			search_name = { .cn = {
 						.value = parsed_opts->san_email,
-						.size = (uint8_t)strlen(
+						.size = strlen(
 							parsed_opts->san_email),
 					} };
 
@@ -289,7 +305,7 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 		struct lc_x509_certificate_name
 			search_name = { .cn = {
 						.value = parsed_opts->san_dns,
-						.size = (uint8_t)strlen(
+						.size = strlen(
 							parsed_opts->san_dns),
 					} };
 
@@ -308,7 +324,7 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 		struct lc_x509_certificate_name
 			search_name = { .cn = {
 						.value = parsed_opts->san_ip,
-						.size = (uint8_t)strlen(
+						.size = strlen(
 							parsed_opts->san_ip),
 					} };
 
@@ -595,8 +611,17 @@ int apply_checks_pkcs7(const struct lc_pkcs7_message *pkcs7_msg,
 		int found = 0;
 
 		while (x509) {
-			if (!strncmp(x509->issuer, parsed_opts->issuer_cn,
-				     sizeof(x509->issuer))) {
+			struct lc_x509_certificate_name
+			search_name = { .cn = {
+						.value = parsed_opts->issuer_cn,
+						.size = strlen(
+							parsed_opts->issuer_cn),
+					} };
+
+			if (lc_x509_policy_cert_subject_match(
+				x509, &search_name,
+				lc_x509_policy_cert_subject_match_issuer_only) ==
+				LC_X509_POL_TRUE) {
 				found = 1;
 				break;
 			}
@@ -616,8 +641,17 @@ int apply_checks_pkcs7(const struct lc_pkcs7_message *pkcs7_msg,
 		int found = 0;
 
 		while (x509) {
-			if (!strncmp(x509->subject, parsed_opts->subject_cn,
-				     sizeof(x509->subject))) {
+			struct lc_x509_certificate_name
+			search_name = { .cn = {
+						.value = parsed_opts->subject_cn,
+						.size = strlen(
+							parsed_opts->subject_cn),
+					} };
+
+			if (lc_x509_policy_cert_subject_match(
+				x509, &search_name,
+				lc_x509_policy_cert_subject_match_dn_only) ==
+				LC_X509_POL_TRUE) {
 				found = 1;
 				break;
 			}

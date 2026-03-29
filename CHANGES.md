@@ -3,6 +3,8 @@ Changes 1.7.1-prerelease
 
 * use the AES-C constant time implementation by default - it is about 3 times slower than the AES-C S-Box implementation, but more secure. As the leancrypto library is about secure by default, the CT implementation is just right. Furthermore, if a caller wants to have the faster AES-C S-Box, he can call lc_init(LC_INIT_AES_SBOX) at the beginning.
 
+* X.509: fix security issue (see SECURITY.md)
+
 Changes 1.7.0
 * FIPS: mark only seeded DRBG instances as FIPS-approved
 
