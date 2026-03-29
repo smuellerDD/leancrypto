@@ -17,6 +17,8 @@ X.509 Subject parser: Overflow in size parser of a subject name component
   impersonation with a wrongly crafted certificate that has a valid signature is
   possible.
 
+* Affected version <= 1.7.0
+
 * Credits: Sunwoo Lee and Seunghyun Yoon (Korea Institute of Energy Technology, KENTECH).
 
 ## 2024-06-03
