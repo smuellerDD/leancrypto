@@ -100,7 +100,7 @@ static inline bool cpu_es_x86_rdseed(unsigned long *buf)
 		__asm__ __volatile__(RDSEED_LONG "\n\t"
 						 "setc %0"
 				     : "=qm"(ok), "=a"(*buf));
-	} while (!ok && retry++ > RDRAND_RETRY_LOOPS);
+	} while (!ok && retry++ < RDRAND_RETRY_LOOPS);
 
 	return !!ok;
 }
