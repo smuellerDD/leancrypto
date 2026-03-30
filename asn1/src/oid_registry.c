@@ -49,6 +49,9 @@ LC_INTERFACE_FUNCTION(enum OID, lc_look_up_OID, const uint8_t *data,
 	unsigned int i, j, k;
 	unsigned char xhash;
 
+	if (!datasize || !data)
+		return OID__NR;
+
 	/* Hash the OID data */
 	hash = datasize - 1;
 
