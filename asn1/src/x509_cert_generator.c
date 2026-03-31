@@ -886,7 +886,7 @@ int lc_x509_note_algorithm_OID_enc(void *context, uint8_t *data,
 
 	CKINT(lc_x509_sig_type_to_oid(pkey_algo, &oid));
 	CKINT(lc_OID_to_data(oid, &oid_data, &oid_datalen));
-	CKINT(lc_x509_sig_type_to_name(pkey_algo, &alg))
+	CKINT(lc_x509_sig_type_to_name(pkey_algo, &alg));
 	bin2print_debug(oid_data, oid_datalen, stdout, alg);
 
 	if (oid_datalen) {

@@ -81,7 +81,7 @@ LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_is_ca,
 	if (!cert)
 		return -EINVAL;
 
-	CKINT(lc_x509_policy_cert_valid(cert))
+	CKINT(lc_x509_policy_cert_valid(cert));
 	if (ret != LC_X509_POL_TRUE)
 		return ret;
 

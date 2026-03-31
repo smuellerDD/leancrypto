@@ -484,7 +484,7 @@ static int gcm_set_key_iv_nocheck(void *state, const uint8_t *key,
 	int ret;
 
 	CKINT(gcm_setkey(ctx, key, keylen));
-	CKINT(gcm_setiv(ctx, iv, iv_len))
+	CKINT(gcm_setiv(ctx, iv, iv_len));
 
 out:
 	return ret;

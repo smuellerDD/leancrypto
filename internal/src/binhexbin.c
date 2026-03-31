@@ -79,6 +79,10 @@ int bin2hex_alloc(const uint8_t *bin, const size_t binlen, char **hex,
 	if (!binlen)
 		return -EINVAL;
 
+	/* Guard against integer overflow in size calculation */
+	if (binlen > (SIZE_MAX / 2))
+		return -EOVERFLOW;
+
 	outlen = (binlen) * 2;
 
 	out = calloc(1, outlen + 1);
@@ -95,10 +99,15 @@ void bin2print(const unsigned char *bin, const size_t binlen, FILE *out,
 	       const char *explanation)
 {
 	char *hex = NULL;
-	size_t hexlen = binlen * 2 + 1;
+	size_t hexlen;
 
 	if (!bin)
 		return;
+
+	/* Guard against integer overflow in size calculation */
+	if (binlen > (SIZE_MAX / 2))
+		return;
+	hexlen = binlen * 2 + 1;
 
 	if (binlen) {
 		hex = calloc(1, hexlen);

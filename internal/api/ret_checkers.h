@@ -50,51 +50,51 @@ extern "C" {
 #endif
 
 #define CKRET(cond, err)                                                       \
-	{                                                                      \
+	do {                                                                   \
 		if (cond) {                                                    \
 			CKERROR_PURE_LOG                                       \
 			ret = err;                                             \
 			goto out;                                              \
 		}                                                              \
-	}
+	} while (0)
 
 #define CKINT(x)                                                               \
-	{                                                                      \
-		ret = x;                                                       \
+	do {                                                                   \
+		ret = (x);                                                     \
 		if (ret < 0) {                                                 \
 			CKERROR_LOG                                            \
 			goto out;                                              \
 		}                                                              \
-	}
+	} while (0)
 
 #define CKINT_LOG(x, ...)                                                      \
-	{                                                                      \
-		ret = x;                                                       \
+	do {                                                                   \
+		ret = (x);                                                     \
 		if (ret < 0) {                                                 \
 			CKERROR_LOG                                            \
 			printf(__VA_ARGS__);                                   \
 			goto out;                                              \
 		}                                                              \
-	}
+	} while (0)
 
 #define CKNULL(v, r)                                                           \
 	{                                                                      \
-		if (!v) {                                                      \
-			ret = r;                                               \
+		if (!(v)) {                                                    \
+			ret = (r);                                             \
 			CKERROR_LOG                                            \
 			goto out;                                              \
 		}                                                              \
 	}
 
 #define CKNULL_LOG(v, r, ...)                                                  \
-	{                                                                      \
-		if (!v) {                                                      \
+	do {                                                                   \
+		if (!(v)) {                                                    \
 			printf(__VA_ARGS__);                                   \
-			ret = r;                                               \
+			ret = (r);                                             \
 			CKERROR_LOG                                            \
 			goto out;                                              \
 		}                                                              \
-	}
+	} while (0)
 
 #ifdef __cplusplus
 }
