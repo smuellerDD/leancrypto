@@ -74,6 +74,9 @@ static inline void PartialXor(const __m512i val, const uint8_t *Src,
 {
 	uint8_t BuffForPartialOp[64] __align(64);
 
+	if (Size > sizeof(BuffForPartialOp))
+		return;
+
 	memcpy(BuffForPartialOp, Src, Size);
 	_mm512_storeu_si512(
 		(__m512i *)(BuffForPartialOp),

@@ -365,7 +365,7 @@ verify_auth_descriptor(struct pkcs7_generator_opts *opts,
 
 	CKINT(hash_data(ctx, &auth_descriptor->TimeStamp, &buf, &buflen));
 
-	CKINT(lc_pkcs7_set_data(pkcs7_msg, buf, buflen, 0))
+	CKINT(lc_pkcs7_set_data(pkcs7_msg, buf, buflen, 0));
 
 	ret = lc_pkcs7_verify(
 		pkcs7_msg, opts->use_trust_store ? &opts->trust_store : NULL,
