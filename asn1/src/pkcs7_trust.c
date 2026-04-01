@@ -89,7 +89,7 @@ found_issuer_check_skid:
 		return -EKEYREJECTED;
 	}
 found_issuer:
-	printf_debug("- subject %s\n", p->subject);
+	printf_debug("- subject %s\n", p->subject_segments.cn.value);
 
 	*anchor_cert = p;
 

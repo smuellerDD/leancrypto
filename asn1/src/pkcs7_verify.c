@@ -225,7 +225,7 @@ int lc_pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 			return -EKEYREJECTED;
 		}
 
-		printf_debug("- issuer %s\n", x509->issuer);
+		printf_debug("- issuer %s\n", x509->issuer_segments.cn.value);
 		sig = &x509->sig;
 		auth0 = &sig->auth_ids[0];
 		auth1 = &sig->auth_ids[1];
@@ -301,7 +301,7 @@ int lc_pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 			return -EKEYREJECTED;
 		}
 	found_issuer:
-		printf_debug("- subject %s\n", p->subject);
+		printf_debug("- subject %s\n", p->subject_segments.cn.value);
 
 		/* Check the key usage contains keyCertSign */
 		CKINT(lc_x509_policy_match_key_usage(p,

@@ -83,39 +83,47 @@ static struct lc_x509_algorithms x509_algo_table[] = {
 	  .std_hash = OID_shake256 },
 
 	{ .oid = OID_id_rsassa_pkcs1_v1_5_with_sha3_256,
-	  .name_algo = "RSASSA-PKCS1-v1.5-SHA3-256",
+	  .name_algo = "RSASSA-PKCS1",
 	  .namelen = 26,
-	  .pkey_algo = LC_SIG_RSA_PKCS1 },
+	  .pkey_algo = LC_SIG_RSA_PKCS1_SHA3_256,
+	  .std_hash = OID_sha3_256 },
 	{ .oid = OID_id_rsassa_pkcs1_v1_5_with_sha3_384,
-	  .name_algo = "RSASSA-PKCS1-v1.5-SHA3-384",
+	  .name_algo = "RSASSA-PKCS1",
 	  .namelen = 26,
-	  .pkey_algo = LC_SIG_RSA_PKCS1 },
+	  .pkey_algo = LC_SIG_RSA_PKCS1_SHA3_384,
+	  .std_hash = OID_sha3_384 },
 	{ .oid = OID_id_rsassa_pkcs1_v1_5_with_sha3_512,
-	  .name_algo = "RSASSA-PKCS1-v1.5-SHA3-512",
+	  .name_algo = "RSASSA-PKCS1",
 	  .namelen = 26,
-	  .pkey_algo = LC_SIG_RSA_PKCS1 },
+	  .pkey_algo = LC_SIG_RSA_PKCS1_SHA3_512,
+	  .std_hash = OID_sha3_512 },
 
 	{ .oid = OID_id_ecdsa_with_sha3_256,
-	  .name_algo = "ECDSA-X963-SHA3-256",
+	  .name_algo = "ECDSA-X963",
 	  .namelen = 19,
-	  .pkey_algo = LC_SIG_ECDSA_X963 },
+	  .pkey_algo = LC_SIG_ECDSA_X963_SHA3_256,
+	  .std_hash = OID_sha3_256 },
 	{ .oid = OID_id_ecdsa_with_sha3_384,
-	  .name_algo = "ECDSA-X963-SHA3-384",
+	  .name_algo = "ECDSA-X963",
 	  .namelen = 19,
-	  .pkey_algo = LC_SIG_ECDSA_X963 },
+	  .pkey_algo = LC_SIG_ECDSA_X963_SHA3_384,
+	  .std_hash = OID_sha3_384 },
 	{ .oid = OID_id_ecdsa_with_sha3_512,
-	  .name_algo = "ECDSA-X963-SHA3-512",
+	  .name_algo = "ECDSA-X963",
 	  .namelen = 19,
-	  .pkey_algo = LC_SIG_ECDSA_X963 },
+	  .pkey_algo = LC_SIG_ECDSA_X963_SHA3_512,
+	  .std_hash = OID_sha3_512 },
 
 	{ .oid = OID_sha256WithRSAEncryption,
-	  .name_algo = "RSASSA-PKCS1-v1.5-SHA2-256",
+	  .name_algo = "RSASSA-PKCS1-v1.5",
 	  .namelen = 26,
-	  .pkey_algo = LC_SIG_RSA_PKCS1 },
+	  .pkey_algo = LC_SIG_RSA_PKCS1_SHA2_256,
+	  .std_hash = OID_sha256 },
 	{ .oid = OID_id_ecdsa_with_sha256,
-	  .name_algo = "ECDSA-X963-SHA2-256",
+	  .name_algo = "ECDSA-X963",
 	  .namelen = 19,
-	  .pkey_algo = LC_SIG_ECDSA_X963 },
+	  .pkey_algo = LC_SIG_ECDSA_X963_SHA2_256,
+	  .std_hash = OID_sha256 },
 
 	/*
 	 * See https://www.ietf.org/archive/id/draft-ietf-lamps-pq-composite-sigs-02.html
@@ -138,22 +146,26 @@ static struct lc_x509_algorithms x509_algo_table[] = {
 	  .std_hash = OID_shake256 },
 
 	{ .oid = OID_sha384WithRSAEncryption,
-	  .name_algo = "RSASSA-PKCS1-v1.5-SHA2-384",
+	  .name_algo = "RSASSA-PKCS1-v1.5",
 	  .namelen = 26,
-	  .pkey_algo = LC_SIG_RSA_PKCS1 },
+	  .pkey_algo = LC_SIG_RSA_PKCS1,
+	  .std_hash = OID_sha384 },
 	{ .oid = OID_sha512WithRSAEncryption,
-	  .name_algo = "RSASSA-PKCS1-v1.5-SHA2-512",
+	  .name_algo = "RSASSA-PKCS1-v1.5",
 	  .namelen = 26,
-	  .pkey_algo = LC_SIG_RSA_PKCS1 },
+	  .pkey_algo = LC_SIG_RSA_PKCS1,
+	  .std_hash = OID_sha512 },
 
 	{ .oid = OID_id_ecdsa_with_sha384,
-	  .name_algo = "ECDSA-X963-SHA2-384",
+	  .name_algo = "ECDSA-X963-SHA",
 	  .namelen = 19,
-	  .pkey_algo = LC_SIG_ECDSA_X963 },
+	  .pkey_algo = LC_SIG_ECDSA_X963_SHA2_384,
+	  .std_hash = OID_sha384 },
 	{ .oid = OID_id_ecdsa_with_sha512,
-	  .name_algo = "ECDSA-X963-SHA2-512",
+	  .name_algo = "ECDSA-X963-SHA",
 	  .namelen = 19,
-	  .pkey_algo = LC_SIG_ECDSA_X963 },
+	  .pkey_algo = LC_SIG_ECDSA_X963_SHA2_512,
+	  .std_hash = OID_sha512 },
 
 	{ .oid = OID_rsaEncryption,
 	  .name_algo = "RSASSA-PKCS1-v1.5",
@@ -322,7 +334,19 @@ int lc_x509_sig_check_hash(enum lc_sig_types pkey_algo,
 		break;
 
 	case LC_SIG_RSA_PKCS1:
+	case LC_SIG_RSA_PKCS1_SHA2_256:
+	case LC_SIG_RSA_PKCS1_SHA2_384:
+	case LC_SIG_RSA_PKCS1_SHA2_512:
+	case LC_SIG_RSA_PKCS1_SHA3_256:
+	case LC_SIG_RSA_PKCS1_SHA3_384:
+	case LC_SIG_RSA_PKCS1_SHA3_512:
 	case LC_SIG_ECDSA_X963:
+	case LC_SIG_ECDSA_X963_SHA2_256:
+	case LC_SIG_ECDSA_X963_SHA2_384:
+	case LC_SIG_ECDSA_X963_SHA2_512:
+	case LC_SIG_ECDSA_X963_SHA3_256:
+	case LC_SIG_ECDSA_X963_SHA3_384:
+	case LC_SIG_ECDSA_X963_SHA3_512:
 	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_SM2:
 	case LC_SIG_UNKNOWN:

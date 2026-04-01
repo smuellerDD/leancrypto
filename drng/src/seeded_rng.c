@@ -445,7 +445,8 @@ static int lc_seeded_rng_generate(void *_state, const uint8_t *addtl_input,
 			/*
 			* Insert the current time as a reseed operation - this
 			* operation is not considered to add entropy, but shall
-			* just mix the state.
+			* just mix the state and act as a form of domain
+			* separation.
 			*/
 			CKINT(lc_rng_seed(rng->rng_ctx, (uint8_t *)&curr_time,
 					  sizeof(curr_time), NULL, 0));

@@ -413,7 +413,8 @@ int lc_pkcs7_extract_cert(void *context, size_t hdrlen, unsigned char tag,
 	CKINT(lc_x509_cert_decode(x509, value, vlen));
 
 	x509->index = ++ctx->x509_index;
-	printf_debug("Got cert %u for %s\n", x509->index, x509->subject);
+	printf_debug("Got cert %u for %s\n", x509->index,
+		     x509->subject_segments.cn.value);
 
 	id = &x509->id;
 	(void)id; /* Unused in non-debug compilation */

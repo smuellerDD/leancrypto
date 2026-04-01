@@ -110,7 +110,19 @@ int lc_public_key_verify_signature(const struct lc_public_key *pkey,
 		break;
 
 	case LC_SIG_RSA_PKCS1:
+	case LC_SIG_RSA_PKCS1_SHA2_256:
+	case LC_SIG_RSA_PKCS1_SHA2_384:
+	case LC_SIG_RSA_PKCS1_SHA2_512:
+	case LC_SIG_RSA_PKCS1_SHA3_256:
+	case LC_SIG_RSA_PKCS1_SHA3_384:
+	case LC_SIG_RSA_PKCS1_SHA3_512:
 	case LC_SIG_ECDSA_X963:
+	case LC_SIG_ECDSA_X963_SHA2_256:
+	case LC_SIG_ECDSA_X963_SHA2_384:
+	case LC_SIG_ECDSA_X963_SHA2_512:
+	case LC_SIG_ECDSA_X963_SHA3_256:
+	case LC_SIG_ECDSA_X963_SHA3_384:
+	case LC_SIG_ECDSA_X963_SHA3_512:
 	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_SM2:
 	case LC_SIG_UNKNOWN:
@@ -176,7 +188,19 @@ int lc_public_key_generate_signature(const struct lc_x509_key_data *key,
 		break;
 
 	case LC_SIG_RSA_PKCS1:
+	case LC_SIG_RSA_PKCS1_SHA2_256:
+	case LC_SIG_RSA_PKCS1_SHA2_384:
+	case LC_SIG_RSA_PKCS1_SHA2_512:
+	case LC_SIG_RSA_PKCS1_SHA3_256:
+	case LC_SIG_RSA_PKCS1_SHA3_384:
+	case LC_SIG_RSA_PKCS1_SHA3_512:
 	case LC_SIG_ECDSA_X963:
+	case LC_SIG_ECDSA_X963_SHA2_256:
+	case LC_SIG_ECDSA_X963_SHA2_384:
+	case LC_SIG_ECDSA_X963_SHA2_512:
+	case LC_SIG_ECDSA_X963_SHA3_256:
+	case LC_SIG_ECDSA_X963_SHA3_384:
+	case LC_SIG_ECDSA_X963_SHA3_512:
 	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_SM2:
 	case LC_SIG_UNKNOWN:
@@ -254,9 +278,21 @@ int lc_public_key_extract(struct x509_generate_context *ctx, uint8_t *dst_data,
 			goto out;
 			break;
 
-		case LC_SIG_ECDSA_X963:
-		case LC_SIG_ECRDSA_PKCS1:
 		case LC_SIG_RSA_PKCS1:
+		case LC_SIG_RSA_PKCS1_SHA2_256:
+		case LC_SIG_RSA_PKCS1_SHA2_384:
+		case LC_SIG_RSA_PKCS1_SHA2_512:
+		case LC_SIG_RSA_PKCS1_SHA3_256:
+		case LC_SIG_RSA_PKCS1_SHA3_384:
+		case LC_SIG_RSA_PKCS1_SHA3_512:
+		case LC_SIG_ECDSA_X963:
+		case LC_SIG_ECDSA_X963_SHA2_256:
+		case LC_SIG_ECDSA_X963_SHA2_384:
+		case LC_SIG_ECDSA_X963_SHA2_512:
+		case LC_SIG_ECDSA_X963_SHA3_256:
+		case LC_SIG_ECDSA_X963_SHA3_384:
+		case LC_SIG_ECDSA_X963_SHA3_512:
+		case LC_SIG_ECRDSA_PKCS1:
 		case LC_SIG_SM2:
 		case LC_SIG_UNKNOWN:
 		default:
@@ -436,9 +472,21 @@ int lc_public_key_signature_size(size_t *siglen, enum lc_sig_types sig_type)
 #endif
 		break;
 
-	case LC_SIG_ECDSA_X963:
-	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_RSA_PKCS1:
+	case LC_SIG_RSA_PKCS1_SHA2_256:
+	case LC_SIG_RSA_PKCS1_SHA2_384:
+	case LC_SIG_RSA_PKCS1_SHA2_512:
+	case LC_SIG_RSA_PKCS1_SHA3_256:
+	case LC_SIG_RSA_PKCS1_SHA3_384:
+	case LC_SIG_RSA_PKCS1_SHA3_512:
+	case LC_SIG_ECDSA_X963:
+	case LC_SIG_ECDSA_X963_SHA2_256:
+	case LC_SIG_ECDSA_X963_SHA2_384:
+	case LC_SIG_ECDSA_X963_SHA2_512:
+	case LC_SIG_ECDSA_X963_SHA3_256:
+	case LC_SIG_ECDSA_X963_SHA3_384:
+	case LC_SIG_ECDSA_X963_SHA3_512:
+	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_SM2:
 	case LC_SIG_UNKNOWN:
 	default:
@@ -487,7 +535,19 @@ int lc_privkey_key_encode(struct x509_generate_privkey_context *ctx,
 		break;
 
 	case LC_SIG_RSA_PKCS1:
+	case LC_SIG_RSA_PKCS1_SHA2_256:
+	case LC_SIG_RSA_PKCS1_SHA2_384:
+	case LC_SIG_RSA_PKCS1_SHA2_512:
+	case LC_SIG_RSA_PKCS1_SHA3_256:
+	case LC_SIG_RSA_PKCS1_SHA3_384:
+	case LC_SIG_RSA_PKCS1_SHA3_512:
 	case LC_SIG_ECDSA_X963:
+	case LC_SIG_ECDSA_X963_SHA2_256:
+	case LC_SIG_ECDSA_X963_SHA2_384:
+	case LC_SIG_ECDSA_X963_SHA2_512:
+	case LC_SIG_ECDSA_X963_SHA3_256:
+	case LC_SIG_ECDSA_X963_SHA3_384:
+	case LC_SIG_ECDSA_X963_SHA3_512:
 	case LC_SIG_SM2:
 	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_UNKNOWN:
@@ -545,7 +605,19 @@ int lc_privkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
 		break;
 
 	case LC_SIG_RSA_PKCS1:
+	case LC_SIG_RSA_PKCS1_SHA2_256:
+	case LC_SIG_RSA_PKCS1_SHA2_384:
+	case LC_SIG_RSA_PKCS1_SHA2_512:
+	case LC_SIG_RSA_PKCS1_SHA3_256:
+	case LC_SIG_RSA_PKCS1_SHA3_384:
+	case LC_SIG_RSA_PKCS1_SHA3_512:
 	case LC_SIG_ECDSA_X963:
+	case LC_SIG_ECDSA_X963_SHA2_256:
+	case LC_SIG_ECDSA_X963_SHA2_384:
+	case LC_SIG_ECDSA_X963_SHA2_512:
+	case LC_SIG_ECDSA_X963_SHA3_256:
+	case LC_SIG_ECDSA_X963_SHA3_384:
+	case LC_SIG_ECDSA_X963_SHA3_512:
 	case LC_SIG_SM2:
 	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_UNKNOWN:
@@ -658,9 +730,21 @@ int lc_privkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
 		return -ENOPKG;
 #endif
 
-	case LC_SIG_ECDSA_X963:
-	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_RSA_PKCS1:
+	case LC_SIG_RSA_PKCS1_SHA2_256:
+	case LC_SIG_RSA_PKCS1_SHA2_384:
+	case LC_SIG_RSA_PKCS1_SHA2_512:
+	case LC_SIG_RSA_PKCS1_SHA3_256:
+	case LC_SIG_RSA_PKCS1_SHA3_384:
+	case LC_SIG_RSA_PKCS1_SHA3_512:
+	case LC_SIG_ECDSA_X963:
+	case LC_SIG_ECDSA_X963_SHA2_256:
+	case LC_SIG_ECDSA_X963_SHA2_384:
+	case LC_SIG_ECDSA_X963_SHA2_512:
+	case LC_SIG_ECDSA_X963_SHA3_256:
+	case LC_SIG_ECDSA_X963_SHA3_384:
+	case LC_SIG_ECDSA_X963_SHA3_512:
+	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_SM2:
 	case LC_SIG_UNKNOWN:
 	default:
@@ -740,7 +824,19 @@ int lc_pubkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
 		break;
 
 	case LC_SIG_RSA_PKCS1:
+	case LC_SIG_RSA_PKCS1_SHA2_256:
+	case LC_SIG_RSA_PKCS1_SHA2_384:
+	case LC_SIG_RSA_PKCS1_SHA2_512:
+	case LC_SIG_RSA_PKCS1_SHA3_256:
+	case LC_SIG_RSA_PKCS1_SHA3_384:
+	case LC_SIG_RSA_PKCS1_SHA3_512:
 	case LC_SIG_ECDSA_X963:
+	case LC_SIG_ECDSA_X963_SHA2_256:
+	case LC_SIG_ECDSA_X963_SHA2_384:
+	case LC_SIG_ECDSA_X963_SHA2_512:
+	case LC_SIG_ECDSA_X963_SHA3_256:
+	case LC_SIG_ECDSA_X963_SHA3_384:
+	case LC_SIG_ECDSA_X963_SHA3_512:
 	case LC_SIG_SM2:
 	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_UNKNOWN:
@@ -853,9 +949,21 @@ int lc_pubkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
 		return -ENOPKG;
 #endif
 
-	case LC_SIG_ECDSA_X963:
-	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_RSA_PKCS1:
+	case LC_SIG_RSA_PKCS1_SHA2_256:
+	case LC_SIG_RSA_PKCS1_SHA2_384:
+	case LC_SIG_RSA_PKCS1_SHA2_512:
+	case LC_SIG_RSA_PKCS1_SHA3_256:
+	case LC_SIG_RSA_PKCS1_SHA3_384:
+	case LC_SIG_RSA_PKCS1_SHA3_512:
+	case LC_SIG_ECDSA_X963:
+	case LC_SIG_ECDSA_X963_SHA2_256:
+	case LC_SIG_ECDSA_X963_SHA2_384:
+	case LC_SIG_ECDSA_X963_SHA2_512:
+	case LC_SIG_ECDSA_X963_SHA3_256:
+	case LC_SIG_ECDSA_X963_SHA3_384:
+	case LC_SIG_ECDSA_X963_SHA3_512:
+	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_SM2:
 	case LC_SIG_UNKNOWN:
 	default:
@@ -988,9 +1096,21 @@ int lc_asym_set_signer(struct lc_x509_certificate *signed_x509,
 #endif
 		break;
 
-	case LC_SIG_ECDSA_X963:
-	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_RSA_PKCS1:
+	case LC_SIG_RSA_PKCS1_SHA2_256:
+	case LC_SIG_RSA_PKCS1_SHA2_384:
+	case LC_SIG_RSA_PKCS1_SHA2_512:
+	case LC_SIG_RSA_PKCS1_SHA3_256:
+	case LC_SIG_RSA_PKCS1_SHA3_384:
+	case LC_SIG_RSA_PKCS1_SHA3_512:
+	case LC_SIG_ECDSA_X963:
+	case LC_SIG_ECDSA_X963_SHA2_256:
+	case LC_SIG_ECDSA_X963_SHA2_384:
+	case LC_SIG_ECDSA_X963_SHA2_512:
+	case LC_SIG_ECDSA_X963_SHA3_256:
+	case LC_SIG_ECDSA_X963_SHA3_384:
+	case LC_SIG_ECDSA_X963_SHA3_512:
+	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_SM2:
 	case LC_SIG_UNKNOWN:
 	default:
@@ -1105,9 +1225,21 @@ int lc_asym_keypair_gen(struct lc_x509_certificate *cert,
 						       LC_DILITHIUM_87));
 		break;
 
-	case LC_SIG_ECDSA_X963:
-	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_RSA_PKCS1:
+	case LC_SIG_RSA_PKCS1_SHA2_256:
+	case LC_SIG_RSA_PKCS1_SHA2_384:
+	case LC_SIG_RSA_PKCS1_SHA2_512:
+	case LC_SIG_RSA_PKCS1_SHA3_256:
+	case LC_SIG_RSA_PKCS1_SHA3_384:
+	case LC_SIG_RSA_PKCS1_SHA3_512:
+	case LC_SIG_ECDSA_X963:
+	case LC_SIG_ECDSA_X963_SHA2_256:
+	case LC_SIG_ECDSA_X963_SHA2_384:
+	case LC_SIG_ECDSA_X963_SHA2_512:
+	case LC_SIG_ECDSA_X963_SHA3_256:
+	case LC_SIG_ECDSA_X963_SHA3_384:
+	case LC_SIG_ECDSA_X963_SHA3_512:
+	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_SM2:
 	case LC_SIG_UNKNOWN:
 	default:
@@ -1165,9 +1297,21 @@ int lc_asym_keypair_load(struct lc_x509_certificate *cert,
 			keys->sk.dilithium_ed448_sk));
 		break;
 
-	case LC_SIG_ECDSA_X963:
-	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_RSA_PKCS1:
+	case LC_SIG_RSA_PKCS1_SHA2_256:
+	case LC_SIG_RSA_PKCS1_SHA2_384:
+	case LC_SIG_RSA_PKCS1_SHA2_512:
+	case LC_SIG_RSA_PKCS1_SHA3_256:
+	case LC_SIG_RSA_PKCS1_SHA3_384:
+	case LC_SIG_RSA_PKCS1_SHA3_512:
+	case LC_SIG_ECDSA_X963:
+	case LC_SIG_ECDSA_X963_SHA2_256:
+	case LC_SIG_ECDSA_X963_SHA2_384:
+	case LC_SIG_ECDSA_X963_SHA2_512:
+	case LC_SIG_ECDSA_X963_SHA3_256:
+	case LC_SIG_ECDSA_X963_SHA3_384:
+	case LC_SIG_ECDSA_X963_SHA3_512:
+	case LC_SIG_ECRDSA_PKCS1:
 	case LC_SIG_SM2:
 	case LC_SIG_UNKNOWN:
 	default:
