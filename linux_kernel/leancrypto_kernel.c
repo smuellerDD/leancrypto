@@ -34,6 +34,10 @@
 
 #include "leancrypto_kernel.h"
 
+static unsigned int lc_init_flags = 0;
+module_param(lc_init_flags, unsigned int, S_IRUSR | S_IRGRP | S_IROTH);
+MODULE_PARM_DESC(lc_init_flags, "lc_init flags");
+
 EXPORT_SYMBOL(lc_disable_selftest);
 #ifdef LC_CURVE25519
 EXPORT_SYMBOL(crypto_scalarmult_curve25519);
@@ -48,7 +52,7 @@ static int __init leancrypto_init(void)
 {
 	int ret;
 
-	ret = lc_init(0);
+	ret = lc_init(lc_init_flags);
 	if (ret)
 		return ret;
 
@@ -373,8 +377,6 @@ free_proc:
 
 static void __exit leancrypto_exit(void)
 {
-	lc_seeded_rng_zero_state();
-
 	lc_kernel_sha256_exit();
 	lc_kernel_sha512_exit();
 	lc_kernel_sha3_exit();
@@ -420,6 +422,7 @@ static void __exit leancrypto_exit(void)
 	lc_kernel_chacha20_exit();
 	lc_kernel_cc20p1305_exit();
 
+	lc_seeded_rng_zero_state();
 	lc_proc_status_show_exit();
 }
 
