@@ -35,7 +35,7 @@
 #include "leancrypto_kernel.h"
 
 static unsigned int lc_init_flags = 0;
-module_param(lc_init_flags, unsigned int, S_IRUSR | S_IRGRP | S_IROTH);
+module_param(lc_init_flags, uint, S_IRUSR | S_IRGRP | S_IROTH);
 MODULE_PARM_DESC(lc_init_flags, "lc_init flags");
 
 EXPORT_SYMBOL(lc_disable_selftest);
