@@ -256,7 +256,7 @@ static void print_x509_pkey_size(const struct lc_x509_certificate *x509)
 {
 	const struct lc_public_key *pkey = &x509->pub;
 
-	printf("Public key size %zu\n", pkey->keylen);
+	printf("Public key size: %zu\n", pkey->keylen);
 }
 
 int print_x509_cert(const struct lc_x509_certificate *x509)
