@@ -131,7 +131,11 @@ static void lc_free_internal(void *ptr)
 
 	if (secure) {
 		lc_memset_secure(mem, 0, size);
+
+		/* Windows does not support munlock? */
+#ifndef _WIN32
 		munlock(mem, size);
+#endif
 	}
 
 #ifdef _WIN32
