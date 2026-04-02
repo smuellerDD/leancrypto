@@ -17,9 +17,17 @@
  * DAMAGE.
  */
 
+#include "build_bug_on.h"
 #include "ext_headers_internal.h"
 #include "lc_memory_support.h"
+#include "lc_memset_secure.h"
 #include "visibility.h"
+
+#define LC_MEM_DEF_ALIGNED_OFFSET 32
+struct lc_mem_def {
+	size_t size;
+	unsigned int secure : 1;
+};
 
 #ifdef _WIN32
 static int check_align(size_t align)
@@ -47,40 +55,53 @@ int posix_memalign(void **ptr, size_t align, size_t size)
 
 	return 0;
 }
-
 #endif
 
-LC_INTERFACE_FUNCTION(int, lc_alloc_aligned, void **memptr, size_t alignment,
-		      size_t size)
+static int alloc_aligned_secure_internal(void **memptr, size_t alignment,
+					 size_t size, unsigned int secure)
 {
-	int ret = posix_memalign(memptr, alignment, size);
+	size_t full_size = LC_MEM_DEF_ALIGNED_OFFSET + size;
+	struct lc_mem_def *mem;
+	void *ptr;
+	int ret = posix_memalign(&ptr, alignment, full_size);
+
+	BUILD_BUG_ON(LC_MEM_COMMON_ALIGNMENT > LC_MEM_DEF_ALIGNED_OFFSET);
+	BUILD_BUG_ON(LC_MEM_DEF_ALIGNED_OFFSET < sizeof(struct lc_mem_def));
 
 	if (ret)
 		return ret;
+
+	/* prevent paging out of the memory state to swap space */
+	if (secure) {
+		ret = mlock(ptr, full_size);
+		if (ret && errno != EPERM && errno != EAGAIN) {
+			int errsv = errno;
+
+			lc_free(ptr);
+			return -errsv;
+		}
+	}
+
+	mem = ptr;
+	mem->size = full_size;
+	mem->secure = !!secure;
+	*memptr = ((uint8_t *)mem) + LC_MEM_DEF_ALIGNED_OFFSET;
 
 	memset(*memptr, 0, size);
 
 	return 0;
 }
 
+LC_INTERFACE_FUNCTION(int, lc_alloc_aligned, void **memptr, size_t alignment,
+		      size_t size)
+{
+	return alloc_aligned_secure_internal(memptr, alignment, size, 0);
+}
+
 LC_INTERFACE_FUNCTION(int, lc_alloc_aligned_secure, void **memptr,
 		      size_t alignment, size_t size)
 {
-	int ret = lc_alloc_aligned(memptr, alignment, size);
-
-	if (ret)
-		return ret;
-
-	/* prevent paging out of the memory state to swap space */
-	ret = mlock(*memptr, size);
-	if (ret && errno != EPERM && errno != EAGAIN) {
-		int errsv = errno;
-
-		lc_free(*memptr);
-		return -errsv;
-	}
-
-	return 0;
+	return alloc_aligned_secure_internal(memptr, alignment, size, 1);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_alloc_high_aligned, void **memptr,
@@ -89,10 +110,30 @@ LC_INTERFACE_FUNCTION(int, lc_alloc_high_aligned, void **memptr,
 	return lc_alloc_aligned(memptr, alignment, size);
 }
 
-LC_INTERFACE_FUNCTION(void, lc_free, void *ptr)
+static void lc_free_internal(void *ptr)
 {
+	struct lc_mem_def *mem;
+	size_t size;
+	unsigned int secure;
+
 	if (!ptr)
 		return;
+
+	/* Alignment is guaranteed due to mmap */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
+	mem = (struct lc_mem_def *)(((uint8_t *)ptr) -
+				    LC_MEM_DEF_ALIGNED_OFFSET);
+#pragma GCC diagnostic pop
+
+	size = mem->size;
+	secure = mem->secure;
+
+	if (secure) {
+		lc_memset_secure(mem, 0, size);
+		munlock(mem, size);
+	}
+
 #ifdef _WIN32
 	_aligned_free(ptr);
 #else
@@ -100,8 +141,14 @@ LC_INTERFACE_FUNCTION(void, lc_free, void *ptr)
 #endif
 }
 
+
+LC_INTERFACE_FUNCTION(void, lc_free, void *ptr)
+{
+	lc_free_internal(ptr);
+}
+
 LC_INTERFACE_FUNCTION(void, lc_free_high_aligned, void *ptr, size_t size)
 {
 	(void)size;
-	lc_free(ptr);
+	lc_free_internal(ptr);
 }

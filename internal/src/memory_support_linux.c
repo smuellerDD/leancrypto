@@ -33,6 +33,7 @@
 struct lc_mem_def {
 	int fd;
 	size_t size;
+	unsigned int secure : 1;
 };
 
 /* Syscall may not be known on some system - disable support for it */
@@ -52,7 +53,7 @@ static int lc_alloc_have_memfd_secret = 0;
 #endif
 
 static int alloc_aligned_secure_internal(void **memptr, size_t alignment,
-					 size_t size, int secure)
+					 size_t size, unsigned int secure)
 {
 	size_t full_size = LC_MEM_DEF_ALIGNED_OFFSET + size;
 	struct lc_mem_def *mem;
@@ -79,6 +80,7 @@ static int alloc_aligned_secure_internal(void **memptr, size_t alignment,
 	mem = ptr;
 	mem->size = full_size;
 	mem->fd = -1;
+	mem->secure = !!secure;
 	*memptr = ((uint8_t *)mem) + LC_MEM_DEF_ALIGNED_OFFSET;
 
 	memset(*memptr, 0, size);
@@ -118,6 +120,7 @@ LC_INTERFACE_FUNCTION(int, lc_alloc_aligned_secure, void **memptr,
 
 	mem->fd = fd;
 	mem->size = full_size;
+	mem->secure = 1;
 	*memptr = ((uint8_t *)mem) + LC_MEM_DEF_ALIGNED_OFFSET;
 
 	memset(*memptr, 0, size);
@@ -148,10 +151,11 @@ LC_INTERFACE_FUNCTION(int, lc_alloc_high_aligned, void **memptr,
 	return lc_alloc_aligned(memptr, alignment, size);
 }
 
-static void lc_free_internal(void *ptr, int secure)
+static void lc_free_internal(void *ptr)
 {
 	struct lc_mem_def *mem;
 	size_t size;
+	unsigned int secure;
 	int fd;
 
 	if (!ptr)
@@ -166,22 +170,25 @@ static void lc_free_internal(void *ptr, int secure)
 
 	size = mem->size;
 	fd = mem->fd;
-
-	if (secure)
-		lc_memset_secure(mem, 0, size);
+	secure = mem->secure;
 
 	if (lc_alloc_have_memfd_secret && fd >= 0) {
+		lc_memset_secure(mem, 0, size);
 		munmap(mem, size);
 		if (fd != -1)
 			close(fd);
 	} else {
+		if (secure) {
+			lc_memset_secure(mem, 0, size);
+			munlock(mem, size);
+		}
 		free(mem);
 	}
 }
 
 LC_INTERFACE_FUNCTION(void, lc_free, void *ptr)
 {
-	lc_free_internal(ptr, 0);
+	lc_free_internal(ptr);
 }
 
 LC_INTERFACE_FUNCTION(void, lc_free_high_aligned, void *ptr, size_t size)

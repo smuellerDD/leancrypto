@@ -3,6 +3,8 @@ Changes 1.7.2-prerelease
 
 * Process code by AI code checkers and apply suggested cosmetic fixes
 
+* Heap memory: always munlock all mlock'ed memory
+
 Changes 1.7.1
 * Offer a means to select the AES-C constant time / S-Box implementation via lc_init API
 
