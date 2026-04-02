@@ -135,9 +135,9 @@ static void lc_free_internal(void *ptr)
 	}
 
 #ifdef _WIN32
-	_aligned_free(ptr);
+	_aligned_free(mem);
 #else
-	free(ptr);
+	free(mem);
 #endif
 }
 
