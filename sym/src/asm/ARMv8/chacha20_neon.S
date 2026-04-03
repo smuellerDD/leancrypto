@@ -27,15 +27,7 @@
 
 #include "assembler_support.h"
 
-#ifdef __APPLE__
-.section    __TEXT,__const
-#define RELOCATION(x) x ## @PAGE
-#define RELOCATION_OFF(x) x ## @PAGEOFF
-#else
-.section    .rodata
-#define RELOCATION(x) x
-#define RELOCATION_OFF(x) x
-#endif
+.text
 
 .align	5
 .Lsigma:
@@ -45,9 +37,6 @@
 .Lrot24:
 .long	0x02010003,0x06050407,0x0a09080b,0x0e0d0c0f
 .byte	67,104,97,67,104,97,50,48,32,102,111,114,32,65,82,77,118,56,44,32,67,82,89,80,84,79,71,65,77,83,32,98,121,32,64,100,111,116,45,97,115,109,0
-.align	2
-
-.text
 
 SYM_FUNC_START(ChaCha20_ctr32_dflt)
 SYM_FUNC_ENTER(ChaCha20_ctr32_dflt)
@@ -58,8 +47,7 @@ SYM_FUNC_ENTER(ChaCha20_ctr32_dflt)
 	stp	x29,x30,[sp,#-96]!
 	add	x29,sp,#0
 
-	adrp	x5,RELOCATION(.Lsigma)
-	add	x5,x5,#:lo12:RELOCATION_OFF(.Lsigma)
+	adr	x5,.Lsigma
 	stp	x19,x20,[sp,#16]
 	stp	x21,x22,[sp,#32]
 	stp	x23,x24,[sp,#48]
@@ -333,8 +321,7 @@ SYM_FUNC_ENTER(ChaCha20_neon)
 	stp	x29,x30,[sp,#-96]!
 	add	x29,sp,#0
 
-	adrp	x5,RELOCATION(.Lsigma)
-	add	x5,x5,#:lo12:RELOCATION_OFF(.Lsigma)
+	adr	x5,.Lsigma
 	stp	x19,x20,[sp,#16]
 	stp	x21,x22,[sp,#32]
 	stp	x23,x24,[sp,#48]
@@ -957,8 +944,7 @@ SYM_FUNC_ENTER(ChaCha20_512_neon)
 	stp	x29,x30,[sp,#-96]!
 	add	x29,sp,#0
 
-	adrp	x5,RELOCATION(.Lsigma)
-	add	x5,x5,#:lo12:RELOCATION_OFF(.Lsigma)
+	adr	x5,.Lsigma
 	stp	x19,x20,[sp,#16]
 	stp	x21,x22,[sp,#32]
 	stp	x23,x24,[sp,#48]
