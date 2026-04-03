@@ -103,8 +103,7 @@ LC_INTERFACE_FUNCTION(void, lc_sym_zero, struct lc_sym_ctx *ctx)
 		return;
 
 	sym = ctx->sym;
-	lc_memset_secure((uint8_t *)ctx + sizeof(struct lc_sym_ctx), 0,
-			 LC_SYM_STATE_SIZE(sym));
+	lc_memset_secure(ctx->sym_state, 0, sym->statesize);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_sym_alloc, const struct lc_sym *sym,
