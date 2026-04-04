@@ -63,11 +63,16 @@ static int alloc_aligned_secure_internal(void **memptr, size_t alignment,
 	size_t full_size = LC_MEM_DEF_ALIGNED_OFFSET + size;
 	struct lc_mem_def *mem;
 	void *ptr;
-	int ret = posix_memalign(&ptr, alignment, full_size);
+	int ret;
 
 	BUILD_BUG_ON(LC_MEM_COMMON_ALIGNMENT > LC_MEM_DEF_ALIGNED_OFFSET);
 	BUILD_BUG_ON(LC_MEM_DEF_ALIGNED_OFFSET < sizeof(struct lc_mem_def));
 
+	/* Guard against wraps */
+	if (full_size < size)
+		return -EOVERFLOW;
+
+	ret = posix_memalign(&ptr, alignment, full_size);
 	if (ret)
 		return ret;
 
