@@ -161,9 +161,9 @@ int lc_base64_decode_len(const char *idata, size_t ilen, size_t *olen,
 
 	dlen = (ilen - numlf) / 4 * 3;
 
-	if (idata[ilen - 1] == '=')
+	if (ilen >= 1 && idata[ilen - 1] == '=')
 		dlen--;
-	if (idata[ilen - 2] == '=')
+	if (ilen >= 2 && idata[ilen - 2] == '=')
 		dlen--;
 
 	*olen = dlen;
