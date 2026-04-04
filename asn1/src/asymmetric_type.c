@@ -39,28 +39,22 @@
  * asymmetric_key_generate_id: Construct an asymmetric key ID
  * @val_1: First binary blob
  * @len_1: Length of first binary blob
- * @val_2: Second binary blob
- * @len_2: Length of second binary blob
  *
  * Construct an asymmetric key ID from a pair of binary blobs.
  */
 int lc_asymmetric_key_generate_id(struct lc_asymmetric_key_id *kid,
-				  const uint8_t *val_1, size_t len_1,
-				  const uint8_t *val_2, size_t len_2)
+				  const uint8_t *val, size_t len)
 {
-	size_t len = len_1 + len_2;
-
 	BUILD_BUG_ON(sizeof(kid->data) > (1 << (sizeof(kid->len) << 3)));
+
+	if (!val || !len)
+		return -EINVAL;
 
 	if (len > sizeof(kid->data))
 		return -EOVERFLOW;
 
 	kid->len = (uint8_t)len;
-
-	if (val_1)
-		memcpy(kid->data, val_1, len_1);
-	if (val_2)
-		memcpy(kid->data + len_1, val_2, len_2);
+	memcpy(kid->data, val, len);
 
 	return 0;
 }
@@ -75,6 +69,6 @@ int lc_asymmetric_key_id_same(const struct lc_asymmetric_key_id *kid1,
 {
 	if (!kid1 || !kid2)
 		return 0;
-	return lc_memcmp_secure(kid1->data, kid2->len, kid2->data, kid2->len) ==
+	return lc_memcmp_secure(kid1->data, kid1->len, kid2->data, kid2->len) ==
 	       0;
 }

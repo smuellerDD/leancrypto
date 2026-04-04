@@ -42,8 +42,7 @@ extern int lc_asymmetric_key_id_same(const struct lc_asymmetric_key_id *kid1,
 				     const struct lc_asymmetric_key_id *kid2);
 
 extern int lc_asymmetric_key_generate_id(struct lc_asymmetric_key_id *,
-					 const uint8_t *val_1, size_t len_1,
-					 const uint8_t *val_2, size_t len_2);
+					 const uint8_t *val, size_t len);
 
 /*
  * The payload is at the discretion of the subtype.

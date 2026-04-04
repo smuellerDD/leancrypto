@@ -754,16 +754,16 @@ int lc_pkcs7_note_signed_info(void *context, size_t hdrlen, unsigned char tag,
 		if (ctx->raw_serial) {
 			CKINT(lc_asymmetric_key_generate_id(
 				&sinfo->sig.auth_ids[0], ctx->raw_serial,
-				ctx->raw_serial_size, NULL, 0));
+				ctx->raw_serial_size));
 		} else {
 			CKINT(lc_asymmetric_key_generate_id(
 				&sinfo->sig.auth_ids[0], ctx->raw_issuer,
-				ctx->raw_issuer_size, NULL, 0));
+				ctx->raw_issuer_size));
 		}
 	} else {
 		CKINT(lc_asymmetric_key_generate_id(
 			&sinfo->sig.auth_ids[0], ctx->raw_skid,
-			ctx->raw_skid_size, NULL, 0));
+			ctx->raw_skid_size));
 	}
 
 	bin2print_debug(sinfo->sig.auth_ids[0].data, sinfo->sig.auth_ids[0].len,

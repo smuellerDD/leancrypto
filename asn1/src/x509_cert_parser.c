@@ -300,7 +300,7 @@ int lc_x509_note_issuer(void *context, size_t hdrlen, unsigned char tag,
 
 	if (!sig->auth_ids[2].len) {
 		CKINT(lc_asymmetric_key_generate_id(&sig->auth_ids[2], value,
-						    vlen, NULL, 0));
+						    vlen));
 	}
 
 out:
@@ -645,7 +645,7 @@ int lc_x509_skid(void *context, size_t hdrlen, unsigned char tag,
 
 	cert->raw_skid_size = vlen;
 	cert->raw_skid = value;
-	CKINT(lc_asymmetric_key_generate_id(skid, value, vlen, NULL, 0));
+	CKINT(lc_asymmetric_key_generate_id(skid, value, vlen));
 	bin2print_debug(skid->data, skid->len, stdout, "subjkeyid");
 
 out:
@@ -908,7 +908,7 @@ int lc_x509_akid_note_kid(void *context, size_t hdrlen, unsigned char tag,
 	cert->raw_akid_size = vlen;
 	cert->raw_akid = value;
 
-	CKINT(lc_asymmetric_key_generate_id(auth_id, value, vlen, NULL, 0));
+	CKINT(lc_asymmetric_key_generate_id(auth_id, value, vlen));
 	bin2print_debug(auth_id->data, auth_id->len, stdout, "authkeyid");
 
 out:
@@ -957,14 +957,13 @@ int lc_x509_akid_note_serial(void *context, size_t hdrlen, unsigned char tag,
 	 * If we have a serial number, set it by itself.
 	 */
 	if (value) {
-		CKINT(lc_asymmetric_key_generate_id(auth_id, value, vlen, NULL,
-						    0));
+		CKINT(lc_asymmetric_key_generate_id(auth_id, value, vlen));
 	} else {
 		if (!ctx->akid_raw_issuer)
 			return 0;
 		CKINT(lc_asymmetric_key_generate_id(
 			auth_id, ctx->akid_raw_issuer,
-			ctx->akid_raw_issuer_size, NULL, 0));
+			ctx->akid_raw_issuer_size));
 	}
 
 	bin2print_debug(auth_id->data, auth_id->len, stdout, "authkeyid");
@@ -1062,8 +1061,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_decode,
 
 	/* Generate cert issuer + serial number key ID */
 	CKINT(lc_asymmetric_key_generate_id(
-		&x509->id, x509->raw_serial, x509->raw_serial_size,
-		x509->raw_issuer, x509->raw_issuer_size));
+		&x509->id, x509->raw_serial, x509->raw_serial_size));
 
 	/* Detect self-signed certificates */
 	CKINT(lc_x509_check_for_self_signed(x509));
