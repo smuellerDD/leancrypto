@@ -259,6 +259,11 @@ static int __base64_decode(const char *idata, size_t ilen, uint8_t *odata,
 			chars = 0;
 		}
 
+		if (ilen < i + 4) {
+			ret = -EINVAL;
+			goto out;
+		}
+
 		uint32_t sextet_a =
 			idata[i] == '=' ?
 				0 & (uint32_t)(i++) :
