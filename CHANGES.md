@@ -5,6 +5,10 @@ Changes 1.7.2-prerelease
 
 * Heap memory: always munlock all mlock'ed memory
 
+* Fix ChaCha20 on Apple compiled with XCode 26.4
+
+* Fix a potential crasher with Base64 and applied various fixes reported by Phuong Cao
+
 Changes 1.7.1
 * Offer a means to select the AES-C constant time / S-Box implementation via lc_init API
 
