@@ -104,16 +104,18 @@ LC_INTERFACE_FUNCTION(int, lc_alloc_aligned_secure, void **memptr,
 		      size_t alignment, size_t size)
 {
 	struct lc_mem_def *mem = NULL;
-	size_t full_size = LC_MEM_DEF_ALIGNED_OFFSET + size;
+	size_t full_size;
 	int fd;
-
-	/* Guard against wraps */
-	if (full_size < size)
-		return -EOVERFLOW;
 
 	if (!lc_alloc_have_memfd_secret)
 		return alloc_aligned_secure_internal(memptr, alignment, size,
 						     1);
+
+	full_size = LC_MEM_DEF_ALIGNED_OFFSET + size;
+
+	/* Guard against wraps */
+	if (full_size < size)
+		return -EOVERFLOW;
 
 	fd = (int)syscall(SYS_memfd_secret, O_CLOEXEC);
 	if (fd == -1)
