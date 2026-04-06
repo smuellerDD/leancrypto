@@ -254,6 +254,8 @@ int get_data(const char *filename, uint8_t **memory, size_t *mapped,
 		return mmap_data(filename, memory, mapped, O_RDONLY);
 
 	CKINT(mmap_data(filename, &mmap_mem, &mmap_mem_len, O_RDONLY));
+	CKNULL(mmap_mem, -ENODATA);
+	CKNULL(mmap_mem_len, -ENODATA);
 
 	/*
 	 * Autoguess whether input data is PEM encoded. If it is, decode,
@@ -268,6 +270,11 @@ int get_data(const char *filename, uint8_t **memory, size_t *mapped,
 		CKINT(lc_pem_decode((const char *)mmap_mem, mmap_mem_len,
 				    *memory, *mapped, pem_flags));
 	} else {
+		/*
+		 * TODO leave mmap here, but the question is how to detect
+		 * the difference between a mmap'ed memory and allocated
+		 * memory when releasing the memory in release_data.
+		 */
 		CKINT(lc_alloc_aligned((void **)memory, sizeof(uint64_t),
 				       mmap_mem_len));
 		memcpy(*memory, mmap_mem, mmap_mem_len);
