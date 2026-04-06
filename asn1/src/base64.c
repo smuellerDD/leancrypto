@@ -109,7 +109,8 @@ int lc_base64_encode_len(size_t ilen, size_t *olen, enum lc_base64_flags flags)
 	switch (flags) {
 	case lc_base64_flag_pem:
 		/* after 64 characters we have a LF */
-		elen += (elen >> 6);
+		if (elen)
+			elen += ((elen - 1) >> 6);
 		break;
 	case lc_base64_flag_unknown:
 		break;
