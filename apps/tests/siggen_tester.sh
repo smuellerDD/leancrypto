@@ -76,7 +76,7 @@ then
 	exit 77
 fi
 
-TMPDIR="./tmp.$$"
+TMPDIR="./tmp.$$.$RANDOM"
 
 global_failure_count=0
 
