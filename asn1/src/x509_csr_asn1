@@ -1,0 +1,40 @@
+-- SPDX-License-Identifier: BSD-3-Clause
+--
+-- Copyright (C) 2000 IETF Trust and the persons identified as authors
+-- of the code
+--
+-- https://www.rfc-editor.org/rfc/rfc2986#section-4
+
+CertificationRequest ::= SEQUENCE {
+	certificationRequestInfo	CertificationRequestInfo ({ lc_x509_note_csr_info }),
+	signatureAlgorithm		AlgorithmIdentifier ({ lc_x509_signature_algorithm }),
+	signature			BIT STRING ({ lc_x509_note_signature })
+	}
+
+CertificationRequestInfo ::= SEQUENCE {
+	version			Version ({ lc_x509_csr_version }),
+	subject			Name ({ lc_x509_note_subject }),
+	subjectPublicKeyInfo	SubjectPublicKeyInfo,
+	attributes	  [ 0 ] IMPLICIT ANY OPTIONAL
+	}
+
+Version ::= INTEGER
+
+AlgorithmIdentifier ::= SEQUENCE {
+	algorithm		OBJECT IDENTIFIER ({ lc_x509_note_algorithm_OID }),
+	parameters		ANY OPTIONAL ({ lc_x509_note_params })
+}
+
+Name ::= SEQUENCE OF RelativeDistinguishedName ({ lc_x509_attribute_value_continue })
+
+RelativeDistinguishedName ::= SET OF AttributeValueAssertion
+
+AttributeValueAssertion ::= SEQUENCE {
+	attributeType		OBJECT IDENTIFIER ({ lc_x509_note_attribute_type_OID }),
+	attributeValue		ANY ({ lc_x509_extract_attribute_name_segment })
+	}
+
+SubjectPublicKeyInfo ::= SEQUENCE {
+	algorithm		AlgorithmIdentifier,
+	subjectPublicKey	BIT STRING ({ lc_x509_extract_key_data })
+	}

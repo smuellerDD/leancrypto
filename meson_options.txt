@@ -346,6 +346,15 @@ The X.509 support operates completely on caller-provided memory and does not
 perform any memory allocation on its own.
 ''')
 
+option('x509_csr_parser', type: 'feature', value: 'enabled',
+       description: '''Enable X.509 CSR Parser
+
+The X.509 certificate signing request (CSR) parser allows the parsing of
+X.509 CSRs using the enabled asymmetric algorithms.
+
+Note: The X.509 CSR parser requires the availability of the X.509 parser.
+''')
+
 option('x509_generator', type: 'feature', value: 'enabled',
        description: '''Enable X.509 Generator Support
 
@@ -353,6 +362,15 @@ The X.509 generator allows the generation of X.509 certificates using the
 enabled asymmetric algorithms.
 
 Note: The X.509 generator requires the availability of the X.509 parser.
+''')
+
+option('x509_csr_generator', type: 'feature', value: 'enabled',
+       description: '''Enable X.509 CSR Generator Support
+
+The X.509 CSR generator allows the generation of X.509 CSRs using the
+enabled asymmetric algorithms.
+
+Note: The X.509 CSR generator requires the availability of the X.509 CSR parser.
 ''')
 
 option('pkcs7_parser', type: 'feature', value: 'enabled',

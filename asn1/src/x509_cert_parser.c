@@ -148,12 +148,20 @@ int lc_x509_note_signature(void *context, size_t hdrlen, unsigned char tag,
 	 * In X.509 certificates, the signature's algorithm is stored in two
 	 * places: inside the TBSCertificate (the data that is signed), and
 	 * alongside the signature.  These *must* match.
+	 *
+	 * For an X.509 CSR, however, the signature algorithm is not marked
+	 * separately.
 	 */
-	if (ctx->last_oid != ctx->sig_algo) {
-		printf_debug(
-			"signatureAlgorithm (%u) differs from tbsCertificate.signature (%u)\n",
-			ctx->last_oid, ctx->sig_algo);
-		return -EINVAL;
+	if (cert->is_csr) {
+		ctx->sig_algo = ctx->last_oid;
+		printf_debug("CSR signatureAlgorithm %u\n", ctx->sig_algo);
+	} else {
+		if (ctx->last_oid != ctx->sig_algo) {
+			printf_debug(
+				"signatureAlgorithm (%u) differs from tbsCertificate.signature (%u)\n",
+				ctx->last_oid, ctx->sig_algo);
+			return -EINVAL;
+		}
 	}
 
 	/* Discard the BIT STRING metadata */
@@ -221,6 +229,12 @@ int lc_x509_extract_name_segment(void *context, size_t hdrlen,
 	 * fill subject
 	 */
 	if (cert->raw_issuer)
+		name = &cert->subject_segments;
+
+	/*
+	 * A CSR only has a subject
+	 */
+	if (cert->is_csr)
 		name = &cert->subject_segments;
 
 #pragma GCC diagnostic push
@@ -1118,6 +1132,10 @@ LC_INTERFACE_FUNCTION(int, lc_x509_signature_verify, const uint8_t *sig_data,
 	CKNULL(cert, -EINVAL);
 	CKNULL(sig_data, -EINVAL);
 	CKNULL(m, -EINVAL);
+
+	/* Signature verification with a CSR does not work */
+	if (cert->is_csr)
+		return -EOPNOTSUPP;
 
 	pub = &cert->pub;
 

@@ -333,32 +333,32 @@ int lc_x509_name_segment_enc(const struct lc_x509_certificate_name *name,
 		name_data = name->c.value;
 		name_datalen = name->c.size;
 		*processed |= X509_C_PROCESSED;
-		printf_debug(" C ");
+		printf_debug(" C: ");
 	} else if (name->st.size && !(*processed & X509_ST_PROCESSED)) {
 		name_data = name->st.value;
 		name_datalen = name->st.size;
 		*processed |= X509_ST_PROCESSED;
-		printf_debug(" ST ");
+		printf_debug(" ST: ");
 	} else if (name->o.size && !(*processed & X509_O_PROCESSED)) {
 		name_data = name->o.value;
 		name_datalen = name->o.size;
 		*processed |= X509_O_PROCESSED;
-		printf_debug(" O ");
+		printf_debug(" O: ");
 	} else if (name->ou.size && !(*processed & X509_OU_PROCESSED)) {
 		name_data = name->ou.value;
 		name_datalen = name->ou.size;
 		*processed |= X509_OU_PROCESSED;
-		printf_debug(" OU ");
+		printf_debug(" OU: ");
 	} else if (name->cn.size && !(*processed & X509_CN_PROCESSED)) {
 		name_data = name->cn.value;
 		name_datalen = name->cn.size;
 		*processed |= X509_CN_PROCESSED;
-		printf_debug(" CN ");
+		printf_debug(" CN: ");
 	} else if (name->email.size && !(*processed & X509_EMAIL_PROCESSED)) {
 		name_data = name->email.value;
 		name_datalen = name->email.size;
 		*processed |= X509_EMAIL_PROCESSED;
-		printf_debug(" Email ");
+		printf_debug(" Email: ");
 	}
 
 	if (name_datalen) {
@@ -835,10 +835,6 @@ out:
  * Regular callbacks
  ******************************************************************************/
 
-/*
- * Save the position of the TBS data so that we can check the signature over it
- * later.
- */
 int lc_x509_note_tbs_certificate_enc(void *context, uint8_t *data,
 				     size_t *avail_datalen, uint8_t *tag)
 {
@@ -1367,6 +1363,9 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_encode,
 	CKNULL(x509, -EINVAL);
 	CKNULL(data, -EINVAL);
 
+	if (x509->is_csr)
+		return -EOPNOTSUPP;
+
 	ws->gctx.cert = x509;
 
 	/* Ensure that validity makes sense */
@@ -1557,6 +1556,12 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_signer,
 		signed_x509->valid_from = signer_x509->valid_from;
 
 	CKINT(lc_asym_set_signer(signed_x509, signer_key_data, signer_x509));
+
+	/*
+	 * If the signed_x509 was a CSR, turn it into a real certificate as
+	 * we are now ready to use it as a certificate.
+	 */
+	signed_x509->is_csr = 0;
 
 out:
 	return ret;

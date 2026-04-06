@@ -39,13 +39,14 @@ static const char lc_pem_marker_priv_key[] = "PRIVATE KEY";
 static const size_t lc_pem_marker_priv_key_len = 11;
 static const char lc_pem_marker_cms[] = "CMS";
 static const size_t lc_pem_marker_cms_len = 3;
+static const char lc_pem_marker_cert_req[] = "CERTIFICATE REQUEST";
+static const size_t lc_pem_marker_cert_req_len = 19;
 
 #if 0
 static const char lc_pem_marker_pkcs7[] = "PKCS7";
 static const size_t lc_pem_marker_pkcs7_len = 5;
 
 static const char lc_pem_marker_x509_crl[] = "X509 CRL";
-static const char lc_pem_marker_cert_req[] = "CERTIFICATE REQUEST";
 static const char lc_pem_marker_enc_priv_key[] = "ENCRYPTED PRIVATE KEY";
 static const char lc_pem_marker_attr_cert[] = "ATTRIBUTE CERTIFICATE";
 static const char lc_pem_marker_pub_key[] = "PUBLIC KEY";
@@ -62,6 +63,9 @@ static int lc_pem_envelope_label_len(size_t *olen, enum lc_pem_flags flags)
 		break;
 	case lc_pem_flag_cms:
 		*olen += lc_pem_marker_cms_len;
+		break;
+	case lc_pem_flag_csr:
+		*olen += lc_pem_marker_cert_req_len;
 		break;
 	case lc_pem_flag_nopem:
 	default:
@@ -173,29 +177,35 @@ out:
 static int lc_pem_encode_type(char **odata, size_t *olen,
 			      enum lc_pem_flags flags)
 {
+	const char *marker_data;
+	size_t marker_len;
+
 	switch (flags) {
 	case lc_pem_flag_certificate:
-		lc_memcpy_secure(*odata, *olen, lc_pem_marker_certificate,
-				 lc_pem_marker_certificate_len);
-		*olen -= lc_pem_marker_certificate_len;
-		*odata += lc_pem_marker_certificate_len;
+		marker_data = lc_pem_marker_certificate;
+		marker_len = lc_pem_marker_certificate_len;
 		break;
 	case lc_pem_flag_priv_key:
-		lc_memcpy_secure(*odata, *olen, lc_pem_marker_priv_key,
-				 lc_pem_marker_priv_key_len);
-		*olen -= lc_pem_marker_priv_key_len;
-		*odata += lc_pem_marker_priv_key_len;
+		marker_data = lc_pem_marker_priv_key;
+		marker_len = lc_pem_marker_priv_key_len;
 		break;
 	case lc_pem_flag_cms:
-		lc_memcpy_secure(*odata, *olen, lc_pem_marker_cms,
-				 lc_pem_marker_cms_len);
-		*olen -= lc_pem_marker_cms_len;
-		*odata += lc_pem_marker_cms_len;
+		marker_data = lc_pem_marker_cms;
+		marker_len = lc_pem_marker_cms_len;
+		break;
+	case lc_pem_flag_csr:
+		marker_data = lc_pem_marker_cert_req;
+		marker_len = lc_pem_marker_cert_req_len;
 		break;
 	case lc_pem_flag_nopem:
 	default:
 		return -EINVAL;
 	}
+
+	/* Now, copy the data into place */
+	lc_memcpy_secure(*odata, *olen, marker_data, marker_len);
+	*olen -= marker_len;
+	*odata += marker_len;
 
 	return 0;
 }
@@ -258,10 +268,22 @@ static int lc_pem_decode_type(enum lc_pem_flags *flags, const char **idata,
 {
 	size_t ilen_local = *ilen;
 	const char *idata_local = *idata;
+	int cert_found = 0;
 
 	*flags = lc_pem_flag_nopem;
 
-	if (ilen_local > lc_pem_marker_certificate_len) {
+	if (ilen_local > lc_pem_marker_cert_req_len) {
+		if (!lc_memcmp_secure(idata_local, lc_pem_marker_cert_req_len,
+				      lc_pem_marker_cert_req,
+				      lc_pem_marker_cert_req_len)) {
+			*flags |= lc_pem_flag_csr;
+			ilen_local -= lc_pem_marker_cert_req_len;
+			idata_local += lc_pem_marker_cert_req_len;
+			cert_found = 1;
+		}
+	}
+
+	if (!cert_found && (ilen_local > lc_pem_marker_certificate_len)) {
 		if (!lc_memcmp_secure(idata_local,
 				      lc_pem_marker_certificate_len,
 				      lc_pem_marker_certificate,

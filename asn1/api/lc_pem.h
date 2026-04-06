@@ -33,6 +33,8 @@ enum lc_pem_flags {
 	lc_pem_flag_priv_key = (1 << 1),
 	/** Binary data is a CMS object */
 	lc_pem_flag_cms = (1 << 2),
+	/** Binary data is a CSR object */
+	lc_pem_flag_csr = (1 << 3),
 };
 
 /**

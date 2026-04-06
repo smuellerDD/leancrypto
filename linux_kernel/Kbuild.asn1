@@ -68,6 +68,13 @@ leancrypto-$(CONFIG_LEANCRYPTO_X509_GENERATOR)				       \
 				   ../asn1/src/x509_cert_generator.o	       \
 				   ../asn1/src/x509_cert_generator_set_data.o
 
+leancrypto-$(CONFIG_LEANCRYPTO_X509_CSR_PARSER)				       \
+				+= ../asn1/src/x509_csr_asn1.o		       \
+				   ../asn1/src/x509_csr_parser.o
+
+leancrypto-$(CONFIG_LEANCRYPTO_X509_CSR_GENERATOR)			       \
+				+= ../asn1/src/x509_csr_generator.o
+
 ################################################################################
 # PKCS7 Support
 

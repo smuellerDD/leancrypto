@@ -30,9 +30,11 @@
 #include "ret_checkers.h"
 #include "lc_pem.h"
 #include "lc_status.h"
+#include "lc_x509_csr_generator.h"
 #include "lc_x509_generator.h"
 #include "lc_x509_generator_file_helper.h"
 #include "lc_x509_generator_helper.h"
+#include "lc_x509_csr_parser.h"
 #include "lc_x509_parser.h"
 #include "lc_pkcs8_parser.h"
 #include "lc_pkcs8_generator.h"
@@ -65,6 +67,7 @@ struct x509_generator_opts {
 	const char *signer_sk_file;
 	const char *data_file;
 	const char *x509_cert_file;
+	const char *x509_csr_file;
 
 	uint8_t *signer_data;
 	size_t signer_data_len;
@@ -78,6 +81,8 @@ struct x509_generator_opts {
 	size_t data_len;
 	uint8_t *x509_cert_data;
 	size_t x509_cert_data_len;
+	uint8_t *x509_csr_data;
+	size_t x509_csr_data_len;
 
 	enum lc_sig_types create_keypair_algo;
 	enum lc_sig_types in_key_type;
@@ -90,6 +95,7 @@ struct x509_generator_opts {
 	unsigned int generate_sk_seed : 1;
 	unsigned int pem_format_output : 1;
 	unsigned int convert_pem_der : 1;
+	unsigned int is_csr : 1;
 };
 
 static int x509_check_file(const char *file)
@@ -107,9 +113,18 @@ static int x509_check_file(const char *file)
 	return 0;
 }
 
+static enum lc_pem_flags x509_pem_type(struct x509_generator_opts *opts)
+{
+	if (opts->is_csr)
+		return lc_pem_flag_csr;
+	else
+		return lc_pem_flag_certificate;
+}
+
 static int x509_gen_file(struct x509_generator_opts *opts,
 			 const uint8_t *certdata, size_t certdata_len)
 {
+	enum lc_pem_flags pem_flags = lc_pem_flag_nopem;
 	int ret;
 
 	if (opts->noout)
@@ -119,9 +134,9 @@ static int x509_gen_file(struct x509_generator_opts *opts,
 
 	CKINT(x509_check_file(opts->outfile));
 
-	CKINT(write_data(opts->outfile, certdata, certdata_len,
-			 opts->pem_format_output ? lc_pem_flag_certificate :
-						   lc_pem_flag_nopem));
+	if (opts->pem_format_output)
+		pem_flags = x509_pem_type(opts);
+	CKINT(write_data(opts->outfile, certdata, certdata_len, pem_flags));
 out:
 	return ret;
 }
@@ -140,8 +155,15 @@ static int x509_enc_dump(struct x509_generator_opts *opts,
 		goto out;
 	}
 
-	CKINT_LOG(lc_x509_cert_decode(&ws->pcert, x509_data, x509_datalen),
-		  "X.509 decoding failed\n");
+	if (opts->is_csr) {
+		CKINT_LOG(lc_x509_csr_decode(&ws->pcert, x509_data,
+					     x509_datalen),
+			  "X.509 decoding failed\n");
+	} else {
+		CKINT_LOG(lc_x509_cert_decode(&ws->pcert, x509_data,
+					      x509_datalen),
+			  "X.509 decoding failed\n");
+	}
 
 	if (opts->checker) {
 		CKINT_LOG(apply_checks_x509(&ws->pcert, &opts->checker_opts),
@@ -172,11 +194,20 @@ static int x509_dump_file(struct x509_generator_opts *opts)
 		return 0;
 
 	CKINT_LOG(get_data(opts->print_x509_cert, &x509_data, &x509_datalen,
-			   lc_pem_flag_certificate),
+			   x509_pem_type(opts)),
 		  "Loading of file %s failed\n", opts->print_x509_cert);
 
-	CKINT_LOG(lc_x509_cert_decode(&ws->pcert, x509_data, x509_datalen),
-		  "Parsing of input file %s failed\n", opts->print_x509_cert);
+	if (opts->is_csr) {
+		CKINT_LOG(lc_x509_csr_decode(&ws->pcert, x509_data,
+					     x509_datalen),
+			  "Parsing of input file %s failed\n",
+			  opts->print_x509_cert);
+	} else {
+		CKINT_LOG(lc_x509_cert_decode(&ws->pcert, x509_data,
+					      x509_datalen),
+			  "Parsing of input file %s failed\n",
+			  opts->print_x509_cert);
+	}
 
 	if (opts->checker) {
 		/* Be lenient on received certificate */
@@ -190,7 +221,7 @@ static int x509_dump_file(struct x509_generator_opts *opts)
 
 out:
 	LC_RELEASE_MEM(ws);
-	release_data(x509_data, x509_datalen, lc_pem_flag_certificate);
+	release_data(x509_data, x509_datalen, x509_pem_type(opts));
 	return ret;
 }
 
@@ -210,7 +241,10 @@ static int x509_gen_cert(struct x509_generator_opts *opts)
 	/* Check the issuer */
 	CKINT(lc_x509_cert_check_issuer_ca(gcert));
 
-	CKINT(lc_x509_cert_encode(gcert, ws->data, &avail_datalen));
+	if (opts->is_csr)
+		CKINT(lc_x509_csr_encode(gcert, ws->data, &avail_datalen));
+	else
+		CKINT(lc_x509_cert_encode(gcert, ws->data, &avail_datalen));
 	datalen = DATASIZE - avail_datalen;
 
 	if (!opts->outfile)
@@ -243,14 +277,16 @@ static void x509_clean_opts(struct x509_generator_opts *opts)
 	lc_pkcs8_message_clear(&opts->pkcs8);
 
 	release_data(opts->signer_data, opts->signer_data_len,
-		     lc_pem_flag_certificate);
-	release_data(opts->pk_data, opts->pk_len, lc_pem_flag_certificate);
+		     x509_pem_type(opts));
+	release_data(opts->pk_data, opts->pk_len, x509_pem_type(opts));
 	release_data(opts->sk_data, opts->sk_len, lc_pem_flag_priv_key);
 	release_data(opts->signer_sk_data, opts->signer_sk_len,
 		     lc_pem_flag_priv_key);
 	release_data(opts->data, opts->data_len, lc_pem_flag_nopem);
 	release_data(opts->x509_cert_data, opts->x509_cert_data_len,
-		     lc_pem_flag_certificate);
+		     x509_pem_type(opts));
+	release_data(opts->x509_csr_data, opts->x509_csr_data_len,
+		     lc_pem_flag_csr);
 }
 
 static int x509_enc_eku(struct x509_generator_opts *opts,
@@ -650,7 +686,7 @@ static int x509_enc_set_signer(struct x509_generator_opts *opts)
 	CKNULL(opts->x509_signer_file, -EINVAL);
 
 	CKINT_LOG(get_data(opts->x509_signer_file, &opts->signer_data,
-			   &opts->signer_data_len, lc_pem_flag_certificate),
+			   &opts->signer_data_len, x509_pem_type(opts)),
 		  "mmap failure\n");
 
 	CKINT_LOG(lc_x509_cert_decode(&opts->signer_cert, opts->signer_data,
@@ -717,8 +753,9 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 		/* Access the X.509 certificate file */
 		CKINT_LOG(get_data(opts->x509_cert_file, &opts->x509_cert_data,
 				   &opts->x509_cert_data_len,
-				   lc_pem_flag_certificate),
+				   x509_pem_type(opts)),
 			  "X.509 certificate mmap failure\n");
+
 		/* Parse the X.509 certificate */
 		CKINT_LOG(lc_x509_cert_decode(gcert, opts->x509_cert_data,
 					      opts->x509_cert_data_len),
@@ -734,12 +771,38 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 			  "Parsing of secret key failed\n");
 
 		opts->cert_present = 1;
+	} else if (opts->x509_csr_file) {
+		/* Caller set X.509 CSR, perhaps for conversion into cert. */
+
+		/* Access the X.509 certificate file */
+		CKINT_LOG(get_data(opts->x509_csr_file, &opts->x509_csr_data,
+				   &opts->x509_csr_data_len,
+				   lc_pem_flag_csr),
+			  "X.509 CSR mmap failure\n");
+
+		/* Parse the X.509 CSR */
+		CKINT_LOG(lc_x509_csr_decode(gcert, opts->x509_csr_data,
+					     opts->x509_csr_data_len),
+			  "Loading of X.509 CSR failed\n");
+
+		if (self_signed) {
+			/* Access the secret key file */
+			CKINT_LOG(get_data(opts->sk_file, &opts->sk_data,
+					   &opts->sk_len, lc_pem_flag_priv_key),
+				  "Secret key mmap failure\n");
+
+			/* Parse the X.509 secret key */
+			CKINT_LOG(x509_sk_decode(opts, keys,
+						 gcert->pub.pkey_algo,
+						 opts->sk_data, opts->sk_len),
+				  "Parsing of secret key failed\n");
+		}
 	} else {
 		CKNULL_LOG(!opts->in_key_type, -EINVAL,
 			   "Input key files must be specified with key type\n");
 
 		CKINT_LOG(get_data(opts->pk_file, &opts->pk_data, &opts->pk_len,
-				   lc_pem_flag_certificate),
+				   x509_pem_type(opts)),
 			  "PK mmap failure\n");
 		CKINT_LOG(lc_x509_pk_decode(keys, opts->in_key_type,
 					    opts->pk_data, opts->pk_len),
@@ -766,15 +829,36 @@ static int x509_enc_crypto_algo(struct x509_generator_opts *opts)
 {
 	int ret;
 
-	if (!opts->noout && !opts->sk_file) {
+	/*
+	 * When a new is generated, we need a secret key.
+	 *
+	 * When we turn a CSR into a cert, a signer is needed
+	 */
+	if ((!opts->noout && !opts->sk_file) &&
+	    (!opts->x509_csr_file && !opts->signer_sk_file)) {
 		printf("A secret key file for the generation the signature is missing!\n");
 		return -EINVAL;
 	}
 
 	if (!opts->x509_cert_file && !opts->create_keypair_algo &&
-	    !opts->pk_file) {
+	    !opts->pk_file && !opts->x509_csr_file) {
 		printf("A public key file for the generation the X.509 certificate is missing as no key pair shall be generated!\n");
 		return -EINVAL;
+	}
+
+	/*
+	 * When we have a CSR, require a key generation and disallow a signer.
+	 */
+	if (opts->is_csr) {
+		if (!opts->create_keypair_algo && !opts->pk_file &&
+		    !opts->sk_file) {
+			printf("For a CSR either a key pair must be newly generated or a public/private key pair must be provided\n");
+			return -EINVAL;
+		}
+		if (opts->x509_signer_file) {
+			printf("A CSR is self-signed, providing a signer is disallowed\n");
+			return -EINVAL;
+		}
 	}
 
 	/*
@@ -804,6 +888,11 @@ static int x509_sign_data(struct x509_generator_opts *opts)
 
 	if (!opts->data_file)
 		return 0;
+
+	if (opts->is_csr) {
+		printf("Using a CSR to sign data is prohibited\n");
+		return -EOPNOTSUPP;
+	}
 
 	CKINT(lc_x509_get_signature_size_from_sk(&siglen, key_data));
 
@@ -862,7 +951,7 @@ static int x509_convert(struct x509_generator_opts *opts)
 	if (opts->x509_signer_file) {
 		CKINT_LOG(get_data(opts->x509_signer_file, &opts->signer_data,
 				   &opts->signer_data_len,
-				   lc_pem_flag_certificate),
+				   x509_pem_type(opts)),
 			  "mmap failure\n");
 
 		if (!opts->outfile) {
@@ -953,10 +1042,12 @@ static void x509_generator_usage(void)
 	fprintf(stderr,
 		"\t   --signer-sk-file <FILE>\tFile with signer secret\n");
 	fprintf(stderr, "\t   --x509-cert <FILE>\t\tCertificate for signing\n");
+	fprintf(stderr, "\t   --x509-csr <FILE>\t\tCSR to conver into cert\n");
 	fprintf(stderr,
 		"\t   --pem-output\t\t\tKey / certificate files are created\n");
 	fprintf(stderr, "\t\t\t\t\tin PEM format (input data PEM format\n");
 	fprintf(stderr, "\t\t\t\t\tis autodetected)\n");
+	fprintf(stderr, "\t   --csr\t\t\tCreate X.509 CSR instead of a certificate\n");
 
 	fprintf(stderr, "\n\tOptions for conversion DER / PEM:\n");
 	fprintf(stderr, "\n\t   --convert\t\t\tConvert cerificate:\n");
@@ -1150,6 +1241,9 @@ int main(int argc, char *argv[])
 		{ "create-keypair-pkcs8", 1, 0, 0 },
 		{ "pem-output", 0, 0, 0 },
 		{ "convert", 0, 0, 0 },
+
+		{ "csr", 0, 0, 0 },
+		{ "x509-csr", 1, 0, 0 },
 
 		{ 0, 0, 0, 0 }
 	};
@@ -1500,6 +1594,15 @@ int main(int argc, char *argv[])
 			/* convert */
 			case 59:
 				ws->parsed_opts.convert_pem_der = 1;
+				break;
+
+			/* csr */
+			case 60:
+				ws->parsed_opts.is_csr = 1;
+				break;
+			/* x509-csr */
+			case 61:
+				ws->parsed_opts.x509_csr_file = optarg;
 				break;
 
 			default:

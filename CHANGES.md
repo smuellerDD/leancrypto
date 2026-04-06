@@ -9,6 +9,8 @@ Changes 1.7.2-prerelease
 
 * Fix a potential crasher with Base64 and applied various fixes reported by Phuong Cao
 
+* Add X.509 certificate signing request (CSR) generator and parser
+
 Changes 1.7.1
 * Offer a means to select the AES-C constant time / S-Box implementation via lc_init API
 

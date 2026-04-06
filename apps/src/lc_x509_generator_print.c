@@ -263,6 +263,15 @@ int print_x509_cert(const struct lc_x509_certificate *x509)
 {
 	int ret;
 
+	if (x509->is_csr) {
+		printf("Object type: X.509 Certificate Signing Request\n");
+		print_x509_name("Subject", &x509->subject_segments);
+		print_x509_pubkey_algo(x509);
+		print_x509_pkey_size(x509);
+		return 0;
+	}
+
+	printf("Object type: X.509 Certificate\n");
 	print_x509_serial(x509);
 	print_x509_sinature_algo(x509);
 	print_x509_name("Issuer", &x509->issuer_segments);

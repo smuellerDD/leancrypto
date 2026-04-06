@@ -21,6 +21,17 @@ if get_option('x509_parser').enabled()
 	])
 endif
 
+if get_option('x509_csr_parser').enabled()
+	include_files += files([
+		'../api/lc_x509_csr_parser.h',
+	])
+
+	src += files([
+		'x509_csr_asn1.c',
+		'x509_csr_parser.c',
+	])
+endif
+
 if get_option('x509_generator').enabled()
 	x509_common_support = 1
 
@@ -39,6 +50,24 @@ else
 	if get_option('x509_parser').enabled()
 		src += files([
 			'x509_cert_generator_null.c'
+		])
+	endif
+endif
+
+if get_option('x509_csr_generator').enabled()
+	x509_common_support = 1
+
+	include_files += files([
+		'../api/lc_x509_csr_generator.h'
+	])
+
+	src += files([
+		'x509_csr_generator.c',
+	])
+else
+	if get_option('x509_csr_parser').enabled()
+		src += files([
+			'x509_csr_generator_null.c'
 		])
 	endif
 endif

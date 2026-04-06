@@ -367,6 +367,10 @@ LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_cert_valid,
 	if (!cert)
 		return -EINVAL;
 
+	/* A CSR is always valid as it has no policy attached to it */
+	if (cert->is_csr)
+		return LC_X509_POL_TRUE;
+
 	/*
 	 * RFC5280 section 4.2.1.3: SKID must always be present.
 	 */

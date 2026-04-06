@@ -722,8 +722,18 @@ if get_option('x509_parser').disabled() and get_option('pkcs7_parser').enabled()
 	error('PKCS#7 parser support requires X.509 parser support')
 endif
 
+if (get_option('x509_parser').disabled() and
+    get_option('x509_csr_parser').enabled())
+	error('X.509 CSR parser support requires X.509 parser support')
+endif
+
 if get_option('x509_parser').disabled() and get_option('x509_generator').enabled()
 	error('X.509 generator support requires X.509 parser support')
+endif
+
+if (get_option('x509_csr_parser').disabled() and
+    get_option('x509_csr_generator').enabled())
+	error('X.509 CSR generator support requires X.509 CSR parser support')
 endif
 
 if get_option('pkcs7_parser').disabled() and get_option('pkcs7_generator').enabled()

@@ -268,7 +268,9 @@ int get_data(const char *filename, uint8_t **memory, size_t *mapped,
 		CKINT(lc_pem_decode((const char *)mmap_mem, mmap_mem_len,
 				    *memory, *mapped, pem_flags));
 	} else {
-		*memory = mmap_mem;
+		CKINT(lc_alloc_aligned((void **)memory, sizeof(uint64_t),
+				       mmap_mem_len));
+		memcpy(*memory, mmap_mem, mmap_mem_len);
 		*mapped = mmap_mem_len;
 		return 0;
 	}
@@ -288,14 +290,8 @@ void release_data(uint8_t *memory, size_t memory_length,
 	if (pem_flags == lc_pem_flag_nopem) {
 		munmap(memory, memory_length);
 	} else {
-		/*
-		 * First we attempt to unmap. If it does not work, then
-		 * we know the data was allocated and thus we free it.
-		 */
-		if (munmap(memory, memory_length) == -1) {
-			lc_memset_secure(memory, 0, memory_length);
-			lc_free(memory);
-		}
+		lc_memset_secure(memory, 0, memory_length);
+		lc_free(memory);
 	}
 }
 

@@ -1,5 +1,6 @@
 hasher_test_script = find_program('hasher-test.sh', required: true)
 siggen_test_script = find_program('siggen_tester.sh', required: true)
+csr_test_script = find_program('csr_tester.sh', required: true)
 sbsign_test_script = find_program('sbsign_test.sh', required: true)
 sbvarsign_test_script = find_program('sbvarsign_test.sh', required: true)
 sbsiglist_test_script = find_program('sbsiglist_test.sh', required: true)
@@ -47,6 +48,19 @@ x509_rootca_args = [
 	'--check-akid', '0a0b0c0d0e0f',
 	'--check-time',
 	'--check-keyusage', '16548'
+	]
+
+x509_csr_args = [
+	'--subject-cn', 'leancrypto test CA',
+	'--subject-ou', 'leancrypto test OU',
+	'--subject-o', 'leancrypto',
+	'--subject-st', 'Saxony',
+	'--subject-c', 'DE',
+	'--csr',
+	'--noout',
+	'--print',
+
+	'--check-subject-cn', 'leancrypto test CA',
 	]
 
 # This definition also checks that the validity is properly set by initializing
@@ -333,6 +347,104 @@ if (host_machine.system() != 'windows' and
 		endif
 
 	endif
+
+
+	if get_option('x509_csr_generator').enabled()
+		if (dilithium_enabled)
+			test('X.509 Gen CSR ML-DSA87',
+				lc_x509_generator,
+				args: [ x509_csr_args, '--create-keypair',
+					'ML-DSA87' ],
+				timeout: 300, suite: regression,
+				is_parallel: false,
+				should_fail: fips140_negative_expect_fail)
+			test('X.509 Gen CSR ML-DSA65',
+				lc_x509_generator,
+				args: [ x509_csr_args, '--create-keypair',
+					'ML-DSA65' ],
+				timeout: 300, suite: regression,
+				is_parallel: false,
+				should_fail: fips140_negative_expect_fail)
+			test('X.509 Gen CSR ML-DSA44',
+				lc_x509_generator,
+				args: [ x509_csr_args, '--create-keypair',
+					'ML-DSA44' ],
+				timeout: 300, suite: regression,
+				is_parallel: false,
+				should_fail: fips140_negative_expect_fail)
+		endif
+
+		if (sphincs_enabled)
+			test('X.509 Gen CSR SLH-DSA-SHAKE-256S',
+				lc_x509_generator,
+				args: [ x509_csr_args, '--create-keypair',
+					'SLH-DSA-SHAKE-256S' ],
+				is_parallel: false, timeout: 600,
+				suite: regression,
+				should_fail: fips140_negative_expect_fail)
+			test('X.509 Gen CSR SLH-DSA-SHAKE-256F',
+				lc_x509_generator,
+				args: [ x509_csr_args, '--create-keypair',
+					'SLH-DSA-SHAKE-256F' ],
+				is_parallel: false, timeout: 600,
+				suite: regression,
+				should_fail: fips140_negative_expect_fail)
+			test('X.509 Gen CSR SLH-DSA-SHAKE-192S',
+				lc_x509_generator,
+				args: [ x509_csr_args, '--create-keypair',
+				'SLH-DSA-SHAKE-192S' ],
+				is_parallel: false, timeout: 600,
+				suite: regression,
+				should_fail: fips140_negative_expect_fail)
+			test('X.509 Gen CSR SLH-DSA-SHAKE-192F',
+				lc_x509_generator,
+				args: [ x509_csr_args, '--create-keypair',
+				'SLH-DSA-SHAKE-192F' ],
+				is_parallel: false, timeout: 600,
+				suite: regression,
+				should_fail: fips140_negative_expect_fail)
+			test('X.509 Gen CSR SLH-DSA-SHAKE-128S',
+				lc_x509_generator,
+				args: [ x509_csr_args, '--create-keypair',
+					'SLH-DSA-SHAKE-128S' ],
+				is_parallel: false, timeout: 600,
+				suite: regression,
+				should_fail: fips140_negative_expect_fail)
+			test('X.509 Gen CSR SLH-DSA-SHAKE-128F',
+				lc_x509_generator,
+				args: [ x509_csr_args, '--create-keypair',
+					'SLH-DSA-SHAKE-128F' ],
+				is_parallel: false, timeout: 600,
+				suite: regression,
+				should_fail: fips140_negative_expect_fail)
+		endif
+
+		if get_option('dilithium_ed25519').enabled()
+			test('X.509 Gen CSR ML-DSA65-ED25519',
+				lc_x509_generator,
+				args: [ x509_csr_args, '--create-keypair',
+					'ML-DSA65-ED25519' ],
+				timeout: 300, suite: regression,
+				should_fail: fips140_negative_expect_fail)
+			test('X.509 Gen CSR ML-DSA44-ED25519',
+				lc_x509_generator,
+				args: [ x509_csr_args, '--create-keypair',
+					'ML-DSA44-ED25519' ],
+				timeout: 300, suite: regression,
+				should_fail: fips140_negative_expect_fail)
+		endif
+
+		if get_option('dilithium_ed448').enabled()
+			test('X.509 Gen CSR ML-DSA87-ED448',
+				lc_x509_generator,
+				args: [ x509_csr_args, '--create-keypair',
+					'ML-DSA87-ED448' ],
+				timeout: 300, suite: regression,
+				should_fail: fips140_negative_expect_fail)
+		endif
+
+	endif
+
 
 	if get_option('pkcs7_generator').enabled()
 
@@ -697,6 +809,108 @@ if (host_machine.system() != 'windows' and
 		     should_fail: fips140_negative_expect_fail)
 		test('X.509/PKCS8 keygen/siggen/sigver LC - OpenSSL Interop SLH-DSA-SHAKE-256S',
 		     siggen_test_script,
+		     args: [ 'SLH-DSA-SHAKE-256S',
+			     lc_x509_generator.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+	endif
+
+	if (get_option('pkcs8_generator').enabled() and
+	    get_option('x509_csr_generator').enabled())
+		test('X.509/PKCS8 CSR -> cert LC - OpenSSL Interop ML-DSA87',
+		     csr_test_script,
+		     args: [ 'ML-DSA87',
+			     lc_x509_generator.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('X.509/PKCS8 CSR -> cert LC - OpenSSL Interop ML-DSA65',
+		     csr_test_script,
+		     args: [ 'ML-DSA65',
+			     lc_x509_generator.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('X.509/PKCS8 CSR -> cert LC - OpenSSL Interop ML-DSA44',
+		     csr_test_script,
+		     args: [ 'ML-DSA44',
+			     lc_x509_generator.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+
+		test('X.509/PKCS8 CSR -> cert ML-DSA87-ED448',
+		     csr_test_script,
+		     args: [ 'ML-DSA87-ED448',
+			     lc_x509_generator.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('X.509/PKCS8 CSR -> cert ML-DSA65-ED25519',
+		     csr_test_script,
+		     args: [ 'ML-DSA65-ED25519',
+			     lc_x509_generator.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('X.509/PKCS8 CSR -> cert ML-DSA44-ED25519',
+		     csr_test_script,
+		     args: [ 'ML-DSA44-ED25519',
+			     lc_x509_generator.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+
+		test('X.509/PKCS8 CSR -> cert LC - OpenSSL Interop SLH-DSA-SHAKE-128F',
+		     csr_test_script,
+		     args: [ 'SLH-DSA-SHAKE-128F',
+			     lc_x509_generator.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('X.509/PKCS8 CSR -> cert LC - OpenSSL Interop SLH-DSA-SHAKE-128S',
+		     csr_test_script,
+		     args: [ 'SLH-DSA-SHAKE-128S',
+			     lc_x509_generator.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('X.509/PKCS8 CSR -> cert LC - OpenSSL Interop SLH-DSA-SHAKE-192F',
+		     csr_test_script,
+		     args: [ 'SLH-DSA-SHAKE-192F',
+			     lc_x509_generator.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('X.509/PKCS8 CSR -> cert LC - OpenSSL Interop SLH-DSA-SHAKE-192S',
+		     csr_test_script,
+		     args: [ 'SLH-DSA-SHAKE-192S',
+			     lc_x509_generator.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('X.509/PKCS8 CSR -> cert LC - OpenSSL Interop SLH-DSA-SHAKE-256F',
+		     csr_test_script,
+		     args: [ 'SLH-DSA-SHAKE-256F',
+			     lc_x509_generator.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('X.509/PKCS8 CSR -> cert LC - OpenSSL Interop SLH-DSA-SHAKE-256S',
+		     csr_test_script,
 		     args: [ 'SLH-DSA-SHAKE-256S',
 			     lc_x509_generator.full_path(),
 			     lc_pkcs7_generator.full_path(),

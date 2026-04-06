@@ -74,6 +74,8 @@ DISABLE_ASN1="
  -Dx509_parser=disabled
  -Dpkcs7_parser=disabled
  -Dpkcs8_parser=disabled
+ -Dx509_csr_generator=disabled
+ -Dx509_csr_parser=disabled
 "
 
 DISABLE_MISC="

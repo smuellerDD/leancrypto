@@ -86,6 +86,11 @@ DISABLE_MISC="
  -Dapps=disabled
 "
 
+DSIABLE_ASN1="
+ -Dx509_csr_generator=disabled
+ -Dx509_csr_parser=disabled
+"
+
 FORCE_SEEDSOURCE="
  -Dseedsource=cpu
 "
@@ -110,5 +115,6 @@ meson setup leancrypto-build-shim \
  $DISABLE_KDF \
  $DISABLE_ASN1 \
  $DISABLE_MISC \
+ $DSIABLE_ASN1 \
  $FORCE_SEEDSOURCE $1
 

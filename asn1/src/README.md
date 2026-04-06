@@ -487,3 +487,98 @@ It applies the following approach:
 * A caller can provide the required key usage or EKU flags that a signer must
   bear for successful validation to `lc_pkcs7_verify` or via
   `lc_pkcs7_generator`.
+  
+# Certificate Signing Requests (CSR)
+
+Leancrypto is able to generate CSRs as well as convert them into certificates.
+The functionality is enabled with the meson configuration options of
+`x509_csr_parser` and `x509_csr_generator`.
+
+The generation of a CSR with the API is provided with `lc_x509_csr_encode`. The
+parsing of a CSR is provided with the API of `lc_x509_csr_decode`. The
+Dosxygen documentation of both functions refer discuss the utilization of the
+APIs.
+
+The command line application of `lc_x509_generator` can be used to both
+generate a CSR as well as validate it and turn it into a certificate. The
+following steps apply.
+
+The CSR interoperate with OpenSSL - tests verifying this interoperability are
+applied as part of the regression test suite. The CSR is parsable with OpenSSL
+as well as OpenSSL-generated CSRs are parsed with leancrypto.
+
+## Generate a CSR on Command Line
+
+The following command generates a CSR with the following properties:
+
+* CSR is stored in file `csr.pem`
+
+* associated private key is stored in `sk.pem`
+
+* key type is composite ML-DSA87-ED448
+
+* the output data is given in PEM format
+
+* the subject is set to `CN=leancrypto test CSR`
+
+```
+lc_x509_generator \
+ --pem-output \
+ --csr \
+ --subject-cn 'leancrypto test CSR' \
+ --create-keypair-pkcs8-seed ML-DSA87-ED448 \
+ --sk-file sk.pem \
+ --outfile csr.pem
+```
+
+## Printing the Contents of a CSR
+
+The following command can be used to print the contents of a CSR provided
+with the file `csr.pem` where the command also verifies its signature:
+
+```
+lc_x509_generator --csr --print-x509 csr.pem 
+```
+
+The following example lists such CSR output:
+
+```
+Object type: X.509 Certificate Signing Request
+Subject: CN = leancrypto test CSR
+Public Key Algorithm: ML-DSA87-ED448
+Public key size: 2649
+```
+
+## Convert a CSR into a Certifiate on Command Line
+
+The following command generates a certificate from the CSR with the following
+assumptions:
+
+* CSR is provided with `csr.pem`
+
+* output certificate is stored in `cert.pem`
+
+* key usage `digitalSignature`, `keyEncipherment`, `keyCertSign` are set as
+  critical
+  
+* validity period is 365 days from now
+
+* the CA certificate used to sign is provided with `signer_cert.pem` and
+  `signer_sk.pem`
+  
+```
+lc_x509_generator \
+ --pem-output \
+ --x509-csr csr.pem \
+ -o cert.pem \
+ --keyusage digitalSignature \
+ --keyusage keyEncipherment \
+ --keyusage keyCertSign \
+ --keyusage critical \
+ --valid-days 365 \
+ --x509-signer  signer_cert.pem \
+ --signer-sk-file signer_sk.pem
+```
+
+After the certificate is generated, it can be used normally with the remainder
+of the leancrypto API or other cryptographic libraries.

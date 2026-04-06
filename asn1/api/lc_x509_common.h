@@ -368,6 +368,12 @@ struct lc_x509_certificate {
 		: 1; /* T if signature uses unsupported crypto */
 	unsigned int blacklisted : 1;
 	unsigned int allocated : 1;
+
+	/*
+	 * Structure pertains to a CSR and shall not be handled as a regular
+	 * certificate.
+	 */
+	unsigned int is_csr : 1;
 };
 
 /// \endcond
