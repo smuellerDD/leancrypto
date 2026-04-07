@@ -36,7 +36,7 @@ static int dilithium_pk_from_sk(void)
 	CKINT(lc_dilithium_keypair(&ws->pk, &ws->sk, lc_seeded_rng));
 	CKINT(lc_dilithium_pk_from_sk(&ws->pk2, &ws->sk));
 	if (memcmp(ws->pk.pk, ws->pk2.pk, LC_DILITHIUM_PUBLICKEYBYTES)) {
-		printf("Public key mismatch at test vector %u\n");
+		printf("Public key mismatch\n");
 		ret = 1;
 		goto out;
 	}
