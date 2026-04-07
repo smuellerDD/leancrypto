@@ -128,7 +128,7 @@ cp -ar "$@" source/
 mkdir obj
 
 %build
-%meson -Dseedsource=esdm
+%meson -Dseedsource=esdm -Dsbsigntools=enabled
 %meson_build
 for flavor in %flavors_to_build; do
 	KERNELRELEASE=`make -s -C /%{_prefix}/src/linux-obj/%{_target_cpu}/$flavor kernelrelease`
