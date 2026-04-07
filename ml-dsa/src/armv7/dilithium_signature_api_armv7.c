@@ -34,6 +34,15 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_from_seed,
 	return lc_dilithium_keypair_from_seed_armv7(pk, sk, seed, seedlen);
 }
 
+LC_INTERFACE_FUNCTION(int, lc_dilithium_pk_from_sk, struct lc_dilithium_pk *pk,
+		      const struct lc_dilithium_sk *sk)
+{
+	dilithium_keypair_tester(lc_dilithium_keypair_from_seed_armv7);
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLDSA_KEYGEN);
+
+	return lc_dilithium_pk_from_sk_armv7(pk, sk);
+}
+
 LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair, struct lc_dilithium_pk *pk,
 		      struct lc_dilithium_sk *sk, struct lc_rng_ctx *rng_ctx)
 {

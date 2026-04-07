@@ -65,42 +65,125 @@ extern "C" {
 #define WS_POLY_UNIFORM_BUF_SIZE                                               \
 	(_WS_POLY_UNIFORM_BUF_SIZE * LC_POLY_UNIFOR_BUF_SIZE_MULTIPLIER)
 
-static int lc_dilithium_keypair_from_seed_impl(struct lc_dilithium_pk *pk,
-					       struct lc_dilithium_sk *sk,
-					       const uint8_t *seed,
-					       size_t seedlen);
+struct keygen_workspace {
+	union {
+		polyvecl s1, s1hat;
+	} s1;
+	union {
+		polyvecl mat[LC_DILITHIUM_K];
+		polyveck t0;
+	} matrix;
+	polyveck s2, t1;
+	uint8_t seedbuf[2 * LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_CRHBYTES];
+	union {
+		poly polyvecl_pointwise_acc_montgomery_buf;
+		uint8_t poly_uniform_buf[WS_POLY_UNIFORM_BUF_SIZE];
+		uint8_t poly_uniform_eta_buf[POLY_UNIFORM_ETA_BYTES];
+	} tmp;
+};
+
+static void lc_dilithum_pk_sk_from_rho_s1_s2(uint8_t *pubkey, uint8_t *seckey,
+					     const uint8_t *rho,
+					     struct keygen_workspace *ws)
+{
+	polyveck *t1, *s2, *t0;
+	polyvecl *s1;
+	unsigned int i;
+
+	polyvecl_ntt(&ws->s1.s1hat);
+
+	/* Expand matrix */
+	polyvec_matrix_expand(ws->matrix.mat, rho, ws->tmp.poly_uniform_buf);
+
+	s1 = &ws->s1.s1hat;
+	s2 = &ws->s2;
+	t1 = &ws->t1;
+	t0 = &ws->matrix.t0;
+	for (i = 0; i < LC_DILITHIUM_K; ++i) {
+		polyvecl_pointwise_acc_montgomery(
+			&t1->vec[i], &ws->matrix.mat[i], s1,
+			&ws->tmp.polyvecl_pointwise_acc_montgomery_buf);
+
+		poly_reduce(&t1->vec[i]);
+		poly_invntt_tomont(&t1->vec[i]);
+
+		/* Add error vector s2 */
+		poly_add(&t1->vec[i], &t1->vec[i], &s2->vec[i]);
+
+		/*
+		* Reference: The following reduction is not present in the
+		* reference implementation. Omitting this reduction requires the
+		* output of the invntt to be small enough such that the addition
+		* of s2 does not result in absolute values >= LC_DILITHIUM_Q.
+		* While the C, x86_64, and AArch64 invntt implementations
+		* produce small enough values for this to work out, it
+		* complicates the bounds reasoning. Therefore, add an additional
+		* reduction, allowing to relax the bounds requirements for the
+		* invntt, especially when adding new invntt assembler
+		* implementations.
+		*/
+#ifndef LC_DILITHIUM_INVNTT_SMALL
+		poly_reduce(&t1->vec[i]);
+#endif
+
+		/* Extract t1 and write public key */
+		poly_caddq(&t1->vec[i]);
+		poly_power2round(&t1->vec[i], &t0->vec[i], &t1->vec[i]);
+
+		polyt1_pack(pubkey + i * LC_DILITHIUM_POLYT1_PACKEDBYTES,
+			    &t1->vec[i]);
+		if (seckey) {
+			polyt0_pack(seckey +
+					    i * LC_DILITHIUM_POLYT0_PACKEDBYTES,
+				    &t0->vec[i]);
+		}
+	}
+}
+
+static int lc_dilithum_pk_from_sk_impl(struct lc_dilithium_pk *pk,
+				       const struct lc_dilithium_sk *sk)
+{
+	uint8_t *rho, *pubkey;
+	int ret;
+	LC_DECLARE_MEM(ws, struct keygen_workspace, sizeof(uint64_t));
+
+	CKNULL(pk, -EINVAL);
+	CKNULL(sk, -EINVAL);
+
+	/* Timecop: sk is secret */
+	poison(sk, sizeof(*sk));
+
+	/* Unpack RHO directly into public key */
+	rho = pk->pk;
+	unpack_sk_rho(rho, sk);
+
+	unpack_sk_s1(&ws->s1.s1, sk);
+	unpack_sk_s2(&ws->s2, sk);
+
+	pubkey = pk->pk + LC_DILITHIUM_SEEDBYTES;
+	lc_dilithum_pk_sk_from_rho_s1_s2(pubkey, NULL, rho, ws);
+
+	unpoison(pk->pk, sizeof(pk->pk));
+	unpoison(sk->sk, sizeof(sk->sk));
+
+	CKINT(lc_dilithium_pct_fips(pk, sk));
+
+out:
+	LC_RELEASE_MEM(ws);
+	return ret;
+}
 
 static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 				     struct lc_dilithium_sk *sk,
 				     struct lc_rng_ctx *rng_ctx)
 {
-	struct workspace {
-		union {
-			polyvecl s1, s1hat;
-		} s1;
-		union {
-			polyvecl mat[LC_DILITHIUM_K];
-			polyveck t0;
-		} matrix;
-		polyveck s2, t1;
-		uint8_t seedbuf[2 * LC_DILITHIUM_SEEDBYTES +
-				LC_DILITHIUM_CRHBYTES];
-		union {
-			poly polyvecl_pointwise_acc_montgomery_buf;
-			uint8_t poly_uniform_buf[WS_POLY_UNIFORM_BUF_SIZE];
-			uint8_t poly_uniform_eta_buf[POLY_UNIFORM_ETA_BYTES];
-		} tmp;
-	};
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t dimension[2] = { LC_DILITHIUM_K, LC_DILITHIUM_L };
 	const uint8_t *rho, *rhoprime, *key;
-	polyveck *t1, *s2, *t0;
-	polyvecl *s1;
 	uint8_t *seckey, *pubkey, *tr;
-	unsigned int i;
 	int ret;
 	LC_HASH_CTX_ON_STACK(shake256_ctx, lc_shake256);
-	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+	LC_DECLARE_MEM(ws, struct keygen_workspace, sizeof(uint64_t));
 
 	CKNULL(pk, -EINVAL);
 	CKNULL(sk, -EINVAL);
@@ -156,55 +239,11 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 	pack_sk_s1(sk, &ws->s1.s1);
 	pack_sk_s2(sk, &ws->s2);
 
-	polyvecl_ntt(&ws->s1.s1hat);
-
-	/* Expand matrix */
-	polyvec_matrix_expand(ws->matrix.mat, rho, ws->tmp.poly_uniform_buf);
-
-	s1 = &ws->s1.s1hat;
-	s2 = &ws->s2;
-	t1 = &ws->t1;
-	t0 = &ws->matrix.t0;
 	pubkey = pk->pk + LC_DILITHIUM_SEEDBYTES;
 	seckey = sk->sk + 2 * LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_TRBYTES +
 		 LC_DILITHIUM_L * LC_DILITHIUM_POLYETA_PACKEDBYTES +
 		 LC_DILITHIUM_K * LC_DILITHIUM_POLYETA_PACKEDBYTES;
-	for (i = 0; i < LC_DILITHIUM_K; ++i) {
-		polyvecl_pointwise_acc_montgomery(
-			&t1->vec[i], &ws->matrix.mat[i], s1,
-			&ws->tmp.polyvecl_pointwise_acc_montgomery_buf);
-
-		poly_reduce(&t1->vec[i]);
-		poly_invntt_tomont(&t1->vec[i]);
-
-		/* Add error vector s2 */
-		poly_add(&t1->vec[i], &t1->vec[i], &s2->vec[i]);
-
-		/*
-		* Reference: The following reduction is not present in the
-		* reference implementation. Omitting this reduction requires the
-		* output of the invntt to be small enough such that the addition
-		* of s2 does not result in absolute values >= LC_DILITHIUM_Q.
-		* While the C, x86_64, and AArch64 invntt implementations
-		* produce small enough values for this to work out, it
-		* complicates the bounds reasoning. Therefore, add an additional
-		* reduction, allowing to relax the bounds requirements for the
-		* invntt, especially when adding new invntt assembler
-		* implementations.
-		*/
-#ifndef LC_DILITHIUM_INVNTT_SMALL
-		poly_reduce(&t1->vec[i]);
-#endif
-
-		/* Extract t1 and write public key */
-		poly_caddq(&t1->vec[i]);
-		poly_power2round(&t1->vec[i], &t0->vec[i], &t1->vec[i]);
-
-		polyt1_pack(pubkey + i * LC_DILITHIUM_POLYT1_PACKEDBYTES,
-			    &t1->vec[i]);
-		polyt0_pack(seckey + i * LC_DILITHIUM_POLYT0_PACKEDBYTES,
-			    &t0->vec[i]);
-	}
+	lc_dilithum_pk_sk_from_rho_s1_s2(pubkey, seckey, rho, ws);
 
 	/* Compute H(rho, t1) and write secret key */
 	tr = sk->sk + 2 * LC_DILITHIUM_SEEDBYTES;

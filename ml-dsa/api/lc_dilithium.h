@@ -485,6 +485,18 @@ int lc_dilithium_keypair(struct lc_dilithium_pk *pk, struct lc_dilithium_sk *sk,
 
 /**
  * @ingroup Dilithium
+ * @brief Generates Dilithium public from private key.
+ *
+ * @param [out] pk pointer to allocated output public key
+ * @param [in] sk pointer private key
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int lc_dilithium_pk_from_sk(struct lc_dilithium_pk *pk,
+			    const struct lc_dilithium_sk *sk);
+
+/**
+ * @ingroup Dilithium
  * @brief Generates Dilithium public and private key from a given seed.
  *
  * The idea of the function is the allowance of FIPS 204 to maintain the seed

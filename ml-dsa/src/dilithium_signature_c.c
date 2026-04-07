@@ -49,6 +49,13 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_from_seed_c,
 	return lc_dilithium_keypair_from_seed_impl(pk, sk, seed, seedlen);
 }
 
+LC_INTERFACE_FUNCTION(int, lc_dilithium_pk_from_sk_c,
+		      struct lc_dilithium_pk *pk,
+		      const struct lc_dilithium_sk *sk)
+{
+	return lc_dilithum_pk_from_sk_impl(pk, sk);
+}
+
 LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_c, struct lc_dilithium_pk *pk,
 		      struct lc_dilithium_sk *sk, struct lc_rng_ctx *rng_ctx)
 {

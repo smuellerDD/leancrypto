@@ -51,6 +51,21 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_from_seed_armv8,
 	return ret;
 }
 
+LC_INTERFACE_FUNCTION(int, lc_dilithium_pk_from_sk_armv8,
+		      struct lc_dilithium_pk *pk,
+		      const struct lc_dilithium_sk *sk)
+{
+	uint64_t saved_regs[8];
+	int ret;
+
+	store_fp_regs(saved_regs);
+	ret = lc_dilithum_pk_from_sk_impl(pk, sk);
+	reload_fp_regs(saved_regs);
+	lc_memset_secure(saved_regs, 0, sizeof(saved_regs));
+
+	return ret;
+}
+
 LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_armv8,
 		      struct lc_dilithium_pk *pk, struct lc_dilithium_sk *sk,
 		      struct lc_rng_ctx *rng_ctx)

@@ -11,6 +11,8 @@ Changes 1.7.2-prerelease
 
 * Add X.509 certificate signing request (CSR) generator and parser
 
+* ML-DSA: add lc_dilithium_pk_from_sk API to derive the PK from a given SK
+
 Changes 1.7.1
 * Offer a means to select the AES-C constant time / S-Box implementation via lc_init API
 

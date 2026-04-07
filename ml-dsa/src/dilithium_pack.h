@@ -118,6 +118,30 @@ static inline void pack_sk_s2(struct lc_dilithium_sk *sk, const polyveck *s2)
 		polyeta_pack(seckey + i * LC_DILITHIUM_POLYETA_PACKEDBYTES,
 			     &s2->vec[i]);
 }
+
+static inline void unpack_sk_s1(polyvecl *s1, const struct lc_dilithium_sk *sk)
+{
+	unsigned int i;
+	const uint8_t *seckey =
+		sk->sk + 2 * LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_TRBYTES;
+
+	for (i = 0; i < LC_DILITHIUM_L; ++i)
+		polyeta_unpack(&s1->vec[i],
+			       seckey + i * LC_DILITHIUM_POLYETA_PACKEDBYTES);
+}
+
+static inline void unpack_sk_s2(polyveck *s2, const struct lc_dilithium_sk *sk)
+{
+	unsigned int i;
+	const uint8_t *seckey =
+		sk->sk + 2 * LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_TRBYTES +
+		LC_DILITHIUM_L * LC_DILITHIUM_POLYETA_PACKEDBYTES;
+
+	for (i = 0; i < LC_DILITHIUM_K; ++i)
+		polyeta_unpack(&s2->vec[i],
+			       seckey + i * LC_DILITHIUM_POLYETA_PACKEDBYTES);
+}
+
 static inline void unpack_sk_tr(uint8_t tr[LC_DILITHIUM_TRBYTES],
 				const struct lc_dilithium_sk *sk)
 {

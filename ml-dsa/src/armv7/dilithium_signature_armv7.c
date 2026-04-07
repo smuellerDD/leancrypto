@@ -45,6 +45,13 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_armv7,
 	return lc_dilithium_keypair_impl(pk, sk, rng_ctx);
 }
 
+LC_INTERFACE_FUNCTION(int, lc_dilithium_pk_from_sk_armv7,
+		      struct lc_dilithium_pk *pk,
+		      const struct lc_dilithium_sk *sk)
+{
+	return lc_dilithum_pk_from_sk_impl(pk, sk);
+}
+
 LC_INTERFACE_FUNCTION(int, lc_dilithium_sign_armv7,
 		      struct lc_dilithium_sig *sig, const uint8_t *m,
 		      size_t mlen, const struct lc_dilithium_sk *sk,

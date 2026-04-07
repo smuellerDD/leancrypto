@@ -472,6 +472,17 @@ int @dilithium_name@_keypair(struct @dilithium_name@_pk *pk, struct @dilithium_n
 			 struct lc_rng_ctx *rng_ctx);
 
 /**
+ * @brief Generates Dilithium public from private key.
+ *
+ * @param [out] pk pointer to allocated output public key
+ * @param [in] sk pointer private key
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int @dilithium_name@_pk_from_sk(struct @dilithium_name@_pk *pk,
+				const struct @dilithium_name@_sk *sk);
+
+/**
  * @brief Generates Dilithium public and private key from a given seed.
  *
  * The idea of the function is the allowance of FIPS 204 to maintain the seed

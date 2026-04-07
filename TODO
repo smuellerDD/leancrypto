@@ -26,3 +26,13 @@
 - Linux kernel: x86 accelerated implementations of xts, chacha20, gcm(aes), rfc4106(gcm(aes)), rfc7539(chacha20,poly1305), rfc7539esp(chacha20,poly1305) do not pass the extended/full kernel self tests. The issue is that the the test harness creates SGLs which are not aligned to cra_blocksize. Thus I am not sure whether the test harness is broken or whether leancrypto should handle such very strange (and not real-life scenarios).
 
 - sbkeysync: develop proper tests and verify
+
+- ML-DSA: add AVX2 and composite implementations for lc_dilithium_pk_from_sk
+
+- SLH-DSA: add lc_sphincs_pk_from_sk
+
+- ML-DSA: add lc_kyber_pk_from_sh
+
+- HQC: add lc_hqc_pk_from_sk
+
+- BIKE: add lc_bike_pk_from_sk

@@ -94,6 +94,7 @@ extern "C" {
  * respective functions.
  */
 #define lc_dilithium_keypair DILITHIUM_F(keypair)
+#define lc_dilithium_pk_from_sk DILITHIUM_F(pk_from_sk)
 #define lc_dilithium_keypair_from_seed DILITHIUM_F(keypair_from_seed)
 #define lc_dilithium_sign DILITHIUM_F(sign)
 #define lc_dilithium_sign_ctx DILITHIUM_F(sign_ctx)
@@ -111,6 +112,7 @@ extern "C" {
 #define lc_dilithium_ctx_zero DILITHIUM_F(ctx_zero)
 
 #define lc_dilithium_keypair_c DILITHIUM_F(keypair_c)
+#define lc_dilithium_pk_from_sk_c DILITHIUM_F(pk_from_sk_c)
 #define lc_dilithium_keypair_from_seed_c DILITHIUM_F(keypair_from_seed_c)
 #define lc_dilithium_sign_c DILITHIUM_F(sign_c)
 #define lc_dilithium_sign_ctx_c DILITHIUM_F(sign_ctx_c)
@@ -246,6 +248,7 @@ extern "C" {
 #define polyvecl_pointwise_acc_montgomery_armv8                                \
 	DILITHIUM_F(polyvecl_pointwise_acc_montgomery_armv8)
 #define lc_dilithium_keypair_armv8 DILITHIUM_F(keypair_armv8)
+#define lc_dilithium_pk_from_sk_armv8 DILITHIUM_F(pk_from_sk_armv8)
 #define lc_dilithium_keypair_from_seed_armv8                                   \
 	DILITHIUM_F(keypair_from_seed_armv8)
 #define lc_dilithium_sign_armv8 DILITHIUM_F(sign_armv8)
@@ -270,6 +273,7 @@ extern "C" {
 #define armv7_poly_reduce_asm DILITHIUM_F(armv7_poly_reduce_asm)
 #define armv7_rej_uniform_asm DILITHIUM_F(armv7_rej_uniform_asm)
 #define lc_dilithium_keypair_armv7 DILITHIUM_F(keypair_armv7)
+#define lc_dilithium_pk_from_sk_armv7 DILITHIUM_F(pk_from_sk_armv7)
 #define lc_dilithium_keypair_from_seed_armv7                                   \
 	DILITHIUM_F(keypair_from_seed_armv7)
 #define lc_dilithium_sign_armv7 DILITHIUM_F(sign_armv7)
@@ -285,6 +289,7 @@ extern "C" {
 
 /* RISCV 64 ASM Implementation */
 #define lc_dilithium_keypair_riscv64 DILITHIUM_F(keypair_riscv64)
+#define lc_dilithium_pk_from_sk_riscv64 DILITHIUM_F(pk_from_sk_riscv64)
 #define lc_dilithium_keypair_from_seed_riscv64                                 \
 	DILITHIUM_F(keypair_from_seed_riscv64)
 #define lc_dilithium_sign_riscv64 DILITHIUM_F(sign_riscv64)

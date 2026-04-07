@@ -30,6 +30,8 @@ extern "C" {
 int lc_dilithium_keypair_c(struct lc_dilithium_pk *pk,
 			   struct lc_dilithium_sk *sk,
 			   struct lc_rng_ctx *rng_ctx);
+int lc_dilithium_pk_from_sk_c(struct lc_dilithium_pk *pk,
+			      const struct lc_dilithium_sk *sk);
 int lc_dilithium_keypair_from_seed_c(struct lc_dilithium_pk *pk,
 				     struct lc_dilithium_sk *sk,
 				     const uint8_t *seed, size_t seedlen);

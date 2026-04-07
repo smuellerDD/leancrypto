@@ -63,6 +63,16 @@ if get_option('dilithium_87').enabled()
 				],
 				dependencies: leancrypto
 				)
+	dilithium_pk_from_sk_tester = executable('dilithium_pk_from_sk_tester',
+				[ 'dilithium_pk_from_sk_tester.c',
+				  internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_dilithium_internal
+				],
+				dependencies: leancrypto
+				)
 	dilithium_tester_official = executable('dilithium_tester_official',
 				[ 'dilithium_tester_official.c',
 				  internal_src ],
@@ -124,6 +134,8 @@ if get_option('dilithium_87').enabled()
 	     should_fail: fips140_negative_expect_fail)
 	test('Dilithium keygen Performance', dilithium_keygen_tester,
 	     timeout: 1000, is_parallel: false, suite: performance)
+	test('Dilithium PK from SK', dilithium_pk_from_sk_tester,
+	     timeout: 1000)
 	test('Dilithium C keep AHat API 10000', dilithium_tester_ahat,
 	     timeout: 1000, is_parallel: false, suite: performance)
 	test('Dilithium C discard AHat API 10000', dilithium_tester_ahat,
@@ -622,6 +634,17 @@ if get_option('dilithium_65').enabled()
 				dependencies: leancrypto,
 				c_args : '-DLC_DILITHIUM_TYPE_65'
 				)
+	dilithium_65_pk_from_sk_tester = executable('dilithium_65_pk_from_sk_tester',
+				[ 'dilithium_pk_from_sk_tester.c',
+				  internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_dilithium_internal
+				],
+				dependencies: leancrypto,
+				c_args : '-DLC_DILITHIUM_TYPE_65'
+				)
 	dilithium_65_tester_official = executable('dilithium_65_tester_official',
 				[ 'dilithium_tester_official.c',
 				  internal_src ],
@@ -673,6 +696,8 @@ if get_option('dilithium_65').enabled()
 	     should_fail: fips140_negative_expect_fail)
 	test('Dilithium 65 keygen Performance', dilithium_65_keygen_tester,
 	     timeout: 1000, is_parallel: false, suite: performance)
+	test('Dilithium 65 PK from SK', dilithium_65_pk_from_sk_tester,
+	     timeout: 1000)
 
 	test('Dilithium 65 C keep AHat API 10000', dilithium_65_tester_ahat,
 	     timeout: 1000, is_parallel: false, suite: performance)
@@ -1180,6 +1205,17 @@ if get_option('dilithium_44').enabled()
 				dependencies: leancrypto,
 				c_args : '-DLC_DILITHIUM_TYPE_44'
 				)
+	dilithium_44_pk_from_sk_tester = executable('dilithium_44_pk_from_sk_tester',
+				[ 'dilithium_pk_from_sk_tester.c',
+				  internal_src ],
+				include_directories: [
+					include_dirs,
+					include_internal_dirs,
+					include_dilithium_internal
+				],
+				dependencies: leancrypto,
+				c_args : '-DLC_DILITHIUM_TYPE_44'
+				)
 	dilithium_44_tester_official = executable('dilithium_44_tester_official',
 				[ 'dilithium_tester_official.c',
 				  internal_src ],
@@ -1231,6 +1267,8 @@ if get_option('dilithium_44').enabled()
 	     should_fail: fips140_negative_expect_fail)
 	test('Dilithium 44 keygen Performance', dilithium_44_keygen_tester,
 	     timeout: 1000, is_parallel: false, suite: performance)
+	test('Dilithium 44 PK from SK', dilithium_44_pk_from_sk_tester,
+	     timeout: 1000)
 
 	test('Dilithium 44 C keep AHat API 10000', dilithium_44_tester_ahat,
 	     timeout: 1000, is_parallel: false, suite: performance)
