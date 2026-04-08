@@ -243,7 +243,7 @@ static int lc_dilithium_keypair_impl(struct lc_dilithium_pk *pk,
 	seckey = sk->sk + 2 * LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_TRBYTES +
 		 LC_DILITHIUM_L * LC_DILITHIUM_POLYETA_PACKEDBYTES +
 		 LC_DILITHIUM_K * LC_DILITHIUM_POLYETA_PACKEDBYTES;
-	lc_dilithum_pk_sk_from_rho_s1_s2(pubkey, seckey, rho, ws);
+	lc_dilithium_pk_sk_from_rho_s1_s2(pubkey, seckey, rho, ws);
 
 	/* Compute H(rho, t1) and write secret key */
 	tr = sk->sk + 2 * LC_DILITHIUM_SEEDBYTES;
