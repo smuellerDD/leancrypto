@@ -13,6 +13,8 @@ Changes 1.7.2-prerelease
 
 * ML-DSA: add lc_dilithium_pk_from_sk API to derive the PK from a given SK
 
+* AES-CT: fix non-aligned data processing - reported by Lucas Mülling
+
 Changes 1.7.1
 * Offer a means to select the AES-C constant time / S-Box implementation via lc_init API
 

@@ -686,6 +686,7 @@ void aes_encrypt_ct(state_t *state, const struct aes_block_ctx *block_ctx)
 		BUILD_BUG_ON(sizeof(tmp) != sizeof(*state));
 		memcpy(tmp, state, sizeof(tmp));
 		aes_cipher(tmp, block_ctx->round_key, block_ctx->nr, &ws);
+		memcpy(state, tmp, sizeof(tmp));
 		lc_memset_secure(tmp, 0, sizeof(tmp));
 	}
 
@@ -711,6 +712,7 @@ void aes_decrypt_ct(state_t *state, const struct aes_block_ctx *block_ctx)
 		BUILD_BUG_ON(sizeof(tmp) != sizeof(*state));
 		memcpy(tmp, state, sizeof(tmp));
 		aes_inv_cipher(tmp, block_ctx->round_key, block_ctx->nr, &ws);
+		memcpy(state, tmp, sizeof(tmp));
 		lc_memset_secure(tmp, 0, sizeof(tmp));
 	}
 
