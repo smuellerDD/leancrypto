@@ -115,7 +115,9 @@ static int lc_aes_gcm_enc(struct aead_request *areq)
 	if (ret)
 		return ret;
 
-	lc_aes_gcm_aad(areq, areq->assoclen);
+	ret = lc_aes_gcm_aad(areq, areq->assoclen);
+	if (ret)
+		return ret;
 
 	ret = lc_kernel_aead_update(areq, areq->cryptlen, lc_aead_enc_update);
 	if (ret)
@@ -155,7 +157,9 @@ static int lc_aes_gcm_dec(struct aead_request *areq)
 	if (ret)
 		return ret;
 
-	lc_aes_gcm_aad(areq, areq->assoclen);
+	ret = lc_aes_gcm_aad(areq, areq->assoclen);
+	if (ret)
+		return ret;
 
 	ret = lc_kernel_aead_update(areq,
 				    areq->cryptlen - crypto_aead_authsize(aead),
