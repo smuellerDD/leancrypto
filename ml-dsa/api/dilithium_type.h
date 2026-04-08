@@ -315,6 +315,7 @@ extern "C" {
 
 /* RISCV 64 RVV Implementation */
 #define lc_dilithium_keypair_riscv64_rvv DILITHIUM_F(keypair_riscv64_rvv)
+#define lc_dilithium_pk_from_sk_riscv64_rvv DILITHIUM_F(pk_from_sk_riscv64_rvv)
 #define lc_dilithium_keypair_from_seed_riscv64_rvv                             \
 	DILITHIUM_F(keypair_from_seed_riscv64_rvv)
 #define lc_dilithium_sign_riscv64_rvv DILITHIUM_F(sign_riscv64_rvv)
