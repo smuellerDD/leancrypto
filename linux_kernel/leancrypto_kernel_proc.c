@@ -32,11 +32,11 @@ static int lc_proc_status_show(struct seq_file *m, void *v)
 {
 #define LC_PROC_STATUS_BUF_SIZE 2000
 	char *buf;
-	int ret;
+	int ret = 0;
 
 	buf = kzalloc(LC_PROC_STATUS_BUF_SIZE, GFP_KERNEL);
 	if (!buf)
-		return PTR_ERR(buf);
+		return -ENOMEM;
 
 	CKINT(lc_status(buf, LC_PROC_STATUS_BUF_SIZE));
 	seq_write(m, buf, strlen(buf));

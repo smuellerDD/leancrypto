@@ -250,7 +250,7 @@ static int write_signed(struct varsign_context *ctx, int include_attrs,
 {
 	int fd, ret;
 
-	fd = open(ctx->outfilename, O_WRONLY | O_CREAT | O_TRUNC, 0777);
+	fd = open(ctx->outfilename, O_WRONLY | O_CREAT | O_TRUNC, 0600);
 	if (fd < 0) {
 		ret = -errno;
 		goto out;

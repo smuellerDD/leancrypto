@@ -481,7 +481,7 @@ static int gcm_set_key_iv_nocheck(void *state, const uint8_t *key,
 				  size_t iv_len)
 {
 	struct lc_aes_gcm_cryptor *ctx = state;
-	int ret;
+	int ret = 0;
 
 	CKINT(gcm_setkey(ctx, key, keylen));
 	CKINT(gcm_setiv(ctx, iv, iv_len));
@@ -494,7 +494,7 @@ static int gcm_set_key_iv(void *state, const uint8_t *key, const size_t keylen,
 			  const uint8_t *iv, size_t iv_len)
 {
 	struct lc_aes_gcm_cryptor *ctx = state;
-	int ret;
+	int ret = 0;
 
 	/*
 	 * Verification that the CTX size in LC_AES_GCM_CTX_ON_STACK is

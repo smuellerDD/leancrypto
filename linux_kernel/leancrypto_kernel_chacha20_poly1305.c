@@ -148,7 +148,9 @@ static int lc_cc20p1305_enc(struct aead_request *areq)
 	if (ret)
 		return ret;
 
-	lc_cc20p1305_aad(areq, assoclen);
+	ret = lc_cc20p1305_aad(areq, assoclen);
+	if (ret)
+		return ret;
 
 	ret = lc_kernel_aead_update(areq, areq->cryptlen, lc_aead_enc_update);
 	if (ret)
@@ -196,7 +198,9 @@ static int lc_cc20p1305_dec(struct aead_request *areq)
 	if (ret)
 		return ret;
 
-	lc_cc20p1305_aad(areq, assoclen);
+	ret = lc_cc20p1305_aad(areq, assoclen);
+	if (ret)
+		return ret;
 
 	ret = lc_kernel_aead_update(areq, areq->cryptlen - authsize,
 				    lc_aead_dec_update);

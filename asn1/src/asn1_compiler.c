@@ -1273,13 +1273,13 @@ static void dump_element(const struct element *e, int level)
 	char tag[32];
 
 	if (e->class == 0 && e->method == 0 && e->tag == 0)
-		strcpy(tag, "<...>");
-	else if (e->class == ASN1_UNIV)
-		sprintf(tag, "%s %s %s", asn1_classes[e->class],
-			asn1_methods[e->method], asn1_universal_tags[e->tag]);
+		snprintf(tag, sizeof(tag), "<...>");
+	else if (e->class == ASN1_UNIV && e->tag < 32)
+		snprintf(tag, sizeof(tag), "%s %s %s", asn1_classes[e->class],
+			 asn1_methods[e->method], asn1_universal_tags[e->tag]);
 	else
-		sprintf(tag, "%s %s %u", asn1_classes[e->class],
-			asn1_methods[e->method], e->tag);
+		snprintf(tag, sizeof(tag), "%s %s %u", asn1_classes[e->class],
+			 asn1_methods[e->method], e->tag);
 
 	printf("%c%c%c%c%c %c %*s[*] \x1B[33m%s\x1B[m %s %s \x1B[35m%s\x1B[m\n",
 	       e->flags & ELEMENT_IMPLICIT ? 'I' : '-',
@@ -1595,8 +1595,8 @@ static void render_element(FILE *out, struct element *e, struct element *tag)
 	if (!tag || !(tag->flags & ELEMENT_TAG_SPECIFIED))
 		tag = e;
 
-	if (tag->class == ASN1_UNIV && tag->tag != 14 && tag->tag != 15 &&
-	    tag->tag != 31)
+	if (tag->class == ASN1_UNIV && tag->tag < 32 && tag->tag != 14 &&
+	    tag->tag != 15 && tag->tag != 31)
 		render_opcode(out, "_tag(%s, %s, %s),\n",
 			      asn1_classes[tag->class],
 			      asn1_methods[tag->method | e->method],

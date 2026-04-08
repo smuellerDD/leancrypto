@@ -719,6 +719,13 @@ int lc_x509_process_extension(void *context, size_t hdrlen, unsigned char tag,
 					  vlen));
 	}
 
+	/*
+	 * RFC 5280 4.2: "if a certificate contains a critical extension
+	 * that is not recognized, it MUST be rejected."
+	 */
+	if (ctx->last_oid == OID__NR && ctx->extension_critical)
+		return -ENOPKG;
+
 out:
 	return ret;
 }

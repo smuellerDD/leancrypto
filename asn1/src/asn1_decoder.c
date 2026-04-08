@@ -156,7 +156,7 @@ LC_INTERFACE_FUNCTION(int, lc_asn1_ber_decoder,
 	size_t cons_datalen_stack[NR_CONS_STACK];
 	unsigned char cons_hdrlen_stack[NR_CONS_STACK];
 #define NR_JUMP_STACK 10
-	unsigned char jump_stack[NR_JUMP_STACK];
+	unsigned short jump_stack[NR_JUMP_STACK];
 
 	if (datalen > ASN1_MAX_DATASIZE)
 		return -EMSGSIZE;
@@ -329,7 +329,7 @@ next_op:
 		printf_debug("- MATCH_JUMP\n");
 		if (unlikely(jsp == NR_JUMP_STACK))
 			goto jump_stack_overflow;
-		jump_stack[jsp++] = (unsigned char)(pc + asn1_op_lengths[op]);
+		jump_stack[jsp++] = (unsigned short)(pc + asn1_op_lengths[op]);
 		pc = machine[pc + 2];
 		goto next_op;
 

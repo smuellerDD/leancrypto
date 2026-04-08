@@ -35,7 +35,7 @@ LC_INTERFACE_FUNCTION(int, lc_totp, const uint8_t *hmac_key,
 	uint64_t counter;
 	int ret;
 
-	if (!totp_val)
+	if (!totp_val || !step)
 		return -EINVAL;
 
 	/* Get time in seconds since Epoch */

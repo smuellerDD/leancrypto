@@ -43,6 +43,9 @@ LC_INTERFACE_FUNCTION(void, lc_rng_zero, struct lc_rng_ctx *ctx)
 	rng = ctx->rng;
 	rng_state = ctx->rng_state;
 
+	if (!rng || !rng->zero)
+		return;
+
 	rng->zero(rng_state);
 }
 
@@ -68,6 +71,9 @@ LC_INTERFACE_FUNCTION(int, lc_rng_generate, struct lc_rng_ctx *ctx,
 	rng = ctx->rng;
 	rng_state = ctx->rng_state;
 
+	if (!rng || !rng->generate)
+		return -EINVAL;
+
 	return rng->generate(rng_state, addtl_input, addtl_input_len, out,
 			     outlen);
 }
@@ -84,6 +90,9 @@ LC_INTERFACE_FUNCTION(int, lc_rng_seed, struct lc_rng_ctx *ctx,
 
 	rng = ctx->rng;
 	rng_state = ctx->rng_state;
+
+	if (!rng || !rng->seed)
+		return -EINVAL;
 
 	return rng->seed(rng_state, seed, seedlen, persbuf, perslen);
 }

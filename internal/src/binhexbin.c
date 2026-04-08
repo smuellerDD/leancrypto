@@ -48,6 +48,9 @@ int hex2bin_alloc(const char *hex, const size_t hexlen, uint8_t **bin,
 
 	outlen = (hexlen + 1) / 2;
 
+	if (outlen + 1 < outlen)
+		return -EOVERFLOW;
+
 	out = calloc(1, outlen + 1);
 	if (!out)
 		return -errno;

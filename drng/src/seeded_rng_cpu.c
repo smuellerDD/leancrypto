@@ -75,6 +75,7 @@ static ssize_t seeded_rng_cpu_data_compress(uint8_t *outbuf, size_t requested,
 		}
 
 		lc_hash_update(hash, (uint8_t *)&tmp, todo);
+		full_bytes -= todo;
 	}
 
 	/* Generate the compressed data to be returned to the caller */

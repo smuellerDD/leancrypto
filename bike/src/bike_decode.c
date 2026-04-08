@@ -172,7 +172,7 @@ static inline int find_err1(e_t *e, e_t *black_e, e_t *gray_e,
 {
 	// This function uses the bit-slice-adder methodology of [5]:
 	unsigned int i;
-	int ret;
+	int ret = 0;
 
 	lc_memset_secure(rotated_syndrome, 0, sizeof(*rotated_syndrome));
 
@@ -242,7 +242,7 @@ static inline int find_err2(e_t *e, e_t *pos_e, const syndrome_t *syndrome,
 			    syndrome_t *rotated_syndrome, upc_t *upc)
 {
 	unsigned int i;
-	int ret;
+	int ret = 0;
 
 	lc_memset_secure(rotated_syndrome, 0, sizeof(*rotated_syndrome));
 

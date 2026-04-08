@@ -137,7 +137,7 @@ static int lc_kernel_kyber_gen_ct(struct kpp_request *req)
 	if (copied != nbytes)
 		ret = -EINVAL;
 
-	return 0;
+	return ret;
 }
 
 static int lc_kernel_kyber_ss_local(struct kpp_request *req)

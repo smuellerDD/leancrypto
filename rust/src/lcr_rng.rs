@@ -61,6 +61,12 @@ impl lcr_rng {
 	/// [rng_type] Type of the RNG
 	pub fn set_type(&mut self, rng_type: lcr_rng_type) ->
 		Result<(), RngError> {
+		/* Free previously allocated RNG context to avoid leak */
+		if !self.rng_ctx.is_null() &&
+		    self.rng != lcr_rng_type::lcr_seeded_rng {
+			unsafe { leancrypto::lc_rng_zero_free(self.rng_ctx); }
+			self.rng_ctx = std::ptr::null_mut();
+		}
 		self.rng = rng_type;
 		match self.rng {
 			lcr_rng_type::lcr_seeded_rng => {
