@@ -89,20 +89,20 @@ enabled if possible.
 
 This subpackage holds the tools provided by the library, such as sha*sum.
 
-%package -n %{name}-sbsigntools
-Summary:        Secure Boot signature tools provided by leancrypto
-Requires:       glibc-devel
-Requires:       lib%{name}1 = %{version}
-
-%description -n %{name}-sbsigntools
-Leancrypto provides a general-purpose cryptographic library with PQC-safe
-algorithms. Further it only has POSIX dependencies, and allows all algorithms
-to be used on stack as well as on heap. Accelerated algorithms are transparently
-enabled if possible.
-
-This subpackage holds the drop-in replacement of the sbsigntools provided
-used to sign PE/COFF executables to be used as part of Secure Boot by the shim
-boot loader.
+# %package -n %{name}-sbsigntools
+# Summary:        Secure Boot signature tools provided by leancrypto
+# Requires:       glibc-devel
+# Requires:       lib%{name}1 = %{version}
+#
+# %description -n %{name}-sbsigntools
+# Leancrypto provides a general-purpose cryptographic library with PQC-safe
+# algorithms. Further it only has POSIX dependencies, and allows all algorithms
+# to be used on stack as well as on heap. Accelerated algorithms are transparently
+# enabled if possible.
+#
+# This subpackage holds the drop-in replacement of the sbsigntools provided
+# used to sign PE/COFF executables to be used as part of Secure Boot by the shim
+# boot loader.
 
 %kernel_module_package
 
@@ -128,7 +128,7 @@ cp -ar "$@" source/
 mkdir obj
 
 %build
-%meson -Dseedsource=esdm -Dsbsigntools=enabled
+%meson -Dseedsource=esdm
 %meson_build
 for flavor in %flavors_to_build; do
 	KERNELRELEASE=`make -s -C /%{_prefix}/src/linux-obj/%{_target_cpu}/$flavor kernelrelease`
@@ -184,11 +184,11 @@ done
 %{_bindir}/lc_x509_generator
 %{_bindir}/lc_pkcs7_generator
 
-%files -n %{name}-sbsigntools
-%{_libexecdir}/%{name}
-%{_libexecdir}/%{name}/sbattach
-%{_libexecdir}/%{name}/sbkeysync
-%{_libexecdir}/%{name}/sbsign
-%{_libexecdir}/%{name}/sbsiglist
-%{_libexecdir}/%{name}/sbvarsign
-%{_libexecdir}/%{name}/sbverify
+# %files -n %{name}-sbsigntools
+# %{_libexecdir}/%{name}
+# %{_libexecdir}/%{name}/sbattach
+# %{_libexecdir}/%{name}/sbkeysync
+# %{_libexecdir}/%{name}/sbsign
+# %{_libexecdir}/%{name}/sbsiglist
+# %{_libexecdir}/%{name}/sbvarsign
+# %{_libexecdir}/%{name}/sbverify
