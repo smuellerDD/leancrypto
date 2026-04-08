@@ -208,8 +208,16 @@ static int __base64_encode(const uint8_t *idata, size_t ilen, char *odata,
 		chars += 4;
 	}
 
-	for (i = 0; i < mod_table[ilen % 3]; i++)
-		odata[elen - 1 - i] = '=';
+	for (i = 0; i < mod_table[ilen % 3]; i++) {
+		size_t location = elen - 1 - i;
+
+		/* If we have a LF, do not overwrite it */
+		if ((flags == lc_base64_flag_pem) && location &&
+		    (location & 0x3f) == 0)
+			location--;
+
+		odata[location] = '=';
+	}
 
 out:
 	return ret;
