@@ -131,26 +131,6 @@ echo_info()
 	echo $(color "magenta")[INFO]$(color off) "$@"
 }
 
-check_one_priv() {
-	local inputfile=$1
-	local inform=$2
-
-	if [ ! -f "$inputfile" ]
-	then
-		echo_fail "Cannot find $inputfile"
-		exit 1
-	fi
-
-	echo "=== Checking private key file $inputfile with OpenSSL ==="
-	$OPENSSL asn1parse -dump -in $inputfile -inform $inform
-	if [ $? -ne 0 ]
-	then
-		echo_fail "Parsing of file $inputfile was unsuccessful"
-	else
-		echo_success "Parsing of file $inputfile was successful"
-	fi
-}
-
 report_result() {
 	echo "=== Final Result ==="
 	if [ $global_failure_count -eq 0 ]
