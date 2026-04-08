@@ -27,6 +27,7 @@
 #include "lc_aes.h"
 #include "lc_sym.h"
 #include "lc_memset_secure.h"
+#include "lc_memcmp_secure.h"
 #include "mode_kw.h"
 #include "timecop.h"
 #include "visibility.h"

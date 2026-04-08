@@ -139,10 +139,11 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 			act_detail = localtime((time_t *)&x509->valid_from);
 			exp_detail =
 				localtime((time_t *)&parsed_opts->valid_from);
-			if (!act_detail || !exp_detail) {
-				printf("Certificate valid_from time mismatch\n");
-				return -EINVAL;
-			}
+			CKNULL_LOG(act_detail, -EINVAL,
+				   "Certificate valid_from time mismatch\n");
+			CKNULL_LOG(exp_detail, -EINVAL,
+				   "Certificate valid_from time mismatch\n");
+
 			printf("Certificate valid_from time mismatch, expected %d-%.2d-%.2d %.2d:%.2d:%.2d (%" PRIu64
 			       "), actual %d-%.2d-%.2d %.2d:%.2d:%.2d (%" PRId64
 			       ")\n",
@@ -170,10 +171,11 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 			act_detail = localtime((time_t *)&x509->valid_to);
 			exp_detail =
 				localtime((time_t *)&parsed_opts->valid_to);
-			if (!act_detail || !exp_detail) {
-				printf("Certificate valid_to time mismatch\n");
-				return -EINVAL;
-			}
+			CKNULL_LOG(act_detail, -EINVAL,
+				   "Certificate valid_from time mismatch\n");
+			CKNULL_LOG(exp_detail, -EINVAL,
+				   "Certificate valid_from time mismatch\n");
+
 			printf("Certificate valid_to time mismatch, expected %d-%.2d-%.2d %.2d:%.2d:%.2d (%" PRIu64
 			       "), actual %d-%.2d-%.2d %.2d:%.2d:%.2d (%" PRId64
 			       ")\n",
