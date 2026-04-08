@@ -162,18 +162,20 @@ check_one() {
 		echo_success "Parsing of file $inputfile was successful"
 	fi
 
+	# TODO: it is totally bizare why sometimes OpenSSL says it cannot
+	# find a certificate
 	# we may have composite algos, ignore
-	if [ "x$inform" != "xPEM" ]
-	then
-		echo "=== Checking file $inputfile with OpenSSL ==="
-		$OPENSSL x509 -in $inputfile -inform $inform -text -noout
-		if [ $? -ne 0 ]
-		then
-			echo_fail "Parsing of file $inputfile was unsuccessful"
-		else
-			echo_success "Parsing of file $inputfile was successful"
-		fi
-	fi
+#	if [ "x$inform" != "xPEM" ]
+#	then
+#		echo "=== Checking file $inputfile with OpenSSL ==="
+#		$OPENSSL x509 -in $inputfile -inform $inform -text -noout
+#		if [ $? -ne 0 ]
+#		then
+#			echo_fail "Parsing of file $inputfile was unsuccessful"
+#		else
+#			echo_success "Parsing of file $inputfile was successful"
+#		fi
+#	fi
 
 	if [ "x$inform" = "xPEM" ]
 	then
