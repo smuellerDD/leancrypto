@@ -241,7 +241,7 @@ out:
 	return ret;
 
 free_chacha20:
-	lc_kernel_chacha20_init();
+	lc_kernel_chacha20_exit();
 
 free_aes:
 	lc_kernel_aes_exit();

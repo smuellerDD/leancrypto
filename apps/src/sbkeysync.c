@@ -202,7 +202,7 @@ static int sha256_key_parse(struct key *key, uint8_t *data, size_t len)
 
 	key->id = calloc(1, sha256_id_size);
 	CKNULL(key->id, -ENOMEM);
-	memcpy(key, data, sha256_id_size);
+	memcpy(key->id, data, sha256_id_size);
 	key->id_len = sha256_id_size;
 
 	key->description = calloc(1, len * 2 + 1);
@@ -226,8 +226,8 @@ static void print_x509_name_component(char *buf, size_t bufmaxlen,
 
 	buflen = strlen(buf);
 
-	snprintf(buf + buflen, bufmaxlen, "%s%s%s", *comma ? ", " : "", prefix,
-		 string);
+	snprintf(buf + buflen, bufmaxlen - buflen, "%s%s%s",
+		 *comma ? ", " : "", prefix, string);
 
 	*comma = 1;
 }
@@ -289,7 +289,7 @@ static int x509_key_parse(struct key *key, uint8_t *data, size_t len)
 
 	key->id = calloc(1, seriallen);
 	CKNULL(key->id, -ENOMEM);
-	memcpy(key, serial, seriallen);
+	memcpy(key->id, serial, seriallen);
 	key->id_len = seriallen;
 
 	key->description = calloc(1, description_len);

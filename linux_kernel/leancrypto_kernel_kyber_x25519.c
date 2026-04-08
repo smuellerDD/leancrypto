@@ -191,7 +191,7 @@ static int lc_kernel_kyber_x25519_gen_ct(struct kpp_request *req)
 	if (copied != LC_X25519_PUBLICKEYBYTES)
 		ret = -EINVAL;
 
-	return 0;
+	return ret;
 }
 
 static int lc_kernel_kyber_x25519_ss_local(struct kpp_request *req)

@@ -338,8 +338,13 @@ LC_INTERFACE_FUNCTION(int, lc_aes_kw_decrypt, struct lc_sym_ctx *ctx,
 	/* Input: Tag || Ciphertext */
 	mode_kw_decrypt(state, in + AES_KW_SEMIBSIZE, out,
 			len - AES_KW_SEMIBSIZE);
-	/* Perform authentication check */
-	if (state->tag != be_bswap64(AES_KW_IV))
-		return -EBADMSG;
+	/* Perform authentication check in constant time */
+	{
+		uint64_t expected = be_bswap64(AES_KW_IV);
+
+		if (lc_memcmp_secure(&state->tag, sizeof(state->tag),
+				     &expected, sizeof(expected)))
+			return -EBADMSG;
+	}
 	return 0;
 }

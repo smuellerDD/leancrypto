@@ -780,6 +780,8 @@ int lc_pubkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
 	case LC_SIG_DILITHIUM_65_ED25519:
 	case LC_SIG_DILITHIUM_87_ED25519:
 #ifdef LC_DILITHIUM_ED25519
+		if (datalen < LC_ED25519_PUBLICKEYBYTES)
+			return -EINVAL;
 		CKINT(lc_dilithium_ed25519_pk_load(
 			keys->pk.dilithium_ed25519_pk, data,
 			datalen - LC_ED25519_PUBLICKEYBYTES,
@@ -793,6 +795,8 @@ int lc_pubkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
 	case LC_SIG_DILITHIUM_65_ED448:
 	case LC_SIG_DILITHIUM_87_ED448:
 #ifdef LC_DILITHIUM_ED448
+		if (datalen < LC_ED448_PUBLICKEYBYTES)
+			return -EINVAL;
 		CKINT(lc_dilithium_ed448_pk_load(
 			keys->pk.dilithium_ed448_pk, data,
 			datalen - LC_ED448_PUBLICKEYBYTES,

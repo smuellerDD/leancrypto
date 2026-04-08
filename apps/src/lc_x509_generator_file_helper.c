@@ -351,7 +351,7 @@ int write_data(const char *filename, const uint8_t *data, size_t datalen,
 			  | O_CLOEXEC
 #endif
 		  ,
-		  0777);
+		  0600);
 	if (fd < 0) {
 		ret = -errno;
 		printf("Cannot open file %s\n", filename);

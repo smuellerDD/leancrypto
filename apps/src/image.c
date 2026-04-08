@@ -589,6 +589,8 @@ int image_add_signature(struct image *image, void *sig, size_t size)
 
 		fprintf(stderr,
 			"Image was already signed; adding additional signature\n");
+		if (image->sigsize + aligned_size < image->sigsize)
+			return -EOVERFLOW;
 		tmp = malloc(image->sigsize + aligned_size);
 		CKNULL(tmp, ENOMEM);
 		memcpy(tmp, image->sigbuf, image->sigsize);
@@ -637,6 +639,9 @@ int image_get_signature(struct image *image, unsigned int signum, uint8_t **buf,
 	}
 	if (addr >= (image->sigbuf + image->sigsize))
 		return -ENODATA;
+
+	if (header->size < sizeof(*header))
+		return -EBADMSG;
 
 	*buf = (uint8_t *)(header + 1);
 	*size = header->size - sizeof(*header);
@@ -706,7 +711,7 @@ int image_write(struct image *image, const char *filename)
 			  | O_CLOEXEC
 #endif
 		  ,
-		  0777);
+		  0600);
 	if (fd < 0) {
 		ret = -errno;
 		printf("Cannot open file %s\n", filename);
