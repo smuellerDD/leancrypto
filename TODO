@@ -36,3 +36,5 @@
 - HQC: add lc_hqc_pk_from_sk
 
 - BIKE: add lc_bike_pk_from_sk
+
+- Tests: reenable OpenSSL checker code in csr_tester.sh and siggen_tester.sh (it seems OpenSSL has some problem as sometimes the thrown error is "unsupported algorithm")
