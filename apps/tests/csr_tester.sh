@@ -182,13 +182,17 @@ check_one() {
 		echo_success "Parsing of file $inputfile was successful"
 	fi
 
-	echo "=== Checking file $inputfile with OpenSSL ==="
-	$OPENSSL x509 -in $inputfile -inform $inform -text -noout
-	if [ $? -ne 0 ]
+	# we may have composite algos, ignore
+	if [ "x$inform" != "xPEM" ]
 	then
-		echo_fail "Parsing of file $inputfile was unsuccessful"
-	else
-		echo_success "Parsing of file $inputfile was successful"
+		echo "=== Checking file $inputfile with OpenSSL ==="
+		$OPENSSL x509 -in $inputfile -inform $inform -text -noout
+		if [ $? -ne 0 ]
+		then
+			echo_fail "Parsing of file $inputfile was unsuccessful"
+		else
+			echo_success "Parsing of file $inputfile was successful"
+		fi
 	fi
 
 	if [ "x$inform" = "xPEM" ]
