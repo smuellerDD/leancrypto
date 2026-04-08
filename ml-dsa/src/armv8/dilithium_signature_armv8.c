@@ -59,7 +59,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_pk_from_sk_armv8,
 	int ret;
 
 	store_fp_regs(saved_regs);
-	ret = lc_dilithum_pk_from_sk_impl(pk, sk);
+	ret = lc_dilithium_pk_from_sk_impl(pk, sk);
 	reload_fp_regs(saved_regs);
 	lc_memset_secure(saved_regs, 0, sizeof(saved_regs));
 

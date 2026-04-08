@@ -82,9 +82,9 @@ struct keygen_workspace {
 	} tmp;
 };
 
-static void lc_dilithum_pk_sk_from_rho_s1_s2(uint8_t *pubkey, uint8_t *seckey,
-					     const uint8_t *rho,
-					     struct keygen_workspace *ws)
+static void lc_dilithium_pk_sk_from_rho_s1_s2(uint8_t *pubkey, uint8_t *seckey,
+					      const uint8_t *rho,
+					      struct keygen_workspace *ws)
 {
 	polyveck *t1, *s2, *t0;
 	polyvecl *s1;
@@ -140,8 +140,8 @@ static void lc_dilithum_pk_sk_from_rho_s1_s2(uint8_t *pubkey, uint8_t *seckey,
 	}
 }
 
-static int lc_dilithum_pk_from_sk_impl(struct lc_dilithium_pk *pk,
-				       const struct lc_dilithium_sk *sk)
+static int lc_dilithium_pk_from_sk_impl(struct lc_dilithium_pk *pk,
+					const struct lc_dilithium_sk *sk)
 {
 	uint8_t *rho, *pubkey;
 	int ret;
@@ -161,7 +161,7 @@ static int lc_dilithum_pk_from_sk_impl(struct lc_dilithium_pk *pk,
 	unpack_sk_s2(&ws->s2, sk);
 
 	pubkey = pk->pk + LC_DILITHIUM_SEEDBYTES;
-	lc_dilithum_pk_sk_from_rho_s1_s2(pubkey, NULL, rho, ws);
+	lc_dilithium_pk_sk_from_rho_s1_s2(pubkey, NULL, rho, ws);
 
 	unpoison(pk->pk, sizeof(pk->pk));
 	unpoison(sk->sk, sizeof(sk->sk));
