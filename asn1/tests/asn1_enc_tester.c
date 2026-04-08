@@ -228,7 +228,7 @@ static int x509_gen_cert(struct x509_checker_options *opts)
 
 	if (gcert->issuer_segments.cn.size !=
 	    ws->pcert.issuer_segments.cn.size) {
-		printf("Issuer name length mismatch (original %lu, received %lu)\n",
+		printf("Issuer name length mismatch (original %zu, received %zu)\n",
 		       gcert->issuer_segments.cn.size,
 		       ws->pcert.issuer_segments.cn.size);
 		ret = -EINVAL;
@@ -255,7 +255,7 @@ static int x509_gen_cert(struct x509_checker_options *opts)
 
 	if (gcert->subject_segments.cn.size !=
 	    ws->pcert.subject_segments.cn.size) {
-		printf("Subject name length mismatch (original %lu, received %lu)\n",
+		printf("Subject name length mismatch (original %zu, received %zu)\n",
 		       gcert->subject_segments.cn.size,
 		       ws->pcert.subject_segments.cn.size);
 		ret = -EINVAL;
