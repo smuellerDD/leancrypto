@@ -339,6 +339,26 @@ static int x509_enc_ca(struct x509_generator_opts *opts)
 	return lc_x509_cert_set_ca(cert);
 }
 
+static int x509_enc_ca_pathlen(struct x509_generator_opts *opts,
+			       const char *opt_optarg)
+{
+	struct lc_x509_certificate *cert = &opts->cert;
+	unsigned long val;
+	char *string;
+	int ret;
+
+	val = strtoul(opt_optarg, &string, 10);
+	if (val < UINT_MAX) {
+		CKINT_LOG(lc_x509_cert_set_ca_pathlen(cert, (unsigned int)val),
+			  "CA path length %u\n", (uint16_t)val);
+	} else {
+		return -ERANGE;
+	}
+
+out:
+	return ret;
+}
+
 static int x509_enc_san_email(struct x509_generator_opts *opts,
 			      const char *opt_optarg)
 {
@@ -1069,6 +1089,8 @@ static void x509_generator_usage(void)
 
 	fprintf(stderr,
 		"\t   --ca\t\t\t\tSet CA basic constraint with criticality\n");
+	fprintf(stderr,
+		"\t   --ca-pathlen <VALUE>\t\tSet maxium CA path length\n");
 	fprintf(stderr, "\t   --san-email <NAME> \t\tSet SAN email name\n");
 	fprintf(stderr, "\t   --san-dns <NAME> \t\tSet SAN DNS name\n");
 	fprintf(stderr,
@@ -1244,6 +1266,8 @@ int main(int argc, char *argv[])
 
 		{ "csr", 0, 0, 0 },
 		{ "x509-csr", 1, 0, 0 },
+
+		{ "ca-pathlen", 1, 0, 0 },
 
 		{ 0, 0, 0, 0 }
 	};
@@ -1603,6 +1627,11 @@ int main(int argc, char *argv[])
 			/* x509-csr */
 			case 61:
 				ws->parsed_opts.x509_csr_file = optarg;
+				break;
+			/* ca-pathlen */
+			case 62:
+				CKINT(x509_enc_ca_pathlen(&ws->parsed_opts,
+							  optarg));
 				break;
 
 			default:

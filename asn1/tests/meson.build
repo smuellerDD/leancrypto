@@ -595,6 +595,104 @@ if get_option('pkcs7_parser').enabled()
 				'-e', '249' ],
 			suite: regression,
 			should_fail: fips140_negative_expect_fail)
+
+		test('PKCS7 Trust Validation - PKCS#7 with pathlen', pkcs7_trust_tester,
+			args: [ '-f', certdir + 'ml-dsa87_pathlen5_cacert.der',
+				'-p', certdir + 'ml-dsa-passing-pathlen_pathlen5.p7b',
+				'-v', certdir + 'ml-dsa87_pathlen5_cacert.der' ],
+			suite: regression,
+			should_fail: fips140_negative_expect_fail)
+
+		if get_option('x509_generator').enabled()
+
+			# Failing validation:
+			# * path length is 4
+			# * CA pathlen in cert is 3
+			test('PKCS7 Trust Validation - PKCS#7 with small pathlen 1',
+				lc_pkcs7_generator,
+				args: [	'--print',
+					'--noout',
+					'-i', certdir + 'ml-dsa87_pathlen3_cacert.der',
+					'--x509-signer', certdir + 'ml-dsa87_pathlen3_leaf.der',
+					'--signer-sk-file', certdir + 'ml-dsa87_pathlen3_leaf.privkey',
+					'--x509-cert', certdir + 'ml-dsa44_pathlen3_int2.der',
+					'--x509-cert', certdir + 'ml-dsa65_pathlen3_int1.der',
+					'--x509-cert', certdir + 'ml-dsa87_pathlen3_cacert.der',
+					'--trust-anchor', certdir + 'ml-dsa87_pathlen3_cacert.der',
+					],
+				suite: regression,
+				should_fail: true)
+
+			# Failing validation:
+			# * path length is 4
+			# * CA pathlen in cert is 3
+			test('PKCS7 Trust Validation - PKCS#7 with small pathlen 2',
+				lc_pkcs7_generator,
+				args: [	'--print',
+					'--noout',
+					'-i', certdir + 'ml-dsa87_pathlen3_cacert.der',
+					'--x509-signer', certdir + 'ml-dsa87_pathlen3_leaf.der',
+					'--signer-sk-file', certdir + 'ml-dsa87_pathlen3_leaf.privkey',
+					'--x509-cert', certdir + 'ml-dsa44_pathlen3_int2.der',
+					'--trust-anchor', certdir + 'ml-dsa87_pathlen3_cacert.der',
+					'--trust-anchor', certdir + 'ml-dsa65_pathlen3_int1.der',
+					'--trust-anchor', certdir + 'ml-dsa44_pathlen3_int2.der',
+					],
+				suite: regression,
+				should_fail: true)
+
+			# Failing validation:
+			# * path length is 4
+			# * CA pathlen in cert is 3
+			test('PKCS7 Trust Validation - PKCS#7 with small pathlen 3',
+				lc_pkcs7_generator,
+				args: [	'--print',
+					'--noout',
+					'-i', certdir + 'ml-dsa87_pathlen3_cacert.der',
+					'--x509-signer', certdir + 'ml-dsa87_pathlen3_leaf.der',
+					'--x509-cert', certdir + 'ml-dsa44_pathlen3_int2.der',
+					'--x509-cert', certdir + 'ml-dsa65_pathlen3_int1.der',
+					'--signer-sk-file', certdir + 'ml-dsa87_pathlen3_leaf.privkey',
+					'--trust-anchor', certdir + 'ml-dsa87_pathlen3_cacert.der',
+					'--trust-anchor', certdir + 'ml-dsa65_pathlen3_int1.der',
+					],
+				suite: regression,
+				should_fail: true)
+
+			# Passing validation:
+			# * path length is 3
+			# * CA pathlen in cert is 3
+			test('PKCS7 Trust Validation - PKCS#7 with small pathlen 4',
+				lc_pkcs7_generator,
+				args: [	'--print',
+					'--noout',
+					'-i', certdir + 'ml-dsa87_pathlen3_cacert.der',
+					'--x509-signer', certdir + 'ml-dsa44_pathlen3_int2.der',
+					'--signer-sk-file', certdir + 'ml-dsa44_pathlen3_int2.privkey',
+					'--x509-cert', certdir + 'ml-dsa65_pathlen3_int1.der',
+					'--x509-cert', certdir + 'ml-dsa87_pathlen3_cacert.der',
+					'--trust-anchor', certdir + 'ml-dsa87_pathlen3_cacert.der',
+					],
+				suite: regression,
+				should_fail: fips140_negative_expect_fail)
+
+			# Passing validation:
+			# * path length is 3
+			# * CA pathlen in cert is 3
+			test('PKCS7 Trust Validation - PKCS#7 with small pathlen 5',
+				lc_pkcs7_generator,
+				args: [	'--print',
+					'--noout',
+					'-i', certdir + 'ml-dsa87_pathlen3_cacert.der',
+					'--x509-signer', certdir + 'ml-dsa44_pathlen3_int2.der',
+					'--signer-sk-file', certdir + 'ml-dsa44_pathlen3_int2.privkey',
+					'--x509-cert', certdir + 'ml-dsa65_pathlen3_int1.der',
+					'--trust-anchor', certdir + 'ml-dsa87_pathlen3_cacert.der',
+					'--trust-anchor', certdir + 'ml-dsa65_pathlen3_int1.der'
+					],
+				suite: regression,
+				should_fail: fips140_negative_expect_fail)
+		endif
 	endif
 endif
 

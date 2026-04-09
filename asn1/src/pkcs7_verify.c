@@ -252,8 +252,11 @@ int lc_pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 	/*
 	 * We start a new chain validation, thus we can reset any path length
 	 * validations that may or may not have been done before.
+	 *
+	 * The counting starts with 1 as the start_cert is already the first
+	 * entry in the path.
 	 */
-	start_cert->consumed_pathlen = 0;
+	start_cert->consumed_pathlen = 1;
 
 	for (;;) {
 		bin2print_debug(x509->raw_serial, x509->raw_serial_size, stdout,
@@ -386,8 +389,13 @@ int lc_pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 				CKINT(lc_pkcs7_find_asymmetric_key(
 					&trusted, trust_store, auth0, auth1));
 
-				CKINT(lc_pkcs7_verify_pathlen_truststore(
-					start_cert, trusted));
+				/*
+				 * Do not check the pathlen any more because
+				 * we simply resolve the already validated
+				 * certificate with its applied path length
+				 * in the trust store. Thus, it is not a
+				 * separate new level of chain validation.
+				 */
 
 				CKINT(lc_x509_policy_verify_cert(&trusted->pub,
 								 x509, 0));

@@ -4,6 +4,7 @@
 #
 
 TARGETDIR="$(dirname $0)"
+PATHLEN=0
 
 if [ -z "$1" ]
 then
@@ -35,6 +36,22 @@ then
 	INT1_KEYTYPE="ML-DSA65-ED25519"
 	INT2_KEYTYPE="ML-DSA44-ED25519"
 	LEAF_KEYTYPE="SLH-DSA-SHAKE-128S"
+elif [ x"$1" = x"ML-DSA-passing-pathlen" ]
+then
+# Full ML-DSA-based certificate chain
+	PATHLEN=5
+	CA_KEYTYPE="ML-DSA87"
+	INT1_KEYTYPE="ML-DSA65"
+	INT2_KEYTYPE="ML-DSA44"
+	LEAF_KEYTYPE="ML-DSA87"
+elif [ x"$1" = x"ML-DSA-failing-pathlen" ]
+then
+# Full ML-DSA-based certificate chain
+	PATHLEN=3
+	CA_KEYTYPE="ML-DSA87"
+	INT1_KEYTYPE="ML-DSA65"
+	INT2_KEYTYPE="ML-DSA44"
+	LEAF_KEYTYPE="ML-DSA87"
 else
 	echo "Invoke script to generate a 4-way certificate chain with one of the following options:"
 	echo "  SLH-DSA"
@@ -53,12 +70,17 @@ PKCS7_CMD="$(dirname $0)/../../../build/apps/src/lc_pkcs7_generator"
 # Generate CA certificate
 # Private key in DER format and PKCS#8
 CA_FILENAME="$(echo $CA_KEYTYPE | tr '[:upper:]' '[:lower:]' )"
+if [ $PATHLEN -gt 0 ]
+then
+	CA_FILENAME="${CA_FILENAME}_pathlen${PATHLEN}"
+fi
 ${X509_CMD}							\
   --keyusage digitalSignature					\
   --keyusage keyEncipherment					\
   --keyusage keyCertSign					\
   --keyusage critical						\
   --ca 								\
+  --ca-pathlen $PATHLEN						\
   --valid-from 1729527728					\
   --valid-to 2044210606						\
   --subject-cn "leancrypto test CA"				\
@@ -89,12 +111,17 @@ fi
 # Generate Intermediate 1 certificate
 # Private key in PEM format and PKCS#8
 INT1_FILENAME="$(echo $INT1_KEYTYPE | tr '[:upper:]' '[:lower:]' )"
+if [ $PATHLEN -gt 0 ]
+then
+	INT1_FILENAME="${INT1_FILENAME}_pathlen${PATHLEN}"
+fi
 ${X509_CMD}							\
   --keyusage digitalSignature					\
   --keyusage keyEncipherment					\
   --keyusage keyCertSign					\
   --keyusage critical						\
   --ca								\
+  --ca-pathlen $PATHLEN						\
   --valid-from 1729527728					\
   --valid-to 2044210606						\
   --subject-cn "leancrypto test int1"				\
@@ -122,12 +149,17 @@ fi
 # Generate Intermediate 2 certificate
 # Private key in raw DER format
 INT2_FILENAME="$(echo $INT2_KEYTYPE | tr '[:upper:]' '[:lower:]' )"
+if [ $PATHLEN -gt 0 ]
+then
+	INT2_FILENAME="${INT2_FILENAME}_pathlen${PATHLEN}"
+fi
 ${X509_CMD}							\
   --keyusage digitalSignature					\
   --keyusage keyEncipherment					\
   --keyusage keyCertSign					\
   --keyusage critical						\
   --ca								\
+  --ca-pathlen $PATHLEN						\
   --valid-from 1729527728					\
   --valid-to 2044210606						\
   --subject-cn "leancrypto test int2"				\
@@ -154,6 +186,10 @@ fi
 # Generate Leaf certificate
 # Private key in raw DER format
 LEAF_FILENAME="$(echo $LEAF_KEYTYPE | tr '[:upper:]' '[:lower:]' )"
+if [ $PATHLEN -gt 0 ]
+then
+	LEAF_FILENAME="${LEAF_FILENAME}_pathlen${PATHLEN}"
+fi
 ${X509_CMD}							\
   --keyusage dataEncipherment					\
   --keyusage critical						\
@@ -183,7 +219,16 @@ else
 	exit 1
 fi
 
+if [ $PATHLEN -le 4 ]
+then
+	echo "Prevent to generate the PKCS7 blob for failing path lengths"
+	exit 0
+fi
 PKCS7_FILENAME="$(echo $1 | tr '[:upper:]' '[:lower:]' )"
+if [ $PATHLEN -gt 0 ]
+then
+	PKCS7_FILENAME="${PKCS7_FILENAME}_pathlen${PATHLEN}"
+fi
 ${PKCS7_CMD}							\
   --print							\
   -o ${TARGETDIR}/${PKCS7_FILENAME}.p7b				\

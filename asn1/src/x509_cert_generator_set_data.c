@@ -162,6 +162,23 @@ out:
 	return ret;
 }
 
+LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_ca_pathlen,
+		      struct lc_x509_certificate *cert, unsigned int ca_pathlen)
+{
+	struct lc_public_key *pub;
+	int ret;
+
+	CKNULL(cert, -EINVAL);
+	if (ca_pathlen > LC_KEY_CA_MAXLEN)
+		return -EOVERFLOW;
+
+	pub = &cert->pub;
+	pub->ca_pathlen = (uint8_t)ca_pathlen;
+
+out:
+	return ret;
+}
+
 LC_INTERFACE_FUNCTION(int, lc_x509_cert_check_issuer_ca,
 		      struct lc_x509_certificate *cert)
 {

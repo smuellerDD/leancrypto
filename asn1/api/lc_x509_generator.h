@@ -306,6 +306,21 @@ int lc_x509_cert_set_ca(struct lc_x509_certificate *cert);
 
 /**
  * @ingroup X509Gen
+ * @brief Set the path length for the CA certificate
+ *
+ * \note This length is only applied if the basicConstraint CA is set with
+ * \p lc_x509_cert_set_ca. Otherwise the result of the call is ignored
+ *
+ * @param [in] cert Certificate data structure to be filled with the data
+ * @param [in] ca_pathlen Path length
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_cert_set_ca_pathlen(struct lc_x509_certificate *cert,
+				unsigned int ca_pathlen);
+
+/**
+ * @ingroup X509Gen
  * @brief Check and set issuer to subject for CA
  *
  * For a CA, the issuer is intended to be identically to the subject. If
