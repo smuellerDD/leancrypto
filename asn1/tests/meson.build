@@ -603,7 +603,10 @@ if get_option('pkcs7_parser').enabled()
 			suite: regression,
 			should_fail: fips140_negative_expect_fail)
 
-		if get_option('x509_generator').enabled()
+		if (host_machine.system() != 'windows' and
+		    get_option('efi').disabled() and
+		    get_option('apps').enabled() and
+		    get_option('x509_generator').enabled())
 
 			# Failing validation:
 			# * path length is 4
