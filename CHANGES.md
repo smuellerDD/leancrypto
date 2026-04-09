@@ -17,6 +17,8 @@ Changes 1.7.2-prerelease
 
 * Apply suggestions from Claude code
 
+* X.509: Enforce path length restriction
+
 Changes 1.7.1
 * Offer a means to select the AES-C constant time / S-Box implementation via lc_init API
 

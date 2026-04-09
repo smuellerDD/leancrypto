@@ -31,6 +31,7 @@
 #include "asn1.h"
 #include "asn1_debug.h"
 #include "asym_key.h"
+#include "build_bug_on.h"
 #include "lc_memcmp_secure.h"
 #include "lc_sha256.h"
 #include "lc_sha3.h"
@@ -186,6 +187,49 @@ static int pkcs7_find_key(struct lc_pkcs7_message *pkcs7,
 	return -ENOKEY;
 }
 
+static int lc_pkcs7_verify_pathlen(struct lc_x509_certificate *leaf,
+				   const struct lc_x509_certificate *signer)
+{
+	BUILD_BUG_ON(LC_PATHLEN_MAXSIZE < LC_KEY_CA_MAXLEN);
+
+	/* Prevent overflowing the path length */
+	if (leaf->consumed_pathlen >= LC_PATHLEN_MAXSIZE)
+		return -EOVERFLOW;
+
+	leaf->consumed_pathlen++;
+
+	/*
+	 * Only check the maximum path length allowed by the current signer
+	 * if it was set (i.e. its value is > 0). A value of 0 implies
+	 * an unlimited path length.
+	 */
+	if (signer->pub.ca_pathlen &&
+	    (leaf->consumed_pathlen > signer->pub.ca_pathlen)) {
+		printf_debug("- certificate path length too large (current length: %u, allowed length %u)\n",
+			leaf->consumed_pathlen,
+			signer->pub.ca_pathlen);
+			return -EKEYREJECTED;
+	}
+	return 0;
+}
+
+static int lc_pkcs7_verify_pathlen_truststore(
+	struct lc_x509_certificate *leaf,
+	const struct lc_x509_certificate *signer_truststore)
+{
+	/*
+	 * As we do not validate the full chain of the trust store, we simply
+	 * add the path length incurred during building the trust store.
+	 */
+	if ((size_t)((size_t)leaf->consumed_pathlen +
+		     (size_t)signer_truststore->consumed_pathlen) >=
+	    (size_t)LC_PATHLEN_MAXSIZE)
+		return -EOVERFLOW;
+
+	leaf->consumed_pathlen += signer_truststore->consumed_pathlen;
+	return lc_pkcs7_verify_pathlen(leaf, signer_truststore);
+}
+
 /*
  * Verify the internal certificate chain as best we can.
  */
@@ -195,7 +239,7 @@ int lc_pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 			      struct lc_pkcs7_signed_info *sinfo)
 {
 	struct lc_public_key_signature *sig;
-	struct lc_x509_certificate *p;
+	struct lc_x509_certificate *p, *start_cert = x509;
 	const struct lc_x509_certificate *trusted;
 	struct lc_asymmetric_key_id *auth0, *auth1;
 	int ret = 0;
@@ -204,6 +248,12 @@ int lc_pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 
 	for (p = certificate_chain; p; p = p->next)
 		p->seen = 0;
+
+	/*
+	 * We start a new chain validation, thus we can reset any path length
+	 * validations that may or may not have been done before.
+	 */
+	start_cert->consumed_pathlen = 0;
 
 	for (;;) {
 		bin2print_debug(x509->raw_serial, x509->raw_serial_size, stdout,
@@ -279,6 +329,8 @@ int lc_pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 		ret = lc_pkcs7_find_asymmetric_key(&trusted, trust_store, auth0,
 						   auth1);
 		if (!ret) {
+			CKINT(lc_pkcs7_verify_pathlen_truststore(start_cert,
+								 trusted));
 			CKINT(lc_x509_policy_verify_cert(&trusted->pub, x509,
 							 0));
 			return 0;
@@ -302,6 +354,8 @@ int lc_pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 		}
 	found_issuer:
 		printf_debug("- subject %s\n", p->subject_segments.cn.value);
+
+		CKINT(lc_pkcs7_verify_pathlen(start_cert, p));
 
 		/* Check the key usage contains keyCertSign */
 		CKINT(lc_x509_policy_match_key_usage(p,
@@ -331,6 +385,10 @@ int lc_pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 					"- searching root CA in trust store\n");
 				CKINT(lc_pkcs7_find_asymmetric_key(
 					&trusted, trust_store, auth0, auth1));
+
+				CKINT(lc_pkcs7_verify_pathlen_truststore(
+					start_cert, trusted));
+
 				CKINT(lc_x509_policy_verify_cert(&trusted->pub,
 								 x509, 0));
 				return 0;
