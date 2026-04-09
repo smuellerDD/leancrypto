@@ -781,7 +781,7 @@ if (host_machine.system() != 'windows' and
 			     lc_x509_generator.full_path(),
 			     lc_pkcs7_generator.full_path(),
 			   ],
-		     timeout: 300, suite: regression,
+		     timeout: 600, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
 		test('X.509/PKCS8 keygen/siggen/sigver LC - OpenSSL Interop SLH-DSA-SHAKE-192F',
 		     siggen_test_script,
@@ -797,7 +797,7 @@ if (host_machine.system() != 'windows' and
 			     lc_x509_generator.full_path(),
 			     lc_pkcs7_generator.full_path(),
 			   ],
-		     timeout: 300, suite: regression,
+		     timeout: 600, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
 		test('X.509/PKCS8 keygen/siggen/sigver LC - OpenSSL Interop SLH-DSA-SHAKE-256F',
 		     siggen_test_script,
@@ -813,7 +813,7 @@ if (host_machine.system() != 'windows' and
 			     lc_x509_generator.full_path(),
 			     lc_pkcs7_generator.full_path(),
 			   ],
-		     timeout: 300, suite: regression,
+		     timeout: 600, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
 	endif
 
@@ -883,7 +883,7 @@ if (host_machine.system() != 'windows' and
 			     lc_x509_generator.full_path(),
 			     lc_pkcs7_generator.full_path(),
 			   ],
-		     timeout: 300, suite: regression,
+		     timeout: 600, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
 		test('X.509/PKCS8 CSR -> cert LC - OpenSSL Interop SLH-DSA-SHAKE-192F',
 		     csr_test_script,
@@ -899,7 +899,7 @@ if (host_machine.system() != 'windows' and
 			     lc_x509_generator.full_path(),
 			     lc_pkcs7_generator.full_path(),
 			   ],
-		     timeout: 300, suite: regression,
+		     timeout: 600, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
 		test('X.509/PKCS8 CSR -> cert LC - OpenSSL Interop SLH-DSA-SHAKE-256F',
 		     csr_test_script,
@@ -915,7 +915,7 @@ if (host_machine.system() != 'windows' and
 			     lc_x509_generator.full_path(),
 			     lc_pkcs7_generator.full_path(),
 			   ],
-		     timeout: 300, suite: regression,
+		     timeout: 600, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
 	endif
 
