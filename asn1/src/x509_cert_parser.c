@@ -735,7 +735,7 @@ int lc_x509_process_extension(void *context, size_t hdrlen, unsigned char tag,
 
 out:
 	/* As we now have consumed the extension, unset the criticality */
-	ctx->extension_critical = false;
+	ctx->extension_critical = 0;
 
 	return ret;
 }
