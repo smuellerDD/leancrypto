@@ -247,9 +247,14 @@ check_one() {
 
 		lc_verify_cert $certfile
 
+
 		# We try to validate, but only print the output without logging
 		# the result - this is due to the fact that some provider like
 		# CHT do not include the root CA.
+		if [ $? -ne 0 ]
+		then
+			echo_info "Missing root CA caused the previous error - thus the error is accepted here"
+		fi
 # 		if [ $? -ne 0 ]
 # 		then
 # 			echo_fail "Verifying signature of file $certfile was unsuccessful"

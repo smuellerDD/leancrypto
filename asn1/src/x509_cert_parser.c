@@ -455,7 +455,7 @@ int lc_x509_extension_critical(void *context, size_t hdrlen, unsigned char tag,
 	if (vlen != 1)
 		return -EBADMSG;
 
-	ctx->extension_critical = (value[0] == 0xff);
+	ctx->extension_critical = (value[0] == ASN1_TRUE);
 
 	return 0;
 }
@@ -719,17 +719,24 @@ int lc_x509_process_extension(void *context, size_t hdrlen, unsigned char tag,
 					  vlen));
 	}
 
+	if (ctx->last_oid == OID_nameConstraints) {
+		//TODO
+		printf_debug("unhandled name constraint\n");
+		if (ctx->extension_critical)
+			return -ENOPKG;
+	}
+
 	/*
 	 * RFC 5280 4.2: "if a certificate contains a critical extension
 	 * that is not recognized, it MUST be rejected."
-	 *
-	 * Enforcing that here would imply a too severe restriction at this
-	 * time.
 	 */
-	//if (ctx->last_oid == OID__NR && ctx->extension_critical)
-	//	return -ENOPKG;
+	if (ctx->last_oid == OID__NR && ctx->extension_critical)
+		return -ENOPKG;
 
 out:
+	/* As we now have consumed the extension, unset the criticality */
+	ctx->extension_critical = false;
+
 	return ret;
 }
 

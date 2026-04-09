@@ -121,6 +121,7 @@ enum OID {
 	OID_subjectAltName, /* 2.5.29.17 */
 	OID_issuerAltName, /* 2.5.29.18 */
 	OID_basicConstraints, /* 2.5.29.19 */
+	OID_nameConstraints, /* 2.5.29.30 */
 	OID_crlDistributionPoints, /* 2.5.29.31 */
 	OID_certPolicies, /* 2.5.29.32 */
 	OID_authorityKeyIdentifier, /* 2.5.29.35 */

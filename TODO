@@ -38,3 +38,5 @@
 - BIKE: add lc_bike_pk_from_sk
 
 - Tests: reenable OpenSSL checker code in csr_tester.sh and siggen_tester.sh (it seems OpenSSL has some problem as sometimes the thrown error is "unsupported algorithm")
+
+- X.509: Name Constraint not enforced yet (RFC5280 section 4.2.1.10)
