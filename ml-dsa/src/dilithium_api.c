@@ -529,6 +529,43 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_from_seed,
 	}
 }
 
+LC_INTERFACE_FUNCTION(int, lc_dilithium_pk_from_sk, struct lc_dilithium_pk *pk,
+		      const struct lc_dilithium_sk *sk)
+{
+	if (!pk || !sk)
+		return -EINVAL;
+
+	switch (sk->dilithium_type) {
+	case LC_DILITHIUM_87:
+#ifdef LC_DILITHIUM_87_ENABLED
+		pk->dilithium_type = sk->dilithium_type;
+		return lc_dilithium_87_pk_from_sk(
+			&pk->key.pk_87, &sk->key.sk_87);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_DILITHIUM_65:
+#ifdef LC_DILITHIUM_65_ENABLED
+		pk->dilithium_type = sk->dilithium_type;
+		return lc_dilithium_65_pk_from_sk(
+			&pk->key.pk_65, &sk->key.sk_65);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_DILITHIUM_44:
+#ifdef LC_DILITHIUM_44_ENABLED
+		pk->dilithium_type = sk->dilithium_type;
+		return lc_dilithium_44_pk_from_sk(
+			&pk->key.pk_44, &sk->key.sk_44);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_DILITHIUM_UNKNOWN:
+	default:
+		return -EOPNOTSUPP;
+	}
+}
+
 LC_INTERFACE_FUNCTION(int, lc_dilithium_pct, const struct lc_dilithium_pk *pk,
 		      const struct lc_dilithium_sk *sk)
 {
