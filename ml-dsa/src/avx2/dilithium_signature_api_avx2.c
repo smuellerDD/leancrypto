@@ -62,6 +62,13 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair, struct lc_dilithium_pk *pk,
 LC_INTERFACE_FUNCTION(int, lc_dilithium_pk_from_sk, struct lc_dilithium_pk *pk,
 		      const struct lc_dilithium_sk *sk)
 {
+	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) {
+		dilithium_keypair_tester(lc_dilithium_keypair_from_seed_avx2);
+		LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLDSA_KEYGEN);
+
+		return lc_dilithium_pk_from_sk_avx2(pk, sk);
+	}
+
 	dilithium_keypair_tester(lc_dilithium_keypair_from_seed_c);
 	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_MLDSA_KEYGEN);
 

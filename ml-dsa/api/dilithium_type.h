@@ -219,6 +219,10 @@ extern "C" {
 #define make_hint_avx DILITHIUM_F(make_hint_avx)
 #define use_hint_avx DILITHIUM_F(use_hint_avx)
 #define lc_dilithium_keypair_avx2 DILITHIUM_F(keypair_avx2)
+#define lc_dilithium_pk_from_sk_avx2 DILITHIUM_F(pk_from_sk_avx2)
+#define keygen_workspace_avx2 DILITHIUM_F(keygen_workspace_avx2)
+#define lc_dilithium_pk_sk_from_rho_s1_s2_avx2                                 \
+	DILITHIUM_F(pk_sk_from_rho_s1_s2_avx2)
 #define lc_dilithium_keypair_from_seed_avx2 DILITHIUM_F(keypair_from_seed_avx2)
 #define lc_dilithium_sign_avx2 DILITHIUM_F(sign_avx2)
 #define lc_dilithium_sign_ctx_avx2 DILITHIUM_F(sign_ctx_avx2)

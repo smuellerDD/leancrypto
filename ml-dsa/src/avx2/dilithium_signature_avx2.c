@@ -46,6 +46,21 @@
 #include "timecop.h"
 #include "visibility.h"
 
+struct keygen_workspace_avx2 {
+	union {
+		BUF_ALIGNED_UINT8_M256I(REJ_UNIFORM_BUFLEN + 8)
+		poly_uniform_4x_buf[4];
+		BUF_ALIGNED_UINT8_M256I(REJ_UNIFORM_ETA_BUFLEN)
+		poly_uniform_eta_4x_buf[4];
+	} tmp;
+	uint8_t seedbuf[2 * LC_DILITHIUM_SEEDBYTES +
+			LC_DILITHIUM_CRHBYTES];
+	polyvecl rowbuf[2], s1;
+	polyveck s2;
+	poly t1, t0;
+	keccakx4_state keccak_state;
+};
+
 static inline void
 polyvec_matrix_expand_row(polyvecl **row, polyvecl buf[2],
 			  const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
@@ -100,39 +115,96 @@ polyvec_matrix_expand_row(polyvecl **row, polyvecl buf[2],
 	}
 }
 
+static void lc_dilithium_pk_sk_from_rho_s1_s2_avx2(
+	uint8_t *pubkey, uint8_t *seckey, const uint8_t *rho,
+	struct keygen_workspace_avx2 *ws)
+{
+	polyvecl *row;
+	unsigned int i;
+
+	row = ws->rowbuf;
+
+	/* Transform s1 */
+	polyvecl_ntt_avx(&ws->s1);
+
+	for (i = 0; i < LC_DILITHIUM_K; i++) {
+		polyvec_matrix_expand_row(&row, ws->rowbuf, rho, i,
+					  ws->tmp.poly_uniform_4x_buf,
+					  &ws->keccak_state);
+
+		/* Compute inner-product */
+		polyvecl_pointwise_acc_montgomery_avx(&ws->t1, row, &ws->s1);
+
+		poly_invntt_tomont_avx(&ws->t1);
+
+		/* Add error polynomial */
+		poly_add_avx(&ws->t1, &ws->t1, &ws->s2.vec[i]);
+
+		/* Round t and pack t1, t0 */
+		poly_caddq_avx(&ws->t1);
+		poly_power2round_avx(&ws->t1, &ws->t0, &ws->t1);
+
+		polyt1_pack_avx(pubkey + i * LC_DILITHIUM_POLYT1_PACKEDBYTES,
+				&ws->t1);
+		if (seckey) {
+			polyt0_pack_avx(seckey +
+					i * LC_DILITHIUM_POLYT0_PACKEDBYTES,
+					&ws->t0);
+		}
+	}
+}
+
+LC_INTERFACE_FUNCTION(int, lc_dilithium_pk_from_sk_avx2,
+		      struct lc_dilithium_pk *pk,
+		      const struct lc_dilithium_sk *sk)
+{
+	uint8_t *rho, *pubkey;
+	int ret;
+	LC_DECLARE_MEM(ws, struct keygen_workspace_avx2, 32);
+
+	CKNULL(pk, -EINVAL);
+	CKNULL(sk, -EINVAL);
+
+	/* Timecop: sk is secret */
+	poison(sk, sizeof(*sk));
+
+	/* Unpack RHO directly into public key */
+	rho = pk->pk;
+	unpack_sk_rho_avx2(rho, sk);
+
+	unpack_sk_s1_avx2(&ws->s1, sk);
+	unpack_sk_s2_avx2(&ws->s2, sk);
+
+	pubkey = pk->pk + LC_DILITHIUM_SEEDBYTES;
+	lc_dilithium_pk_sk_from_rho_s1_s2_avx2(pubkey, NULL, rho, ws);
+
+	unpoison(pk->pk, sizeof(pk->pk));
+	unpoison(sk->sk, sizeof(sk->sk));
+
+	CKINT(lc_dilithium_pct_fips(pk, sk));
+
+out:
+	LC_RELEASE_MEM(ws);
+	return ret;
+}
+
 LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_avx2,
 		      struct lc_dilithium_pk *pk, struct lc_dilithium_sk *sk,
 		      struct lc_rng_ctx *rng_ctx)
 {
-	struct workspace {
-		union {
-			BUF_ALIGNED_UINT8_M256I(REJ_UNIFORM_BUFLEN + 8)
-			poly_uniform_4x_buf[4];
-			BUF_ALIGNED_UINT8_M256I(REJ_UNIFORM_ETA_BUFLEN)
-			poly_uniform_eta_4x_buf[4];
-		} tmp;
-		uint8_t seedbuf[2 * LC_DILITHIUM_SEEDBYTES +
-				LC_DILITHIUM_CRHBYTES];
-		polyvecl rowbuf[2], s1;
-		polyveck s2;
-		poly t1, t0;
-		keccakx4_state keccak_state;
-	};
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t dimension[2] = { LC_DILITHIUM_K, LC_DILITHIUM_L };
 	unsigned int i;
 	const uint8_t *rho, *rhoprime, *key;
-	polyvecl *row;
+	uint8_t *seckey, *pubkey;
 	int ret;
 	LC_HASH_CTX_ON_STACK(shake256_ctx, lc_shake256);
-	LC_DECLARE_MEM(ws, struct workspace, 32);
+	LC_DECLARE_MEM(ws, struct keygen_workspace_avx2, 32);
 
 	if (!pk || !sk || !rng_ctx) {
 		ret = -EINVAL;
 		goto out;
 	}
-
-	row = ws->rowbuf;
 
 	/* Get randomness for rho, rhoprime and key */
 	CKINT(lc_rng_generate(rng_ctx, NULL, 0, ws->seedbuf,
@@ -207,37 +279,11 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_avx2,
 					  i) * LC_DILITHIUM_POLYETA_PACKEDBYTES,
 				 &ws->s2.vec[i]);
 
-	/* Transform s1 */
-	polyvecl_ntt_avx(&ws->s1);
-
-	for (i = 0; i < LC_DILITHIUM_K; i++) {
-		polyvec_matrix_expand_row(&row, ws->rowbuf, rho, i,
-					  ws->tmp.poly_uniform_4x_buf,
-					  &ws->keccak_state);
-
-		/* Compute inner-product */
-		polyvecl_pointwise_acc_montgomery_avx(&ws->t1, row, &ws->s1);
-
-		poly_invntt_tomont_avx(&ws->t1);
-
-		/* Add error polynomial */
-		poly_add_avx(&ws->t1, &ws->t1, &ws->s2.vec[i]);
-
-		/* Round t and pack t1, t0 */
-		poly_caddq_avx(&ws->t1);
-		poly_power2round_avx(&ws->t1, &ws->t0, &ws->t1);
-
-		polyt1_pack_avx(pk->pk + LC_DILITHIUM_SEEDBYTES +
-					i * LC_DILITHIUM_POLYT1_PACKEDBYTES,
-				&ws->t1);
-		polyt0_pack_avx(
-			sk->sk + 2 * LC_DILITHIUM_SEEDBYTES +
-				LC_DILITHIUM_TRBYTES +
-				(LC_DILITHIUM_L + LC_DILITHIUM_K) *
-					LC_DILITHIUM_POLYETA_PACKEDBYTES +
-				i * LC_DILITHIUM_POLYT0_PACKEDBYTES,
-			&ws->t0);
-	}
+	pubkey = pk->pk + LC_DILITHIUM_SEEDBYTES;
+	seckey = sk->sk + 2 * LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_TRBYTES +
+		 (LC_DILITHIUM_L + LC_DILITHIUM_K) *
+		 LC_DILITHIUM_POLYETA_PACKEDBYTES;
+	lc_dilithium_pk_sk_from_rho_s1_s2_avx2(pubkey, seckey, rho, ws);
 
 	/* Compute H(rho, t1) and store in secret key */
 	CKINT(lc_xof(lc_shake256, pk->pk, LC_DILITHIUM_PUBLICKEYBYTES,
