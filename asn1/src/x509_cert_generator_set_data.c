@@ -166,7 +166,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_ca_pathlen,
 		      struct lc_x509_certificate *cert, unsigned int ca_pathlen)
 {
 	struct lc_public_key *pub;
-	int ret;
+	int ret = 0;
 
 	CKNULL(cert, -EINVAL);
 	if (ca_pathlen > LC_KEY_CA_MAXLEN)
