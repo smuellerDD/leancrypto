@@ -181,6 +181,13 @@ int curve448_scalar_decode(curve448_scalar_t s,
 	return (~word_is_zero((uint32_t)accum)) ? 0 : -EFAULT;
 }
 
+static void curve448_scalar_decode_nocheck(
+	curve448_scalar_t s, const unsigned char ser[C448_SCALAR_BYTES])
+{
+	scalar_decode_short(s, ser, C448_SCALAR_BYTES);
+	curve448_scalar_mul(s, s, curve448_scalar_one); /* ham-handed reduce */
+}
+
 void curve448_scalar_destroy(curve448_scalar_t scalar)
 {
 	lc_memset_secure(scalar, 0, sizeof(curve448_scalar_t));
@@ -213,7 +220,7 @@ void curve448_scalar_decode_long(curve448_scalar_t s, const unsigned char *ser,
 	while (i) {
 		i -= C448_SCALAR_BYTES;
 		sc_montmul(t1, t1, sc_r2);
-		(void)curve448_scalar_decode(t2, ser + i);
+		curve448_scalar_decode_nocheck(t2, ser + i);
 		curve448_scalar_add(t1, t1, t2);
 	}
 

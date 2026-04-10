@@ -151,14 +151,19 @@ static int lc_dilithium_pk_from_sk_impl(struct lc_dilithium_pk *pk,
 	CKNULL(sk, -EINVAL);
 
 	/* Timecop: sk is secret */
-	poison(sk, sizeof(*sk));
+	poison(sk->sk, sizeof(sk->sk));
 
 	/* Unpack RHO directly into public key */
 	rho = pk->pk;
 	unpack_sk_rho(rho, sk);
+	unpoison(rho, LC_DILITHIUM_SEEDBYTES);
 
 	unpack_sk_s1(&ws->s1.s1, sk);
 	unpack_sk_s2(&ws->s2, sk);
+
+	/* Timecop: s1 and s2 are secret */
+	poison(&ws->s1.s1, sizeof(polyvecl));
+	poison(&ws->s2, sizeof(polyveck));
 
 	pubkey = pk->pk + LC_DILITHIUM_SEEDBYTES;
 	lc_dilithium_pk_sk_from_rho_s1_s2(pubkey, NULL, rho, ws);

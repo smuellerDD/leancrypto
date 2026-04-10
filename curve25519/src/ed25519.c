@@ -417,8 +417,9 @@ static int lc_ed25519_sign_internal(
 	az[31] |= 64;
 	sc25519_muladd(sig->sig + 32, hram, az, nonce);
 
-	/* Timecop: pk and sk are not relevant for side-channels any more. */
+	/* Timecop: sig and sk are not relevant for side-channels any more. */
 	unpoison(sig->sig, LC_ED25519_SIGBYTES);
+	unpoison(sk->sk, sizeof(sk->sk));
 
 out:
 	lc_memset_secure(az, 0, sizeof(az));
