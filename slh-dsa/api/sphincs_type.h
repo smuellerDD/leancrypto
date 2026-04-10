@@ -117,6 +117,7 @@ extern "C" {
 #define lc_sphincs_keypair SPHINCS_F(keypair)
 #define lc_sphincs_keypair_nocheck SPHINCS_F(keypair_nocheck)
 #define lc_sphincs_keypair_from_seed SPHINCS_F(keypair_from_seed)
+#define lc_sphincs_pk_from_sk SPHINCS_F(pk_from_sk)
 #define lc_sphincs_sign SPHINCS_F(sign)
 #define lc_sphincs_sign_ctx SPHINCS_F(sign_ctx)
 #define lc_sphincs_sign_ctx_nocheck SPHINCS_F(sign_ctx_nocheck)

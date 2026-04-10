@@ -24,6 +24,7 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
+#include "build_bug_on.h"
 #include "compare.h"
 #include "cpufeatures.h"
 #include "helper.h"
@@ -186,6 +187,22 @@ out:
 	(void)seedlen;
 	return -EOPNOTSUPP;
 #endif
+}
+
+LC_INTERFACE_FUNCTION(int, lc_sphincs_pk_from_sk, struct lc_sphincs_pk *pk,
+		      const struct lc_sphincs_sk *sk)
+{
+	int ret = 0;
+
+	CKNULL(pk, -EINVAL);
+	CKNULL(sk, -EINVAL);
+
+	BUILD_BUG_ON(sizeof(sk->pk) != sizeof(pk->pk));
+
+	memcpy(pk->pk, sk->pk, sizeof(pk->pk));
+
+out:
+	return ret;
 }
 
 /*

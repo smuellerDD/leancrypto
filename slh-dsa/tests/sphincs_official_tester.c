@@ -19,6 +19,7 @@
 
 #include "compare.h"
 #include "cpufeatures.h"
+#include "lc_memcmp_secure.h"
 #include "lc_sphincs.h"
 #include "small_stack_support.h"
 #include "ret_checkers.h"
@@ -41,7 +42,7 @@ static const unsigned int lc_sphincs_type = LC_SPHINCS_SHAKE_128f;
 static int lc_sphincs_official_test(struct lc_sphincs_ctx *ctx)
 {
 	struct workspace {
-		struct lc_sphincs_pk pk;
+		struct lc_sphincs_pk pk, pk2;
 		struct lc_sphincs_sk sk;
 		struct lc_sphincs_sig sig;
 		uint8_t msg[10];
@@ -64,6 +65,11 @@ static int lc_sphincs_official_test(struct lc_sphincs_ctx *ctx)
 
 	CKINT(lc_sphincs_verify_ctx(&ws->sig, ctx, ws->msg, sizeof(ws->msg),
 				    &ws->pk));
+
+	CKINT(lc_sphincs_pk_from_sk(&ws->pk2, &ws->sk));
+	CKINT(lc_memcmp_secure(
+		&ws->pk2, lc_sphincs_pk_size(lc_sphincs_pk_type(&ws->pk2)),
+		&ws->pk, lc_sphincs_pk_size(lc_sphincs_pk_type(&ws->pk))));
 
 out:
 	LC_RELEASE_MEM(ws);

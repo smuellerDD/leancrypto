@@ -95,6 +95,26 @@ out:
 	return ret;
 }
 
+int lc_x25519_pk_from_sk(struct lc_x25519_pk *pk, const struct lc_x25519_sk *sk)
+{
+	int ret = 0;
+
+	CKNULL(pk, -EINVAL);
+	CKNULL(sk, -EINVAL);
+
+	/* Timecop: the random number is the sentitive data */
+	poison(sk->sk, LC_X25519_SECRETKEYBYTES);
+
+	CKINT(crypto_scalarmult_curve25519_base(pk->pk, sk->sk));
+
+	/* Timecop: pk and sk are not relevant for side-channels any more. */
+	unpoison(sk->sk, LC_X25519_SECRETKEYBYTES);
+	unpoison(pk->pk, LC_X25519_PUBLICKEYBYTES);
+
+out:
+	return ret;
+}
+
 static void lc_x25519_ss_selftest(void)
 {
 	/*

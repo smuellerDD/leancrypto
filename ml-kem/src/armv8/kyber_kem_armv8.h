@@ -31,6 +31,8 @@ int lc_kyber_keypair_armv8(struct lc_kyber_pk *pk, struct lc_kyber_sk *sk,
 int lc_kyber_keypair_from_seed_armv8(struct lc_kyber_pk *pk,
 				     struct lc_kyber_sk *sk,
 				     const uint8_t *seed, size_t seedlen);
+int lc_kyber_pk_from_sk_armv8(struct lc_kyber_pk *pk,
+			      const struct lc_kyber_sk *sk);
 int lc_kyber_enc_armv8(struct lc_kyber_ct *ct, struct lc_kyber_ss *ss,
 		       const struct lc_kyber_pk *pk,
 		       struct lc_rng_ctx *rng_ctx);

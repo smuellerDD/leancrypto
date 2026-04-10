@@ -512,6 +512,18 @@ int lc_sphincs_keypair_from_seed(struct lc_sphincs_pk *pk,
 				 enum lc_sphincs_type sphincs_type);
 
 /**
+ * @ingroup Sphincs
+ * @brief Generates Sphincs public from private key.
+ *
+ * @param [out] pk pointer to allocated output public key
+ * @param [in] sk pointer private key
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int lc_sphincs_pk_from_sk(struct lc_sphincs_pk *pk,
+			  const struct lc_sphincs_sk *sk);
+
+/**
  * @brief Pairwise consistency check as per FIPS 140 IG
  *
  * This call should be invoked after generating a key pair in FIPS mode

@@ -22,6 +22,7 @@
 #include "compare.h"
 #include "kyber_kem_tester.h"
 #include "kyber_x25519_internal.h"
+#include "lc_memcmp_secure.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
 #include "selftest_rng.h"
@@ -1173,7 +1174,7 @@ static const uint8_t ss_exp[] = {
 static int kyber_kem_double_tester(int check)
 {
 	struct workspace {
-		struct lc_kyber_x25519_pk pk;
+		struct lc_kyber_x25519_pk pk, pk2;
 		struct lc_kyber_x25519_sk sk;
 		struct lc_kyber_x25519_ct ct;
 		uint8_t ss1[sizeof(ss_exp)], ss2[sizeof(ss_exp)];
@@ -1196,6 +1197,15 @@ static int kyber_kem_double_tester(int check)
 				 LC_X25519_SECRETKEYBYTES,
 				 "X25519 sk keygen\n");
 	}
+
+	ret += lc_kyber_x25519_pk_from_sk(&ws->pk2, &ws->sk);
+	if (ret)
+		goto out;
+
+	ret += lc_memcmp_secure(&ws->pk2, sizeof(ws->pk2), &ws->pk,
+				sizeof(ws->pk));
+	if (ret)
+		goto out;
 
 	ret |= lc_kyber_x25519_enc_kdf_internal(
 		&ws->ct, ws->ss1, sizeof(ws->ss1), &ws->pk, selftest_rng);

@@ -121,14 +121,17 @@ extern "C" {
 #define lc_kex_ake_initiator_ss KEX_F(ake_initiator_ss)
 
 #define lc_kyber_x25519_keypair KYBER_F(x25519_keypair)
+#define lc_kyber_x25519_pk_from_sk KYBER_F(x25519_pk_from_sk)
 #define lc_kyber_x25519_enc_kdf KYBER_F(x25519_enc_kdf)
 #define lc_kyber_x25519_dec_kdf KYBER_F(x25519_dec_kdf)
 
 #define lc_kyber_x448_keypair KYBER_F(x448_keypair)
+#define lc_kyber_x448_pk_from_sk KYBER_F(x448_pk_from_sk)
 #define lc_kyber_x448_enc_kdf KYBER_F(x448_enc_kdf)
 #define lc_kyber_x448_dec_kdf KYBER_F(x448_dec_kdf)
 
 #define lc_kyber_keypair KYBER_F(keypair)
+#define lc_kyber_pk_from_sk KYBER_F(pk_from_sk)
 #define lc_kyber_keypair_from_seed KYBER_F(keypair_from_seed)
 #define lc_kyber_enc KYBER_F(enc)
 #define lc_kyber_dec KYBER_F(dec)
@@ -136,6 +139,7 @@ extern "C" {
 #define lc_kyber_dec_kdf KYBER_F(dec_kdf)
 
 #define _lc_kyber_keypair KYBER_F(_keypair)
+#define _lc_kyber_pk_from_sk KYBER_F(_pk_from_sk)
 #define _lc_kyber_keypair_from_seed KYBER_F(_keypair_from_seed)
 #define _lc_kyber_enc KYBER_F(_enc)
 #define _lc_kyber_dec KYBER_F(_dec)
@@ -144,6 +148,7 @@ extern "C" {
 #define _lc_kyber_dec_kdf KYBER_F(_dec_kdf)
 
 #define lc_kyber_keypair_c KYBER_F(keypair_c)
+#define lc_kyber_pk_from_sk_c KYBER_F(pk_from_sk_c)
 #define lc_kyber_keypair_from_seed_c KYBER_F(keypair_from_seed_c)
 #define lc_kyber_enc_c KYBER_F(enc_c)
 #define lc_kyber_dec_c KYBER_F(dec_c)
@@ -274,6 +279,7 @@ extern "C" {
 #define kyber_inv_ntt_armv8 KYBER_F(inv_ntt_armv8)
 #define lc_kyber_keypair_armv8 KYBER_F(keypair_armv8)
 #define lc_kyber_keypair_from_seed_armv8 KYBER_F(keypair_from_seed_armv8)
+#define lc_kyber_pk_from_sk_armv8 KYBER_F(pk_from_sk_armv8)
 #define lc_kyber_enc_armv8 KYBER_F(enc_armv8)
 #define lc_kyber_dec_armv8 KYBER_F(dec_armv8)
 #define lc_kyber_enc_kdf_armv8 KYBER_F(enc_kdf_armv8)

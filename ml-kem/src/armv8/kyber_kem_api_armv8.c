@@ -42,6 +42,13 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_keypair, struct lc_kyber_pk *pk,
 	return lc_kyber_keypair_armv8(pk, sk, rng_ctx);
 }
 
+LC_INTERFACE_FUNCTION(int, lc_kyber_pk_from_sk, struct lc_kyber_pk *pk,
+		      const struct lc_kyber_sk *sk)
+{
+	/* No self test needed, as there is no crypto operation involved */
+	return lc_kyber_pk_from_sk_armv8(pk, sk);
+}
+
 int lc_kyber_enc_internal(struct lc_kyber_ct *ct, struct lc_kyber_ss *ss,
 			  const struct lc_kyber_pk *pk,
 			  struct lc_rng_ctx *rng_ctx)

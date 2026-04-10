@@ -19,6 +19,7 @@
 
 #include "compare.h"
 #include "lc_kyber.h"
+#include "lc_memcmp_secure.h"
 #include "lc_rng.h"
 #include "small_stack_support.h"
 #include "timecop.h"
@@ -28,7 +29,7 @@ static int kyber_official(enum lc_kyber_type type)
 {
 	struct workspace {
 		struct lc_kyber_sk sk;
-		struct lc_kyber_pk pk;
+		struct lc_kyber_pk pk, pk2;
 		struct lc_kyber_ct ct;
 		uint8_t ss[5], ss2[5];
 	};
@@ -45,6 +46,17 @@ static int kyber_official(enum lc_kyber_type type)
 
 	if (lc_kyber_pct(&ws->pk, &ws->sk)) {
 		printf("Kyber PCT failed\n");
+		goto out;
+	}
+
+	if (lc_kyber_pk_from_sk(&ws->pk2, &ws->sk)) {
+		printf("Kyber PK from SK failed\n");
+		goto out;
+	}
+
+	if (lc_memcmp_secure(&ws->pk2, sizeof(ws->pk2), &ws->pk,
+			     sizeof(ws->pk))) {
+		printf("Kyber PK from SK failed\n");
 		goto out;
 	}
 

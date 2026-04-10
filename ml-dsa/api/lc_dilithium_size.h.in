@@ -809,6 +809,18 @@ int @dilithium_name@_ed25519_keypair(struct @dilithium_name@_ed25519_pk *pk,
 				 struct lc_rng_ctx *rng_ctx);
 
 /**
+ * @brief Generates Dilithium public from private key.
+ *
+ * @param [out] pk pointer to allocated output public key
+ * @param [in] sk pointer private key
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int @dilithium_name@_ed25519_pk_from_sk(
+	struct @dilithium_name@_ed25519_pk *pk,
+	const struct @dilithium_name@_ed25519_sk *sk);
+
+/**
  * @brief Computes signature in one shot
  *
  * @param [out] sig pointer to output signature
@@ -1119,6 +1131,18 @@ void @dilithium_name@_ed448_ctx_zero_free(
 int @dilithium_name@_ed448_keypair(struct @dilithium_name@_ed448_pk *pk,
 				 struct @dilithium_name@_ed448_sk *sk,
 				 struct lc_rng_ctx *rng_ctx);
+
+/**
+ * @brief Generates Dilithium public from private key.
+ *
+ * @param [out] pk pointer to allocated output public key
+ * @param [in] sk pointer private key
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int @dilithium_name@_ed448_pk_from_sk(
+	struct @dilithium_name@_ed448_pk *pk,
+	const struct @dilithium_name@_ed448_sk *sk);
 
 /**
  * @brief Computes signature in one shot

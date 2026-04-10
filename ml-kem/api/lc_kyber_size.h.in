@@ -214,6 +214,17 @@ int @kyber_name@_keypair_from_seed(struct @kyber_name@_pk *pk,
 				   const uint8_t *seed, size_t seedlen);
 
 /**
+ * @brief Generates Kyber public from private key.
+ *
+ * @param [out] pk pointer to allocated output public key
+ * @param [in] sk pointer private key
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int @kyber_name@_pk_from_sk(struct @kyber_name@_pk *pk,
+			    const struct @kyber_name@_sk *sk);
+
+/**
  * @brief lc_kyber_enc - Key encapsulation
  *
  * Generates cipher text and shared secret for given public key.
@@ -836,6 +847,17 @@ int @kyber_name@_x25519_keypair(struct @kyber_name@_x25519_pk *pk,
 			    struct lc_rng_ctx *rng_ctx);
 
 /**
+ * @brief Generates Kyber public from private key.
+ *
+ * @param [out] pk pointer to allocated output public key
+ * @param [in] sk pointer private key
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int @kyber_name@_x25519_pk_from_sk(struct @kyber_name@_x25519_pk *pk,
+				   const struct @kyber_name@_x25519_sk *sk);
+
+/**
  * @brief lc_kyber_x25519_enc_kdf - Key encapsulation with KDF applied to shared
  *			      	    secret
  *
@@ -1350,6 +1372,17 @@ struct @kyber_name@_x448_ss {
 int @kyber_name@_x448_keypair(struct @kyber_name@_x448_pk *pk,
 			    struct @kyber_name@_x448_sk *sk,
 			    struct lc_rng_ctx *rng_ctx);
+
+/**
+ * @brief Generates Kyber public from private key.
+ *
+ * @param [out] pk pointer to allocated output public key
+ * @param [in] sk pointer private key
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int @kyber_name@_x448_pk_from_sk(struct @kyber_name@_x448_pk *pk,
+				 const struct @kyber_name@_x448_sk *sk);
 
 /**
  * @brief lc_kyber_x448_enc_kdf - Key encapsulation with KDF applied to shared

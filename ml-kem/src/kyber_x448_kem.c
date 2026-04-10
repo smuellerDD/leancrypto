@@ -37,6 +37,22 @@ out:
 	return ret;
 }
 
+LC_INTERFACE_FUNCTION(int, lc_kyber_x448_pk_from_sk,
+		      struct lc_kyber_x448_pk *pk,
+		      const struct lc_kyber_x448_sk *sk)
+{
+	int ret;
+
+	CKNULL(sk, -EINVAL);
+	CKNULL(pk, -EINVAL);
+
+	CKINT(lc_kyber_pk_from_sk(&pk->pk, &sk->sk));
+	CKINT(lc_x448_pk_from_sk(&pk->pk_x448, &sk->sk_x448));
+
+out:
+	return ret;
+}
+
 int lc_kyber_x448_enc_internal(struct lc_kyber_x448_ct *ct,
 			       struct lc_kyber_x448_ss *ss,
 			       const struct lc_kyber_x448_pk *pk,

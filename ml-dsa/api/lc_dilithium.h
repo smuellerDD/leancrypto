@@ -1108,6 +1108,18 @@ int lc_dilithium_ed25519_keypair(struct lc_dilithium_ed25519_pk *pk,
 
 /**
  * @ingroup HybridDilithium
+ * @brief Generates Dilithium public from private key.
+ *
+ * @param [out] pk pointer to allocated output public key
+ * @param [in] sk pointer private key
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int lc_dilithium_ed25519_pk_from_sk(struct lc_dilithium_ed25519_pk *pk,
+				    const struct lc_dilithium_ed25519_sk *sk);
+
+/**
+ * @ingroup HybridDilithium
  * @brief Computes signature in one shot
  *
  * \note The one-shot API provides the algorithm of Composite-ML-DSA as outlined
@@ -1659,6 +1671,18 @@ int lc_dilithium_ed448_keypair(struct lc_dilithium_ed448_pk *pk,
 			       struct lc_dilithium_ed448_sk *sk,
 			       struct lc_rng_ctx *rng_ctx,
 			       enum lc_dilithium_type dilithium_type);
+
+/**
+ * @ingroup HybridDilithium
+ * @brief Generates Dilithium public from private key.
+ *
+ * @param [out] pk pointer to allocated output public key
+ * @param [in] sk pointer private key
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int lc_dilithium_ed448_pk_from_sk(struct lc_dilithium_ed448_pk *pk,
+				  const struct lc_dilithium_ed448_sk *sk);
 
 /**
  * @ingroup HybridDilithium

@@ -47,6 +47,8 @@ struct lc_ed25519_sig {
 
 int lc_ed25519_keypair(struct lc_ed25519_pk *pk, struct lc_ed25519_sk *sk,
 		       struct lc_rng_ctx *rng_ctx);
+int lc_ed25519_pk_from_sk(struct lc_ed25519_pk *pk,
+			  const struct lc_ed25519_sk *sk);
 int lc_ed25519_derive_pk(struct lc_ed25519_pk *pk, struct lc_ed25519_sk *sk);
 int lc_ed25519_sign(struct lc_ed25519_sig *sig, const uint8_t *msg, size_t mlen,
 		    const struct lc_ed25519_sk *sk, struct lc_rng_ctx *rng_ctx);

@@ -728,6 +728,17 @@ int @sphincs_name@_keypair_from_seed(struct @sphincs_name@_pk *pk,
 				       const uint8_t *seed, size_t seedlen);
 
 /**
+ * @brief Generates Sphincs public from private key.
+ *
+ * @param [out] pk pointer to allocated output public key
+ * @param [in] sk pointer private key
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int @sphincs_name@_pk_from_sk(struct @sphincs_name@_pk *pk,
+			      const struct @sphincs_name@_sk *sk);
+
+/**
  * @brief Computes SLH-DSA signature in one shot
  *
  * @param [out] sig pointer to output signature

@@ -13,6 +13,10 @@ Changes 1.7.2-prerelease
 
 * ML-DSA: add lc_dilithium_pk_from_sk API to derive the PK from a given SK
 
+* SLH-DSA: add lc_sphincs_pk_from_sk API to derive the PK from a given SK
+
+* ML-KEM: add lc_kyber_pk_from_sk API to derive the PK from a given SK
+
 * AES-CT: fix non-aligned data processing - reported by Lucas Mülling
 
 * Apply suggestions from Claude code

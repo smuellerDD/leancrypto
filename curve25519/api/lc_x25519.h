@@ -45,6 +45,8 @@ struct lc_x25519_ss {
 
 int lc_x25519_keypair(struct lc_x25519_pk *pk, struct lc_x25519_sk *sk,
 		      struct lc_rng_ctx *rng_ctx);
+int lc_x25519_pk_from_sk(struct lc_x25519_pk *pk,
+			 const struct lc_x25519_sk *sk);
 int lc_x25519_ss(struct lc_x25519_ss *ss, const struct lc_x25519_pk *pk,
 		 const struct lc_x25519_sk *sk);
 

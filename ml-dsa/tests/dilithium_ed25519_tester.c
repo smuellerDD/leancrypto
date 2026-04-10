@@ -18,6 +18,7 @@
  */
 
 #include "dilithium_tester.h"
+#include "lc_memcmp_secure.h"
 #include "lc_sha512.h"
 #include "lc_status.h"
 #include "ret_checkers.h"
@@ -31,7 +32,7 @@ static int dilithium_ed25519_tester(int failcheck)
 {
 	struct workspace {
 		struct lc_dilithium_ed25519_sk sk;
-		struct lc_dilithium_ed25519_pk pk;
+		struct lc_dilithium_ed25519_pk pk, pk2;
 		struct lc_dilithium_ed25519_sig sig;
 	};
 	static const uint8_t msg[] = { 0x00, 0x01, 0x02 };
@@ -49,6 +50,12 @@ static int dilithium_ed25519_tester(int failcheck)
 		goto out;
 
 	if (!failcheck)
+		goto out;
+
+	ret |= lc_dilithium_ed25519_pk_from_sk(&ws->pk2, &ws->sk);
+	ret |= lc_memcmp_secure(&ws->pk2, sizeof(ws->pk2), &ws->pk,
+				sizeof(ws->pk));
+	if (ret)
 		goto out;
 
 	/* modify msg */

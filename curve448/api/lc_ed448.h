@@ -45,6 +45,7 @@ struct lc_ed448_sig {
 
 int lc_ed448_keypair(struct lc_ed448_pk *pk, struct lc_ed448_sk *sk,
 		     struct lc_rng_ctx *rng_ctx);
+int lc_ed448_pk_from_sk(struct lc_ed448_pk *pk, const struct lc_ed448_sk *sk);
 int lc_ed448_sign(struct lc_ed448_sig *sig, const uint8_t *msg, size_t mlen,
 		  const struct lc_ed448_sk *sk, struct lc_rng_ctx *rng_ctx);
 int lc_ed448_verify(const struct lc_ed448_sig *sig, const uint8_t *msg,

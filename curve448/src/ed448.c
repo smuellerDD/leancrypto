@@ -324,6 +324,28 @@ LC_INTERFACE_FUNCTION(int, lc_ed448_keypair, struct lc_ed448_pk *pk,
 	return lc_ed448_keypair_nocheck(pk, sk, rng_ctx);
 }
 
+int lc_ed448_pk_from_sk(struct lc_ed448_pk *pk, const struct lc_ed448_sk *sk)
+{
+	int ret = 0;
+
+	CKNULL(pk, -EINVAL);
+	CKNULL(sk, -EINVAL);
+
+	/* Timecop: the random number is the sentitive data */
+	poison(sk->sk, LC_ED448_SECRETKEYBYTES);
+
+	ed448_derive_public_key(pk->pk, sk->sk);
+
+	/* Timecop: pk and sk are not relevant for side-channels any more. */
+	unpoison(sk->sk, LC_ED448_SECRETKEYBYTES);
+	unpoison(pk->pk, LC_ED448_PUBLICKEYBYTES);
+
+	CKINT(lc_ed448_pct_fips(pk, sk));
+
+out:
+	return ret;
+}
+
 static inline int lc_ed448_xof_final(struct lc_hash_ctx *xof_ctx,
 				     uint8_t *digest, size_t digest_len)
 {

@@ -42,6 +42,12 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_keypair_c, struct lc_kyber_pk *pk,
 	return _lc_kyber_keypair(pk, sk, rng_ctx, indcpa_keypair);
 }
 
+LC_INTERFACE_FUNCTION(int, lc_kyber_pk_from_sk_c, struct lc_kyber_pk *pk,
+		      const struct lc_kyber_sk *sk)
+{
+	return _lc_kyber_pk_from_sk(pk, sk);
+}
+
 LC_INTERFACE_FUNCTION(int, lc_kyber_enc_c, struct lc_kyber_ct *ct,
 		      struct lc_kyber_ss *ss, const struct lc_kyber_pk *pk,
 		      struct lc_rng_ctx *rng_ctx)

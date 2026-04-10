@@ -109,6 +109,20 @@ out:
 	return ret;
 }
 
+int _lc_kyber_pk_from_sk(struct lc_kyber_pk *pk, const struct lc_kyber_sk *sk)
+{
+	int ret = 0;
+
+	CKNULL(pk, -EINVAL);
+	CKNULL(sk, -EINVAL);
+
+	memcpy(pk->pk,&sk->sk[LC_KYBER_INDCPA_SECRETKEYBYTES],
+	       LC_KYBER_PUBLICKEYBYTES);
+
+out:
+	return ret;
+}
+
 int _lc_kyber_enc(
 	struct lc_kyber_ct *ct, struct lc_kyber_ss *ss,
 	const struct lc_kyber_pk *pk, struct lc_rng_ctx *rng_ctx,

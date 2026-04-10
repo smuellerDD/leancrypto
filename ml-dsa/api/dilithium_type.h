@@ -126,6 +126,7 @@ extern "C" {
 #define lc_dilithium_verify_final_c DILITHIUM_F(verify_final_c)
 
 #define lc_dilithium_ed25519_keypair DILITHIUM_F(ed25519_keypair)
+#define lc_dilithium_ed25519_pk_from_sk DILITHIUM_F(ed25519_pk_from_sk)
 #define lc_dilithium_ed25519_sign DILITHIUM_F(ed25519_sign)
 #define lc_dilithium_ed25519_sign_ctx DILITHIUM_F(ed25519_sign_ctx)
 #define lc_dilithium_ed25519_sign_init DILITHIUM_F(ed25519_sign_init)
@@ -141,6 +142,7 @@ extern "C" {
 #define lc_dilithium_ed25519_ctx_zero DILITHIUM_F(ed25519_ctx_zero)
 
 #define lc_dilithium_ed448_keypair DILITHIUM_F(ed448_keypair)
+#define lc_dilithium_ed448_pk_from_sk DILITHIUM_F(ed448_pk_from_sk)
 #define lc_dilithium_ed448_sign DILITHIUM_F(ed448_sign)
 #define lc_dilithium_ed448_sign_ctx DILITHIUM_F(ed448_sign_ctx)
 #define lc_dilithium_ed448_sign_init DILITHIUM_F(ed448_sign_init)

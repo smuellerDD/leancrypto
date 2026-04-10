@@ -45,6 +45,7 @@ struct lc_x448_ss {
 
 int lc_x448_keypair(struct lc_x448_pk *pk, struct lc_x448_sk *sk,
 		    struct lc_rng_ctx *rng_ctx);
+int lc_x448_pk_from_sk(struct lc_x448_pk *pk, const struct lc_x448_sk *sk);
 int lc_x448_ss(struct lc_x448_ss *ss, const struct lc_x448_pk *pk,
 	       const struct lc_x448_sk *sk);
 

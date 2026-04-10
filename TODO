@@ -27,12 +27,6 @@
 
 - sbkeysync: develop proper tests and verify
 
-- ML-DSA: add composite implementations for lc_dilithium_pk_from_sk
-
-- SLH-DSA: add lc_sphincs_pk_from_sk
-
-- ML-DSA: add lc_kyber_pk_from_sh
-
 - HQC: add lc_hqc_pk_from_sk
 
 - BIKE: add lc_bike_pk_from_sk

@@ -131,6 +131,26 @@ LC_INTERFACE_FUNCTION(int, lc_x448_keypair, struct lc_x448_pk *pk,
 	return lc_x448_keypair_nocheck(pk, sk, rng_ctx);
 }
 
+int lc_x448_pk_from_sk(struct lc_x448_pk *pk, const struct lc_x448_sk *sk)
+{
+	int ret = 0;
+
+	CKNULL(pk, -EINVAL);
+	CKNULL(sk, -EINVAL);
+
+	/* Timecop: the random number is the sentitive data */
+	poison(sk->sk, LC_X448_SECRETKEYBYTES);
+
+	CKINT(x448_derive_public_key(pk->pk, sk->sk));
+
+	/* Timecop: pk and sk are not relevant for side-channels any more. */
+	unpoison(sk->sk, LC_X448_SECRETKEYBYTES);
+	unpoison(pk->pk, LC_X448_PUBLICKEYBYTES);
+
+out:
+	return ret;
+}
+
 static int lc_x448_ss_nocheck(struct lc_x448_ss *ss,
 			      const struct lc_x448_pk *pk,
 			      const struct lc_x448_sk *sk);

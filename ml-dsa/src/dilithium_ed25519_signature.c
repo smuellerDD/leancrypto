@@ -51,6 +51,22 @@ out:
 	return ret;
 }
 
+LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_pk_from_sk,
+		      struct lc_dilithium_ed25519_pk *pk,
+		      const struct lc_dilithium_ed25519_sk *sk)
+{
+	int ret;
+
+	CKNULL(sk, -EINVAL);
+	CKNULL(pk, -EINVAL);
+
+	CKINT(lc_dilithium_pk_from_sk(&pk->pk, &sk->sk));
+	CKINT(lc_ed25519_pk_from_sk(&pk->pk_ed25519, &sk->sk_ed25519));
+
+out:
+	return ret;
+}
+
 LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sign_ctx,
 		      struct lc_dilithium_ed25519_sig *sig,
 		      struct lc_dilithium_ed25519_ctx *ctx, const uint8_t *m,

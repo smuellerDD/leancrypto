@@ -26,6 +26,7 @@
  * Frank Denis <j at pureftpd dot org>
  */
 
+#include "build_bug_on.h"
 #include "compare.h"
 #include "ed25519_composite.h"
 #include "ed25519_pct.h"
@@ -177,7 +178,8 @@ static int lc_ed25519_keypair_nocheck(struct lc_ed25519_pk *pk,
 
 	lc_rng_check(&rng_ctx);
 
-	CKINT(lc_rng_generate(rng_ctx, NULL, 0, sk->sk, 32));
+	CKINT(lc_rng_generate(rng_ctx, NULL, 0, sk->sk,
+			      LC_ED25519_RAW_SECRETKEYBYTES));
 
 	CKINT(lc_ed25519_derive_pk(pk, sk));
 
@@ -193,6 +195,22 @@ LC_INTERFACE_FUNCTION(int, lc_ed25519_keypair, struct lc_ed25519_pk *pk,
 	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_ED25519_KEYGEN);
 
 	return lc_ed25519_keypair_nocheck(pk, sk, rng_ctx);
+}
+
+int lc_ed25519_pk_from_sk(struct lc_ed25519_pk *pk,
+			  const struct lc_ed25519_sk *sk)
+{
+	int ret = 0;
+
+	CKNULL(pk, -EINVAL);
+	CKNULL(sk, -EINVAL);
+
+	BUILD_BUG_ON(sizeof(pk->pk) != LC_ED25519_PUBLICKEYBYTES);
+	memcpy(pk->pk, sk->sk + LC_ED25519_RAW_SECRETKEYBYTES,
+	       LC_ED25519_PUBLICKEYBYTES);
+
+out:
+	return ret;
 }
 
 static int lc_ed25519_sign_internal(

@@ -40,6 +40,12 @@ int lc_kyber_keypair_armv8(struct lc_kyber_pk *pk, struct lc_kyber_sk *sk,
 	return _lc_kyber_keypair(pk, sk, rng_ctx, indcpa_keypair_armv8);
 }
 
+int lc_kyber_pk_from_sk_armv8(struct lc_kyber_pk *pk,
+			      const struct lc_kyber_sk *sk)
+{
+	return _lc_kyber_pk_from_sk(pk, sk);
+}
+
 int lc_kyber_enc_armv8(struct lc_kyber_ct *ct, struct lc_kyber_ss *ss,
 		       const struct lc_kyber_pk *pk, struct lc_rng_ctx *rng_ctx)
 {
