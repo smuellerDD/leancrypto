@@ -1395,7 +1395,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_enc_san_ip, const char *ip_name, uint8_t *ip,
 	 * helper, we simply do not provide this function.
 	 */
 #if defined(LC_EFI) || defined(LINUX_KERNEL)
-	int ret;
+	int ret = 0;
 
 	(void)ip_name;
 	(void)ip;
