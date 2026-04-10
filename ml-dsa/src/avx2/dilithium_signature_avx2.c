@@ -171,6 +171,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_pk_from_sk_avx2,
 	/* Unpack RHO directly into public key */
 	rho = pk->pk;
 	unpack_sk_rho_avx2(rho, sk);
+	unpoison(rho, LC_DILITHIUM_SEEDBYTES);
 
 	unpack_sk_s1_avx2(&ws->s1, sk);
 	unpack_sk_s2_avx2(&ws->s2, sk);
