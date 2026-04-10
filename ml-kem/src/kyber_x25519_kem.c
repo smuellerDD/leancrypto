@@ -17,6 +17,7 @@
  * DAMAGE.
  */
 
+#include "ext_headers_internal.h"
 #include "lc_kmac.h"
 #include "kyber_internal.h"
 #include "kyber_x25519_internal.h"
