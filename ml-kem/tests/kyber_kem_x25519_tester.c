@@ -1198,15 +1198,6 @@ static int kyber_kem_double_tester(int check)
 				 "X25519 sk keygen\n");
 	}
 
-	ret += lc_kyber_x25519_pk_from_sk(&ws->pk2, &ws->sk);
-	if (ret)
-		goto out;
-
-	ret += lc_memcmp_secure(&ws->pk2, sizeof(ws->pk2), &ws->pk,
-				sizeof(ws->pk));
-	if (ret)
-		goto out;
-
 	ret |= lc_kyber_x25519_enc_kdf_internal(
 		&ws->ct, ws->ss1, sizeof(ws->ss1), &ws->pk, selftest_rng);
 
@@ -1222,6 +1213,13 @@ static int kyber_kem_double_tester(int check)
 		rc += lc_compare(ws->ss1, ws->ss2, sizeof(ws->ss2),
 				 "Kyber X25519 SS comparison\n");
 	}
+
+	ret += lc_kyber_x25519_pk_from_sk(&ws->pk2, &ws->sk);
+	if (ret)
+		goto out;
+
+	ret += lc_memcmp_secure(&ws->pk2, sizeof(ws->pk2), &ws->pk,
+				sizeof(ws->pk));
 
 out:
 	LC_RELEASE_MEM(ws);
