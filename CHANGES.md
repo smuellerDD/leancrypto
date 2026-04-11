@@ -1,4 +1,4 @@
-Changes 1.7.2-prerelease
+Changes 1.7.2
 * Fix RDSEED counter
 
 * Process code by AI code checkers and apply suggested cosmetic fixes
