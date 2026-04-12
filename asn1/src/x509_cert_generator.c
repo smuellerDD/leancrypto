@@ -19,6 +19,7 @@
 
 #include "asn1_debug.h"
 #include "asn1_encoder.h"
+#include "build_bug_on.h"
 #include "conv_be_le.h"
 #include "helper.h"
 #include "lc_x509_generator.h"
@@ -957,8 +958,14 @@ int lc_x509_note_serial_enc(void *context, uint8_t *data, size_t *avail_datalen,
 
 	(void)tag;
 
-	if (!serial_size)
+	if (!serial_size) {
+		CKINT(lc_x509_sufficient_size(avail_datalen,
+					      LC_X509_SERIAL_MAX_SIZE));
+		lc_memset_secure(data, 0xff, LC_X509_SERIAL_MAX_SIZE);
+		*avail_datalen -= LC_X509_SERIAL_MAX_SIZE;
+		printf_debug("Added serial number placeholder\n");
 		return 0;
+	}
 
 	/*
 	 * From RFC5280 appendix B:
@@ -1354,6 +1361,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_encode,
 		struct x509_generate_context gctx;
 		struct x509_parse_context pctx;
 		struct lc_x509_certificate parsed_x509;
+		uint8_t der_digest[LC_X509_SERIAL_DEFAULT_HASHSIZE];
 	};
 	size_t datalen = *avail_datalen;
 	uint8_t *sigdstptr;
@@ -1385,6 +1393,29 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_encode,
 	ws->pctx.cert = &ws->parsed_x509;
 	ws->pctx.data = data;
 	CKINT(lc_asn1_ber_decoder(&lc_x509_decoder, &ws->pctx, data, datalen));
+
+	/*
+	 * Generate the serial number if caller did not provide one. The
+	 * following algorithm is applied:
+	 *
+	 * 1. SHA3-256 of the DER of the certificate where the value for the
+	 *    serial is 20 bytes 0xff and the entire signature space is 0xff.
+	 * 2. Ensure that most significant bit is not set to ensure it is a
+	 *    positive value.
+	 * 3. Copy the first 20 bytes of the digest into the target certificate.
+	 */
+	if (!x509->raw_serial_size) {
+		BUILD_BUG_ON(LC_X509_SERIAL_DEFAULT_HASHSIZE <
+			     LC_X509_SERIAL_MAX_SIZE);
+
+		lc_hash(LC_X509_SERIAL_DEFAULT_HASH, data, datalen,
+			ws->der_digest);
+		ws->der_digest[0] &= (uint8_t)(~0x80);
+
+		/* unconstify harmless as parsed_x509 belongs to our function */
+		memcpy((uint8_t *)ws->parsed_x509.raw_serial, ws->der_digest,
+		       LC_X509_SERIAL_MAX_SIZE);
+	}
 
 	/*
 	 * Grab the signature bits

@@ -41,7 +41,9 @@ extern "C" {
  * With the filled \p lc_x509_certificate the caller then is expected to
  * fullfill the remaining parts of RFC2986 by constructing an X.509 certificate:
  *
- * 1. using the DN and the public key from the CSR
+ * 1. Using the DN and the public key from the CSR to validate the origin
+ *    and the appropriateness of the data (e.g. proper DN content, proper
+ *    key type).
  *
  * 2. add the issuer by using \p lc_x509_cert_set_signer. Note, this call
  *    enables the CSR to be used as a certificate.

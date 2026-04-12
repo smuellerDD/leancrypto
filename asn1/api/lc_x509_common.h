@@ -67,6 +67,8 @@ extern "C" {
  * than 20 bytes.
  */
 #define LC_X509_SERIAL_MAX_SIZE 20
+#define LC_X509_SERIAL_DEFAULT_HASH lc_sha3_256
+#define LC_X509_SERIAL_DEFAULT_HASHSIZE LC_SHA3_256_SIZE_DIGEST
 
 /*
  * Identifiers for an asymmetric key ID.  We have three ways of looking up a
