@@ -505,15 +505,10 @@ static int gcm_set_key_iv(void *state, const uint8_t *key, const size_t keylen,
 		     LC_AES_RISCV64_MAX_BLOCK_SIZE);
 	BUILD_BUG_ON(LC_AES_AESNI_MAX_BLOCK_SIZE < LC_AES_C_MAX_BLOCK_SIZE);
 
-	/*
-	 * In FIPS mode, only the internal IV generation is allowed where the
-	 * IV is generated and set by lc_aes_gcm_generate_iv.
-	 */
-	if (fips140_mode_enabled() && iv)
-		return -EOPNOTSUPP;
-
 	lc_aes_gcm_selftest();
 	LC_SELFTEST_COMPLETED(lc_aes_gcm_aead->algorithm_type);
+
+	ctx->gcm_ctx.external_iv = (iv) ? 1 : 0;
 
 	CKINT(gcm_set_key_iv_nocheck(ctx, key, keylen, iv, iv_len));
 
@@ -584,6 +579,15 @@ static void gcm_enc_update(void *state, const uint8_t *plaintext,
 	uint8_t i; /* local loop iterator */
 	uint8_t non_align;
 	uint8_t rem_aad = ctx->gcm_ctx.aad_len & (AES_BLOCKSIZE - 1);
+
+	/*
+	 * In FIPS mode, only the internal IV generation is allowed where the
+	 * IV is generated and set by lc_aes_gcm_generate_iv.
+	 */
+	if (fips140_mode_enabled() && ctx->gcm_ctx.external_iv) {
+		memset(ciphertext, 0, datalen);
+		return;
+	}
 
 	/* Finalize the AAD processing */
 	if (rem_aad && !ctx->gcm_ctx.rem_aad_inserted) {
@@ -773,6 +777,15 @@ static void gcm_enc_final(void *state, uint8_t *tag, size_t tag_len)
 	/* Enforce minimum tag size of 64 bits */
 	if (tag_len < 64 / 8 || tag_len > AES_BLOCKSIZE)
 		return;
+
+	/*
+	 * In FIPS mode, only the internal IV generation is allowed where the
+	 * IV is generated and set by lc_aes_gcm_generate_iv.
+	 */
+	if (fips140_mode_enabled() && ctx->gcm_ctx.external_iv) {
+		memset(tag, 0, tag_len);
+		return;
+	}
 
 	if (ctx->gcm_ctx.len & (AES_BLOCKSIZE - 1))
 		gcm_mult(ctx, ctx->gcm_ctx.buf, ctx->gcm_ctx.buf);

@@ -140,7 +140,7 @@ Leancrypto does not implement any entropy source. Yet, it implements support for
 
 * `jent`: This option uses the [Jitter RNG](http://chronox.de/jent/index.html) as entropy source.
 
-NOTE: The default deterministic random number generator used by leancrypto (and thus by `lc_seeded_rng`) is the XDRBG-256. At the time of writing (September 2025), it is not yet FIPS-approved. However, SP800-90A is subject to revision at the time of writing and it is planned to add the XDRBG as an approved algorithm. Therefore, leancrypto selects XDRBG as default. If that shall be changed, the macros `LC_SEEDED_RNG_CTX_SIZE` and `LC_SEEDED_RNG_CTX` found in `drng/src/seeded_rng.c` must be set to either the Hash DRBG or HMAC DRBG at compile time.
+NOTE: The default deterministic random number generator used by leancrypto (and thus by `lc_seeded_rng`) is the XDRBG-256. At the time of writing (September 2025), it is not yet FIPS-approved. However, SP800-90A is subject to revision at the time of writing and it is planned to add the XDRBG as an approved algorithm. Therefore, leancrypto selects XDRBG as default. If that shall be changed, the macros `LC_SEEDED_RNG_CTX_SIZE`, `LC_SEEDED_RNG_CTX` and associated macros found in `drng/src/seeded_rng.c` must be set to either the Hash DRBG, HMAC DRBG, or CTR DRBG at compile time.
 
 ## API and Usage Documentation
 
@@ -183,14 +183,17 @@ NOTE: All tests which are marked with an `OK` during the `meson test` run are de
 2. Upon failure of the CASTs, each test verifies that the respective algorithm(s) triggered the failure have their service indicator set to the failure mode (i.e. verification of entering the degraded mode).
 
 3. The `rerun_selftests_tester` verifies the negative behavior of FIPS integrity testing. It tests whether:
-  a) immediately after initialization the library status is in error state,
-  
-  b) checking that in this error state the algorithms are in error state and thus not usable (all servies using cryptographic algorithms are unavailable),
-  
-  c) the invocation of a cryptographic service fails with the expected error code, and
-  
-  d) triggering a rerun of the self tests and verify that the library remains in error state.
+
+	a) immediately after initialization the library status is in error state,
+
+	b) checking that in this error state the algorithms are in error state and thus not usable (all servies using cryptographic algorithms are unavailable),
+
+	c) the invocation of a cryptographic service fails with the expected error code, and
+
+	d) triggering a rerun of the self tests and verify that the library remains in error state.
 
 ## Random Notes
 
 ECDH 25519 and ECDH 448 is compiled as part of the FIPS module, but is non-approved. This is considered acceptable because the algorithm is not available via an API. Instead, the algorithm is used as part of the hybrid ML-KEM which use it as follows: Hybrid ML-KEM performs an SP800-108 KDF (KMAC256) using the concatenated output of ML-KEM and ECDH 25519 to generate the final shared secret. This is approved as per SP800-56C rev 2 chapter 2.
+
+AES-GCM does not support setting an IV in FIPS mode for encryption. If an external IV is set, the ciphertext and the tag will always return as zero buffers. The caller is expected to call `lc_aes_gcm_generate_iv` to internally generate the IV and retrieve the used IV. For decryption, an externally provided IV is permissible and supported.

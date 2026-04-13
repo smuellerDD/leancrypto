@@ -128,6 +128,11 @@ if get_option('aes_gcm').enabled()
 				include_directories: [ include_internal_dirs ],
 				dependencies: leancrypto
 				)
+	aes_gcm_fips_tester = executable('aes_gcm_fips_tester',
+				[ 'aes_gcm_fips_tester.c', internal_src ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto_fips
+				)
 	aes_gcm_large_tester = executable('aes_gcm_large_tester',
 				[ 'aes_gcm_large_tester.c',
 				  internal_src ],
@@ -139,6 +144,12 @@ if get_option('aes_gcm').enabled()
 	test('AEAD AES GCM C', aes_gcm_tester,
 	     suite: regression, args: [ 'c' ])
 	test('AEAD AES GCM using S-Box', aes_gcm_tester,
+	     suite: regression, args: [ 't' ])
+	test('AEAD AES GCM FIPS Common', aes_gcm_fips_tester,
+	     suite: regression)
+	test('AEAD AES GCM FIPS C', aes_gcm_fips_tester,
+	     suite: regression, args: [ 'c' ])
+	test('AEAD AES GCM FIPS using S-Box', aes_gcm_fips_tester,
 	     suite: regression, args: [ 't' ])
 	test('AEAD AES GCM large Common',
 	     aes_gcm_large_tester,

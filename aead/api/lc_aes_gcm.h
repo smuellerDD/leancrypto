@@ -50,6 +50,7 @@ struct lc_gcm_ctx {
 	uint8_t ectr[16]; // CTR ciphertext
 
 	uint8_t rem_aad_inserted : 1; // Was remaining AAD inserted?
+	uint8_t external_iv : 1; // Was an external IV provided?
 };
 
 struct lc_aes_gcm_cryptor {
