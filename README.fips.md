@@ -60,7 +60,7 @@ The caller may trigger a complete new round of self tests, i.e. all algorithms w
 
 To re-perform the integrity test, the API `lc_fips_integrity_checker` is provided.
 
-The status of the passed/failed self-tests is visible with the interfaces documented as part of [Service Indicator](#Service Indicator).
+The status of the passed/failed self-tests is visible with the interfaces documented as part of [Service Indicator](#service-indicator).
 
 Leancrypto provides multiple implementations of one algorithm. Furthermore, it contains a "selector" heuristic which selects the fastest implementation at the time when using the algorithm at runtime. This heuristic depends on the detection of CPU mechanisms required by the accelerated algorithm implementations. Considering that on one given CPU (i.e. execution environment) the heuristic will always select the same algorithm, the self test is executed only once for the selected implementation.
 
