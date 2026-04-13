@@ -206,12 +206,13 @@ static void gcm_mult(struct lc_aes_gcm_cryptor *ctx,
 		     const uint8_t x[AES_BLOCKSIZE],
 		     uint8_t output[AES_BLOCKSIZE])
 {
+	const struct lc_gcm_ctx *gcm_ctx = &ctx->gcm_ctx;
 	uint64_t zh, zl;
 	int i;
 	uint8_t lo, hi, rem;
 
 	/* Accelerated GCM init */
-	if (ctx->gcm_ctx.gcm_gmult_accel) {
+	if (gcm_ctx->gcm_gmult_accel) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wcast-align"
 		/*
@@ -220,8 +221,8 @@ static void gcm_mult(struct lc_aes_gcm_cryptor *ctx,
 		 * are used with the gcm_mult function, we can ignore the
 		 * cast.
 		 */
-		ctx->gcm_ctx.gcm_gmult_accel((uint64_t *)output,
-					     ctx->gcm_ctx.HL);
+		gcm_ctx->gcm_gmult_accel((uint64_t *)output,
+					     gcm_ctx->HL);
 #pragma GCC diagnostic pop
 		return;
 	}
@@ -231,8 +232,8 @@ static void gcm_mult(struct lc_aes_gcm_cryptor *ctx,
 
 	/* Timecop: see rationale below */
 	unpoison(&lo, sizeof(lo));
-	zh = ctx->gcm_ctx.HH[lo];
-	zl = ctx->gcm_ctx.HL[lo];
+	zh = gcm_ctx->HH[lo];
+	zl = gcm_ctx->HL[lo];
 
 	for (i = 15; i >= 0; i--) {
 		lo = (x[i] & 0x0f);
@@ -247,8 +248,8 @@ static void gcm_mult(struct lc_aes_gcm_cryptor *ctx,
 			unpoison(&rem, sizeof(rem));
 			zh ^= last4[rem] << 48;
 			unpoison(&lo, sizeof(lo));
-			zh ^= ctx->gcm_ctx.HH[lo];
-			zl ^= ctx->gcm_ctx.HL[lo];
+			zh ^= gcm_ctx->HH[lo];
+			zl ^= gcm_ctx->HL[lo];
 		}
 		rem = (uint8_t)(zl & 0x0f);
 		zl = (zh << 60) | (zl >> 4);
@@ -300,8 +301,8 @@ static void gcm_mult(struct lc_aes_gcm_cryptor *ctx,
 		unpoison(&rem, sizeof(rem));
 		zh ^= (uint64_t)last4[rem] << 48;
 		unpoison(&hi, sizeof(hi));
-		zh ^= ctx->gcm_ctx.HH[hi];
-		zl ^= ctx->gcm_ctx.HL[hi];
+		zh ^= gcm_ctx->HH[hi];
+		zl ^= gcm_ctx->HL[hi];
 	}
 	be64_to_ptr(output, zh);
 	be64_to_ptr(output + 8, zl);
@@ -317,6 +318,7 @@ static void gcm_mult(struct lc_aes_gcm_cryptor *ctx,
 static int gcm_setkey(struct lc_aes_gcm_cryptor *ctx, const uint8_t *key,
 		      const size_t keylen)
 {
+	struct lc_gcm_ctx *gcm_ctx = &ctx->gcm_ctx;
 	uint64_t H[2];
 	enum lc_cpu_features feat = lc_cpu_feature_available();
 	int ret, i, j;
@@ -349,55 +351,55 @@ static int gcm_setkey(struct lc_aes_gcm_cryptor *ctx, const uint8_t *key,
 	/* Accelerated GCM init */
 #ifdef LC_HOST_AARCH64
 	if (feat & LC_CPU_FEATURE_ARM_PMULL) {
-		gfmul_init_armv8((uint64_t *)ctx->gcm_ctx.HL, H);
-		ctx->gcm_ctx.gcm_gmult_accel = gfmul_armv8;
+		gfmul_init_armv8((uint64_t *)gcm_ctx->HL, H);
+		gcm_ctx->gcm_gmult_accel = gfmul_armv8;
 		goto out;
 	} else
 #endif
 #ifdef LC_HOST_X86_64
 	if (feat & LC_CPU_FEATURE_INTEL_PCLMUL) {
-		gfmu_x8664_init((uint64_t *)ctx->gcm_ctx.HL, H);
-		ctx->gcm_ctx.gcm_gmult_accel = gfmu_x8664;
+		gfmu_x8664_init((uint64_t *)gcm_ctx->HL, H);
+		gcm_ctx->gcm_gmult_accel = gfmu_x8664;
 		goto out;
 	} else
 #endif
 #ifdef LC_HOST_RISCV64
 	if (feat & LC_CPU_FEATURE_RISCV_ASM_ZBB) {
-		gfmul_init_riscv64_zbb((uint64_t *)ctx->gcm_ctx.HL, H);
-		ctx->gcm_ctx.gcm_gmult_accel = gfmul_riscv64;
+		gfmul_init_riscv64_zbb((uint64_t *)gcm_ctx->HL, H);
+		gcm_ctx->gcm_gmult_accel = gfmul_riscv64;
 		goto out;
 	} else
 #endif
 	if (feat & LC_CPU_FEATURE_RISCV) {
-		gfmul_init_riscv64((uint64_t *)ctx->gcm_ctx.HL, H);
-		ctx->gcm_ctx.gcm_gmult_accel = gfmul_riscv64;
+		gfmul_init_riscv64((uint64_t *)gcm_ctx->HL, H);
+		gcm_ctx->gcm_gmult_accel = gfmul_riscv64;
 		goto out;
 	} else {
-		ctx->gcm_ctx.gcm_gmult_accel = NULL;
+		gcm_ctx->gcm_gmult_accel = NULL;
 	}
 
-	ctx->gcm_ctx.HL[8] = H[1]; /* 8 = 1000 corresponds to 1 in GF(2^128) */
-	ctx->gcm_ctx.HH[8] = H[0];
-	ctx->gcm_ctx.HH[0] = 0; /* 0 corresponds to 0 in GF(2^128) */
-	ctx->gcm_ctx.HL[0] = 0;
+	gcm_ctx->HL[8] = H[1]; /* 8 = 1000 corresponds to 1 in GF(2^128) */
+	gcm_ctx->HH[8] = H[0];
+	gcm_ctx->HH[0] = 0; /* 0 corresponds to 0 in GF(2^128) */
+	gcm_ctx->HL[0] = 0;
 
 	for (i = 4; i > 0; i >>= 1) {
 		uint32_t T = (uint32_t)(H[1] & 1) * 0xe1000000U;
 
 		H[1] = (H[0] << 63) | (H[1] >> 1);
 		H[0] = (H[0] >> 1) ^ ((uint64_t)T << 32);
-		ctx->gcm_ctx.HL[i] = H[1];
-		ctx->gcm_ctx.HH[i] = H[0];
+		gcm_ctx->HL[i] = H[1];
+		gcm_ctx->HH[i] = H[0];
 	}
 	for (i = 2; i < AES_BLOCKSIZE; i <<= 1) {
-		uint64_t *HiL = ctx->gcm_ctx.HL + i, *HiH = ctx->gcm_ctx.HH + i;
+		uint64_t *HiL = gcm_ctx->HL + i, *HiH = gcm_ctx->HH + i;
 
 		H[0] = *HiH;
 		H[1] = *HiL;
 
 		for (j = 1; j < i; j++) {
-			HiH[j] = H[0] ^ ctx->gcm_ctx.HH[j];
-			HiL[j] = H[1] ^ ctx->gcm_ctx.HL[j];
+			HiH[j] = H[0] ^ gcm_ctx->HH[j];
+			HiL[j] = H[1] ^ gcm_ctx->HL[j];
 		}
 	}
 
@@ -409,6 +411,7 @@ out:
 static int gcm_setiv(struct lc_aes_gcm_cryptor *ctx, const uint8_t *iv,
 		     size_t iv_len)
 {
+	struct lc_gcm_ctx *gcm_ctx = &ctx->gcm_ctx;
 	const uint8_t *p; /* general purpose array pointer */
 	/* XOR source built from provided IV if len != AES_BLOCKSIZE */
 	uint8_t work_buf[AES_BLOCKSIZE];
@@ -426,22 +429,22 @@ static int gcm_setiv(struct lc_aes_gcm_cryptor *ctx, const uint8_t *iv,
 	 * When a new IV is set, we start with a new encryption, thus set the
 	 * AAD to zero
 	 */
-	ctx->gcm_ctx.aad_len = 0;
-	ctx->gcm_ctx.rem_aad_inserted = 0;
-	memset(ctx->gcm_ctx.buf, 0, sizeof(ctx->gcm_ctx.buf));
+	gcm_ctx->aad_len = 0;
+	gcm_ctx->rem_aad_inserted = 0;
+	memset(gcm_ctx->buf, 0, sizeof(gcm_ctx->buf));
 
 	/*
 	 * since the context might be reused under the same key we zero the
 	 * working buffers for this next new process
 	 */
-	memset(ctx->gcm_ctx.y, 0, sizeof(ctx->gcm_ctx.y));
-	ctx->gcm_ctx.len = 0;
+	memset(gcm_ctx->y, 0, sizeof(gcm_ctx->y));
+	gcm_ctx->len = 0;
 
 	if (iv_len == 12) { /* GCM natively uses a 12-byte, 96-bit IV */
 		/* copy the IV to the top of the 'y' buff */
-		memcpy(ctx->gcm_ctx.y, iv, iv_len);
+		memcpy(gcm_ctx->y, iv, iv_len);
 		/* start "counting" from 1 (not 0) */
-		ctx->gcm_ctx.y[15] = 1;
+		gcm_ctx->y[15] = 1;
 	} else {
 		/*
 		 * if we don't have a 12-byte IV, we GHASH whatever we've been
@@ -458,20 +461,20 @@ static int gcm_setiv(struct lc_aes_gcm_cryptor *ctx, const uint8_t *iv,
 			use_len = (iv_len < AES_BLOCKSIZE) ? (uint8_t)iv_len :
 							     AES_BLOCKSIZE;
 
-			xor_64(ctx->gcm_ctx.y, p, use_len);
+			xor_64(gcm_ctx->y, p, use_len);
 
-			gcm_mult(ctx, ctx->gcm_ctx.y, ctx->gcm_ctx.y);
+			gcm_mult(ctx, gcm_ctx->y, gcm_ctx->y);
 			iv_len -= use_len;
 			p += use_len;
 		}
 
-		xor_64(ctx->gcm_ctx.y, work_buf, use_len);
+		xor_64(gcm_ctx->y, work_buf, use_len);
 
-		gcm_mult(ctx, ctx->gcm_ctx.y, ctx->gcm_ctx.y);
+		gcm_mult(ctx, gcm_ctx->y, gcm_ctx->y);
 	}
 
-	lc_sym_encrypt(&ctx->sym_ctx, ctx->gcm_ctx.y, ctx->gcm_ctx.base_ectr,
-		       sizeof(ctx->gcm_ctx.y));
+	lc_sym_encrypt(&ctx->sym_ctx, gcm_ctx->y, gcm_ctx->base_ectr,
+		       sizeof(gcm_ctx->y));
 
 	return 0;
 }
@@ -494,7 +497,11 @@ static int gcm_set_key_iv(void *state, const uint8_t *key, const size_t keylen,
 			  const uint8_t *iv, size_t iv_len)
 {
 	struct lc_aes_gcm_cryptor *ctx = state;
+	struct lc_gcm_ctx *gcm_ctx;
 	int ret = 0;
+
+	CKNULL(ctx, -EINVAL);
+	gcm_ctx = &ctx->gcm_ctx;
 
 	/*
 	 * Verification that the CTX size in LC_AES_GCM_CTX_ON_STACK is
@@ -508,7 +515,7 @@ static int gcm_set_key_iv(void *state, const uint8_t *key, const size_t keylen,
 	lc_aes_gcm_selftest();
 	LC_SELFTEST_COMPLETED(lc_aes_gcm_aead->algorithm_type);
 
-	ctx->gcm_ctx.external_iv = (iv) ? 1 : 0;
+	gcm_ctx->external_iv = (iv) ? 1 : 0;
 
 	CKINT(gcm_set_key_iv_nocheck(ctx, key, keylen, iv, iv_len));
 
@@ -528,9 +535,15 @@ out:
 static void gcm_aad(void *state, const uint8_t *aad, size_t aad_len)
 {
 	struct lc_aes_gcm_cryptor *ctx = state;
+	struct lc_gcm_ctx *gcm_ctx;
 	const uint8_t *p; /* general purpose array pointer */
-	uint8_t use_len; /* byte count to process, up to AES_BLOCKSIZE bytes */
-	uint8_t rem_aad = ctx->gcm_ctx.aad_len & (AES_BLOCKSIZE - 1);
+	uint8_t use_len, rem_aad;
+
+	if (!ctx)
+		return;
+
+	gcm_ctx = &ctx->gcm_ctx;
+	rem_aad = gcm_ctx->aad_len & (AES_BLOCKSIZE - 1);
 
 	/*
 	 * Do not re-initialize gcm_ctx.aad_len and gcm_ctx.buf as this call
@@ -538,7 +551,7 @@ static void gcm_aad(void *state, const uint8_t *aad, size_t aad_len)
 	 */
 
 	/* Add the AAD to existing AAD */
-	ctx->gcm_ctx.aad_len += aad_len;
+	gcm_ctx->aad_len += aad_len;
 	p = aad;
 
 	while (aad_len > 0) {
@@ -546,7 +559,7 @@ static void gcm_aad(void *state, const uint8_t *aad, size_t aad_len)
 				   (uint8_t)aad_len :
 				   (AES_BLOCKSIZE - rem_aad));
 
-		xor_64(ctx->gcm_ctx.buf + rem_aad, p, use_len);
+		xor_64(gcm_ctx->buf + rem_aad, p, use_len);
 
 		/*
 		 * Only handle full blocks consisting of the previous remaining
@@ -554,7 +567,7 @@ static void gcm_aad(void *state, const uint8_t *aad, size_t aad_len)
 		 * handle the final non-aligned block.
 		 */
 		if (!((rem_aad + use_len) & (AES_BLOCKSIZE - 1)))
-			gcm_mult(ctx, ctx->gcm_ctx.buf, ctx->gcm_ctx.buf);
+			gcm_mult(ctx, gcm_ctx->buf, gcm_ctx->buf);
 
 		aad_len -= use_len;
 		p += use_len;
@@ -575,35 +588,36 @@ static void gcm_enc_update(void *state, const uint8_t *plaintext,
 			   uint8_t *ciphertext, size_t datalen)
 {
 	struct lc_aes_gcm_cryptor *ctx = state;
-	uint8_t use_len; /* byte count to process, up to AES_BLOCKSIZE bytes */
-	uint8_t i; /* local loop iterator */
-	uint8_t non_align;
-	uint8_t rem_aad = ctx->gcm_ctx.aad_len & (AES_BLOCKSIZE - 1);
+	struct lc_gcm_ctx *gcm_ctx;
+	uint8_t use_len, i, non_align, rem_aad;
 
 	/*
 	 * In FIPS mode, only the internal IV generation is allowed where the
 	 * IV is generated and set by lc_aes_gcm_generate_iv.
 	 */
-	if (fips140_mode_enabled() && ctx->gcm_ctx.external_iv) {
+	if (!ctx || (fips140_mode_enabled() && ctx->gcm_ctx.external_iv)) {
 		memset(ciphertext, 0, datalen);
 		return;
 	}
 
+	gcm_ctx = &ctx->gcm_ctx;
+	rem_aad = gcm_ctx->aad_len & (AES_BLOCKSIZE - 1);
+
 	/* Finalize the AAD processing */
-	if (rem_aad && !ctx->gcm_ctx.rem_aad_inserted) {
-		gcm_mult(ctx, ctx->gcm_ctx.buf, ctx->gcm_ctx.buf);
-		ctx->gcm_ctx.rem_aad_inserted = 1;
+	if (rem_aad && !gcm_ctx->rem_aad_inserted) {
+		gcm_mult(ctx, gcm_ctx->buf, gcm_ctx->buf);
+		gcm_ctx->rem_aad_inserted = 1;
 	}
 
-	non_align = ctx->gcm_ctx.len & (AES_BLOCKSIZE - 1);
+	non_align = gcm_ctx->len & (AES_BLOCKSIZE - 1);
 
 	/* bump the GCM context's running length count */
-	ctx->gcm_ctx.len += datalen;
+	gcm_ctx->len += datalen;
 
 	/*
 	 * SP800-38D requires that the maximum encryption is 2^32 - 1 AES blocks
 	 */
-	if (ctx->gcm_ctx.len > ((1ULL << 32) - 1) * AES_BLOCKSIZE) {
+	if (gcm_ctx->len > ((1ULL << 32) - 1) * AES_BLOCKSIZE) {
 		/* clear out the destination buffer */
 		memset(ciphertext, 0, datalen);
 		return;
@@ -618,14 +632,14 @@ static void gcm_enc_update(void *state, const uint8_t *plaintext,
 			if (use_len + non_align > AES_BLOCKSIZE)
 				use_len = AES_BLOCKSIZE - non_align;
 
-			xor_64_3(ciphertext, ctx->gcm_ctx.ectr + non_align,
+			xor_64_3(ciphertext, gcm_ctx->ectr + non_align,
 				 plaintext, use_len);
-			xor_64(ctx->gcm_ctx.buf + non_align, ciphertext,
+			xor_64(gcm_ctx->buf + non_align, ciphertext,
 			       use_len);
 
 			if (use_len + non_align == AES_BLOCKSIZE) {
-				gcm_mult(ctx, ctx->gcm_ctx.buf,
-					 ctx->gcm_ctx.buf);
+				gcm_mult(ctx, gcm_ctx->buf,
+					 gcm_ctx->buf);
 			}
 
 			/* Ciphertext is not sensitive any more */
@@ -641,28 +655,28 @@ static void gcm_enc_update(void *state, const uint8_t *plaintext,
 
 		/* increment the context's 128-bit IV||Counter 'y' vector */
 		for (i = AES_BLOCKSIZE; i > 12; i--)
-			if (++ctx->gcm_ctx.y[i - 1] != 0)
+			if (++gcm_ctx->y[i - 1] != 0)
 				break;
 
 		/* encrypt the context's 'y' vector under the established key */
-		lc_sym_encrypt(&ctx->sym_ctx, ctx->gcm_ctx.y, ctx->gcm_ctx.ectr,
-			       sizeof(ctx->gcm_ctx.y));
+		lc_sym_encrypt(&ctx->sym_ctx, gcm_ctx->y, gcm_ctx->ectr,
+			       sizeof(gcm_ctx->y));
 
 		/*
 		 * XOR the cipher's ouptut vector (ectr) with our plaintext
 		 */
-		xor_64_3(ciphertext, ctx->gcm_ctx.ectr, plaintext, use_len);
+		xor_64_3(ciphertext, gcm_ctx->ectr, plaintext, use_len);
 
 		/*
 		 * now we mix in our data into the authentication hash.
 		 * if we're ENcrypting we XOR in the post-XOR (output)
 		 * results, but if we're DEcrypting we XOR in the plaintext data
 		 */
-		xor_64(ctx->gcm_ctx.buf, ciphertext, use_len);
+		xor_64(gcm_ctx->buf, ciphertext, use_len);
 
 		/* perform a GHASH operation */
 		if (use_len == AES_BLOCKSIZE)
-			gcm_mult(ctx, ctx->gcm_ctx.buf, ctx->gcm_ctx.buf);
+			gcm_mult(ctx, gcm_ctx->buf, gcm_ctx->buf);
 
 		/* Ciphertext is not sensitive any more */
 		unpoison(ciphertext, use_len);
@@ -677,21 +691,27 @@ static void gcm_dec_update(void *state, const uint8_t *ciphertext,
 			   uint8_t *plaintext, size_t datalen)
 {
 	struct lc_aes_gcm_cryptor *ctx = state;
-	uint8_t use_len; /* byte count to process, up to AES_BLOCKSIZE bytes */
-	uint8_t i; /* local loop iterator */
-	uint8_t non_align;
-	uint8_t rem_aad = ctx->gcm_ctx.aad_len & (AES_BLOCKSIZE - 1);
+	struct lc_gcm_ctx *gcm_ctx;
+	uint8_t use_len, i, non_align, rem_aad;
 
-	/* Finalize the AAD processing */
-	if (rem_aad && !ctx->gcm_ctx.rem_aad_inserted) {
-		gcm_mult(ctx, ctx->gcm_ctx.buf, ctx->gcm_ctx.buf);
-		ctx->gcm_ctx.rem_aad_inserted = 1;
+	if (!ctx) {
+		memset(plaintext, 0, datalen);
+		return;
 	}
 
-	non_align = ctx->gcm_ctx.len & (AES_BLOCKSIZE - 1);
+	gcm_ctx = &ctx->gcm_ctx;
+	rem_aad = gcm_ctx->aad_len & (AES_BLOCKSIZE - 1);
+
+	/* Finalize the AAD processing */
+	if (rem_aad && !gcm_ctx->rem_aad_inserted) {
+		gcm_mult(ctx, gcm_ctx->buf, gcm_ctx->buf);
+		gcm_ctx->rem_aad_inserted = 1;
+	}
+
+	non_align = gcm_ctx->len & (AES_BLOCKSIZE - 1);
 
 	/* bump the GCM context's running length count */
-	ctx->gcm_ctx.len += datalen;
+	gcm_ctx->len += datalen;
 
 	while (datalen > 0) {
 		// clamp the datalen to process at AES_BLOCKSIZE bytes
@@ -703,14 +723,14 @@ static void gcm_dec_update(void *state, const uint8_t *ciphertext,
 			if (use_len + non_align > AES_BLOCKSIZE)
 				use_len = AES_BLOCKSIZE - non_align;
 
-			xor_64(ctx->gcm_ctx.buf + non_align, ciphertext,
+			xor_64(gcm_ctx->buf + non_align, ciphertext,
 			       use_len);
-			xor_64_3(plaintext, ctx->gcm_ctx.ectr + non_align,
+			xor_64_3(plaintext, gcm_ctx->ectr + non_align,
 				 ciphertext, use_len);
 
 			if (use_len + non_align == AES_BLOCKSIZE) {
-				gcm_mult(ctx, ctx->gcm_ctx.buf,
-					 ctx->gcm_ctx.buf);
+				gcm_mult(ctx, gcm_ctx->buf,
+					 gcm_ctx->buf);
 			}
 
 			/* Plaintext is not sensitive any more */
@@ -726,12 +746,12 @@ static void gcm_dec_update(void *state, const uint8_t *ciphertext,
 
 		/* increment the context's 128-bit IV||Counter 'y' vector */
 		for (i = 16; i > 12; i--)
-			if (++ctx->gcm_ctx.y[i - 1] != 0)
+			if (++gcm_ctx->y[i - 1] != 0)
 				break;
 
 		/* encrypt the context's 'y' vector under the established key */
-		lc_sym_encrypt(&ctx->sym_ctx, ctx->gcm_ctx.y, ctx->gcm_ctx.ectr,
-			       sizeof(ctx->gcm_ctx.y));
+		lc_sym_encrypt(&ctx->sym_ctx, gcm_ctx->y, gcm_ctx->ectr,
+			       sizeof(gcm_ctx->y));
 
 		/*
 		 * but if we're DEcrypting we XOR in the ciphertext
@@ -740,16 +760,16 @@ static void gcm_dec_update(void *state, const uint8_t *ciphertext,
 		 * the same (inplace decryption) we would not get the
 		 * correct auth tag
 		 */
-		xor_64(ctx->gcm_ctx.buf, ciphertext, use_len);
+		xor_64(gcm_ctx->buf, ciphertext, use_len);
 
 		/*
 		 * XOR the cipher's ouptut vector (ectr) with our ciphertext
 		 */
-		xor_64_3(plaintext, ctx->gcm_ctx.ectr, ciphertext, use_len);
+		xor_64_3(plaintext, gcm_ctx->ectr, ciphertext, use_len);
 
 		/* perform a GHASH operation */
 		if (use_len == AES_BLOCKSIZE)
-			gcm_mult(ctx, ctx->gcm_ctx.buf, ctx->gcm_ctx.buf);
+			gcm_mult(ctx, gcm_ctx->buf, gcm_ctx->buf);
 
 		/* Plaintext is not sensitive any more */
 		unpoison(plaintext, use_len);
@@ -771,26 +791,29 @@ static void gcm_dec_update(void *state, const uint8_t *ciphertext,
 static void gcm_enc_final(void *state, uint8_t *tag, size_t tag_len)
 {
 	struct lc_aes_gcm_cryptor *ctx = state;
-	uint64_t orig_len = ctx->gcm_ctx.len * 8;
-	uint64_t orig_aad_len = ctx->gcm_ctx.aad_len * 8;
-
-	/* Enforce minimum tag size of 64 bits */
-	if (tag_len < 64 / 8 || tag_len > AES_BLOCKSIZE)
-		return;
+	struct lc_gcm_ctx *gcm_ctx;
+	uint64_t orig_len, orig_aad_len;
 
 	/*
 	 * In FIPS mode, only the internal IV generation is allowed where the
 	 * IV is generated and set by lc_aes_gcm_generate_iv.
+	 *
+	 * Enforce minimum tag size of 64 bits.
 	 */
-	if (fips140_mode_enabled() && ctx->gcm_ctx.external_iv) {
+	if (!ctx || (tag_len < 64 / 8 || tag_len > AES_BLOCKSIZE) ||
+	    (fips140_mode_enabled() && ctx->gcm_ctx.external_iv)) {
 		memset(tag, 0, tag_len);
 		return;
 	}
 
-	if (ctx->gcm_ctx.len & (AES_BLOCKSIZE - 1))
-		gcm_mult(ctx, ctx->gcm_ctx.buf, ctx->gcm_ctx.buf);
+	gcm_ctx = &ctx->gcm_ctx;
+	orig_len = gcm_ctx->len * 8;
+	orig_aad_len = gcm_ctx->aad_len * 8;
 
-	memcpy(tag, ctx->gcm_ctx.base_ectr, tag_len);
+	if (gcm_ctx->len & (AES_BLOCKSIZE - 1))
+		gcm_mult(ctx, gcm_ctx->buf, gcm_ctx->buf);
+
+	memcpy(tag, gcm_ctx->base_ectr, tag_len);
 
 	if (orig_len || orig_aad_len) {
 		uint8_t work_buf[AES_BLOCKSIZE];
@@ -800,11 +823,11 @@ static void gcm_enc_final(void *state, uint8_t *tag, size_t tag_len)
 		be64_to_ptr(work_buf, orig_aad_len);
 		be64_to_ptr(work_buf + 8, orig_len);
 
-		xor_64(ctx->gcm_ctx.buf, work_buf, AES_BLOCKSIZE);
+		xor_64(gcm_ctx->buf, work_buf, AES_BLOCKSIZE);
 
-		gcm_mult(ctx, ctx->gcm_ctx.buf, ctx->gcm_ctx.buf);
+		gcm_mult(ctx, gcm_ctx->buf, gcm_ctx->buf);
 
-		xor_64(tag, ctx->gcm_ctx.buf, tag_len);
+		xor_64(tag, gcm_ctx->buf, tag_len);
 	}
 
 	/* Tag is not sensitive any more */
