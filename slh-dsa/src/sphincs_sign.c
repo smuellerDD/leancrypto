@@ -51,9 +51,11 @@
 #include "avx2/sphincs_merkle_avx2.h"
 #include "avx2/sphincs_wots_avx2.h"
 
+#if defined(LC_HOST_AARCH64)
 #include "armv8/sphincs_fors_armv8.h"
 #include "armv8/sphincs_merkle_armv8.h"
 #include "armv8/sphincs_wots_armv8.h"
+#endif
 
 struct lc_sphincs_func_ctx {
 	merkle_sign_f merkle_sign;
@@ -79,6 +81,7 @@ static const struct lc_sphincs_func_ctx f_ctx_avx2 __maybe_unused = {
 	.wots_pk_from_sig = wots_pk_from_sig_avx2,
 };
 
+#if defined(LC_HOST_AARCH64)
 static const struct lc_sphincs_func_ctx f_ctx_armv8 __maybe_unused = {
 	.merkle_sign = sphincs_merkle_sign_armv8,
 	.merkle_gen_root = sphincs_merkle_gen_root_armv8,
@@ -86,6 +89,7 @@ static const struct lc_sphincs_func_ctx f_ctx_armv8 __maybe_unused = {
 	.fors_pk_from_sig = fors_pk_from_sig_armv8,
 	.wots_pk_from_sig = wots_pk_from_sig_armv8,
 };
+#endif
 
 static const struct lc_sphincs_func_ctx *lc_sphincs_get_ctx(void)
 {
