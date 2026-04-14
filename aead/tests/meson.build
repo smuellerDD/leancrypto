@@ -146,7 +146,9 @@ if get_option('aes_gcm').enabled()
 	test('AEAD AES GCM using S-Box', aes_gcm_tester,
 	     suite: regression, args: [ 't' ])
 
-	if (host_machine.system() == 'linux' and not get_option('efi').enabled())
+	if (host_machine.system() == 'linux' and not
+	    get_option('efi').enabled() and
+	    build_shared)
 		# These tests only work in an ELF-environment as the FIPS
 		# module is currently only implemented there
 		test('AEAD AES GCM FIPS Common', aes_gcm_fips_tester,
