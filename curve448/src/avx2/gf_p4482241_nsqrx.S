@@ -91,7 +91,7 @@ movq    %r12, 32(%rdi)
 movq    %r13, 40(%rdi)
 movq    %r14, 48(%rdi)
 
-movq    %rdx, %rbx
+movzbl  %dl, %ebx
 
 .START_nsqrx:
 

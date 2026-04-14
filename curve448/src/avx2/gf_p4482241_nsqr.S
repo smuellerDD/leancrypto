@@ -93,7 +93,7 @@ movq 	%r13, 40(%rdi)
 movq 	%r14, 48(%rdi)
 movq 	%r15, 56(%rdi)
 
-movq  	%rdx, %rcx
+movzbl  %dl, %ecx
 
 .START:
 
