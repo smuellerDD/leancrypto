@@ -71,3 +71,6 @@ pub mod lcr_sphincs;
 
 /// Leancrypto wrapper for lc_sym
 pub mod lcr_sym;
+
+/// Leancrypto wrapper for lc_x25519
+pub mod lcr_x25519;

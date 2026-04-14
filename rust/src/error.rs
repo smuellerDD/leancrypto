@@ -166,3 +166,26 @@ impl std::fmt::Display for SymError {
 		}
 	}
 }
+
+#[derive(Debug)]
+#[derive(PartialEq)]
+pub enum X25519Error {
+	AllocationError,
+	UninitializedContext,
+	ProcessingError,
+}
+
+impl std::error::Error for X25519Error {}
+
+impl std::fmt::Display for X25519Error {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		match self {
+			X25519Error::AllocationError =>
+				write!(f, "failed to allocate XDH context"),
+			X25519Error::UninitializedContext =>
+				write!(f, "XDH context is not initialized"),
+			X25519Error::ProcessingError =>
+				write!(f, "XDH processing error occurred"),
+		}
+	}
+}

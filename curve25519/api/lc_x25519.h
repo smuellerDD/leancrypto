@@ -43,12 +43,28 @@ struct lc_x25519_ss {
 	uint8_t ss[LC_X25519_SSBYTES];
 };
 
+/*
+ * These interfaces are used for testing or for rustTLS - they are NOT
+ * intended as general-purpose API as they are not PQC-safe
+ */
 int lc_x25519_keypair(struct lc_x25519_pk *pk, struct lc_x25519_sk *sk,
 		      struct lc_rng_ctx *rng_ctx);
 int lc_x25519_pk_from_sk(struct lc_x25519_pk *pk,
 			 const struct lc_x25519_sk *sk);
 int lc_x25519_ss(struct lc_x25519_ss *ss, const struct lc_x25519_pk *pk,
 		 const struct lc_x25519_sk *sk);
+int lc_x25519_sk_ptr(uint8_t **x25519_key, size_t *x25519_key_len,
+		     struct lc_x25519_sk *sk);
+int lc_x25519_pk_ptr(uint8_t **x25519_key, size_t *x25519_key_len,
+		     struct lc_x25519_pk *pk);
+int lc_x25519_ss_ptr(uint8_t **x25519_ss, size_t *x25519_ss_len,
+		     struct lc_x25519_ss *ss);
+int lc_x25519_sk_load(struct lc_x25519_sk *sk, const uint8_t *src_key,
+		      size_t src_key_len);
+int lc_x25519_pk_load(struct lc_x25519_pk *pk, const uint8_t *src_key,
+		      size_t src_key_len);
+int lc_x25519_ss_load(struct lc_x25519_ss *ss, const uint8_t *src_key,
+		      size_t src_key_len);
 
 enum lc_x25519_alg_operation {
 	/** Unknown operation */

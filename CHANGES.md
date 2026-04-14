@@ -3,6 +3,10 @@ Changes 1.7.3-prerelease
 
 * Add full support for internal IV generation with GCM - this allows AES-GCM to be used in FIPS mode
 
+* Curve448: Fix AVX2 ABI issue
+
+* Rust: add X25519 API to support rustTLS
+
 Changes 1.7.2
 * Fix RDSEED counter
 

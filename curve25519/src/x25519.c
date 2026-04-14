@@ -66,8 +66,8 @@ static void lc_x25519_keypair_selftest(void)
 			    "X25519 base scalar multiplication\n");
 }
 
-int lc_x25519_keypair(struct lc_x25519_pk *pk, struct lc_x25519_sk *sk,
-		      struct lc_rng_ctx *rng_ctx)
+LC_INTERFACE_FUNCTION(int, lc_x25519_keypair, struct lc_x25519_pk *pk,
+		      struct lc_x25519_sk *sk, struct lc_rng_ctx *rng_ctx)
 {
 	int ret;
 
@@ -177,8 +177,9 @@ static void lc_x25519_ss_selftest(void)
 			    "X25519 scalar multiplication\n");
 }
 
-int lc_x25519_ss(struct lc_x25519_ss *ss, const struct lc_x25519_pk *pk,
-		 const struct lc_x25519_sk *sk)
+LC_INTERFACE_FUNCTION(int, lc_x25519_ss, struct lc_x25519_ss *ss,
+		      const struct lc_x25519_pk *pk,
+		      const struct lc_x25519_sk *sk)
 {
 	int ret;
 
@@ -218,4 +219,67 @@ LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_x25519_alg_status,
 		return lc_alg_status_unknown;
 	}
 	return lc_alg_status_unknown;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x25519_sk_ptr, uint8_t **x25519_key,
+		      size_t *x25519_key_len, struct lc_x25519_sk *sk)
+{
+	if (!sk || !x25519_key || !x25519_key_len)
+		return -EINVAL;
+
+	*x25519_key = sk->sk;
+	*x25519_key_len = sizeof(sk->sk);
+	return 0;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x25519_pk_ptr, uint8_t **x25519_key,
+		      size_t *x25519_key_len, struct lc_x25519_pk *pk)
+{
+	if (!pk || !x25519_key || !x25519_key_len)
+		return -EINVAL;
+
+	*x25519_key = pk->pk;
+	*x25519_key_len = sizeof(pk->pk);
+	return 0;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x25519_ss_ptr, uint8_t **x25519_ss,
+		      size_t *x25519_ss_len, struct lc_x25519_ss *ss)
+{
+	if (!ss || !x25519_ss || !x25519_ss_len)
+		return -EINVAL;
+
+	*x25519_ss = ss->ss;
+	*x25519_ss_len = sizeof(ss->ss);
+	return 0;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x25519_sk_load, struct lc_x25519_sk *sk,
+		      const uint8_t *src_key, size_t src_key_len)
+{
+	if (!sk || !src_key || src_key_len != sizeof(sk->sk))
+		return -EINVAL;
+
+	memcpy(sk->sk, src_key, src_key_len);
+	return 0;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x25519_pk_load, struct lc_x25519_pk *pk,
+		      const uint8_t *src_key, size_t src_key_len)
+{
+	if (!pk || !src_key || src_key_len != sizeof(pk->pk))
+		return -EINVAL;
+
+	memcpy(pk->pk, src_key, src_key_len);
+	return 0;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x25519_ss_load, struct lc_x25519_ss *ss,
+		      const uint8_t *src_key, size_t src_key_len)
+{
+	if (!ss || !src_key || src_key_len != sizeof(ss->ss))
+		return -EINVAL;
+
+	memcpy(ss->ss, src_key, src_key_len);
+	return 0;
 }
