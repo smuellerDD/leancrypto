@@ -146,20 +146,15 @@ if get_option('aes_gcm').enabled()
 	test('AEAD AES GCM using S-Box', aes_gcm_tester,
 	     suite: regression, args: [ 't' ])
 
-	if (host_machine.system() == 'linux' and not
-	    get_option('efi').enabled() and
-	    build_shared)
-		# These tests only work in an ELF-environment as the FIPS
-		# module is currently only implemented there
-		test('AEAD AES GCM FIPS Common', aes_gcm_fips_tester,
-		     suite: regression, should_fail: fips140_negative_expect_fail)
-		test('AEAD AES GCM FIPS C', aes_gcm_fips_tester,
-		     suite: regression, args: [ 'c' ],
-		     should_fail: fips140_negative_expect_fail)
-		test('AEAD AES GCM FIPS using S-Box', aes_gcm_fips_tester,
-		     suite: regression, args: [ 't' ],
-		     should_fail: fips140_negative_expect_fail)
-	endif
+	test('AEAD AES GCM FIPS Common', aes_gcm_fips_tester,
+		suite: regression, should_fail: fips140_negative_expect_fail)
+	test('AEAD AES GCM FIPS C', aes_gcm_fips_tester,
+		suite: regression, args: [ 'c' ],
+		should_fail: fips140_negative_expect_fail)
+	test('AEAD AES GCM FIPS using S-Box', aes_gcm_fips_tester,
+		suite: regression, args: [ 't' ],
+		should_fail: fips140_negative_expect_fail)
+
 	test('AEAD AES GCM large Common',
 	     aes_gcm_large_tester,
 	     timeout: 2500, is_parallel: false, suite: performance)

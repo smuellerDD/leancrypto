@@ -54,6 +54,12 @@ static int lc_aes_gcm_test(int argc)
 	int ret = 0;
 	LC_AES_GCM_CTX_ON_STACK(aes_gcm);
 
+	/*
+	 * These tests apply only if the FIPS mode is enabled.
+	 */
+	if (!(lc_lib_alg_status() & lc_alg_status_fips_approved))
+		return 77;
+
 	if (argc >= 2) {
 		struct lc_aes_gcm_cryptor *c = aes_gcm->aead_state;
 		c->sym_ctx.sym = lc_aes_c;
