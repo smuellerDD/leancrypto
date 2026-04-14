@@ -42,7 +42,6 @@ EXPORT_SYMBOL(lc_disable_selftest);
 #ifdef LC_CURVE25519
 EXPORT_SYMBOL(crypto_scalarmult_curve25519);
 EXPORT_SYMBOL(crypto_scalarmult_curve25519_base);
-EXPORT_SYMBOL(lc_x25519_keypair);
 #endif /* LC_CURVE25519 */
 #if (defined(LC_KYBER_X25519_KEM) || defined(LC_DILITHIUM_ED25519_SIG))
 EXPORT_SYMBOL(crypto_scalarmult_curve25519_c);
