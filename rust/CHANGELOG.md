@@ -6,6 +6,8 @@
 
 * X25519 interface - this is only intended to support rustTLS
 
+* HKDF interface
+
 ## [0.2.2] - 2025-10-18
 
 ### Added

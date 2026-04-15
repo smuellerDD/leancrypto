@@ -189,3 +189,26 @@ impl std::fmt::Display for X25519Error {
 		}
 	}
 }
+
+#[derive(Debug)]
+#[derive(PartialEq)]
+pub enum HkdfError {
+	AllocationError,
+	UninitializedContext,
+	ProcessingError,
+}
+
+impl std::error::Error for HkdfError {}
+
+impl std::fmt::Display for HkdfError {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		match self {
+			HkdfError::AllocationError =>
+				write!(f, "failed to allocate HDFK context"),
+			HkdfError::UninitializedContext =>
+				write!(f, "HKDF context is not initialized"),
+			HkdfError::ProcessingError =>
+				write!(f, "HKDF processing error occurred"),
+		}
+	}
+}
