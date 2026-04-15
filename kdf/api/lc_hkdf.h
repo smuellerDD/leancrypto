@@ -76,7 +76,37 @@ int lc_hkdf_extract(struct lc_hkdf_ctx *hkdf_ctx, const uint8_t *ikm,
 /**
  * @ingroup KDF
  * @brief HMAC-based Extract-and-Expand Key Derivation Function (HKDF) - RFC5869
+ *	  Extract phase that returns the PRK
+ *
+ * Even though the PRK is returned to the caller, the HKDF state is ready
+ * to start the expand phase.
+ *
+ * @param [in,out] hkdf_ctx The caller is expected to provide an allocated HMAC
+ *			    cipher handle in. Yet, the caller does not need to
+ *			    perform any operations on the handle. The extract
+ *			    phase adjusts the HMAC cipher handle so that it is
+ *			    ready for the expand phase.
+ * @param [in] ikm Input Keying Material (see RFC5869)
+ * @param [in] ikmlen Length of ikm buffer
+ * @param [in] salt Optional salt value - if caller does not want to use a salt
+ *		    set NULL here.
+ * @param [in] saltlen Length of salt value buffer.
+ * @param [out] prk generated PRK returned to the caller
+ * @param [in] prk_len length of prk buffer
+ *
+ * @return 0 on success, < 0 on error
+ */
+int lc_hkdf_extract_prk(struct lc_hkdf_ctx *hkdf_ctx, const uint8_t *ikm,
+			size_t ikmlen, const uint8_t *salt, size_t saltlen,
+			uint8_t *prk, size_t prk_len);
+
+/**
+ * @ingroup KDF
+ * @brief HMAC-based Extract-and-Expand Key Derivation Function (HKDF) - RFC5869
  *	  Expand phase
+ *
+ * This call is allowed to be invoked multiple times to generate more
+ * output data.
  *
  * @param [in] hkdf_ctx Cipher handle for the operation. This call expects
  *			the caller to hand in a HMAC cipher handle that has
@@ -91,6 +121,31 @@ int lc_hkdf_extract(struct lc_hkdf_ctx *hkdf_ctx, const uint8_t *ikm,
  */
 int lc_hkdf_expand(struct lc_hkdf_ctx *hkdf_ctx, const uint8_t *info,
 		   size_t infolen, uint8_t *dst, size_t dlen);
+
+/**
+ * @ingroup KDF
+ * @brief HMAC-based Extract-and-Expand Key Derivation Function (HKDF) - RFC5869
+ *	  Expand phase where the caller can provide the PRK
+ *
+ * By providing a PRK, the expand phase starts anew. When setting \p prk to
+ * NULL, it operates identically to \p lc_hkdf_expand.
+ *
+ * @param [in] hkdf_ctx Cipher handle for the operation. This call expects
+ *			the caller to hand in a HMAC cipher handle that has
+ *			been initialized with hkdf_extract.
+ * @param [in] info Optional context and application specific information. This
+ *		    may be NULL.
+ * @param [in] infolen Size of info buffer.
+ * @param [in] prk generated PRK to initialize the expand phase
+ * @param [in] prk_len length of prk buffer
+ * @param [out] dst Buffer to store the derived bits in
+ * @param [in] dlen Size of the destination buffer.
+ *
+ * @return 0 on success, < 0 on error
+ */
+int lc_hkdf_expand_prk(struct lc_hkdf_ctx *hkdf_ctx, const uint8_t *info,
+		       size_t infolen, const uint8_t *prk, size_t prk_len,
+		       uint8_t *dst, size_t dlen);
 
 /**
  * @ingroup KDF

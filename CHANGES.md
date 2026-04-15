@@ -7,6 +7,8 @@ Changes 1.7.3-prerelease
 
 * Rust: add X25519 API to support rustTLS
 
+* Rust: add HKDF API
+
 Changes 1.7.2
 * Fix RDSEED counter
 

@@ -49,4 +49,13 @@ fn lc_rust_hkdf_tester() {
 	assert_eq!(result, Ok(()));
 
 	assert_eq!(act, &exp[..]);
+
+	let mut prk = vec![0u8; leancrypto_sys::lcr_hash::LC_SHA_MAX_SIZE_DIGEST];
+	let result = hkdf.extract_prk(&ikm, &salt, &mut prk);
+	assert_eq!(result, Ok(()));
+
+	let result = hkdf.expand_prk(&info, &prk, &mut act);
+	assert_eq!(result, Ok(()));
+
+	assert_eq!(act, &exp[..]);
 }

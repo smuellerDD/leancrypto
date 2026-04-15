@@ -43,6 +43,7 @@ static int hkdf_tester(void)
 		0x56, 0xec, 0xc4, 0xc5, 0xbf, 0x34, 0x00, 0x72, 0x08,
 		0xd5, 0xb8, 0x87, 0x18, 0x58, 0x65
 	};
+	uint8_t prk[LC_SHA_MAX_SIZE_DIGEST];
 	uint8_t act[sizeof(exp)];
 	struct lc_hkdf_ctx *hkdf_heap = NULL;
 	unsigned int i = 0;
@@ -56,6 +57,21 @@ static int hkdf_tester(void)
 	}
 
 	if (lc_hkdf_expand(hkdf, info, sizeof(info), act, sizeof(act))) {
+		printf("HKDF expand stack failed\n");
+		return 1;
+	}
+
+	ret = lc_compare(act, exp, sizeof(exp), "HKDF SHA-256 stack");
+	lc_hkdf_zero(hkdf);
+
+	if (lc_hkdf_extract_prk(hkdf, ikm, sizeof(ikm), salt, sizeof(salt), prk,
+				sizeof(prk))) {
+		printf("HKDF extract stack failed\n");
+		return 1;
+	}
+
+	if (lc_hkdf_expand_prk(hkdf, info, sizeof(info), prk, sizeof(prk), act,
+			       sizeof(act))) {
 		printf("HKDF expand stack failed\n");
 		return 1;
 	}

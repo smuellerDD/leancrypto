@@ -21,6 +21,8 @@ use std::ptr;
 use crate::ffi::leancrypto;
 use crate::error::HashError;
 
+pub const LC_SHA_MAX_SIZE_DIGEST: usize = 64;
+
 pub enum lcr_hash_type {
 	lcr_sha2_256,
 	lcr_sha2_384,
