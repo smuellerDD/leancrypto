@@ -76,7 +76,7 @@ static int hkdf_tester(void)
 		return 1;
 	}
 
-	ret = lc_compare(act, exp, sizeof(exp), "HKDF SHA-256 stack");
+	ret += lc_compare(act, exp, sizeof(exp), "HKDF SHA-256 stack");
 	lc_hkdf_zero(hkdf);
 
 	if (lc_rng_seed(hkdf_rng, ikm, sizeof(ikm), salt, sizeof(salt))) {
