@@ -20,6 +20,7 @@
 
 #include <crypto/rng.h>
 #include <linux/err.h>
+#include <linux/hex.h>
 #include <linux/module.h>
 
 static int lc_seeded_rng_test(void)
