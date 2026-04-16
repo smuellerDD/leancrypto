@@ -158,7 +158,7 @@ The functional verification testing is provided with the regression testing offe
 
 For Meson, execute `meson test -C build --suite regression`.
 
-For the Linux kernel, execute: `for i in *.ko; do insmod $i; done`.
+For the Linux kernel, execute: `insmod leancrypto.ko; for i in *.ko; do insmod $i; done`.
 
 ## Negative Testing
 
