@@ -354,7 +354,7 @@ LC_INTERFACE_FUNCTION(int, lc_sh_alloc, const struct lc_sym *sym,
 	ret = lc_alloc_aligned((void **)&tmp, LC_MEM_COMMON_ALIGNMENT,
 			       LC_SH_CTX_SIZE(sym));
 	if (ret)
-		return -ret;
+		return ret;
 
 	LC_SH_SET_CTX(tmp, sym, hash);
 

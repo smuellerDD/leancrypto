@@ -119,7 +119,7 @@ LC_INTERFACE_FUNCTION(int, lc_sym_alloc, const struct lc_sym *sym,
 			       LC_SYM_CTX_SIZE(sym));
 
 	if (ret)
-		return -ret;
+		return ret;
 
 	LC_SYM_SET_CTX(out_ctx, sym);
 

@@ -601,7 +601,7 @@ static int lc_cc_decrypt_authenticate(void *state, const uint8_t *tag,
 		ret = lc_alloc_aligned((void **)&calctag_p,
 				       LC_MEM_COMMON_ALIGNMENT, taglen);
 		if (ret)
-			return -ret;
+			return ret;
 	}
 
 	/*
@@ -708,7 +708,7 @@ LC_INTERFACE_FUNCTION(int, lc_cc_alloc, const struct lc_hash *hash,
 	ret = lc_alloc_aligned((void **)&tmp, LC_CSHAKE_CRYPT_ALIGNMENT,
 			       LC_CC_CTX_SIZE);
 	if (ret)
-		return -ret;
+		return ret;
 
 	LC_CC_SET_CTX(tmp, hash);
 

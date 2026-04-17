@@ -121,6 +121,8 @@ extern "C" {
  * @param [out] memptr pointer to the newly allocated memory
  * @param [in] alignment alignment of the memory
  * @param [in] size size of the memory buffer
+ *
+ * @return 0 on success; < 0 on error
  */
 int lc_alloc_aligned(void **memptr, size_t alignment, size_t size);
 
@@ -131,6 +133,8 @@ int lc_alloc_aligned(void **memptr, size_t alignment, size_t size);
  * @param [out] memptr pointer to the newly allocated memory
  * @param [in] alignment alignment of the memory
  * @param [in] size size of the memory buffer
+ *
+ * @return 0 on success; < 0 on error
  */
 int lc_alloc_aligned_secure(void **memptr, size_t alignment, size_t size);
 
@@ -140,6 +144,8 @@ int lc_alloc_aligned_secure(void **memptr, size_t alignment, size_t size);
  * @param [out] memptr pointer to the newly allocated memory
  * @param [in] alignment alignment of the memory
  * @param [in] size size of the memory buffer
+ *
+ * @return 0 on success; < 0 on error
  */
 int lc_alloc_high_aligned(void **memptr, size_t alignment, size_t size);
 

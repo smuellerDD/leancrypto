@@ -449,7 +449,7 @@ LC_INTERFACE_FUNCTION(int, lc_chacha20_poly1305_alloc, struct lc_aead_ctx **ctx)
 	ret = lc_alloc_aligned((void **)&tmp, LC_MEM_COMMON_ALIGNMENT,
 			       LC_CHACHA20_POLY1305_CTX_SIZE);
 	if (ret)
-		return -ret;
+		return ret;
 
 	LC_CHACHA20_POLY1305_SET_CTX(tmp);
 

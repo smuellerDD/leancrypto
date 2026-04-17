@@ -69,7 +69,7 @@ static int alloc_aligned_secure_internal(void **memptr, size_t alignment,
 
 	ret = posix_memalign(&ptr, alignment, full_size);
 	if (ret)
-		return ret;
+		return -ret;
 
 	/* prevent paging out of the memory state to swap space */
 	if (secure) {

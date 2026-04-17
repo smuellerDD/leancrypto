@@ -202,7 +202,7 @@ LC_INTERFACE_FUNCTION(int, lc_cshake_ctx_alloc, const struct lc_hash *hash,
 			       memsize);
 
 	if (ret)
-		return -ret;
+		return ret;
 
 	if (flags & LC_CSHAKE_FLAGS_SUPPORT_REINIT) {
 		LC_CSHAKE_SET_CTX_REINIT(out_ctx, hash);

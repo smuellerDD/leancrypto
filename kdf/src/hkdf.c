@@ -292,7 +292,7 @@ LC_INTERFACE_FUNCTION(int, lc_hkdf_alloc, const struct lc_hash *hash,
 	ret = lc_alloc_aligned((void **)&out_state, LC_MEM_COMMON_ALIGNMENT,
 			       LC_HKDF_CTX_SIZE);
 	if (ret)
-		return -ret;
+		return ret;
 
 	LC_HKDF_SET_CTX(out_state, hash);
 

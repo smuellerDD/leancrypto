@@ -529,7 +529,7 @@ static int lc_kc_decrypt_authenticate(void *state, const uint8_t *tag,
 		ret = lc_alloc_aligned((void **)&calctag_p, sizeof(uint64_t),
 				       taglen);
 		if (ret)
-			return -ret;
+			return ret;
 	}
 
 	/*
@@ -650,7 +650,7 @@ LC_INTERFACE_FUNCTION(int, lc_kc_alloc, const struct lc_hash *hash,
 	ret = lc_alloc_aligned((void **)&tmp, LC_KMAC_CRYPT_ALIGNMENT,
 			       LC_KC_CTX_SIZE);
 	if (ret)
-		return -ret;
+		return ret;
 
 	LC_KC_SET_CTX(tmp, hash);
 

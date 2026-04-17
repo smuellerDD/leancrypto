@@ -27,7 +27,7 @@ fn lc_rust_x25519_one() {
 	let result = x25519_local.keypair();
 	assert_eq!(result, Ok(()));
 
-	/* Export local key pair */
+	/* Export local public key */
 	let (pk_local_slice, result) = x25519_local.pk();
 	assert_eq!(result, Ok(()));
 	let pk_local = pk_local_slice.to_vec();
@@ -36,7 +36,7 @@ fn lc_rust_x25519_one() {
 	let result = x25519_remote.keypair();
 	assert_eq!(result, Ok(()));
 
-	/* Export remote key pair */
+	/* Export remote public key */
 	let (pk_remote_slice, result) = x25519_remote.pk();
 	assert_eq!(result, Ok(()));
 	let pk_remote = pk_remote_slice.to_vec();

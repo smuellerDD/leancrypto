@@ -34,7 +34,7 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_ctx_alloc, struct lc_sphincs_ctx **ctx)
 	ret = lc_alloc_aligned((void **)&out_ctx, LC_HASH_COMMON_ALIGNMENT,
 			       LC_SPHINCS_CTX_SIZE);
 	if (ret)
-		return -ret;
+		return ret;
 
 	LC_SPHINCS_SET_CTX(out_ctx);
 

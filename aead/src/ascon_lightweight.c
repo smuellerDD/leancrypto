@@ -190,7 +190,7 @@ LC_INTERFACE_FUNCTION(int, lc_al_alloc, struct lc_aead_ctx **ctx)
 	ret = lc_alloc_aligned((void **)&tmp, LC_ASCON_ALIGNMENT,
 			       LC_AL_CTX_SIZE);
 	if (ret)
-		return -ret;
+		return ret;
 
 	LC_ASCON_SET_CTX(tmp, lc_ascon_128a, lc_ascon_aead);
 

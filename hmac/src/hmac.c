@@ -133,7 +133,7 @@ LC_INTERFACE_FUNCTION(int, lc_hmac_alloc, const struct lc_hash *hash,
 				   LC_HMAC_CTX_SIZE);
 
 	if (ret)
-		return -ret;
+		return ret;
 
 	LC_HMAC_SET_CTX(out_ctx, hash);
 

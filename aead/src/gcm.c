@@ -309,7 +309,7 @@ static void gcm_mult(struct lc_aes_gcm_cryptor *ctx,
 }
 
 /*
- * GCM setiv
+ * GCM setkey
  *
  * This is called to set the AES-GCM key. It initializes the AES key
  * and populates the gcm context's pre-calculated HTables.
@@ -331,11 +331,9 @@ static int gcm_setkey(struct lc_aes_gcm_cryptor *ctx, const uint8_t *key,
 	 */
 	CKNULL(key, 0);
 
-	ret = aes_check_keylen(keylen);
-	if (ret)
-		return ret;
+	CKINT(aes_check_keylen(keylen));
 
-	memset(h, 0, AES_BLOCKSIZE); /* initialize the block to encrypt */
+	memset(h, 0, sizeof(h)); /* initialize the block to encrypt */
 
 	/*
 	 * encrypt the null 128-bit block to generate a key-based value
@@ -778,7 +776,6 @@ static void gcm_dec_update(void *state, const uint8_t *ciphertext,
 		ciphertext += use_len; // bump our input pointer forward
 		plaintext += use_len; // bump our plaintext pointer forward
 	}
-	return;
 }
 
 /*
@@ -832,8 +829,6 @@ static void gcm_enc_final(void *state, uint8_t *tag, size_t tag_len)
 
 	/* Tag is not sensitive any more */
 	unpoison(tag, tag_len);
-
-	return;
 }
 
 /*
@@ -903,7 +898,7 @@ LC_INTERFACE_FUNCTION(int, lc_aes_gcm_alloc, struct lc_aead_ctx **ctx)
 	ret = lc_alloc_aligned((void **)&tmp, LC_MEM_COMMON_ALIGNMENT,
 			       LC_AES_GCM_CTX_SIZE);
 	if (ret)
-		return -ret;
+		return ret;
 
 	LC_AES_GCM_SET_CTX(tmp);
 

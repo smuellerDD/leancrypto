@@ -388,14 +388,13 @@ static int mode_xts_setkey(struct lc_mode_state *ctx, const uint8_t *key,
 	size_t one_keylen;
 	int ret;
 
-	if (!ctx || !ctx->wrapped_cipher || !ctx->tweak_cipher_ctx)
-		return -EINVAL;
+	CKNULL(ctx, -EINVAL);
+	CKNULL(ctx->wrapped_cipher, -EINVAL);
+	CKNULL(ctx->tweak_cipher_ctx, -EINVAL);
 
 	one_keylen = keylen >> 1;
 
-	ret = aes_check_keylen(one_keylen);
-	if (ret)
-		return ret;
+	CKINT(aes_check_keylen(one_keylen));
 
 	/* Reject XTS key where both parts are identical */
 	if (fips140_mode_enabled() &&

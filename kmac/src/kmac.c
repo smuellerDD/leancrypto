@@ -296,7 +296,7 @@ LC_INTERFACE_FUNCTION(int, lc_kmac_alloc, const struct lc_hash *hash,
 			       memsize);
 
 	if (ret)
-		return -ret;
+		return ret;
 
 	if (flags & LC_KMAC_FLAGS_SUPPORT_REINIT) {
 		LC_KMAC_SET_CTX_REINIT(out_ctx, hash);

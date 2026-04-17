@@ -305,7 +305,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_ctx_alloc,
 	ret = lc_alloc_aligned((void **)&out_ctx, LC_HASH_COMMON_ALIGNMENT,
 			       LC_DILITHIUM_ED25519_CTX_SIZE);
 	if (ret)
-		return -ret;
+		return ret;
 
 	LC_DILITHIUM_ED25519_SET_CTX(out_ctx);
 

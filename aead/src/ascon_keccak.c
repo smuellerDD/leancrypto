@@ -276,7 +276,7 @@ static int lc_ak_alloc_internal(const struct lc_hash *hash, uint8_t taglen,
 	ret = lc_alloc_aligned((void **)&tmp, LC_ASCON_ALIGNMENT,
 			       LC_AK_CTX_SIZE);
 	if (ret)
-		return -ret;
+		return ret;
 
 	LC_ASCON_SET_CTX(tmp, hash, lc_ascon_keccak_aead);
 

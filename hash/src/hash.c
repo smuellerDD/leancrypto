@@ -128,7 +128,7 @@ LC_INTERFACE_FUNCTION(int, lc_hash_alloc, const struct lc_hash *hash,
 	ret = lc_alloc_aligned((void **)&out_ctx, LC_HASH_COMMON_ALIGNMENT,
 			       LC_HASH_CTX_SIZE(hash));
 	if (ret)
-		return -ret;
+		return ret;
 
 	LC_HASH_SET_CTX(out_ctx, hash);
 
