@@ -24,16 +24,16 @@ use crate::error::X25519Error;
 
 /// Leancrypto wrapper for lc_x25519
 pub struct lcr_x25519 {
-	/// XDH shared secret
+	/// X25519 shared secret
 	ss: leancrypto::lc_x25519_ss,
 
-	/// XDH public key
+	/// X25519 public key
 	pk: leancrypto::lc_x25519_pk,
 
-	/// XDH secret key
+	/// X25519 secret key
 	sk: leancrypto::lc_x25519_sk,
 
-	/// XDH public key of remote entity
+	/// X25519 public key of remote entity
 	pk_remote: leancrypto::lc_x25519_pk,
 
 	pk_set: bool,

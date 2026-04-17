@@ -8,6 +8,8 @@
 
 * HKDF interface
 
+* ED25519 interface - this is only intended to support rustTLS
+
 ## [0.2.2] - 2025-10-18
 
 ### Added

@@ -63,8 +63,8 @@ int lc_x25519_sk_load(struct lc_x25519_sk *sk, const uint8_t *src_key,
 		      size_t src_key_len);
 int lc_x25519_pk_load(struct lc_x25519_pk *pk, const uint8_t *src_key,
 		      size_t src_key_len);
-int lc_x25519_ss_load(struct lc_x25519_ss *ss, const uint8_t *src_key,
-		      size_t src_key_len);
+int lc_x25519_ss_load(struct lc_x25519_ss *ss, const uint8_t *src_sig,
+		      size_t src_sig_len);
 
 enum lc_x25519_alg_operation {
 	/** Unknown operation */

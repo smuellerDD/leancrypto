@@ -275,11 +275,11 @@ LC_INTERFACE_FUNCTION(int, lc_x25519_pk_load, struct lc_x25519_pk *pk,
 }
 
 LC_INTERFACE_FUNCTION(int, lc_x25519_ss_load, struct lc_x25519_ss *ss,
-		      const uint8_t *src_key, size_t src_key_len)
+		      const uint8_t *src_ss, size_t src_ss_len)
 {
-	if (!ss || !src_key || src_key_len != sizeof(ss->ss))
+	if (!ss || !src_ss || src_ss_len != sizeof(ss->ss))
 		return -EINVAL;
 
-	memcpy(ss->ss, src_key, src_key_len);
+	memcpy(ss->ss, src_ss, src_ss_len);
 	return 0;
 }

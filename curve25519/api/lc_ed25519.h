@@ -54,6 +54,18 @@ int lc_ed25519_sign(struct lc_ed25519_sig *sig, const uint8_t *msg, size_t mlen,
 		    const struct lc_ed25519_sk *sk, struct lc_rng_ctx *rng_ctx);
 int lc_ed25519_verify(const struct lc_ed25519_sig *sig, const uint8_t *msg,
 		      size_t mlen, const struct lc_ed25519_pk *pk);
+int lc_ed25519_sk_ptr(uint8_t **ed25519_key, size_t *ed25519_key_len,
+		      struct lc_ed25519_sk *sk);
+int lc_ed25519_pk_ptr(uint8_t **ed25519_key, size_t *ed25519_key_len,
+		      struct lc_ed25519_pk *pk);
+int lc_ed25519_sig_ptr(uint8_t **ed25519_sig, size_t *ed25519_sig_len,
+		       struct lc_ed25519_sig *sig);
+int lc_ed25519_sk_load(struct lc_ed25519_sk *sk, const uint8_t *src_key,
+		       size_t src_key_len);
+int lc_ed25519_pk_load(struct lc_ed25519_pk *pk, const uint8_t *src_key,
+		       size_t src_key_len);
+int lc_ed25519_sig_load(struct lc_ed25519_sig *sig, const uint8_t *src_sig,
+			size_t src_sig_len);
 
 /* Receive a message pre-hashed with SHA-512 */
 int lc_ed25519ph_sign(struct lc_ed25519_sig *sig, const uint8_t *msg,
