@@ -735,11 +735,17 @@ curveed448_verify(const uint8_t signature[LC_ED448_SIGBYTES],
 		}
 	}
 
-	CKINT(curve448_point_decode_like_eddsa_and_mul_by_ratio(pk_point,
-								pubkey));
+	if (curve448_point_decode_like_eddsa_and_mul_by_ratio(pk_point,
+							      pubkey)) {
+		ret = -EBADMSG;
+		goto out;
+	}
 
-	CKINT(curve448_point_decode_like_eddsa_and_mul_by_ratio(r_point,
-								signature));
+	if (curve448_point_decode_like_eddsa_and_mul_by_ratio(r_point,
+							      signature)) {
+		ret = -EBADMSG;
+		goto out;
+	}
 
 	/* Compute the challenge */
 	CKINT(curveed448_hash_init_with_dom(shake256_ctx, prehashed, 0, NULL,

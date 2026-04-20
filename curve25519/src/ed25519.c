@@ -603,22 +603,22 @@ static int lc_ed25519_verify_internal(
 #else
 	if ((sig->sig[63] & 240) != 0 &&
 	    sc25519_is_canonical(sig->sig + 32) == 0) {
-		ret = -EINVAL;
+		ret = -EBADMSG;
 		goto out;
 	}
 	if (ge25519_is_canonical(pk->pk) == 0) {
-		ret = -EINVAL;
+		ret = -EBADMSG;
 		goto out;
 	}
 #endif
 	if (ge25519_frombytes_negate_vartime(&A, pk->pk) != 0 ||
 	    ge25519_has_small_order(&A) != 0) {
-		ret = -EINVAL;
+		ret = -EBADMSG;
 		goto out;
 	}
 	if (ge25519_frombytes(&expected_r, sig->sig) != 0 ||
 	    ge25519_has_small_order(&expected_r) != 0) {
-		ret = -EINVAL;
+		ret = -EBADMSG;
 		goto out;
 	}
 
