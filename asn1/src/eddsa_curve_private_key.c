@@ -21,10 +21,10 @@
 #include "eddsa_curve_private_key_asn1.h"
 #include "ret_checkers.h"
 
-#ifdef LC_X509_GENERATOR
 int lc_x509_eddsa_private_key_enc(void *context, uint8_t *data,
 				  size_t *avail_datalen, uint8_t *tag)
 {
+#ifdef LC_X509_GENERATOR
 	const struct x509_generate_privkey_context *ctx = context;
 	const struct lc_x509_key_data *keys = ctx->keys;
 	size_t sklen;
@@ -49,8 +49,14 @@ int lc_x509_eddsa_private_key_enc(void *context, uint8_t *data,
 
 out:
 	return ret;
-}
+#else
+	(void)context;
+	(void)data;
+	(void)avail_datalen;
+	(void)tag;
+	return -EOPNOTSUPP;
 #endif
+}
 
 int lc_x509_eddsa_private_key(void *context, size_t hdrlen, unsigned char tag,
 			      const uint8_t *value, size_t vlen)

@@ -42,19 +42,27 @@ endif
 
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_ED25519
 leancrypto-$(CONFIG_LEANCRYPTO_X509_PARSER)				       \
-				+= ../asn1/src/asym_key_dilithium_ed25519.o
+				+= ../asn1/src/asym_key_dilithium_ed25519.o    \
+				   ../asn1/src/asym_key_ed25519.o
 else
 leancrypto-$(CONFIG_LEANCRYPTO_X509_PARSER)				       \
-				+= ../asn1/src/asym_key_dilithium_ed25519_null.o
+				+= ../asn1/src/asym_key_dilithium_ed25519_null.o\
+				   ../asn1/src/asym_key_ed25519_null.o
 endif
 
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_ED448
 leancrypto-$(CONFIG_LEANCRYPTO_X509_PARSER)				       \
-				+= ../asn1/src/asym_key_dilithium_ed448.o
+				+= ../asn1/src/asym_key_dilithium_ed448.o      \
+				   ../asn1/src/asym_key_ed448.o
 else
 leancrypto-$(CONFIG_LEANCRYPTO_X509_PARSER)				       \
-				+= ../asn1/src/asym_key_dilithium_ed448_null.o
+				+= ../asn1/src/asym_key_dilithium_ed448_null.o \
+				   ../asn1/src/asym_key_ed448_null.o
 endif
+
+leancrypto-$(CONFIG_LEANCRYPTO_ASN1_EDDSA)				       \
+				+= ../asn1/src/eddsa_curve_private_key.o       \
+				   ../asn1/src/eddsa_curve_private_key_asn1.o
 
 ifndef CONFIG_LEANCRYPTO_X509_GENERATOR
 leancrypto-$(CONFIG_LEANCRYPTO_X509_PARSER)				       \
