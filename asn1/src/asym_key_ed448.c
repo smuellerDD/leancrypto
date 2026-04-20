@@ -18,6 +18,7 @@
  */
 
 #include "asym_key_ed448.h"
+#include "eddsa_curve_private_key_asn1.h"
 #include "ed448_ctx.h"
 #include "ext_headers_internal.h"
 #include "lc_ed448.h"
@@ -32,19 +33,10 @@ int private_key_encode_ed448(uint8_t *data, size_t *avail_datalen,
 			     struct x509_generate_privkey_context *ctx)
 {
 #ifdef LC_X509_GENERATOR
-	const struct lc_x509_key_data *keys = ctx->keys;
-	size_t ed448_sklen;
-	uint8_t *ed448_ptr;
 	int ret;
 
-	CKINT(lc_ed448_sk_ptr(&ed448_ptr, &ed448_sklen,
-				keys->sk.ed448_sk));
-
-	/* Only export the secret part of the ED448 secret key */
-	CKINT(lc_x509_concatenate_bit_string(&data, avail_datalen, ed448_ptr,
-					     ed448_sklen));
-
-	printf_debug("Set composite secret key of size %u\n", ed448_sklen);
+	CKINT(lc_asn1_ber_encoder_small(&lc_eddsa_curve_private_key_encoder,
+					ctx, data, avail_datalen));
 
 out:
 	return ret;
@@ -59,12 +51,10 @@ out:
 int private_key_decode_ed448(struct lc_x509_key_data *keys,
 			     const uint8_t *data, size_t datalen)
 {
-	struct lc_ed448_sk *sk = keys->sk.ed448_sk;
 	int ret;
 
-	CKINT(lc_ed448_sk_load(sk, data, datalen));
-
-	printf_debug("Loaded composite public key of size %zu\n", datalen);
+	CKINT(lc_asn1_ber_decoder(&lc_eddsa_curve_private_key_decoder, keys,
+				  data, datalen));
 
 out:
 	return ret;

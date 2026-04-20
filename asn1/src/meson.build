@@ -74,6 +74,7 @@ endif
 
 if x509_common_support == 1
 	asymmetric_algo = 0
+	eddsa_algo = 0
 
 	include_files += files([
 		'../api/lc_asn1.h',
@@ -123,8 +124,9 @@ if x509_common_support == 1
 		src += files([
 			'asym_key_dilithium_ed25519.c',
 			'asym_key_ed25519.c',
-			])
+		])
 		asymmetric_algo += 1
+		eddsa_algo += 1
 	else
 		src += files([
 			'asym_key_dilithium_ed25519_null.c',
@@ -136,8 +138,9 @@ if x509_common_support == 1
 		src += files([
 			'asym_key_dilithium_ed448.c',
 			'asym_key_ed448.c',
-			])
+		])
 		asymmetric_algo += 1
+		eddsa_algo += 1
 	else
 		src += files([
 			'asym_key_dilithium_ed448_null.c',
@@ -147,6 +150,13 @@ if x509_common_support == 1
 
 	if (asymmetric_algo == 0)
 		error('X.509 parser without the presence of any asymmetric signature schema is useless')
+	endif
+
+	if (eddsa_algo != 0)
+		src += files([
+			'eddsa_curve_private_key.c',
+			'eddsa_curve_private_key_asn1.c',
+		])
 	endif
 endif
 

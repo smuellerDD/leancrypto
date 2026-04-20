@@ -742,6 +742,23 @@ if (host_machine.system() != 'windows' and
 		     timeout: 300, suite: regression,
 		     should_fail: fips140_negative_expect_fail)
 
+		test('X.509/PKCS8 keygen/siggen/sigver LC - OpenSSL Interop ED448',
+		     siggen_test_script,
+		     args: [ 'ED448',
+			     lc_x509_generator.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+		test('X.509/PKCS8 keygen/siggen/sigver LC - OpenSSL Interop ED25519',
+		     siggen_test_script,
+		     args: [ 'ED25519',
+			     lc_x509_generator.full_path(),
+			     lc_pkcs7_generator.full_path(),
+			   ],
+		     timeout: 300, suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+
 		test('X.509/PKCS8 keygen/siggen/sigver ML-DSA87-ED448',
 		     siggen_test_script,
 		     args: [ 'ML-DSA87-ED448',

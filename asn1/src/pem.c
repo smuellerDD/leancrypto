@@ -139,6 +139,7 @@ LC_INTERFACE_FUNCTION(int, lc_pem_decode_len, const char *idata, size_t ilen,
 	if (ilen <= begin_len)
 		return -EINVAL;
 
+	*blank_chars = 1;
 	if (idata[begin_len - 1] == 0x0d && idata[begin_len] == 0x0a) {
 		/*
 		 * lc_pem_envelope_begin_len accounts only for LF, but when
@@ -147,6 +148,7 @@ LC_INTERFACE_FUNCTION(int, lc_pem_decode_len, const char *idata, size_t ilen,
 		begin_len++;
 		len++; /* one for adjusting lc_pem_envelope_begin_len */
 		len++; /* one for adjusting lc_pem_envelope_end_len */
+		*blank_chars = 2;
 	} else if (idata[begin_len - 1] != 0x0d &&
 		   idata[begin_len - 1] != 0x0a) {
 		/* The last character of the start is not a CR or LF -> error */

@@ -18,6 +18,7 @@
  */
 
 #include "asym_key_ed25519.h"
+#include "eddsa_curve_private_key_asn1.h"
 #include "ed25519_ctx.h"
 #include "ext_headers_internal.h"
 #include "lc_ed25519.h"
@@ -32,19 +33,10 @@ int private_key_encode_ed25519(uint8_t *data, size_t *avail_datalen,
 			       struct x509_generate_privkey_context *ctx)
 {
 #ifdef LC_X509_GENERATOR
-	const struct lc_x509_key_data *keys = ctx->keys;
-	size_t ed25519_sklen;
-	uint8_t *ed25519_ptr;
 	int ret;
 
-	CKINT(lc_ed25519_sk_ptr(&ed25519_ptr, &ed25519_sklen,
-				keys->sk.ed25519_sk));
-
-	/* Only export the secret part of the ED25519 secret key */
-	CKINT(lc_x509_concatenate_bit_string(&data, avail_datalen, ed25519_ptr,
-					     ed25519_sklen));
-
-	printf_debug("Set composite secret key of size %u\n", ed25519_sklen);
+	CKINT(lc_asn1_ber_encoder_small(&lc_eddsa_curve_private_key_encoder,
+					ctx, data, avail_datalen));
 
 out:
 	return ret;
@@ -59,12 +51,10 @@ out:
 int private_key_decode_ed25519(struct lc_x509_key_data *keys,
 			       const uint8_t *data, size_t datalen)
 {
-	struct lc_ed25519_sk *sk = keys->sk.ed25519_sk;
 	int ret;
 
-	CKINT(lc_ed25519_sk_load(sk, data, datalen));
-
-	printf_debug("Loaded composite public key of size %zu\n", datalen);
+	CKINT(lc_asn1_ber_decoder(&lc_eddsa_curve_private_key_decoder, keys,
+				  data, datalen));
 
 out:
 	return ret;

@@ -216,7 +216,6 @@ lc_generate_cert_pkcs8() {
 	$LC_X509_GENERATOR \
 	 $pem_output \
 	 --keyusage digitalSignature \
-	 --keyusage keyEncipherment \
 	 --keyusage keyCertSign \
 	 --keyusage critical \
 	 --ca \
@@ -249,7 +248,6 @@ lc_generate_cert_pkcs8_seed() {
 	$LC_X509_GENERATOR \
 	 $pem_output \
 	 --keyusage digitalSignature \
-	 --keyusage keyEncipherment \
 	 --keyusage keyCertSign \
 	 --keyusage critical \
 	 --ca \
@@ -563,6 +561,20 @@ in
 		lc_keygen_seed_lc_op "SLH-DSA-SHAKE-256S"
 		lc_keygen_lc_op_pem "SLH-DSA-SHAKE-256S"
 		ossl_keygen_lc_op_pem "SLH-DSA-SHAKE-256s"
+	;;
+	"ED448")
+		lc_keygen_lc_op "Ed448"
+		ossl_keygen_lc_op "ed448"
+		lc_keygen_seed_lc_op "Ed448"
+		lc_keygen_lc_op_pem "Ed448"
+		ossl_keygen_lc_op_pem "ed448"
+	;;
+	"ED25519")
+		lc_keygen_lc_op "Ed25519"
+		ossl_keygen_lc_op "ed25519"
+		lc_keygen_seed_lc_op "Ed25519"
+		lc_keygen_lc_op_pem "Ed25519"
+		ossl_keygen_lc_op_pem "ed25519"
 	;;
 	*)
 		echo_fail "Unknown test type $TESTTYPE"

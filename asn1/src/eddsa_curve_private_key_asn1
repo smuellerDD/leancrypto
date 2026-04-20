@@ -1,0 +1,8 @@
+-- SPDX-License-Identifier: BSD-3-Clause
+--
+-- Copyright (C) 2008 IETF Trust and the persons identified as authors
+-- of the code
+--
+-- https://www.rfc-editor.org/rfc/rfc8410#section-7
+
+CurvePrivateKey ::= OCTET STRING ({ lc_x509_eddsa_private_key })

@@ -156,10 +156,10 @@ int lc_ed25519_derive_pk(struct lc_ed25519_pk *pk, struct lc_ed25519_sk *sk)
 	/* Timecop: sk is not relevant for side-channels any more. */
 	unpoison(sk->sk, sizeof(sk->sk));
 
-	if (pk)
+	if (pk) {
 		memcpy(pk->pk, sk->sk + 32, 32);
-
-	CKINT(lc_ed25519_pct_fips(pk, sk));
+		CKINT(lc_ed25519_pct_fips(pk, sk));
+	}
 
 out:
 	lc_memset_secure(&A, 0, sizeof(A));
@@ -720,7 +720,7 @@ LC_INTERFACE_FUNCTION(int, lc_ed25519_sk_ptr, uint8_t **ed25519_key,
 		return -EINVAL;
 
 	*ed25519_key = sk->sk;
-	*ed25519_key_len = sizeof(sk->sk);
+	*ed25519_key_len = LC_ED25519_RAW_SECRETKEYBYTES;
 	return 0;
 }
 
@@ -749,11 +749,18 @@ LC_INTERFACE_FUNCTION(int, lc_ed25519_sig_ptr, uint8_t **ed25519_sig,
 LC_INTERFACE_FUNCTION(int, lc_ed25519_sk_load, struct lc_ed25519_sk *sk,
 		      const uint8_t *src_key, size_t src_key_len)
 {
-	if (!sk || !src_key || src_key_len != sizeof(sk->sk))
+	if (!sk || !src_key)
 		return -EINVAL;
 
-	memcpy(sk->sk, src_key, src_key_len);
-	return 0;
+	if (src_key_len == sizeof(sk->sk)) {
+		memcpy(sk->sk, src_key, src_key_len);
+		return 0;
+	} else if (src_key_len == LC_ED25519_RAW_SECRETKEYBYTES) {
+		memcpy(sk->sk, src_key, src_key_len);
+		return lc_ed25519_derive_pk(NULL, sk);
+	}
+
+	return -EINVAL;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_ed25519_pk_load, struct lc_ed25519_pk *pk,

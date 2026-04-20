@@ -127,8 +127,6 @@ int lc_base64_decode_len(const char *idata, size_t ilen, size_t *olen,
 {
 	size_t dlen, numlf = 0;
 
-	*blank_chars = 0;
-
 	switch (flags) {
 	case lc_base64_flag_pem:
 		/* after 64 characters we have an LF, CR or CRLF */
@@ -151,7 +149,22 @@ int lc_base64_decode_len(const char *idata, size_t ilen, size_t *olen,
 				return -EINVAL;
 			*blank_chars = 1;
 		} else {
-			return -EINVAL;
+			if (ilen > 1 &&
+			    (idata[ilen - 1] == 0x0d) &&
+			     (idata[ilen - 2 ] == 0x0a)) {
+				if ((ilen - 2) % 4 != 0)
+					return -EINVAL;
+				*blank_chars = 2;
+			} else if (ilen > 0 &&
+			           ((idata[ilen - 1] == 0x0a) ||
+				    (idata[ilen - 1] == 0x0d))) {
+				if ((ilen - 1) % 4 != 0)
+					return -EINVAL;
+				*blank_chars = 1;
+			} else {
+				if (ilen % 4 != 0)
+					return -EINVAL;
+			}
 		}
 		break;
 	case lc_base64_flag_unknown:
