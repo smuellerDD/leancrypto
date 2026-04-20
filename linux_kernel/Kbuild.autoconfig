@@ -193,6 +193,9 @@ endif
 ifdef CONFIG_LEANCRYPTO_CURVE448
 ccflags-y	+= -DLC_CURVE448
 endif
+ifdef CONFIG_LEANCRYPTO_X509_GENERATOR
+ccflags-y	+= -DLC_X509_GENERATOR
+endif
 
 #
 # The seeded RNG is always present
