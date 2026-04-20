@@ -50,6 +50,19 @@ int lc_ed448_sign(struct lc_ed448_sig *sig, const uint8_t *msg, size_t mlen,
 		  const struct lc_ed448_sk *sk, struct lc_rng_ctx *rng_ctx);
 int lc_ed448_verify(const struct lc_ed448_sig *sig, const uint8_t *msg,
 		    size_t mlen, const struct lc_ed448_pk *pk);
+int lc_ed448_sk_ptr(uint8_t **ed448_key, size_t *ed448_key_len,
+		    struct lc_ed448_sk *sk);
+int lc_ed448_pk_ptr(uint8_t **ed448_key, size_t *ed448_key_len,
+		    struct lc_ed448_pk *pk);
+int lc_ed448_sig_ptr(uint8_t **ed448_sig, size_t *ed448_sig_len,
+		     struct lc_ed448_sig *sig);
+int lc_ed448_sk_load(struct lc_ed448_sk *sk, const uint8_t *src_key,
+		     size_t src_key_len);
+int lc_ed448_pk_load(struct lc_ed448_pk *pk, const uint8_t *src_key,
+		     size_t src_key_len);
+int lc_ed448_sig_load(struct lc_ed448_sig *sig, const uint8_t *src_sig,
+		      size_t src_sig_len);
+unsigned int lc_ed448_sig_size(void);
 
 /* Receive a message pre-hashed with SHAKE-256 */
 int lc_ed448ph_sign(struct lc_ed448_sig *sig, const uint8_t *msg, size_t mlen,

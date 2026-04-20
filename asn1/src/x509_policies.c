@@ -76,7 +76,7 @@ LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_is_ca,
 		      const struct lc_x509_certificate *cert)
 {
 	const struct lc_public_key *pub;
-	int ret;
+	int ret  = 0;
 
 	if (!cert)
 		return -EINVAL;
@@ -217,7 +217,7 @@ LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_match_akid,
 	}
 
 	if (!akid)
-		return -LC_X509_POL_FALSE;
+		return LC_X509_POL_FALSE;
 
 	if (lc_memcmp_secure(akid, akid_len, reference_akid,
 			     reference_akid_len))
@@ -246,7 +246,7 @@ LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_match_skid,
 	skid_len = cert->raw_skid_size;
 
 	if (!skid)
-		return -LC_X509_POL_FALSE;
+		return LC_X509_POL_FALSE;
 
 	if (lc_memcmp_secure(skid, skid_len, reference_skid,
 			     reference_skid_len))
@@ -361,9 +361,92 @@ LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_time_valid,
 	return LC_X509_POL_TRUE;
 }
 
+static lc_x509_pol_ret_t lc_x509_policy_consistency(
+	const struct lc_x509_certificate *cert)
+{
+	const struct lc_public_key *pub = &cert->pub;
+
+	return LC_X509_POL_TRUE;
+	if (!pub)
+		return LC_X509_POL_TRUE;
+
+	switch (pub->pkey_algo) {
+	case LC_SIG_DILITHIUM_44:
+	case LC_SIG_DILITHIUM_65:
+	case LC_SIG_DILITHIUM_87:
+	case LC_SIG_SPINCS_SHAKE_128F:
+	case LC_SIG_SPINCS_SHAKE_192F:
+	case LC_SIG_SPINCS_SHAKE_256F:
+	case LC_SIG_SPINCS_SHAKE_128S:
+	case LC_SIG_SPINCS_SHAKE_192S:
+	case LC_SIG_SPINCS_SHAKE_256S:
+	case LC_SIG_DILITHIUM_44_ED25519:
+	case LC_SIG_DILITHIUM_65_ED25519:
+	case LC_SIG_DILITHIUM_87_ED25519:
+	case LC_SIG_DILITHIUM_44_ED448:
+	case LC_SIG_DILITHIUM_65_ED448:
+	case LC_SIG_DILITHIUM_87_ED448:
+	case LC_SIG_ED25519:
+	case LC_SIG_ED448:
+		/*
+		 * RFC9295 a leaf certificate must not have:
+		 * keyEncipherment
+		 * dataEncipherment
+		 * keyAgreement
+		 * encipherOnly
+		 * decipherOnly
+		 */
+		if (lc_x509_policy_match_key_usage(
+			cert, LC_KEY_USAGE_KEY_ENCIPHERMENT) == LC_X509_POL_TRUE) {
+			return LC_X509_POL_FALSE;
+		}
+		if (lc_x509_policy_match_key_usage(
+			cert, LC_KEY_USAGE_DATA_ENCIPHERMENT) == LC_X509_POL_TRUE) {
+			return LC_X509_POL_FALSE;
+		}
+		if (lc_x509_policy_match_key_usage(
+			cert, LC_KEY_USAGE_KEY_AGREEMENT) == LC_X509_POL_TRUE) {
+			return LC_X509_POL_FALSE;
+		}
+		if (lc_x509_policy_match_key_usage(
+			cert, LC_KEY_USAGE_ENCIPHER_ONLY) == LC_X509_POL_TRUE) {
+			return LC_X509_POL_FALSE;
+		}
+		if (lc_x509_policy_match_key_usage(
+			cert, LC_KEY_USAGE_DECIPHER_ONLY) == LC_X509_POL_TRUE) {
+			return LC_X509_POL_FALSE;
+		}
+		break;
+
+	case LC_SIG_RSA_PKCS1:
+	case LC_SIG_RSA_PKCS1_SHA2_256:
+	case LC_SIG_RSA_PKCS1_SHA2_384:
+	case LC_SIG_RSA_PKCS1_SHA2_512:
+	case LC_SIG_RSA_PKCS1_SHA3_256:
+	case LC_SIG_RSA_PKCS1_SHA3_384:
+	case LC_SIG_RSA_PKCS1_SHA3_512:
+	case LC_SIG_ECDSA_X963:
+	case LC_SIG_ECDSA_X963_SHA2_256:
+	case LC_SIG_ECDSA_X963_SHA2_384:
+	case LC_SIG_ECDSA_X963_SHA2_512:
+	case LC_SIG_ECDSA_X963_SHA3_256:
+	case LC_SIG_ECDSA_X963_SHA3_384:
+	case LC_SIG_ECDSA_X963_SHA3_512:
+	case LC_SIG_ECRDSA_PKCS1:
+	case LC_SIG_SM2:
+	case LC_SIG_UNKNOWN:
+	default:
+		return -ENOPKG;
+	}
+
+	return LC_X509_POL_TRUE;
+}
+
 LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_cert_valid,
 		      const struct lc_x509_certificate *cert)
 {
+	lc_x509_pol_ret_t ret;
+
 	if (!cert)
 		return -EINVAL;
 
@@ -392,7 +475,12 @@ LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_cert_valid,
 		return LC_X509_POL_FALSE;
 	}
 
-	return LC_X509_POL_TRUE;
+	CKINT(lc_x509_policy_consistency(cert));
+	if (ret != LC_X509_POL_TRUE)
+		return ret;
+
+out:
+	return ret;
 }
 
 static int lc_x509_policy_verify_general(const struct lc_public_key *pkey,
@@ -602,7 +690,7 @@ LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_cert_subject_match,
 								 search_name);
 
 	case lc_x509_policy_cert_subject_match_san_email_only:
-		/* Check whether the SAN DNS matches */
+		/* Check whether the SAN email matches */
 		return lc_x509_policy_cert_subject_match_san_email(cert,
 								   search_name);
 
@@ -612,6 +700,7 @@ LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_cert_subject_match,
 			&cert->san_directory_name_segments, search_name);
 
 	case lc_x509_policy_cert_subject_match_issuer_only:
+		/* Check whether the issue matches */
 		return lc_x509_policy_cert_name_match(&cert->issuer_segments,
 						      search_name);
 

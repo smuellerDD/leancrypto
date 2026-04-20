@@ -11,6 +11,8 @@ Changes 1.7.3-prerelease
 
 * Rust: add ED25519 API to support rustTLS
 
+* X.509: Add support for ED25519 and ED448 certificates to support rustTLS for a smooth transition to PQC
+
 Changes 1.7.2
 * Fix RDSEED counter
 

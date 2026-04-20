@@ -69,6 +69,15 @@ if get_option('x509_parser').enabled()
 			'--skid', '0c0d0e0f000102', '--akid', '0b0c0d0e0f0001',
 			'--check-time' ],
 			suite: regression)
+
+		test('X.509 ED25519 Int 2 CA', asn1_tester,
+		args: [ '-x', '-f', certdir + 'ed25519_int2.der', '--check-ca',
+			'--issuer-cn', 'leancrypto test int1',
+			'--subject-cn', 'leancrypto test int2',
+			'--valid-from', '1729527728', '--valid-to', '2044210606',
+			'--skid', '0c0d0e0f000102', '--akid', '0b0c0d0e0f0001',
+			'--check-time' ],
+			suite: regression)
 	endif
 
 	if (get_option('sphincs_shake_128s').enabled())
@@ -469,12 +478,26 @@ if get_option('x509_generator').enabled()
 				'--x509-cert', certdir + 'ml-dsa44-ed25519_int2.der' ],
 			suite: regression,
 			should_fail: fips140_negative_expect_fail)
+
+		test('X.509 ED25519 Signature',
+			x509_siggen_sigver_tester,
+			args: [ '--sk-file', certdir + 'ed25519_int2.privkey',
+				'--x509-cert', certdir + 'ed25519_int2.der' ],
+			suite: regression,
+			should_fail: fips140_negative_expect_fail)
 	endif
 	if get_option('dilithium_ed448').enabled()
 		test('X.509 Composite-ML-DSA87 Signature',
 			x509_siggen_sigver_tester,
 			args: [ '--sk-file', certdir + 'ml-dsa87-ed448_cacert.privkey',
 				'--x509-cert', certdir + 'ml-dsa87-ed448_cacert.der' ],
+			suite: regression,
+			should_fail: fips140_negative_expect_fail)
+
+		test('X.509 ED448 Signature',
+			x509_siggen_sigver_tester,
+			args: [ '--sk-file', certdir + 'ed448_cacert.privkey',
+				'--x509-cert', certdir + 'ed448_cacert.der' ],
 			suite: regression,
 			should_fail: fips140_negative_expect_fail)
 

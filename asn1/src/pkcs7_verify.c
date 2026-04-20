@@ -49,7 +49,6 @@ static int pkcs7_digest(struct lc_pkcs7_message *pkcs7,
 {
 	struct lc_public_key_signature *sig = &sinfo->sig;
 	int ret = 0;
-	LC_HASH_CTX_ON_STACK(hash_ctx, sig->hash_algo);
 
 	printf_debug("==> %s(), %u\n", __func__, sinfo->index);
 
@@ -59,6 +58,8 @@ static int pkcs7_digest(struct lc_pkcs7_message *pkcs7,
 
 	if (!sig->hash_algo)
 		return -ENOPKG;
+
+	LC_HASH_CTX_ON_STACK(hash_ctx, sig->hash_algo);
 
 	/* Digest the message [RFC5652 5.4] */
 	CKINT(lc_hash_init(hash_ctx));
@@ -83,18 +84,6 @@ static int pkcs7_digest(struct lc_pkcs7_message *pkcs7,
 			printf_debug("Sig %u: No messageDigest\n",
 				     sinfo->index);
 			ret = -EKEYREJECTED;
-			goto out;
-		}
-
-		/*
-		 * Check that the authenticated attribute message digest is
-		 * identical to the digest calculated by leancrypto over the
-		 * message during parsing.
-		 */
-		if (sinfo->msgdigest_len != sig->digest_size) {
-			printf_debug("Sig %u: Invalid digest size (%zu)\n",
-				     sinfo->index, sinfo->msgdigest_len);
-			ret = -EBADMSG;
 			goto out;
 		}
 

@@ -204,10 +204,30 @@ impl std::fmt::Display for HkdfError {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		match self {
 			HkdfError::AllocationError =>
-				write!(f, "failed to allocate HDFK context"),
+				write!(f, "failed to allocate HKDF context"),
 			HkdfError::UninitializedContext =>
 				write!(f, "HKDF context is not initialized"),
 			HkdfError::ProcessingError =>
+				write!(f, "HKDF processing error occurred"),
+		}
+	}
+}
+
+#[derive(Debug)]
+#[derive(PartialEq)]
+pub enum X509Error {
+	AllocationError,
+	ProcessingError,
+}
+
+impl std::error::Error for X509Error {}
+
+impl std::fmt::Display for X509Error {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		match self {
+			X509Error::AllocationError =>
+				write!(f, "failed to allocate X509 context"),
+			X509Error::ProcessingError =>
 				write!(f, "HKDF processing error occurred"),
 		}
 	}

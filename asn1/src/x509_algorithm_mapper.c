@@ -82,6 +82,17 @@ static struct lc_x509_algorithms x509_algo_table[] = {
 	  .pkey_algo = LC_SIG_SPINCS_SHAKE_256S,
 	  .std_hash = OID_shake256 },
 
+	{ .oid = OID_id_Ed25519,
+	  .name_algo = "Ed25519",
+	  .namelen = 7,
+	  .pkey_algo = LC_SIG_ED25519,
+	  .std_hash = OID_sha512 },
+	{ .oid = OID_id_Ed448,
+	  .name_algo = "Ed448",
+	  .namelen = 5,
+	  .pkey_algo = LC_SIG_ED448,
+	  .std_hash = OID_shake256 },
+
 	{ .oid = OID_id_rsassa_pkcs1_v1_5_with_sha3_256,
 	  .name_algo = "RSASSA-PKCS1-v1.5",
 	  .namelen = 17,
@@ -316,6 +327,25 @@ int lc_x509_sig_check_hash(enum lc_sig_types pkey_algo,
 	case LC_SIG_DILITHIUM_44_ED448:
 	case LC_SIG_DILITHIUM_65_ED448:
 	case LC_SIG_DILITHIUM_87_ED448:
+#ifdef LC_SHA2_512
+		if (hash_algo == lc_sha512) {
+			found = 1;
+			break;
+		} else
+#endif
+#ifdef LC_SHA3
+			if (hash_algo == lc_sha3_512) {
+			found = 1;
+			break;
+		} else if (hash_algo == lc_shake256) {
+			found = 1;
+			break;
+		}
+#endif
+		break;
+
+	case LC_SIG_ED25519:
+	case LC_SIG_ED448:
 #ifdef LC_SHA2_512
 		if (hash_algo == lc_sha512) {
 			found = 1;

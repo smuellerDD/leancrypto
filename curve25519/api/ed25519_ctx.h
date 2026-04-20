@@ -17,18 +17,26 @@
  * DAMAGE.
  */
 
-#ifndef ED25519_COMPOSITE_H
-#define ED25519_COMPOSITE_H
+#ifndef ED25519_CTX_H
+#define ED25519_CTX_H
 
-#include "dilithium_type.h"
-#include "ed25519_ctx.h"
+#include "lc_ed25519.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+int lc_ed25519_sign_ctx(struct lc_ed25519_sig *sig, const uint8_t *msg,
+			size_t mlen, const struct lc_ed25519_sk *sk,
+			struct lc_rng_ctx *rng_ctx,
+			struct lc_dilithium_ed25519_ctx *composite_ml_dsa_ctx);
+
+int lc_ed25519_verify_ctx(const struct lc_ed25519_sig *sig, const uint8_t *msg,
+			  size_t mlen, const struct lc_ed25519_pk *pk,
+			  struct lc_dilithium_ed25519_ctx *composite_ml_dsa_ctx);
+
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* ED25519_COMPOSITE_H */
+#endif /* ED25519_CTX_H */

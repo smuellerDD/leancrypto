@@ -348,6 +348,8 @@ static int lc_ed25519_sign_internal(
 	uint8_t hram[LC_SHA512_SIZE_DIGEST];
 	ge25519_p3 R;
 	struct lc_dilithium_ctx *dilithium_ctx = NULL;
+	const uint8_t *msg_prefix = NULL;
+	size_t msg_prefix_len = 0;
 	int ret = 0;
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_sha512);
 
@@ -355,10 +357,18 @@ static int lc_ed25519_sign_internal(
 	CKNULL(sk, -EINVAL);
 
 	if (composite_ml_dsa_ctx) {
-		dilithium_ctx = &composite_ml_dsa_ctx->dilithium_ctx;
+		/*
+		 * Either the prefix is used or the dilithium CTX is used
+		 */
+		msg_prefix = composite_ml_dsa_ctx->msg_prefix;
+		msg_prefix_len = composite_ml_dsa_ctx->msg_prefix_len;
 
-		if (!dilithium_ctx->nist_category)
-			dilithium_ctx = NULL;
+		if (!msg_prefix) {
+			dilithium_ctx = &composite_ml_dsa_ctx->dilithium_ctx;
+
+			if (dilithium_ctx && !dilithium_ctx->nist_category)
+				dilithium_ctx = NULL;
+		}
 	}
 
 	/* Timecop: mark the secret key as sensitive */
@@ -387,6 +397,9 @@ static int lc_ed25519_sign_internal(
 			dilithium_ctx->nist_category));
 	}
 
+	/* If there is any prefix, apply it now */
+	lc_hash_update(hash_ctx, msg_prefix, msg_prefix_len);
+
 	lc_hash_update(hash_ctx, msg, mlen);
 	lc_hash_final(hash_ctx, nonce);
 
@@ -407,6 +420,9 @@ static int lc_ed25519_sign_internal(
 			dilithium_ctx->userctxlen,
 			dilithium_ctx->nist_category));
 	}
+
+	/* If there is any prefix, apply it now */
+	lc_hash_update(hash_ctx, msg_prefix, msg_prefix_len);
 
 	lc_hash_update(hash_ctx, msg, mlen);
 	lc_hash_final(hash_ctx, hram);
@@ -555,6 +571,8 @@ static int lc_ed25519_verify_internal(
 	ge25519_p3 sb_ah;
 	ge25519_p2 sb_ah_p2;
 	struct lc_dilithium_ctx *dilithium_ctx = NULL;
+	const uint8_t *msg_prefix = NULL;
+	size_t msg_prefix_len = 0;
 	int ret = 0;
 	LC_HASH_CTX_ON_STACK(hash_ctx, lc_sha512);
 
@@ -562,10 +580,18 @@ static int lc_ed25519_verify_internal(
 	CKNULL(pk, -EINVAL);
 
 	if (composite_ml_dsa_ctx) {
-		dilithium_ctx = &composite_ml_dsa_ctx->dilithium_ctx;
+		/*
+		 * Either the prefix is used or the dilithium CTX is used
+		 */
+		msg_prefix = composite_ml_dsa_ctx->msg_prefix;
+		msg_prefix_len = composite_ml_dsa_ctx->msg_prefix_len;
 
-		if (!dilithium_ctx->nist_category)
-			dilithium_ctx = NULL;
+		if (!msg_prefix) {
+			dilithium_ctx = &composite_ml_dsa_ctx->dilithium_ctx;
+
+			if (!dilithium_ctx->nist_category)
+				dilithium_ctx = NULL;
+		}
 	}
 
 #if 0
@@ -608,6 +634,9 @@ static int lc_ed25519_verify_internal(
 			dilithium_ctx->userctxlen,
 			dilithium_ctx->nist_category));
 	}
+
+	/* If there is any prefix, apply it now */
+	lc_hash_update(hash_ctx, msg_prefix, msg_prefix_len);
 
 	lc_hash_update(hash_ctx, msg, mlen);
 	lc_hash_final(hash_ctx, h);
@@ -745,4 +774,9 @@ LC_INTERFACE_FUNCTION(int, lc_ed25519_sig_load, struct lc_ed25519_sig *sig,
 
 	memcpy(sig->sig, src_sig, src_sig_len);
 	return 0;
+}
+
+LC_PURE LC_INTERFACE_FUNCTION(unsigned int, lc_ed25519_sig_size, void)
+{
+	return LC_ED25519_SIGBYTES;
 }

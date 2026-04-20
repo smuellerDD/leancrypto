@@ -19,9 +19,7 @@
 
 #include "asym_key_dilithium_ed448.h"
 #include "ext_headers_internal.h"
-#include "lc_dilithium.h"
 #include "lc_hash.h"
-#include "lc_sphincs.h"
 #include "pkcs7_internal.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
@@ -123,6 +121,8 @@ int private_key_decode_dilithium_ed448(struct lc_x509_key_data *keys,
 	case LC_SIG_SPINCS_SHAKE_256F:
 	case LC_SIG_SPINCS_SHAKE_192F:
 	case LC_SIG_SPINCS_SHAKE_128F:
+	case LC_SIG_ED25519:
+	case LC_SIG_ED448:
 	case LC_SIG_RSA_PKCS1:
 	case LC_SIG_RSA_PKCS1_SHA2_256:
 	case LC_SIG_RSA_PKCS1_SHA2_384:

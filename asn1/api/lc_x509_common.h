@@ -146,6 +146,11 @@ enum lc_sig_types {
 	/** SLH-DSA / Sphincs Plus SHAKE 128f */
 	LC_SIG_SPINCS_SHAKE_128F,
 
+	/* ED25519 */
+	LC_SIG_ED25519,
+	/* ED448 */
+	LC_SIG_ED448,
+
 	/** RSA with PKCS1 */
 	LC_SIG_RSA_PKCS1,
 	LC_SIG_RSA_PKCS1_SHA2_256,
@@ -294,9 +299,11 @@ struct lc_x509_key_data {
 		struct lc_dilithium_pk *dilithium_pk;
 #ifdef LC_DILITHIUM_ED448_SIG
 		struct lc_dilithium_ed448_pk *dilithium_ed448_pk;
+		struct lc_ed448_pk *ed448_pk;
 #endif
 #ifdef LC_DILITHIUM_ED25519_SIG
 		struct lc_dilithium_ed25519_pk *dilithium_ed25519_pk;
+		struct lc_ed25519_pk *ed25519_pk;
 #endif
 		struct lc_sphincs_pk *sphincs_pk;
 	} pk;
@@ -304,9 +311,11 @@ struct lc_x509_key_data {
 		struct lc_dilithium_sk *dilithium_sk;
 #ifdef LC_DILITHIUM_ED448_SIG
 		struct lc_dilithium_ed448_sk *dilithium_ed448_sk;
+		struct lc_ed448_sk *ed448_sk;
 #endif
 #ifdef LC_DILITHIUM_ED25519_SIG
 		struct lc_dilithium_ed25519_sk *dilithium_ed25519_sk;
+		struct lc_ed25519_sk *ed25519_sk;
 #endif
 		struct lc_sphincs_sk *sphincs_sk;
 	} sk;

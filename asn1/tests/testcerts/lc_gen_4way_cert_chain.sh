@@ -52,6 +52,13 @@ then
 	INT1_KEYTYPE="ML-DSA65"
 	INT2_KEYTYPE="ML-DSA44"
 	LEAF_KEYTYPE="ML-DSA87"
+elif [ x"$1" = x"EDDSA" ]
+then
+# Full EdDSA-based certificate chain
+	CA_KEYTYPE="Ed448"
+	INT1_KEYTYPE="Ed448"
+	INT2_KEYTYPE="Ed25519"
+	LEAF_KEYTYPE="Ed25519"
 else
 	echo "Invoke script to generate a 4-way certificate chain with one of the following options:"
 	echo "  SLH-DSA"
@@ -76,7 +83,6 @@ then
 fi
 ${X509_CMD}							\
   --keyusage digitalSignature					\
-  --keyusage keyEncipherment					\
   --keyusage keyCertSign					\
   --keyusage critical						\
   --ca 								\
@@ -117,7 +123,6 @@ then
 fi
 ${X509_CMD}							\
   --keyusage digitalSignature					\
-  --keyusage keyEncipherment					\
   --keyusage keyCertSign					\
   --keyusage critical						\
   --ca								\
@@ -155,7 +160,6 @@ then
 fi
 ${X509_CMD}							\
   --keyusage digitalSignature					\
-  --keyusage keyEncipherment					\
   --keyusage keyCertSign					\
   --keyusage critical						\
   --ca								\
@@ -191,8 +195,6 @@ then
 	LEAF_FILENAME="${LEAF_FILENAME}_pathlen${PATHLEN}"
 fi
 ${X509_CMD}							\
-  --keyusage dataEncipherment					\
-  --keyusage critical						\
   --eku critical						\
   --eku serverAuth						\
   --eku codeSigning						\
@@ -219,7 +221,7 @@ else
 	exit 1
 fi
 
-if [ $PATHLEN -le 4 ]
+if [ $PATHLEN -le 4 -a $PATHLEN -gt 0 ]
 then
 	echo "Prevent to generate the PKCS7 blob for failing path lengths"
 	exit 0

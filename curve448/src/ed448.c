@@ -391,14 +391,24 @@ curveed448_sign_internal(uint8_t signature[LC_ED448_SIGBYTES],
 	curve448_scalar_t secret_scalar, nonce_scalar, challenge_scalar;
 	struct lc_dilithium_ctx *dilithium_ctx = NULL;
 	uint8_t nonce_point[LC_ED448_PUBLICKEYBYTES] = { 0 };
+	const uint8_t *msg_prefix = NULL;
+	size_t msg_prefix_len = 0;
 	int ret = 0;
 	LC_SHAKE_256_CTX_ON_STACK(shake256_ctx);
 
 	if (composite_ml_dsa_ctx) {
-		dilithium_ctx = &composite_ml_dsa_ctx->dilithium_ctx;
+		/*
+		 * Either the prefix is used or the dilithium CTX is used
+		 */
+		msg_prefix = composite_ml_dsa_ctx->msg_prefix;
+		msg_prefix_len = composite_ml_dsa_ctx->msg_prefix_len;
 
-		if (!dilithium_ctx->nist_category)
-			dilithium_ctx = NULL;
+		if (!msg_prefix) {
+			dilithium_ctx = &composite_ml_dsa_ctx->dilithium_ctx;
+
+			if (!dilithium_ctx->nist_category)
+				dilithium_ctx = NULL;
+		}
 	}
 
 	/* Timecop: mark the secret key as sensitive */
@@ -439,6 +449,9 @@ curveed448_sign_internal(uint8_t signature[LC_ED448_SIGBYTES],
 				dilithium_ctx->userctxlen,
 				dilithium_ctx->nist_category));
 		}
+
+		/* If there is any prefix, apply it now */
+		lc_hash_update(shake256_ctx, msg_prefix, msg_prefix_len);
 
 		lc_hash_update(shake256_ctx, message, message_len);
 	}
@@ -485,6 +498,9 @@ curveed448_sign_internal(uint8_t signature[LC_ED448_SIGBYTES],
 				dilithium_ctx->userctxlen,
 				dilithium_ctx->nist_category));
 		}
+
+		/* If there is any prefix, apply it now */
+		lc_hash_update(shake256_ctx, msg_prefix, msg_prefix_len);
 
 		lc_hash_update(shake256_ctx, message, message_len);
 
@@ -699,14 +715,24 @@ curveed448_verify(const uint8_t signature[LC_ED448_SIGBYTES],
 	curve448_scalar_t challenge_scalar, response_scalar;
 	struct lc_dilithium_ctx *dilithium_ctx = NULL;
 	uint8_t challenge[2 * LC_ED448_SECRETKEYBYTES];
+	const uint8_t *msg_prefix = NULL;
+	size_t msg_prefix_len = 0;
 	int ret;
 	LC_SHAKE_256_CTX_ON_STACK(shake256_ctx);
 
 	if (composite_ml_dsa_ctx) {
-		dilithium_ctx = &composite_ml_dsa_ctx->dilithium_ctx;
+		/*
+		 * Either the prefix is used or the dilithium CTX is used
+		 */
+		msg_prefix = composite_ml_dsa_ctx->msg_prefix;
+		msg_prefix_len = composite_ml_dsa_ctx->msg_prefix_len;
 
-		if (!dilithium_ctx->nist_category)
-			dilithium_ctx = NULL;
+		if (!msg_prefix) {
+			dilithium_ctx = &composite_ml_dsa_ctx->dilithium_ctx;
+
+			if (!dilithium_ctx->nist_category)
+				dilithium_ctx = NULL;
+		}
 	}
 
 	CKINT(curve448_point_decode_like_eddsa_and_mul_by_ratio(pk_point,
@@ -729,6 +755,9 @@ curveed448_verify(const uint8_t signature[LC_ED448_SIGBYTES],
 			dilithium_ctx->userctxlen,
 			dilithium_ctx->nist_category));
 	}
+
+	/* If there is any prefix, apply it now */
+	lc_hash_update(shake256_ctx, msg_prefix, msg_prefix_len);
 
 	lc_hash_update(shake256_ctx, message, message_len);
 
@@ -831,4 +860,72 @@ LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_ed448_alg_status,
 		return lc_alg_status_unknown;
 	}
 	return lc_alg_status_unknown;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_ed448_sk_ptr, uint8_t **ed448_key,
+		      size_t *ed448_key_len, struct lc_ed448_sk *sk)
+{
+	if (!sk || !ed448_key || !ed448_key_len)
+		return -EINVAL;
+
+	*ed448_key = sk->sk;
+	*ed448_key_len = sizeof(sk->sk);
+	return 0;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_ed448_pk_ptr, uint8_t **ed448_key,
+		      size_t *ed448_key_len, struct lc_ed448_pk *pk)
+{
+	if (!pk || !ed448_key || !ed448_key_len)
+		return -EINVAL;
+
+	*ed448_key = pk->pk;
+	*ed448_key_len = sizeof(pk->pk);
+	return 0;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_ed448_sig_ptr, uint8_t **ed448_sig,
+		      size_t *ed448_sig_len, struct lc_ed448_sig *sig)
+{
+	if (!sig|| !ed448_sig || !ed448_sig_len)
+		return -EINVAL;
+
+	*ed448_sig = sig->sig;
+	*ed448_sig_len = sizeof(sig->sig);
+	return 0;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_ed448_sk_load, struct lc_ed448_sk *sk,
+		      const uint8_t *src_key, size_t src_key_len)
+{
+	if (!sk || !src_key || src_key_len != sizeof(sk->sk))
+		return -EINVAL;
+
+	memcpy(sk->sk, src_key, src_key_len);
+	return 0;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_ed448_pk_load, struct lc_ed448_pk *pk,
+		      const uint8_t *src_key, size_t src_key_len)
+{
+	if (!pk || !src_key || src_key_len != sizeof(pk->pk))
+		return -EINVAL;
+
+	memcpy(pk->pk, src_key, src_key_len);
+	return 0;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_ed448_sig_load, struct lc_ed448_sig *sig,
+		      const uint8_t *src_sig, size_t src_sig_len)
+{
+	if (!sig || !src_sig || src_sig_len != sizeof(sig->sig))
+		return -EINVAL;
+
+	memcpy(sig->sig, src_sig, src_sig_len);
+	return 0;
+}
+
+LC_PURE LC_INTERFACE_FUNCTION(unsigned int, lc_ed448_sig_size, void)
+{
+	return LC_ED448_SIGBYTES;
 }

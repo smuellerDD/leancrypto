@@ -66,6 +66,7 @@ int lc_ed25519_pk_load(struct lc_ed25519_pk *pk, const uint8_t *src_key,
 		       size_t src_key_len);
 int lc_ed25519_sig_load(struct lc_ed25519_sig *sig, const uint8_t *src_sig,
 			size_t src_sig_len);
+unsigned int lc_ed25519_sig_size(void);
 
 /* Receive a message pre-hashed with SHA-512 */
 int lc_ed25519ph_sign(struct lc_ed25519_sig *sig, const uint8_t *msg,

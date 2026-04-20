@@ -21,19 +21,11 @@
 #define ED448_COMPOSITE_H
 
 #include "dilithium_type.h"
-#include "lc_ed448.h"
+#include "ed448_ctx.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-int lc_ed448_sign_ctx(struct lc_ed448_sig *sig, const uint8_t *msg, size_t mlen,
-		      const struct lc_ed448_sk *sk, struct lc_rng_ctx *rng_ctx,
-		      struct lc_dilithium_ed448_ctx *composite_ml_dsa_ctx);
-
-int lc_ed448_verify_ctx(const struct lc_ed448_sig *sig, const uint8_t *msg,
-			size_t mlen, const struct lc_ed448_pk *pk,
-			struct lc_dilithium_ed448_ctx *composite_ml_dsa_ctx);
 
 #ifdef __cplusplus
 }

@@ -723,6 +723,8 @@ struct @dilithium_name@_ed25519_sig {
 #ifndef LC_DILITHIUM_ED25519_CTX_ON_STACK
 struct lc_dilithium_ed25519_ctx {
 	struct lc_dilithium_ctx dilithium_ctx;
+	const uint8_t *msg_prefix;
+	size_t msg_prefix_len;
 };
 #endif
 
@@ -1056,6 +1058,8 @@ struct @dilithium_name@_ed448_sig {
 #ifndef LC_DILITHIUM_ED448_CTX_ON_STACK
 struct lc_dilithium_ed448_ctx {
 	struct lc_dilithium_ctx dilithium_ctx;
+	const uint8_t *msg_prefix;
+	size_t msg_prefix_len;
 };
 #endif
 

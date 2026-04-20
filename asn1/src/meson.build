@@ -122,19 +122,27 @@ if x509_common_support == 1
 	if get_option('dilithium_ed25519').enabled()
 		src += files([
 			'asym_key_dilithium_ed25519.c',
+			'asym_key_ed25519.c',
 			])
 		asymmetric_algo += 1
 	else
-		src += files([ 'asym_key_dilithium_ed25519_null.c' ])
+		src += files([
+			'asym_key_dilithium_ed25519_null.c',
+			'asym_key_ed25519_null.c'
+		])
 	endif
 
 	if get_option('dilithium_ed448').enabled()
 		src += files([
 			'asym_key_dilithium_ed448.c',
+			'asym_key_ed448.c',
 			])
 		asymmetric_algo += 1
 	else
-		src += files([ 'asym_key_dilithium_ed448_null.c' ])
+		src += files([
+			'asym_key_dilithium_ed448_null.c',
+			'asym_key_ed448_null.c'
+		])
 	endif
 
 	if (asymmetric_algo == 0)

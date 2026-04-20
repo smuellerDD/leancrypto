@@ -422,6 +422,8 @@ int lc_x509_mldsa_private_key_seed(void *context, size_t hdrlen,
 	case LC_SIG_SPINCS_SHAKE_256F:
 	case LC_SIG_SPINCS_SHAKE_192F:
 	case LC_SIG_SPINCS_SHAKE_128F:
+	case LC_SIG_ED25519:
+	case LC_SIG_ED448:
 	case LC_SIG_RSA_PKCS1:
 	case LC_SIG_RSA_PKCS1_SHA2_256:
 	case LC_SIG_RSA_PKCS1_SHA2_384:
