@@ -100,14 +100,14 @@ int lc_public_key_verify_signature(const struct lc_public_key *pkey,
 	case LC_SIG_DILITHIUM_87_ED448:
 		CKINT(public_key_verify_signature_dilithium_ed448(pkey, sig));
 		break;
-	case LC_SIG_SPINCS_SHAKE_128F:
-	case LC_SIG_SPINCS_SHAKE_192F:
-	case LC_SIG_SPINCS_SHAKE_256F:
+	case LC_SIG_SPHINCS_SHAKE_128F:
+	case LC_SIG_SPHINCS_SHAKE_192F:
+	case LC_SIG_SPHINCS_SHAKE_256F:
 		CKINT(public_key_verify_signature_sphincs(pkey, sig, 1));
 		break;
-	case LC_SIG_SPINCS_SHAKE_128S:
-	case LC_SIG_SPINCS_SHAKE_192S:
-	case LC_SIG_SPINCS_SHAKE_256S:
+	case LC_SIG_SPHINCS_SHAKE_128S:
+	case LC_SIG_SPHINCS_SHAKE_192S:
+	case LC_SIG_SPHINCS_SHAKE_256S:
 		CKINT(public_key_verify_signature_sphincs(pkey, sig, 0));
 		break;
 
@@ -184,15 +184,15 @@ int lc_public_key_generate_signature(const struct lc_x509_key_data *key,
 		CKINT(public_key_generate_signature_dilithium_ed448(
 			key, sig, sig_data, available_len));
 		break;
-	case LC_SIG_SPINCS_SHAKE_128F:
-	case LC_SIG_SPINCS_SHAKE_192F:
-	case LC_SIG_SPINCS_SHAKE_256F:
+	case LC_SIG_SPHINCS_SHAKE_128F:
+	case LC_SIG_SPHINCS_SHAKE_192F:
+	case LC_SIG_SPHINCS_SHAKE_256F:
 		CKINT(public_key_generate_signature_sphincs(key, sig, sig_data,
 							    available_len, 1));
 		break;
-	case LC_SIG_SPINCS_SHAKE_128S:
-	case LC_SIG_SPINCS_SHAKE_192S:
-	case LC_SIG_SPINCS_SHAKE_256S:
+	case LC_SIG_SPHINCS_SHAKE_128S:
+	case LC_SIG_SPHINCS_SHAKE_192S:
+	case LC_SIG_SPHINCS_SHAKE_256S:
 		CKINT(public_key_generate_signature_sphincs(key, sig, sig_data,
 							    available_len, 0));
 		break;
@@ -270,12 +270,12 @@ int lc_public_key_extract(struct x509_generate_context *ctx, uint8_t *dst_data,
 			return -ENOPKG;
 #endif
 			break;
-		case LC_SIG_SPINCS_SHAKE_128F:
-		case LC_SIG_SPINCS_SHAKE_128S:
-		case LC_SIG_SPINCS_SHAKE_192F:
-		case LC_SIG_SPINCS_SHAKE_192S:
-		case LC_SIG_SPINCS_SHAKE_256F:
-		case LC_SIG_SPINCS_SHAKE_256S:
+		case LC_SIG_SPHINCS_SHAKE_128F:
+		case LC_SIG_SPHINCS_SHAKE_128S:
+		case LC_SIG_SPHINCS_SHAKE_192F:
+		case LC_SIG_SPHINCS_SHAKE_192S:
+		case LC_SIG_SPHINCS_SHAKE_256F:
+		case LC_SIG_SPHINCS_SHAKE_256S:
 #ifdef LC_SPHINCS
 			CKINT(lc_sphincs_pk_ptr(&ptr, &pklen,
 						keys->pk.sphincs_pk));
@@ -398,7 +398,7 @@ int lc_public_key_signature_size(size_t *siglen, enum lc_sig_types sig_type)
 #endif
 		break;
 
-	case LC_SIG_SPINCS_SHAKE_128F:
+	case LC_SIG_SPHINCS_SHAKE_128F:
 #ifdef LC_SPHINCS_SHAKE_128f_ENABLED
 		*siglen = lc_sphincs_sig_size(LC_SPHINCS_SHAKE_128f);
 #else
@@ -406,7 +406,7 @@ int lc_public_key_signature_size(size_t *siglen, enum lc_sig_types sig_type)
 		return -ENOPKG;
 #endif
 		break;
-	case LC_SIG_SPINCS_SHAKE_128S:
+	case LC_SIG_SPHINCS_SHAKE_128S:
 #ifdef LC_SPHINCS_SHAKE_128s_ENABLED
 		*siglen = lc_sphincs_sig_size(LC_SPHINCS_SHAKE_128s);
 #else
@@ -414,7 +414,7 @@ int lc_public_key_signature_size(size_t *siglen, enum lc_sig_types sig_type)
 		return -ENOPKG;
 #endif
 		break;
-	case LC_SIG_SPINCS_SHAKE_192F:
+	case LC_SIG_SPHINCS_SHAKE_192F:
 #ifdef LC_SPHINCS_SHAKE_192f_ENABLED
 		*siglen = lc_sphincs_sig_size(LC_SPHINCS_SHAKE_192f);
 #else
@@ -422,7 +422,7 @@ int lc_public_key_signature_size(size_t *siglen, enum lc_sig_types sig_type)
 		return -ENOPKG;
 #endif
 		break;
-	case LC_SIG_SPINCS_SHAKE_192S:
+	case LC_SIG_SPHINCS_SHAKE_192S:
 #ifdef LC_SPHINCS_SHAKE_192s_ENABLED
 		*siglen = lc_sphincs_sig_size(LC_SPHINCS_SHAKE_192s);
 #else
@@ -430,7 +430,7 @@ int lc_public_key_signature_size(size_t *siglen, enum lc_sig_types sig_type)
 		return -ENOPKG;
 #endif
 		break;
-	case LC_SIG_SPINCS_SHAKE_256F:
+	case LC_SIG_SPHINCS_SHAKE_256F:
 #ifdef LC_SPHINCS_SHAKE_256f_ENABLED
 		*siglen = lc_sphincs_sig_size(LC_SPHINCS_SHAKE_256f);
 #else
@@ -438,7 +438,7 @@ int lc_public_key_signature_size(size_t *siglen, enum lc_sig_types sig_type)
 		return -ENOPKG;
 #endif
 		break;
-	case LC_SIG_SPINCS_SHAKE_256S:
+	case LC_SIG_SPHINCS_SHAKE_256S:
 #ifdef LC_SPHINCS_SHAKE_256s_ENABLED
 		*siglen = lc_sphincs_sig_size(LC_SPHINCS_SHAKE_256s);
 #else
@@ -580,12 +580,12 @@ int lc_privkey_key_encode(struct x509_generate_privkey_context *ctx,
 		CKINT(private_key_encode_dilithium_ed448(dst_data,
 							 available_len, ctx));
 		break;
-	case LC_SIG_SPINCS_SHAKE_256S:
-	case LC_SIG_SPINCS_SHAKE_256F:
-	case LC_SIG_SPINCS_SHAKE_192S:
-	case LC_SIG_SPINCS_SHAKE_192F:
-	case LC_SIG_SPINCS_SHAKE_128S:
-	case LC_SIG_SPINCS_SHAKE_128F:
+	case LC_SIG_SPHINCS_SHAKE_256S:
+	case LC_SIG_SPHINCS_SHAKE_256F:
+	case LC_SIG_SPHINCS_SHAKE_192S:
+	case LC_SIG_SPHINCS_SHAKE_192F:
+	case LC_SIG_SPHINCS_SHAKE_128S:
+	case LC_SIG_SPHINCS_SHAKE_128F:
 		CKINT(private_key_encode_sphincs(dst_data, available_len, ctx));
 		break;
 
@@ -650,17 +650,17 @@ int lc_privkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
 	case LC_SIG_DILITHIUM_87_ED448:
 		CKINT(private_key_decode_dilithium_ed448(keys, data, datalen));
 		break;
-	case LC_SIG_SPINCS_SHAKE_256S:
-	case LC_SIG_SPINCS_SHAKE_192S:
-	case LC_SIG_SPINCS_SHAKE_128S:
+	case LC_SIG_SPHINCS_SHAKE_256S:
+	case LC_SIG_SPHINCS_SHAKE_192S:
+	case LC_SIG_SPHINCS_SHAKE_128S:
 		CKINT(private_key_decode_sphincs(keys, data, datalen));
 #ifdef LC_SPHINCS
 		CKINT(lc_sphincs_sk_set_keytype_small(keys->sk.sphincs_sk));
 #endif
 		break;
-	case LC_SIG_SPINCS_SHAKE_256F:
-	case LC_SIG_SPINCS_SHAKE_192F:
-	case LC_SIG_SPINCS_SHAKE_128F:
+	case LC_SIG_SPHINCS_SHAKE_256F:
+	case LC_SIG_SPHINCS_SHAKE_192F:
+	case LC_SIG_SPHINCS_SHAKE_128F:
 		CKINT(private_key_decode_sphincs(keys, data, datalen));
 #ifdef LC_SPHINCS
 		CKINT(lc_sphincs_sk_set_keytype_fast(keys->sk.sphincs_sk));
@@ -721,37 +721,37 @@ int lc_privkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
 		return -ENOPKG;
 #endif
 #ifdef LC_SPHINCS
-	case LC_SIG_SPINCS_SHAKE_128F:
+	case LC_SIG_SPHINCS_SHAKE_128F:
 		if (keys->sk.sphincs_sk->sphincs_type != LC_SPHINCS_SHAKE_128f)
 			return -EINVAL;
 		break;
-	case LC_SIG_SPINCS_SHAKE_192F:
+	case LC_SIG_SPHINCS_SHAKE_192F:
 		if (keys->sk.sphincs_sk->sphincs_type != LC_SPHINCS_SHAKE_192f)
 			return -EINVAL;
 		break;
-	case LC_SIG_SPINCS_SHAKE_256F:
+	case LC_SIG_SPHINCS_SHAKE_256F:
 		if (keys->sk.sphincs_sk->sphincs_type != LC_SPHINCS_SHAKE_256f)
 			return -EINVAL;
 		break;
-	case LC_SIG_SPINCS_SHAKE_128S:
+	case LC_SIG_SPHINCS_SHAKE_128S:
 		if (keys->sk.sphincs_sk->sphincs_type != LC_SPHINCS_SHAKE_128s)
 			return -EINVAL;
 		break;
-	case LC_SIG_SPINCS_SHAKE_192S:
+	case LC_SIG_SPHINCS_SHAKE_192S:
 		if (keys->sk.sphincs_sk->sphincs_type != LC_SPHINCS_SHAKE_192s)
 			return -EINVAL;
 		break;
-	case LC_SIG_SPINCS_SHAKE_256S:
+	case LC_SIG_SPHINCS_SHAKE_256S:
 		if (keys->sk.sphincs_sk->sphincs_type != LC_SPHINCS_SHAKE_256s)
 			return -EINVAL;
 		break;
 #else
-	case LC_SIG_SPINCS_SHAKE_128F:
-	case LC_SIG_SPINCS_SHAKE_128S:
-	case LC_SIG_SPINCS_SHAKE_192F:
-	case LC_SIG_SPINCS_SHAKE_192S:
-	case LC_SIG_SPINCS_SHAKE_256F:
-	case LC_SIG_SPINCS_SHAKE_256S:
+	case LC_SIG_SPHINCS_SHAKE_128F:
+	case LC_SIG_SPHINCS_SHAKE_128S:
+	case LC_SIG_SPHINCS_SHAKE_192F:
+	case LC_SIG_SPHINCS_SHAKE_192S:
+	case LC_SIG_SPHINCS_SHAKE_256F:
+	case LC_SIG_SPHINCS_SHAKE_256S:
 		return -ENOPKG;
 #endif
 
@@ -884,9 +884,9 @@ int lc_pubkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
 		ret = -ENOPKG;
 #endif
 		break;
-	case LC_SIG_SPINCS_SHAKE_256S:
-	case LC_SIG_SPINCS_SHAKE_192S:
-	case LC_SIG_SPINCS_SHAKE_128S:
+	case LC_SIG_SPHINCS_SHAKE_256S:
+	case LC_SIG_SPHINCS_SHAKE_192S:
+	case LC_SIG_SPHINCS_SHAKE_128S:
 #ifdef LC_SPHINCS
 		CKINT(lc_sphincs_pk_load(keys->pk.sphincs_pk, data, datalen));
 		CKINT(lc_sphincs_pk_set_keytype_small(keys->pk.sphincs_pk));
@@ -894,9 +894,9 @@ int lc_pubkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
 		ret = -ENOPKG;
 #endif
 		break;
-	case LC_SIG_SPINCS_SHAKE_256F:
-	case LC_SIG_SPINCS_SHAKE_192F:
-	case LC_SIG_SPINCS_SHAKE_128F:
+	case LC_SIG_SPHINCS_SHAKE_256F:
+	case LC_SIG_SPHINCS_SHAKE_192F:
+	case LC_SIG_SPHINCS_SHAKE_128F:
 #ifdef LC_SPHINCS
 		CKINT(lc_sphincs_pk_load(keys->pk.sphincs_pk, data, datalen));
 		CKINT(lc_sphincs_pk_set_keytype_fast(keys->pk.sphincs_pk));
@@ -967,37 +967,37 @@ int lc_pubkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
 		return -ENOPKG;
 #endif
 #ifdef LC_SPHINCS
-	case LC_SIG_SPINCS_SHAKE_128F:
+	case LC_SIG_SPHINCS_SHAKE_128F:
 		if (keys->pk.sphincs_pk->sphincs_type != LC_SPHINCS_SHAKE_128f)
 			return -EINVAL;
 		break;
-	case LC_SIG_SPINCS_SHAKE_192F:
+	case LC_SIG_SPHINCS_SHAKE_192F:
 		if (keys->pk.sphincs_pk->sphincs_type != LC_SPHINCS_SHAKE_192f)
 			return -EINVAL;
 		break;
-	case LC_SIG_SPINCS_SHAKE_256F:
+	case LC_SIG_SPHINCS_SHAKE_256F:
 		if (keys->pk.sphincs_pk->sphincs_type != LC_SPHINCS_SHAKE_256f)
 			return -EINVAL;
 		break;
-	case LC_SIG_SPINCS_SHAKE_128S:
+	case LC_SIG_SPHINCS_SHAKE_128S:
 		if (keys->pk.sphincs_pk->sphincs_type != LC_SPHINCS_SHAKE_128s)
 			return -EINVAL;
 		break;
-	case LC_SIG_SPINCS_SHAKE_192S:
+	case LC_SIG_SPHINCS_SHAKE_192S:
 		if (keys->pk.sphincs_pk->sphincs_type != LC_SPHINCS_SHAKE_192s)
 			return -EINVAL;
 		break;
-	case LC_SIG_SPINCS_SHAKE_256S:
+	case LC_SIG_SPHINCS_SHAKE_256S:
 		if (keys->pk.sphincs_pk->sphincs_type != LC_SPHINCS_SHAKE_256s)
 			return -EINVAL;
 		break;
 #else
-	case LC_SIG_SPINCS_SHAKE_128F:
-	case LC_SIG_SPINCS_SHAKE_128S:
-	case LC_SIG_SPINCS_SHAKE_192F:
-	case LC_SIG_SPINCS_SHAKE_192S:
-	case LC_SIG_SPINCS_SHAKE_256F:
-	case LC_SIG_SPINCS_SHAKE_256S:
+	case LC_SIG_SPHINCS_SHAKE_128F:
+	case LC_SIG_SPHINCS_SHAKE_128S:
+	case LC_SIG_SPHINCS_SHAKE_192F:
+	case LC_SIG_SPHINCS_SHAKE_192S:
+	case LC_SIG_SPHINCS_SHAKE_256F:
+	case LC_SIG_SPHINCS_SHAKE_256S:
 		return -ENOPKG;
 #endif
 
@@ -1122,9 +1122,9 @@ int lc_asym_set_signer(struct lc_x509_certificate *signed_x509,
 #endif
 		break;
 
-	case LC_SIG_SPINCS_SHAKE_128F:
-	case LC_SIG_SPINCS_SHAKE_192F:
-	case LC_SIG_SPINCS_SHAKE_256F:
+	case LC_SIG_SPHINCS_SHAKE_128F:
+	case LC_SIG_SPHINCS_SHAKE_192F:
+	case LC_SIG_SPHINCS_SHAKE_256F:
 #ifdef LC_SPHINCS
 		CKINT_LOG(
 			lc_sphincs_pk_load(signer_key_data->pk.sphincs_pk,
@@ -1138,9 +1138,9 @@ int lc_asym_set_signer(struct lc_x509_certificate *signed_x509,
 		return -ENOPKG;
 #endif
 		break;
-	case LC_SIG_SPINCS_SHAKE_128S:
-	case LC_SIG_SPINCS_SHAKE_192S:
-	case LC_SIG_SPINCS_SHAKE_256S:
+	case LC_SIG_SPHINCS_SHAKE_128S:
+	case LC_SIG_SPHINCS_SHAKE_192S:
+	case LC_SIG_SPHINCS_SHAKE_256S:
 #ifdef LC_SPHINCS
 		CKINT_LOG(
 			lc_sphincs_pk_load(signer_key_data->pk.sphincs_pk,
@@ -1314,27 +1314,27 @@ int lc_asym_keypair_gen(struct lc_x509_certificate *cert,
 						 generate_sk_seed));
 		break;
 
-	case LC_SIG_SPINCS_SHAKE_128F:
+	case LC_SIG_SPHINCS_SHAKE_128F:
 		CKINT(asym_keypair_gen_sphincs(cert, keys,
 					       LC_SPHINCS_SHAKE_128f));
 		break;
-	case LC_SIG_SPINCS_SHAKE_128S:
+	case LC_SIG_SPHINCS_SHAKE_128S:
 		CKINT(asym_keypair_gen_sphincs(cert, keys,
 					       LC_SPHINCS_SHAKE_128s));
 		break;
-	case LC_SIG_SPINCS_SHAKE_192F:
+	case LC_SIG_SPHINCS_SHAKE_192F:
 		CKINT(asym_keypair_gen_sphincs(cert, keys,
 					       LC_SPHINCS_SHAKE_192f));
 		break;
-	case LC_SIG_SPINCS_SHAKE_192S:
+	case LC_SIG_SPHINCS_SHAKE_192S:
 		CKINT(asym_keypair_gen_sphincs(cert, keys,
 					       LC_SPHINCS_SHAKE_192s));
 		break;
-	case LC_SIG_SPINCS_SHAKE_256F:
+	case LC_SIG_SPHINCS_SHAKE_256F:
 		CKINT(asym_keypair_gen_sphincs(cert, keys,
 					       LC_SPHINCS_SHAKE_256f));
 		break;
-	case LC_SIG_SPINCS_SHAKE_256S:
+	case LC_SIG_SPHINCS_SHAKE_256S:
 		CKINT(asym_keypair_gen_sphincs(cert, keys,
 					       LC_SPHINCS_SHAKE_256s));
 		break;
@@ -1419,12 +1419,12 @@ int lc_asym_keypair_load(struct lc_x509_certificate *cert,
 						 keys->pk.dilithium_pk,
 						 keys->sk.dilithium_sk));
 		break;
-	case LC_SIG_SPINCS_SHAKE_128F:
-	case LC_SIG_SPINCS_SHAKE_192F:
-	case LC_SIG_SPINCS_SHAKE_256F:
-	case LC_SIG_SPINCS_SHAKE_128S:
-	case LC_SIG_SPINCS_SHAKE_192S:
-	case LC_SIG_SPINCS_SHAKE_256S:
+	case LC_SIG_SPHINCS_SHAKE_128F:
+	case LC_SIG_SPHINCS_SHAKE_192F:
+	case LC_SIG_SPHINCS_SHAKE_256F:
+	case LC_SIG_SPHINCS_SHAKE_128S:
+	case LC_SIG_SPHINCS_SHAKE_192S:
+	case LC_SIG_SPHINCS_SHAKE_256S:
 		CKINT(asym_set_sphincs_keypair(&cert->sig_gen_data,
 					       keys->pk.sphincs_pk,
 					       keys->sk.sphincs_sk));

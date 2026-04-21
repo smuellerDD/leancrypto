@@ -317,22 +317,22 @@ int asym_set_sphincs_keypair(struct lc_x509_key_data *gen_data,
 
 	switch (sphincs_type) {
 	case LC_SPHINCS_SHAKE_128f:
-		gen_data->sig_type = LC_SIG_SPINCS_SHAKE_128F;
+		gen_data->sig_type = LC_SIG_SPHINCS_SHAKE_128F;
 		break;
 	case LC_SPHINCS_SHAKE_128s:
-		gen_data->sig_type = LC_SIG_SPINCS_SHAKE_128S;
+		gen_data->sig_type = LC_SIG_SPHINCS_SHAKE_128S;
 		break;
 	case LC_SPHINCS_SHAKE_192f:
-		gen_data->sig_type = LC_SIG_SPINCS_SHAKE_192F;
+		gen_data->sig_type = LC_SIG_SPHINCS_SHAKE_192F;
 		break;
 	case LC_SPHINCS_SHAKE_192s:
-		gen_data->sig_type = LC_SIG_SPINCS_SHAKE_192S;
+		gen_data->sig_type = LC_SIG_SPHINCS_SHAKE_192S;
 		break;
 	case LC_SPHINCS_SHAKE_256f:
-		gen_data->sig_type = LC_SIG_SPINCS_SHAKE_256F;
+		gen_data->sig_type = LC_SIG_SPHINCS_SHAKE_256F;
 		break;
 	case LC_SPHINCS_SHAKE_256s:
-		gen_data->sig_type = LC_SIG_SPINCS_SHAKE_256S;
+		gen_data->sig_type = LC_SIG_SPHINCS_SHAKE_256S;
 		break;
 	case LC_SPHINCS_UNKNOWN:
 	default:

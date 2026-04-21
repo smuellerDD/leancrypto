@@ -54,32 +54,32 @@ static struct lc_x509_algorithms x509_algo_table[] = {
 	{ .oid = OID_id_SLHDSA_SHAKE_128F,
 	  .name_algo = "SLH-DSA-SHAKE-128F",
 	  .namelen = 18,
-	  .pkey_algo = LC_SIG_SPINCS_SHAKE_128F,
+	  .pkey_algo = LC_SIG_SPHINCS_SHAKE_128F,
 	  .std_hash = OID_shake128 },
 	{ .oid = OID_id_SLHDSA_SHAKE_128S,
 	  .name_algo = "SLH-DSA-SHAKE-128S",
 	  .namelen = 18,
-	  .pkey_algo = LC_SIG_SPINCS_SHAKE_128S,
+	  .pkey_algo = LC_SIG_SPHINCS_SHAKE_128S,
 	  .std_hash = OID_shake128 },
 	{ .oid = OID_id_SLHDSA_SHAKE_192F,
 	  .name_algo = "SLH-DSA-SHAKE-192F",
 	  .namelen = 18,
-	  .pkey_algo = LC_SIG_SPINCS_SHAKE_192F,
+	  .pkey_algo = LC_SIG_SPHINCS_SHAKE_192F,
 	  .std_hash = OID_shake256 },
 	{ .oid = OID_id_SLHDSA_SHAKE_192S,
 	  .name_algo = "SLH-DSA-SHAKE-192S",
 	  .namelen = 18,
-	  .pkey_algo = LC_SIG_SPINCS_SHAKE_192S,
+	  .pkey_algo = LC_SIG_SPHINCS_SHAKE_192S,
 	  .std_hash = OID_shake256 },
 	{ .oid = OID_id_SLHDSA_SHAKE_256F,
 	  .name_algo = "SLH-DSA-SHAKE-256F",
 	  .namelen = 18,
-	  .pkey_algo = LC_SIG_SPINCS_SHAKE_256F,
+	  .pkey_algo = LC_SIG_SPHINCS_SHAKE_256F,
 	  .std_hash = OID_shake256 },
 	{ .oid = OID_id_SLHDSA_SHAKE_256S,
 	  .name_algo = "SLH-DSA-SHAKE-256S",
 	  .namelen = 18,
-	  .pkey_algo = LC_SIG_SPINCS_SHAKE_256S,
+	  .pkey_algo = LC_SIG_SPHINCS_SHAKE_256S,
 	  .std_hash = OID_shake256 },
 
 	{ .oid = OID_id_Ed25519,
@@ -266,8 +266,8 @@ int lc_x509_sig_check_hash(enum lc_sig_types pkey_algo,
 		return -ENOPKG;
 
 	switch (pkey_algo) {
-	case LC_SIG_SPINCS_SHAKE_128F:
-	case LC_SIG_SPINCS_SHAKE_128S:
+	case LC_SIG_SPHINCS_SHAKE_128F:
+	case LC_SIG_SPHINCS_SHAKE_128S:
 	case LC_SIG_DILITHIUM_44:
 #ifdef LC_SHA2_256
 		if (hash_algo == lc_sha256) {
@@ -285,8 +285,8 @@ int lc_x509_sig_check_hash(enum lc_sig_types pkey_algo,
 		}
 #endif
 		fallthrough;
-	case LC_SIG_SPINCS_SHAKE_192F:
-	case LC_SIG_SPINCS_SHAKE_192S:
+	case LC_SIG_SPHINCS_SHAKE_192F:
+	case LC_SIG_SPHINCS_SHAKE_192S:
 	case LC_SIG_DILITHIUM_65:
 #ifdef LC_SHA2_512
 		if (hash_algo == lc_sha384) {
@@ -301,8 +301,8 @@ int lc_x509_sig_check_hash(enum lc_sig_types pkey_algo,
 		}
 #endif
 		fallthrough;
-	case LC_SIG_SPINCS_SHAKE_256F:
-	case LC_SIG_SPINCS_SHAKE_256S:
+	case LC_SIG_SPHINCS_SHAKE_256F:
+	case LC_SIG_SPHINCS_SHAKE_256S:
 	case LC_SIG_DILITHIUM_87:
 #ifdef LC_SHA2_512
 		if (hash_algo == lc_sha512) {
