@@ -34,6 +34,9 @@ int lc_ed448_verify_ctx(const struct lc_ed448_sig *sig, const uint8_t *msg,
 			size_t mlen, const struct lc_ed448_pk *pk,
 			struct lc_dilithium_ed448_ctx *composite_ml_dsa_ctx);
 
+int lc_ed448_keypair_internal(struct lc_ed448_pk *pk, struct lc_ed448_sk *sk,
+			      struct lc_rng_ctx *rng_ctx);
+
 #ifdef __cplusplus
 }
 #endif

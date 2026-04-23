@@ -21,6 +21,7 @@
 #include "ext_headers_internal.h"
 #include "compare.h"
 #include "../src/x25519_scalarmult.h"
+#include "lc_init.h"
 #include "ret_checkers.h"
 #include "visibility.h"
 
@@ -62,6 +63,8 @@ out:
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	int ret = 0;
+
+	lc_init(LC_INIT_NON_PQC_ENABLED);
 
 	(void)argv;
 	(void)argc;

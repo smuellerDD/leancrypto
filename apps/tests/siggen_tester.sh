@@ -215,6 +215,7 @@ lc_generate_cert_pkcs8() {
 
 	$LC_X509_GENERATOR \
 	 $pem_output \
+	 --enable-non-pqc-algoritms \
 	 --keyusage digitalSignature \
 	 --keyusage keyCertSign \
 	 --keyusage critical \
@@ -247,6 +248,7 @@ lc_generate_cert_pkcs8_seed() {
 
 	$LC_X509_GENERATOR \
 	 $pem_output \
+	 --enable-non-pqc-algoritms \
 	 --keyusage digitalSignature \
 	 --keyusage keyCertSign \
 	 --keyusage critical \
@@ -293,6 +295,7 @@ lc_sign_cert() {
 	echo_info "Leancrypto: Create PKCS#7 signature of X.509 certificate using the X.509 certificate and associated PKCS#8 private key as signer"
 
 	$LC_PKCS7_GENERATOR \
+	 --enable-non-pqc-algoritms \
 	 --md SHA2-512 \
 	 $pem_output \
 	 -i ${pk_file} \
@@ -313,6 +316,7 @@ lc_verify_cert() {
 	echo_info "Leancrypto: Verify PKCS#7 signature of X.509 certificate using the X.509 certificate and associated PKCS#8 private key as signer"
 
 	$LC_PKCS7_GENERATOR \
+	 --enable-non-pqc-algoritms \
 	 --print-pkcs7 ${pk_file}.p7b \
 	 -i ${pk_file} \
 	 --trust-anchor ${pk_file}

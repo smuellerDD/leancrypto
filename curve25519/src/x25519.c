@@ -24,6 +24,7 @@
 #include "lc_x25519.h"
 #include "timecop.h"
 #include "visibility.h"
+#include "x25519_internal.h"
 #include "x25519_scalarmult.h"
 
 static void lc_x25519_keypair_selftest(void)
@@ -66,8 +67,9 @@ static void lc_x25519_keypair_selftest(void)
 			    "X25519 base scalar multiplication\n");
 }
 
-LC_INTERFACE_FUNCTION(int, lc_x25519_keypair, struct lc_x25519_pk *pk,
-		      struct lc_x25519_sk *sk, struct lc_rng_ctx *rng_ctx)
+int lc_x25519_keypair_internal(struct lc_x25519_pk *pk,
+			       struct lc_x25519_sk *sk,
+			       struct lc_rng_ctx *rng_ctx)
 {
 	int ret;
 
@@ -93,6 +95,15 @@ LC_INTERFACE_FUNCTION(int, lc_x25519_keypair, struct lc_x25519_pk *pk,
 
 out:
 	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x25519_keypair, struct lc_x25519_pk *pk,
+		      struct lc_x25519_sk *sk, struct lc_rng_ctx *rng_ctx)
+{
+	if (!non_pqc_algs_enabled())
+		return -EOPNOTSUPP;
+
+	return lc_x25519_keypair_internal(pk, sk, rng_ctx);
 }
 
 int lc_x25519_pk_from_sk(struct lc_x25519_pk *pk, const struct lc_x25519_sk *sk)
@@ -177,9 +188,9 @@ static void lc_x25519_ss_selftest(void)
 			    "X25519 scalar multiplication\n");
 }
 
-LC_INTERFACE_FUNCTION(int, lc_x25519_ss, struct lc_x25519_ss *ss,
-		      const struct lc_x25519_pk *pk,
-		      const struct lc_x25519_sk *sk)
+int lc_x25519_ss_internal(struct lc_x25519_ss *ss,
+			  const struct lc_x25519_pk *pk,
+			  const struct lc_x25519_sk *sk)
 {
 	int ret;
 
@@ -201,6 +212,16 @@ LC_INTERFACE_FUNCTION(int, lc_x25519_ss, struct lc_x25519_ss *ss,
 
 out:
 	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x25519_ss, struct lc_x25519_ss *ss,
+		      const struct lc_x25519_pk *pk,
+		      const struct lc_x25519_sk *sk)
+{
+	if (!non_pqc_algs_enabled())
+		return -EOPNOTSUPP;
+
+	return lc_x25519_ss_internal(ss, pk, sk);
 }
 
 LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_x25519_alg_status,

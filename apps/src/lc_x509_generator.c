@@ -28,6 +28,7 @@
 
 #include "binhexbin.h"
 #include "ret_checkers.h"
+#include "lc_init.h"
 #include "lc_pem.h"
 #include "lc_status.h"
 #include "lc_x509_csr_generator.h"
@@ -850,7 +851,7 @@ static int x509_enc_crypto_algo(struct x509_generator_opts *opts)
 	int ret;
 
 	/*
-	 * When a new is generated, we need a secret key.
+	 * When a new certificate is generated, we need a secret key.
 	 *
 	 * When we turn a CSR into a cert, a signer is needed
 	 */
@@ -1147,6 +1148,8 @@ static void x509_generator_usage(void)
 
 	fprintf(stderr, "\t   --data-file <FILE>\t\tFile with data to sign\n");
 
+	fprintf(stderr, "\n\t    --enable-non-pqc-algoritms\tEnable non-POQC algorithm\n");
+
 	fprintf(stderr, "\n\t-h --help\t\t\tPrint this help text\n");
 	fprintf(stderr,
 		"\n\t-v --version\t\t\tPrint version and acceleration support\n");
@@ -1248,6 +1251,8 @@ int main(int argc, char *argv[])
 		{ "x509-csr", 1, 0, 0 },
 
 		{ "ca-pathlen", 1, 0, 0 },
+
+		{ "enable-non-pqc-algoritms", 0, 0, 0 },
 
 		{ 0, 0, 0, 0 }
 	};
@@ -1612,6 +1617,11 @@ int main(int argc, char *argv[])
 			case 62:
 				CKINT(x509_enc_ca_pathlen(&ws->parsed_opts,
 							  optarg));
+				break;
+
+			/* enable-non-pqc-algoritms */
+			case 63:
+				lc_init(LC_INIT_NON_PQC_ENABLED);
 				break;
 
 			default:

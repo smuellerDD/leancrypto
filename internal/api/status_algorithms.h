@@ -357,6 +357,9 @@ void alg_status_print(uint64_t flag, char *test_completed,
 		      size_t test_open_len, char *errorbuf,
 		      size_t errorbuf_len);
 
+void non_pqc_algs_enable(void);
+int non_pqc_algs_enabled(void);
+
 #ifdef __cplusplus
 }
 #endif

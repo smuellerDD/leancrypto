@@ -25,6 +25,7 @@
 #include "ret_checkers.h"
 #include "visibility.h"
 #include "lc_x25519.h"
+#include "x25519_internal.h"
 
 LC_INTERFACE_FUNCTION(int, lc_kyber_x25519_keypair,
 		      struct lc_kyber_x25519_pk *pk,
@@ -33,7 +34,8 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x25519_keypair,
 	int ret;
 
 	CKINT(lc_kyber_keypair(&pk->pk, &sk->sk, rng_ctx));
-	CKINT(lc_x25519_keypair(&pk->pk_x25519, &sk->sk_x25519, rng_ctx));
+	CKINT(lc_x25519_keypair_internal(&pk->pk_x25519, &sk->sk_x25519,
+					 rng_ctx));
 
 out:
 	return ret;
@@ -65,8 +67,9 @@ int lc_kyber_x25519_enc_internal(struct lc_kyber_x25519_ct *ct,
 
 	CKINT(lc_kyber_enc_internal(&ct->ct, &ss->ss, &pk->pk, rng_ctx));
 
-	CKINT(lc_x25519_keypair(&ct->pk_x25519, &sk_x25519, rng_ctx));
-	CKINT(lc_x25519_ss(&ss->ss_x25519, &pk->pk_x25519, &sk_x25519));
+	CKINT(lc_x25519_keypair_internal(&ct->pk_x25519, &sk_x25519, rng_ctx));
+	CKINT(lc_x25519_ss_internal(&ss->ss_x25519, &pk->pk_x25519,
+				    &sk_x25519));
 
 out:
 	lc_memset_secure(&sk_x25519, 0, sizeof(sk_x25519));
@@ -105,7 +108,8 @@ int lc_kyber_x25519_dec_internal(struct lc_kyber_x25519_ss *ss,
 	int ret;
 
 	CKINT(lc_kyber_dec(&ss->ss, &ct->ct, &sk->sk));
-	CKINT(lc_x25519_ss(&ss->ss_x25519, &ct->pk_x25519, &sk->sk_x25519));
+	CKINT(lc_x25519_ss_internal(&ss->ss_x25519, &ct->pk_x25519,
+				    &sk->sk_x25519));
 
 out:
 	return ret;

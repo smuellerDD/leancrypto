@@ -44,7 +44,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed448_keypair,
 	CKNULL(pk, -EINVAL);
 
 	CKINT(lc_dilithium_keypair(&pk->pk, &sk->sk, rng_ctx));
-	CKINT(lc_ed448_keypair(&pk->pk_ed448, &sk->sk_ed448, rng_ctx));
+	CKINT(lc_ed448_keypair_internal(&pk->pk_ed448, &sk->sk_ed448, rng_ctx));
 
 out:
 	return ret;

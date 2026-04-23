@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 - 2026, Stephan Mueller <smueller@chronox.de>
+ * Copyright (C) 2023 - 2026, Stephan Mueller <smueller@chronox.de>
  *
  * License: see LICENSE file in root directory
  *
@@ -17,30 +17,27 @@
  * DAMAGE.
  */
 
-#ifndef ED25519_CTX_H
-#define ED25519_CTX_H
+#include "lc_x25519.h"
+#include "visibility.h"
 
-#include "lc_ed25519.h"
+static int x25519_disabled_tester(void)
+{
+	static struct lc_x25519_pk pk = { 0 };
+	static struct lc_x25519_sk sk = { 0 };
+	static struct lc_x25519_ss ss = { 0 };
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+	if (lc_x25519_keypair(&pk, &sk, lc_seeded_rng) != -EOPNOTSUPP)
+		return 1;
+	if (lc_x25519_ss(&ss, &pk, &sk) != -EOPNOTSUPP)
+		return 1;
 
-int lc_ed25519_sign_ctx(struct lc_ed25519_sig *sig, const uint8_t *msg,
-			size_t mlen, const struct lc_ed25519_sk *sk,
-			struct lc_rng_ctx *rng_ctx,
-			struct lc_dilithium_ed25519_ctx *composite_ml_dsa_ctx);
-
-int lc_ed25519_verify_ctx(const struct lc_ed25519_sig *sig, const uint8_t *msg,
-			  size_t mlen, const struct lc_ed25519_pk *pk,
-			  struct lc_dilithium_ed25519_ctx *composite_ml_dsa_ctx);
-
-int lc_ed25519_keypair_internal(struct lc_ed25519_pk *pk,
-				struct lc_ed25519_sk *sk,
-				struct lc_rng_ctx *rng_ctx);
-
-#ifdef __cplusplus
+	return 0;
 }
-#endif
 
-#endif /* ED25519_CTX_H */
+LC_TEST_FUNC(int, main, int argc, char *argv[])
+{
+	(void)argc;
+	(void)argv;
+
+	return x25519_disabled_tester();
+}

@@ -26,6 +26,7 @@
 #include <time.h>
 
 #include "binhexbin.h"
+#include "lc_init.h"
 #include "lc_pkcs8_parser.h"
 #include "lc_x509_generator.h"
 #include "lc_x509_parser.h"
@@ -218,6 +219,8 @@ int main(int argc, char *argv[])
 					      { 0, 0, 0, 0 } };
 
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+
+	lc_init(LC_INIT_NON_PQC_ENABLED);
 
 #ifdef LC_FIPS140_DEBUG
 	/*

@@ -187,14 +187,24 @@ out:
 	return ret;
 }
 
-/* Export for test purposes */
-LC_INTERFACE_FUNCTION(int, lc_ed25519_keypair, struct lc_ed25519_pk *pk,
-		      struct lc_ed25519_sk *sk, struct lc_rng_ctx *rng_ctx)
+int lc_ed25519_keypair_internal(struct lc_ed25519_pk *pk,
+				struct lc_ed25519_sk *sk,
+				struct lc_rng_ctx *rng_ctx)
 {
 	lc_ed25519_keypair_selftest();
 	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_ED25519_KEYGEN);
 
 	return lc_ed25519_keypair_nocheck(pk, sk, rng_ctx);
+}
+
+/* Export for test purposes */
+LC_INTERFACE_FUNCTION(int, lc_ed25519_keypair, struct lc_ed25519_pk *pk,
+		      struct lc_ed25519_sk *sk, struct lc_rng_ctx *rng_ctx)
+{
+	if (!non_pqc_algs_enabled())
+		return -EOPNOTSUPP;
+
+	return lc_ed25519_keypair_internal(pk, sk, rng_ctx);
 }
 
 int lc_ed25519_pk_from_sk(struct lc_ed25519_pk *pk,
@@ -464,6 +474,9 @@ LC_INTERFACE_FUNCTION(int, lc_ed25519_sign, struct lc_ed25519_sig *sig,
 		      const struct lc_ed25519_sk *sk,
 		      struct lc_rng_ctx *rng_ctx)
 {
+	if (!non_pqc_algs_enabled())
+		return -EOPNOTSUPP;
+
 	lc_ed25519_sign_tester();
 	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_ED25519_SIGGEN);
 
@@ -475,6 +488,9 @@ LC_INTERFACE_FUNCTION(int, lc_ed25519ph_sign, struct lc_ed25519_sig *sig,
 		      const struct lc_ed25519_sk *sk,
 		      struct lc_rng_ctx *rng_ctx)
 {
+	if (!non_pqc_algs_enabled())
+		return -EOPNOTSUPP;
+
 	lc_ed25519_sign_tester();
 	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_ED25519_SIGGEN);
 
@@ -677,6 +693,9 @@ LC_INTERFACE_FUNCTION(int, lc_ed25519_verify, const struct lc_ed25519_sig *sig,
 		      const uint8_t *msg, size_t mlen,
 		      const struct lc_ed25519_pk *pk)
 {
+	if (!non_pqc_algs_enabled())
+		return -EOPNOTSUPP;
+
 	lc_ed25519_verify_tester();
 	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_ED25519_SIGVER);
 
@@ -687,6 +706,9 @@ LC_INTERFACE_FUNCTION(int, lc_ed25519ph_verify,
 		      const struct lc_ed25519_sig *sig, const uint8_t *msg,
 		      size_t mlen, const struct lc_ed25519_pk *pk)
 {
+	if (!non_pqc_algs_enabled())
+		return -EOPNOTSUPP;
+
 	lc_ed25519_verify_tester();
 	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_ED25519_SIGVER);
 

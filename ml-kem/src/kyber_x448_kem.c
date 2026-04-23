@@ -25,6 +25,7 @@
 #include "ret_checkers.h"
 #include "visibility.h"
 #include "lc_x448.h"
+#include "x448_internal.h"
 
 LC_INTERFACE_FUNCTION(int, lc_kyber_x448_keypair, struct lc_kyber_x448_pk *pk,
 		      struct lc_kyber_x448_sk *sk, struct lc_rng_ctx *rng_ctx)
@@ -32,7 +33,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_keypair, struct lc_kyber_x448_pk *pk,
 	int ret;
 
 	CKINT(lc_kyber_keypair(&pk->pk, &sk->sk, rng_ctx));
-	CKINT(lc_x448_keypair(&pk->pk_x448, &sk->sk_x448, rng_ctx));
+	CKINT(lc_x448_keypair_internal(&pk->pk_x448, &sk->sk_x448, rng_ctx));
 
 out:
 	return ret;
@@ -64,8 +65,8 @@ int lc_kyber_x448_enc_internal(struct lc_kyber_x448_ct *ct,
 
 	CKINT(lc_kyber_enc_internal(&ct->ct, &ss->ss, &pk->pk, rng_ctx));
 
-	CKINT(lc_x448_keypair(&ct->pk_x448, &sk_x448, rng_ctx));
-	CKINT(lc_x448_ss(&ss->ss_x448, &pk->pk_x448, &sk_x448));
+	CKINT(lc_x448_keypair_internal(&ct->pk_x448, &sk_x448, rng_ctx));
+	CKINT(lc_x448_ss_internal(&ss->ss_x448, &pk->pk_x448, &sk_x448));
 
 out:
 	lc_memset_secure(&sk_x448, 0, sizeof(sk_x448));
@@ -104,7 +105,7 @@ int lc_kyber_x448_dec_internal(struct lc_kyber_x448_ss *ss,
 	int ret;
 
 	CKINT(lc_kyber_dec(&ss->ss, &ct->ct, &sk->sk));
-	CKINT(lc_x448_ss(&ss->ss_x448, &ct->pk_x448, &sk->sk_x448));
+	CKINT(lc_x448_ss_internal(&ss->ss_x448, &ct->pk_x448, &sk->sk_x448));
 
 out:
 	return ret;

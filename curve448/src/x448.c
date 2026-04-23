@@ -25,6 +25,7 @@
 #include "static_rng.h"
 #include "timecop.h"
 #include "visibility.h"
+#include "x448_internal.h"
 #include "x448_scalarmult.h"
 
 static int lc_x448_keypair_nocheck(struct lc_x448_pk *pk, struct lc_x448_sk *sk,
@@ -122,13 +123,22 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_x448_keypair, struct lc_x448_pk *pk,
-		      struct lc_x448_sk *sk, struct lc_rng_ctx *rng_ctx)
+int lc_x448_keypair_internal(struct lc_x448_pk *pk, struct lc_x448_sk *sk,
+			     struct lc_rng_ctx *rng_ctx)
 {
 	lc_x448_keypair_selftest();
 	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_X448_KEYGEN);
 
 	return lc_x448_keypair_nocheck(pk, sk, rng_ctx);
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x448_keypair, struct lc_x448_pk *pk,
+		      struct lc_x448_sk *sk, struct lc_rng_ctx *rng_ctx)
+{
+	if (!non_pqc_algs_enabled())
+		return -EOPNOTSUPP;
+
+	return lc_x448_keypair_internal(pk, sk, rng_ctx);
 }
 
 int lc_x448_pk_from_sk(struct lc_x448_pk *pk, const struct lc_x448_sk *sk)
@@ -266,13 +276,22 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_x448_ss, struct lc_x448_ss *ss,
-		      const struct lc_x448_pk *pk, const struct lc_x448_sk *sk)
+int lc_x448_ss_internal(struct lc_x448_ss *ss, const struct lc_x448_pk *pk,
+			const struct lc_x448_sk *sk)
 {
 	lc_x448_ss_selftest();
 	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_X448_SS);
 
 	return lc_x448_ss_nocheck(ss, pk, sk);
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x448_ss, struct lc_x448_ss *ss,
+		      const struct lc_x448_pk *pk, const struct lc_x448_sk *sk)
+{
+	if (!non_pqc_algs_enabled())
+		return -EOPNOTSUPP;
+
+	return lc_x448_ss_internal(ss, pk, sk);
 }
 
 LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_x448_alg_status,

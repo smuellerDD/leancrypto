@@ -20,6 +20,7 @@
 #include <getopt.h>
 #include <stdio.h>
 
+#include "lc_init.h"
 #include "lc_pkcs7_generator_helper.h"
 #include "lc_status.h"
 #include "lc_x509_generator.h"
@@ -118,6 +119,8 @@ static void pkcs7_generator_usage(void)
 	fprintf(stderr, "\t   --check-data <DATA>\tmatch data\n");
 	fprintf(stderr, "\t   --check-kid <KID>\tmatch KID\n");
 
+	fprintf(stderr, "\n\t    --enable-non-pqc-algoritms\tEnable non-POQC algorithm\n");
+
 	fprintf(stderr, "\n\t-h  --help\t\t\tPrint this help text\n");
 }
 
@@ -166,6 +169,8 @@ int main(int argc, char *argv[])
 
 		{ "verify-pkcs7", 1, 0, 0 },
 		{ "pem-output", 0, 0, 0 },
+
+		{ "enable-non-pqc-algoritms", 0, 0, 0 },
 
 		{ 0, 0, 0, 0 }
 	};
@@ -340,6 +345,11 @@ int main(int argc, char *argv[])
 			/* pem-output */
 			case 28:
 				parsed_opts.pem_format_output = 1;
+				break;
+
+			/* enable-non-pqc-algoritms */
+			case 29:
+				lc_init(LC_INIT_NON_PQC_ENABLED);
 				break;
 
 			default:

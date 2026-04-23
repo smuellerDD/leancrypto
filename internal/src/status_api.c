@@ -76,3 +76,15 @@ LC_INTERFACE_FUNCTION(int, lc_alg_disable_selftests, void)
 	alg_status_set_all_passed_state();
 	return 0;
 }
+
+static int lc_non_pqc_algs_enabled = 0;
+
+void non_pqc_algs_enable(void)
+{
+	lc_non_pqc_algs_enabled = 1;
+}
+
+int non_pqc_algs_enabled(void)
+{
+	return lc_non_pqc_algs_enabled;
+}

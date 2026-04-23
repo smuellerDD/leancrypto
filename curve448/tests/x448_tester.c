@@ -19,6 +19,7 @@
 
 #include "cpufeatures.h"
 #include "ext_headers_internal.h"
+#include "lc_init.h"
 #include "lc_x448.h"
 #include "compare.h"
 #include "ret_checkers.h"
@@ -76,6 +77,8 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	unsigned int cpu_feature_enable = 0;
 	int argc_p = 1;
 	int ret = 0;
+
+	lc_init(LC_INIT_NON_PQC_ENABLED);
 
 	while (argc_p < argc) {
 		/* p */

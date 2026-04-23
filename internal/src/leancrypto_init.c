@@ -51,6 +51,9 @@ LC_INIT_FUNCTION(int, lc_init, unsigned int flags)
 		return -EINVAL;
 	}
 
+	if (flags & LC_INIT_NON_PQC_ENABLED)
+		non_pqc_algs_enable();
+
 	/*
 	 * Handle graceful the invocation of this functions multiple times
 	 * or even when the initializations automatically were performed.

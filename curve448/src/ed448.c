@@ -315,13 +315,23 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_ed448_keypair, struct lc_ed448_pk *pk,
-		      struct lc_ed448_sk *sk, struct lc_rng_ctx *rng_ctx)
+int lc_ed448_keypair_internal(struct lc_ed448_pk *pk,
+			      struct lc_ed448_sk *sk,
+			      struct lc_rng_ctx *rng_ctx)
 {
 	lc_ed448_keypair_selftest();
 	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_ED448_KEYGEN);
 
 	return lc_ed448_keypair_nocheck(pk, sk, rng_ctx);
+}
+
+LC_INTERFACE_FUNCTION(int, lc_ed448_keypair, struct lc_ed448_pk *pk,
+		      struct lc_ed448_sk *sk, struct lc_rng_ctx *rng_ctx)
+{
+	if (!non_pqc_algs_enabled())
+		return -EOPNOTSUPP;
+
+	return lc_ed448_keypair_internal(pk, sk, rng_ctx);
 }
 
 int lc_ed448_pk_from_sk(struct lc_ed448_pk *pk, const struct lc_ed448_sk *sk)
@@ -559,6 +569,9 @@ LC_INTERFACE_FUNCTION(int, lc_ed448_sign, struct lc_ed448_sig *sig,
 		      const uint8_t *msg, size_t mlen,
 		      const struct lc_ed448_sk *sk, struct lc_rng_ctx *rng_ctx)
 {
+	if (!non_pqc_algs_enabled())
+		return -EOPNOTSUPP;
+
 	lc_ed448_sign_tester();
 	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_ED448_SIGGEN);
 
@@ -573,6 +586,9 @@ LC_INTERFACE_FUNCTION(int, lc_ed448ph_sign, struct lc_ed448_sig *sig,
 	int ret = 0;
 
 	(void)rng_ctx;
+
+	if (!non_pqc_algs_enabled())
+		return -EOPNOTSUPP;
 
 	CKNULL(sig, -EINVAL);
 	CKNULL(sk, -EINVAL);
@@ -802,6 +818,9 @@ LC_INTERFACE_FUNCTION(int, lc_ed448_verify, const struct lc_ed448_sig *sig,
 		      const uint8_t *msg, size_t mlen,
 		      const struct lc_ed448_pk *pk)
 {
+	if (!non_pqc_algs_enabled())
+		return -EOPNOTSUPP;
+
 	lc_ed448_verify_tester();
 	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_ED448_SIGVER);
 
@@ -813,6 +832,9 @@ LC_INTERFACE_FUNCTION(int, lc_ed448ph_verify, const struct lc_ed448_sig *sig,
 		      const struct lc_ed448_pk *pk)
 {
 	int ret;
+
+	if (!non_pqc_algs_enabled())
+		return -EOPNOTSUPP;
 
 	CKNULL(sig, -EINVAL);
 	CKNULL(pk, -EINVAL);

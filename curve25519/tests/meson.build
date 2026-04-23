@@ -52,6 +52,15 @@ if get_option('kyber_x25519').enabled()
 			],
 			link_with: leancrypto_static_lib
 			)
+	x25519_disabled_tester = executable('x25519_disabled_tester',
+			[ 'x25519_disabled_tester.c',
+				internal_src ],
+			include_directories: [
+				include_dirs,
+				include_internal_dirs
+			],
+			link_with: leancrypto_lib
+			)
 
 	test('ECDH X25519 Common', x25519_tester, suite: regression)
 	test('ECDH X25519 C', x25519_tester, suite: regression, args: [ 'c' ])
@@ -63,6 +72,7 @@ if get_option('kyber_x25519').enabled()
 	test('ECDH X25519 Keygen Common', x25519_keygen_tester, suite: regression)
 	test('ECDH X25519 Keygen C', x25519_keygen_tester, suite: regression,
 	     args: [ 'c' ])
+	test('ECDH X25519 Disabled', x25519_disabled_tester, suite: regression)
 
 endif
 
@@ -76,5 +86,16 @@ if get_option('dilithium_ed25519').enabled()
 			],
 			link_with: leancrypto_static_lib
 			)
+	ed25519_disabled_tester = executable('ed25519_disabled_tester',
+			[ 'ed25519_disabled_tester.c',
+				internal_src ],
+			include_directories: [
+				include_dirs,
+				include_internal_dirs
+			],
+			link_with: leancrypto_lib
+			)
 	test('EDDSA ED25519', ed25519_tester, suite: regression)
+	test('EDDSA ED25519 Disabled', ed25519_disabled_tester,
+	     suite: regression)
 endif

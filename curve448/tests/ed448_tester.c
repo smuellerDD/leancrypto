@@ -18,6 +18,7 @@
  */
 
 #include "lc_ed448.h"
+#include "lc_init.h"
 #include "lc_sha512.h"
 #include "compare.h"
 #include "selftest_rng.h"
@@ -152,6 +153,8 @@ out:
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	int ret = 0;
+
+	lc_init(LC_INIT_NON_PQC_ENABLED);
 
 	(void)argc;
 	(void)argv;

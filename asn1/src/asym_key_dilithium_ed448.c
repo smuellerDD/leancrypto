@@ -18,6 +18,7 @@
  */
 
 #include "asym_key_dilithium_ed448.h"
+#include "ed448_ctx.h"
 #include "ext_headers_internal.h"
 #include "lc_hash.h"
 #include "pkcs7_internal.h"
@@ -496,7 +497,8 @@ int asym_keypair_gen_dilithium_ed448(struct lc_x509_certificate *cert,
 	CKINT(lc_dilithium_sk_ptr(&dilithium_sk_ptr, &dilithium_sk_len,
 				  &ws->sk));
 
-	CKINT(lc_ed448_keypair(&ws->pk_ed448, &ws->sk_ed448, lc_seeded_rng));
+	CKINT(lc_ed448_keypair_internal(&ws->pk_ed448, &ws->sk_ed448,
+					lc_seeded_rng));
 
 	CKINT(lc_dilithium_ed448_sk_load(
 		keys->sk.dilithium_ed448_sk, dilithium_sk_ptr, dilithium_sk_len,

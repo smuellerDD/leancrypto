@@ -50,6 +50,24 @@ extern "C" {
 #define LC_INIT_AES_CT (1 << 1)
 
 /**
+ * Enable the support for non-PQC algorithms
+ *
+ * Leancrypto is intended to provide PQC-only library. All non-PQC algorithms
+ * are by default disabled. When setting this flag, however, the non-PQC
+ * algorithms are enabled to be used.
+ *
+ * Note, the use of non-PQC algorithms as part of composite algorithm
+ * constructions is allowed in any case.
+ *
+ * The following algorithms are disabled by default:
+ *
+ * * ED25519 and X25519
+ *
+ * * ED448 and X448
+ */
+#define LC_INIT_NON_PQC_ENABLED (1 << 2)
+
+/**
  * @brief Initialization of leancrypto
  *
  * This function invokes all necessary initialization functions required at
