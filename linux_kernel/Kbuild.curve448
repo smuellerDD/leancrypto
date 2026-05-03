@@ -22,17 +22,17 @@ leancrypto-$(CONFIG_LEANCRYPTO_CURVE448)				       \
 				+= ../curve448/src/x448_scalarmult.o
 endif
 
-ifdef CONFIG_LEANCRYPTO_CURVE448
-ccflags-y			+= -DLC_CURVE448
-obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= ed448_tester.o
-obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= x448_tester.o
-obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= x448_keygen_tester.o
-
-ed448_tester-y			+= ../curve448/tests/ed448_tester.o	       \
-				   ../drng/src/selftest_rng.o
-x448_tester-y			+= ../curve448/tests/x448_tester.o	       \
-				   ../drng/src/selftest_rng.o
-x448_keygen_tester-y		+= ../curve448/tests/x448_keygen_tester.o      \
-				   ../drng/src/static_rng.o
-
-endif
+# ifdef CONFIG_LEANCRYPTO_CURVE448
+# ccflags-y			+= -DLC_CURVE448
+# obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= ed448_tester.o
+# obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= x448_tester.o
+# obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= x448_keygen_tester.o
+#
+# ed448_tester-y			+= ../curve448/tests/ed448_tester.o	       \
+# 				   ../drng/src/selftest_rng.o
+# x448_tester-y			+= ../curve448/tests/x448_tester.o	       \
+# 				   ../drng/src/selftest_rng.o
+# x448_keygen_tester-y		+= ../curve448/tests/x448_keygen_tester.o      \
+# 				   ../drng/src/static_rng.o
+#
+# endif
