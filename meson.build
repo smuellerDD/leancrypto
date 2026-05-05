@@ -1032,12 +1032,16 @@ else
 		)
 
 	# Create the official static library
-	leancrypto_static_lib = static_library('leancrypto',
+	leancrypto_static_lib_gen = static_library('leancrypto',
 		[ src_wrapper ],
 		include_directories: [ include_dirs, include_internal_dirs ],
 		dependencies: [ leancrypto_link ],
 		link_whole: [ leancrypto_raw_static_lib ],
 		install: true
+		)
+	leancrypto_static_lib = declare_dependency(
+		link_with : leancrypto_static_lib_gen,
+		link_args: link_args_fips140
 		)
 	leancrypto_lib = leancrypto_static_lib
 
