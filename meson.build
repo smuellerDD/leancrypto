@@ -1042,7 +1042,7 @@ else
 	leancrypto_static_lib = declare_dependency(
 		link_with : leancrypto_static_lib_gen,
 		)
-	leancrypto_lib = leancrypto_static_lib
+	leancrypto_lib = leancrypto_static_lib_gen
 
 	# Create the official static FIPS library
 	leancrypto_static_lib_fips = static_library('leancrypto-fips',
