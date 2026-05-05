@@ -252,9 +252,10 @@ out:
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
-	int ret = 0;
+	int ret = lc_init(LC_INIT_NON_PQC_ENABLED);
 
-	lc_init(LC_INIT_NON_PQC_ENABLED);
+	if (ret)
+		return ret;
 
 	(void)argc;
 	(void)argv;
