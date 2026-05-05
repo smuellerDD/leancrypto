@@ -11,7 +11,7 @@ if get_option('hqc_256').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_hqc_internal
-				], link_with: leancrypto_static_lib
+				], dependencies: leancrypto_static_lib
 				)
 	hqc_256_tester_perf = executable('hqc_256_tester_perf',
 				[ 'hqc_tester_perf.c', internal_src ],
@@ -19,7 +19,7 @@ if get_option('hqc_256').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_hqc_internal
-				], link_with: leancrypto_static_lib
+				], dependencies: leancrypto_static_lib
 				)
 
 	test('HQC 256 KEM Common', hqc_256_tester, suite: regression,
@@ -43,7 +43,7 @@ if get_option('hqc_192').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_hqc_internal
-				], link_with: leancrypto_static_lib,
+				], dependencies: leancrypto_static_lib,
 				c_args : '-DLC_HQC_TYPE_192'
 				)
 	hqc_192_tester_perf = executable('hqc_192_tester_perf',
@@ -52,7 +52,7 @@ if get_option('hqc_192').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_hqc_internal
-				], link_with: leancrypto_static_lib,
+				], dependencies: leancrypto_static_lib,
 				c_args : '-DLC_HQC_TYPE_192'
 				)
 
@@ -75,7 +75,7 @@ if get_option('hqc_128').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_hqc_internal
-				], link_with: leancrypto_static_lib,
+				], dependencies: leancrypto_static_lib,
 				c_args : '-DLC_HQC_TYPE_128'
 				)
 	hqc_128_tester_perf = executable('hqc_128_tester_perf',
@@ -84,7 +84,7 @@ if get_option('hqc_128').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_hqc_internal
-				], link_with: leancrypto_static_lib,
+				], dependencies: leancrypto_static_lib,
 				c_args : '-DLC_HQC_TYPE_128'
 				)
 

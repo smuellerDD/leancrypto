@@ -7,7 +7,7 @@ if get_option('kyber_1024').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_kyber_internal
-				], link_with: leancrypto_static_lib
+				], dependencies: leancrypto_static_lib
 				)
 	if get_option('cshake_drng').enabled()
 		kyber_ies_tester = executable('kyber_ies_tester',
@@ -16,7 +16,7 @@ if get_option('kyber_1024').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_kyber_internal
-					], link_with: leancrypto_static_lib
+					], dependencies: leancrypto_static_lib
 					)
 	endif
 	kyber_kem_tester_common = executable('kyber_kem_tester_common',
@@ -27,7 +27,7 @@ if get_option('kyber_1024').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_kyber_internal
-				], link_with: leancrypto_static_lib
+				], dependencies: leancrypto_static_lib
 				)
 	kyber_kem_kdf_tester_common = executable('kyber_kem_kdf_tester_common',
 				[ 'kyber_kem_kdf_tester_common.c',
@@ -37,7 +37,7 @@ if get_option('kyber_1024').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_kyber_internal
-				], link_with: leancrypto_static_lib
+				], dependencies: leancrypto_static_lib
 				)
 	kyber_kem_tester_c = executable('kyber_kem_tester_c',
 				[ 'kyber_kem_tester_c.c',
@@ -47,7 +47,7 @@ if get_option('kyber_1024').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_kyber_internal
-				], link_with: leancrypto_static_lib
+				], dependencies: leancrypto_static_lib
 				)
 	kyber_kem_kdf_tester_c = executable('kyber_kem_kdf_tester_c',
 				[ 'kyber_kem_kdf_tester_c.c',
@@ -57,7 +57,7 @@ if get_option('kyber_1024').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_kyber_internal
-				], link_with: leancrypto_static_lib
+				], dependencies: leancrypto_static_lib
 				)
 	kyber_invalid_tester = executable('kyber_invalid_tester',
 				[ 'kyber_invalid_tester.c', internal_src ],
@@ -65,7 +65,7 @@ if get_option('kyber_1024').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_kyber_internal
-				], link_with: leancrypto_static_lib
+				], dependencies: leancrypto_static_lib
 				)
 
 	kyber_kem_official_tester = executable('kyber_kem_official_tester',
@@ -153,7 +153,7 @@ if get_option('kyber_1024').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_kyber_internal
-					], link_with: leancrypto_static_lib
+					], dependencies: leancrypto_static_lib
 					)
 		kyber_kem_kdf_tester_avx2 = executable('kyber_kem_kdf_tester_avx2',
 					[ 'kyber_kem_kdf_tester_avx2.c',
@@ -163,7 +163,7 @@ if get_option('kyber_1024').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_kyber_internal
-					], link_with: leancrypto_static_lib
+					], dependencies: leancrypto_static_lib
 					)
 
 		test('Kyber KEM AVX2', kyber_kem_tester_avx2, suite: regression,
@@ -186,7 +186,7 @@ if get_option('kyber_1024').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_kyber_internal
-					], link_with: leancrypto_static_lib
+					], dependencies: leancrypto_static_lib
 					)
 		kyber_kem_kdf_tester_armv8 = executable('kyber_kem_kdf_tester_armv8',
 					[ 'kyber_kem_kdf_tester_armv8.c',
@@ -196,7 +196,7 @@ if get_option('kyber_1024').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_kyber_internal
-					], link_with: leancrypto_static_lib
+					], dependencies: leancrypto_static_lib
 					)
 
 		test('Kyber KEM ARMv8', kyber_kem_tester_armv8,
@@ -222,7 +222,7 @@ if get_option('kyber_1024').enabled()
 							include_dirs,
 							include_internal_dirs,
 							include_kyber_internal
-						], link_with: leancrypto_static_lib
+						], dependencies: leancrypto_static_lib
 						)
 		endif
 		kyber_kem_x25519_tester = executable('kyber_kem_x25519_tester',
@@ -232,7 +232,7 @@ if get_option('kyber_1024').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_kyber_internal
-					], link_with: leancrypto_static_lib
+					], dependencies: leancrypto_static_lib
 					)
 		kyber_kex_x25519_tester = executable('kyber_kex_x25519_tester',
 					[ 'kyber_kex_x25519_tester.c',
@@ -241,7 +241,7 @@ if get_option('kyber_1024').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_kyber_internal
-					], link_with: leancrypto_static_lib
+					], dependencies: leancrypto_static_lib
 					)
 
 		if get_option('cshake_drng').enabled()
@@ -268,7 +268,7 @@ if get_option('kyber_1024').enabled()
 							include_dirs,
 							include_internal_dirs,
 							include_kyber_internal
-						], link_with: leancrypto_static_lib
+						], dependencies: leancrypto_static_lib
 						)
 		endif
 		kyber_kem_x448_tester = executable('kyber_kem_x448_tester',
@@ -278,7 +278,7 @@ if get_option('kyber_1024').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_kyber_internal
-					], link_with: leancrypto_static_lib
+					], dependencies: leancrypto_static_lib
 					)
 		kyber_kex_x448_tester = executable('kyber_kex_x448_tester',
 					[ 'kyber_kex_x448_tester.c',
@@ -287,7 +287,7 @@ if get_option('kyber_1024').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_kyber_internal
-					], link_with: leancrypto_static_lib
+					], dependencies: leancrypto_static_lib
 					)
 
 		if get_option('cshake_drng').enabled()
@@ -313,7 +313,7 @@ if get_option('kyber_768').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_kyber_internal
-				], link_with: leancrypto_static_lib,
+				], dependencies: leancrypto_static_lib,
 				c_args : '-DLC_KYBER_TYPE_768'
 				)
 	if get_option('cshake_drng').enabled()
@@ -323,7 +323,7 @@ if get_option('kyber_768').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_kyber_internal
-					], link_with: leancrypto_static_lib,
+					], dependencies: leancrypto_static_lib,
 					c_args : '-DLC_KYBER_TYPE_768'
 					)
 	endif
@@ -335,7 +335,7 @@ if get_option('kyber_768').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_kyber_internal
-				], link_with: leancrypto_static_lib,
+				], dependencies: leancrypto_static_lib,
 				c_args : '-DLC_KYBER_TYPE_768'
 				)
 	kyber_768_kem_kdf_tester_common = executable('kyber_768_kem_kdf_tester_common',
@@ -346,7 +346,7 @@ if get_option('kyber_768').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_kyber_internal
-				], link_with: leancrypto_static_lib,
+				], dependencies: leancrypto_static_lib,
 				c_args : '-DLC_KYBER_TYPE_768'
 				)
 	kyber_768_kem_tester_c = executable('kyber_768_kem_tester_c',
@@ -357,7 +357,7 @@ if get_option('kyber_768').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_kyber_internal
-				], link_with: leancrypto_static_lib,
+				], dependencies: leancrypto_static_lib,
 				c_args : '-DLC_KYBER_TYPE_768'
 				)
 	kyber_768_kem_kdf_tester_c = executable('kyber_768_kem_kdf_tester_c',
@@ -368,7 +368,7 @@ if get_option('kyber_768').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_kyber_internal
-				], link_with: leancrypto_static_lib,
+				], dependencies: leancrypto_static_lib,
 				c_args : '-DLC_KYBER_TYPE_768'
 				)
 	kyber_768_invalid_tester = executable('kyber_768_invalid_tester',
@@ -377,7 +377,7 @@ if get_option('kyber_768').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_kyber_internal
-				], link_with: leancrypto_static_lib,
+				], dependencies: leancrypto_static_lib,
 				c_args : '-DLC_KYBER_TYPE_768'
 				)
 	kyber_768_kem_official_tester = executable('kyber_768_kem_official_tester',
@@ -461,7 +461,7 @@ if get_option('kyber_768').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_kyber_internal
-					], link_with: leancrypto_static_lib,
+					], dependencies: leancrypto_static_lib,
 					c_args : '-DLC_KYBER_TYPE_768'
 					)
 		kyber_768_kem_kdf_tester_avx2 = executable('kyber_768_kem_kdf_tester_avx2',
@@ -472,7 +472,7 @@ if get_option('kyber_768').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_kyber_internal
-					], link_with: leancrypto_static_lib,
+					], dependencies: leancrypto_static_lib,
 					c_args : '-DLC_KYBER_TYPE_768'
 					)
 
@@ -497,7 +497,7 @@ if get_option('kyber_768').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_kyber_internal
-					], link_with: leancrypto_static_lib,
+					], dependencies: leancrypto_static_lib,
 					c_args : '-DLC_KYBER_TYPE_768'
 					)
 		kyber_768_kem_kdf_tester_armv8 = executable('kyber_768_kem_kdf_tester_armv8',
@@ -508,7 +508,7 @@ if get_option('kyber_768').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_kyber_internal
-					], link_with: leancrypto_static_lib,
+					], dependencies: leancrypto_static_lib,
 					c_args : '-DLC_KYBER_TYPE_768'
 					)
 
@@ -535,7 +535,7 @@ if get_option('kyber_768').enabled()
 							include_dirs,
 							include_internal_dirs,
 							include_kyber_internal
-						], link_with: leancrypto_static_lib,
+						], dependencies: leancrypto_static_lib,
 						c_args : '-DLC_KYBER_TYPE_768'
 						)
 		endif
@@ -546,7 +546,7 @@ if get_option('kyber_768').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_kyber_internal
-					], link_with: leancrypto_static_lib,
+					], dependencies: leancrypto_static_lib,
 					c_args : '-DLC_KYBER_TYPE_768'
 					)
 		kyber_768_kex_x25519_tester = executable('kyber_768_kex_x25519_tester',
@@ -556,7 +556,7 @@ if get_option('kyber_768').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_kyber_internal
-					], link_with: leancrypto_static_lib,
+					], dependencies: leancrypto_static_lib,
 					c_args : '-DLC_KYBER_TYPE_768'
 					)
 
@@ -584,7 +584,7 @@ if get_option('kyber_768').enabled()
 							include_dirs,
 							include_internal_dirs,
 							include_kyber_internal
-						], link_with: leancrypto_static_lib,
+						], dependencies: leancrypto_static_lib,
 						c_args : '-DLC_KYBER_TYPE_768'
 						)
 		endif
@@ -595,7 +595,7 @@ if get_option('kyber_768').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_kyber_internal
-					], link_with: leancrypto_static_lib,
+					], dependencies: leancrypto_static_lib,
 					c_args : '-DLC_KYBER_TYPE_768'
 					)
 		kyber_768_kex_x448_tester = executable('kyber_768_kex_x448_tester',
@@ -605,7 +605,7 @@ if get_option('kyber_768').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_kyber_internal
-					], link_with: leancrypto_static_lib,
+					], dependencies: leancrypto_static_lib,
 					c_args : '-DLC_KYBER_TYPE_768'
 					)
 
@@ -632,7 +632,7 @@ if get_option('kyber_512').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_kyber_internal
-				], link_with: leancrypto_static_lib,
+				], dependencies: leancrypto_static_lib,
 				c_args : '-DLC_KYBER_TYPE_512'
 				)
 	if get_option('cshake_drng').enabled()
@@ -642,7 +642,7 @@ if get_option('kyber_512').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_kyber_internal
-					], link_with: leancrypto_static_lib,
+					], dependencies: leancrypto_static_lib,
 					c_args : '-DLC_KYBER_TYPE_512'
 					)
 	endif
@@ -654,7 +654,7 @@ if get_option('kyber_512').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_kyber_internal
-				], link_with: leancrypto_static_lib,
+				], dependencies: leancrypto_static_lib,
 				c_args : '-DLC_KYBER_TYPE_512'
 				)
 	kyber_512_kem_kdf_tester_common = executable('kyber_512_kem_kdf_tester_common',
@@ -665,7 +665,7 @@ if get_option('kyber_512').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_kyber_internal
-				], link_with: leancrypto_static_lib,
+				], dependencies: leancrypto_static_lib,
 				c_args : '-DLC_KYBER_TYPE_512'
 				)
 	kyber_512_kem_tester_c = executable('kyber_512_kem_tester_c',
@@ -676,7 +676,7 @@ if get_option('kyber_512').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_kyber_internal
-				], link_with: leancrypto_static_lib,
+				], dependencies: leancrypto_static_lib,
 				c_args : '-DLC_KYBER_TYPE_512'
 				)
 	kyber_512_kem_kdf_tester_c = executable('kyber_512_kem_kdf_tester_c',
@@ -687,7 +687,7 @@ if get_option('kyber_512').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_kyber_internal
-				], link_with: leancrypto_static_lib,
+				], dependencies: leancrypto_static_lib,
 				c_args : '-DLC_KYBER_TYPE_512'
 				)
 	kyber_512_invalid_tester = executable('kyber_512_invalid_tester',
@@ -696,7 +696,7 @@ if get_option('kyber_512').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_kyber_internal
-				], link_with: leancrypto_static_lib,
+				], dependencies: leancrypto_static_lib,
 				c_args : '-DLC_KYBER_TYPE_512'
 				)
 	kyber_512_kem_official_tester = executable('kyber_512_kem_official_tester',
@@ -779,7 +779,7 @@ if get_option('kyber_512').enabled()
 							include_dirs,
 							include_internal_dirs,
 							include_kyber_internal
-						], link_with: leancrypto_static_lib,
+						], dependencies: leancrypto_static_lib,
 						c_args : '-DLC_KYBER_TYPE_512'
 						)
 		endif
@@ -790,7 +790,7 @@ if get_option('kyber_512').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_kyber_internal
-					], link_with: leancrypto_static_lib,
+					], dependencies: leancrypto_static_lib,
 					c_args : '-DLC_KYBER_TYPE_512'
 					)
 		kyber_512_kex_x25519_tester = executable('kyber_512_kex_x25519_tester',
@@ -800,7 +800,7 @@ if get_option('kyber_512').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_kyber_internal
-					], link_with: leancrypto_static_lib,
+					], dependencies: leancrypto_static_lib,
 					c_args : '-DLC_KYBER_TYPE_512'
 					)
 
@@ -828,7 +828,7 @@ if get_option('kyber_512').enabled()
 							include_dirs,
 							include_internal_dirs,
 							include_kyber_internal
-						], link_with: leancrypto_static_lib,
+						], dependencies: leancrypto_static_lib,
 						c_args : '-DLC_KYBER_TYPE_512'
 						)
 		endif
@@ -839,7 +839,7 @@ if get_option('kyber_512').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_kyber_internal
-					], link_with: leancrypto_static_lib,
+					], dependencies: leancrypto_static_lib,
 					c_args : '-DLC_KYBER_TYPE_512'
 					)
 		kyber_512_kex_x448_tester = executable('kyber_512_kex_x448_tester',
@@ -849,7 +849,7 @@ if get_option('kyber_512').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_kyber_internal
-					], link_with: leancrypto_static_lib,
+					], dependencies: leancrypto_static_lib,
 					c_args : '-DLC_KYBER_TYPE_512'
 					)
 

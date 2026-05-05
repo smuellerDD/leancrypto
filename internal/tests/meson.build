@@ -64,7 +64,7 @@ if (get_option('sha3').enabled() and
 			   [ 'fips_degraded_mode.c', internal_src ],
 			   include_directories: [ include_dirs,
 						  include_internal_dirs ],
-			   link_with: leancrypto_static_lib,
+			   dependencies: leancrypto_static_lib,
 			  )
 
 	test('Rerun selftests', rerun_selftests_tester, suite: regression)

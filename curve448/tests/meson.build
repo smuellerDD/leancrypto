@@ -6,7 +6,7 @@ if get_option('kyber_x448').enabled()
 				include_dirs,
 				include_internal_dirs
 			],
-			link_with: leancrypto_static_lib
+			dependencies: leancrypto_static_lib
 			)
 	x448_keygen_tester = executable('x448_keygen_tester',
 			[ 'x448_keygen_tester.c',
@@ -15,7 +15,7 @@ if get_option('kyber_x448').enabled()
 				include_dirs,
 				include_internal_dirs
 			],
-			link_with: leancrypto_static_lib
+			dependencies: leancrypto_static_lib
 			)
 	x448_disabled_tester = executable('x448_disabled_tester',
 			[ 'x448_disabled_tester.c',
@@ -48,7 +48,7 @@ if get_option('dilithium_ed448').enabled()
 				include_dirs,
 				include_internal_dirs
 			],
-			link_with: leancrypto_static_lib
+			dependencies: leancrypto_static_lib
 			)
 	ed448_disabled_tester = executable('ed448_disabled_tester',
 			[ 'ed448_disabled_tester.c',

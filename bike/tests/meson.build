@@ -11,7 +11,7 @@ if get_option('bike_5').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_bike_internal
-				], link_with: leancrypto_static_lib
+				], dependencies: leancrypto_static_lib
 				)
 	bike_5_tester_perf = executable('bike_5_tester_perf',
 				[ 'bike_tester_perf.c', internal_src ],
@@ -19,7 +19,7 @@ if get_option('bike_5').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_bike_internal
-				], link_with: leancrypto_static_lib
+				], dependencies: leancrypto_static_lib
 				)
 
 	test('BIKE 5 KEM Common', bike_5_tester, suite: regression,
@@ -45,7 +45,7 @@ if get_option('bike_3').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_bike_internal
-				], link_with: leancrypto_static_lib,
+				], dependencies: leancrypto_static_lib,
 				c_args : '-DLC_BIKE_TYPE_3'
 				)
 	bike_3_tester_perf = executable('bike_3_tester_perf',
@@ -54,7 +54,7 @@ if get_option('bike_3').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_bike_internal
-				], link_with: leancrypto_static_lib,
+				], dependencies: leancrypto_static_lib,
 				c_args : '-DLC_BIKE_TYPE_3'
 				)
 
@@ -79,7 +79,7 @@ if get_option('bike_1').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_bike_internal
-				], link_with: leancrypto_static_lib,
+				], dependencies: leancrypto_static_lib,
 				c_args : '-DLC_BIKE_TYPE_1'
 				)
 	bike_1_tester_perf = executable('bike_1_tester_perf',
@@ -88,7 +88,7 @@ if get_option('bike_1').enabled()
 					include_dirs,
 					include_internal_dirs,
 					include_bike_internal
-				], link_with: leancrypto_static_lib,
+				], dependencies: leancrypto_static_lib,
 				c_args : '-DLC_BIKE_TYPE_1'
 				)
 

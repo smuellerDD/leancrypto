@@ -8,9 +8,8 @@ if get_option('x509_parser').enabled()
 			   '../../apps/src/lc_x509_generator_checker.c',
 			   '../../apps/src/lc_x509_generator_print.c',
 			   internal_src ],
-			 include_directories: [ include_internal_dirs ],
-			 dependencies: leancrypto,
-			 link_with: leancrypto_static_lib
+			 include_directories: [ include_dirs, include_internal_dirs ],
+			 dependencies: leancrypto_static_lib
 			 )
 
 	gmtime_tester = executable('gmtime_tester',
@@ -179,11 +178,11 @@ if get_option('x509_generator').enabled()
 			   'x509_extensions_test_asn1.c',
 			   internal_src ],
 			 include_directories:
-			 [ include_internal_dirs,
+			 [ include_dirs,
+			   include_internal_dirs,
 			   include_asn1_internal
 			 ],
-			 dependencies: leancrypto,
-			 link_with: leancrypto_static_lib
+			 dependencies: leancrypto_static_lib
 			 )
 	test('X.509 Generator 1', asn1_enc_tester,
 	     args: [ '--eku', '50', '--ca', '--san-dns', 'leancrypto',
@@ -309,11 +308,11 @@ if get_option('x509_generator').enabled()
 			   'x509_extensions_test_asn1.c',
 			   internal_src ],
 			 include_directories:
-			 [ include_internal_dirs,
+			 [ include_dirs,
+			   include_internal_dirs,
 			   include_asn1_internal
 			 ],
-			 dependencies: leancrypto,
-			 link_with: leancrypto_static_lib
+			 dependencies: leancrypto_static_lib
 			 )
 
 	# Iterate through all flags being set / unset
@@ -408,11 +407,11 @@ if get_option('x509_generator').enabled()
 			   'x509_extensions_test_asn1.c',
 			   internal_src ],
 			 include_directories:
-			 [ include_internal_dirs,
+			 [ include_dirs,
+			   include_internal_dirs,
 			   include_asn1_internal
 			 ],
-			 dependencies: leancrypto,
-			 link_with: leancrypto_static_lib
+			 dependencies: leancrypto_static_lib
 			 )
 	test('X.509 EKU 8', asn1_eku_enc_tester, args: [ '--eku', '8' ],
 	     suite: regression)
@@ -435,7 +434,7 @@ if get_option('x509_generator').enabled()
 			   internal_src ],
 			 include_directories: [ include_dirs,
 						include_internal_dirs ],
-			 link_with: leancrypto_static_lib
+			 dependencies: leancrypto_static_lib
 			 )
 	x509_decode_encode_tester = executable('x509_decode_encode_tester',
 			 [ 'x509_decode_encode_tester.c',
@@ -512,9 +511,8 @@ if get_option('x509_generator').enabled()
 	if get_option('dilithium_ed25519').enabled()
 		composite_sig_domsep = executable('composite_sig_domsep',
 			 [ 'composite_sig_domsep.c' ],
-			 include_directories: [ include_internal_dirs ],
-			 dependencies: leancrypto,
-			 link_with: leancrypto_static_lib
+			 include_directories: [ include_dirs, include_internal_dirs ],
+			 dependencies: leancrypto_static_lib
 			 )
 
 		test('X.509 Composite Domain Separation',
@@ -525,7 +523,7 @@ if get_option('x509_generator').enabled()
 	composite_sig_tester = executable('composite_sig_tester',
 		[ 'composite_sig_tester.c' ],
 		include_directories: [ include_dirs, include_internal_dirs ],
-		link_with: leancrypto_static_lib
+		dependencies: leancrypto_static_lib
 		)
 
 	test('X.509 Composite Signature',
@@ -539,8 +537,7 @@ if get_option('pkcs7_parser').enabled()
 			   '../../apps/src/lc_x509_generator_file_helper.c',
 			   internal_src ],
 			 include_directories: [ include_internal_dirs ],
-			 dependencies: leancrypto,
-			 link_with: leancrypto_static_lib
+			 dependencies: leancrypto
 			 )
 
 	if get_option('pkcs7_debug').enabled()

@@ -8,7 +8,7 @@ if get_option('sphincs_shake_256s').enabled()
 					include_internal_dirs,
 					include_sphincs_internal
 				],
-				link_with: leancrypto_static_lib
+				dependencies: leancrypto_static_lib
 				)
 	sphincs_tester_256f = executable('sphincs_tester_256f',
 				[ 'sphincs_tester.c' ],
@@ -18,7 +18,7 @@ if get_option('sphincs_shake_256s').enabled()
 					include_sphincs_internal
 				],
 				c_args : '-DLC_SPHINCS_TYPE_256F',
-				link_with: leancrypto_static_lib
+				dependencies: leancrypto_static_lib
 				)
 	sphincs_tester_192s = executable('sphincs_tester_192s',
 				[ 'sphincs_tester.c' ],
@@ -28,7 +28,7 @@ if get_option('sphincs_shake_256s').enabled()
 					include_sphincs_internal
 				],
 				c_args : '-DLC_SPHINCS_TYPE_192S',
-				link_with: leancrypto_static_lib
+				dependencies: leancrypto_static_lib
 				)
 	sphincs_tester_192f = executable('sphincs_tester_192f',
 				[ 'sphincs_tester.c' ],
@@ -38,7 +38,7 @@ if get_option('sphincs_shake_256s').enabled()
 					include_sphincs_internal
 				],
 				c_args : '-DLC_SPHINCS_TYPE_192F',
-				link_with: leancrypto_static_lib
+				dependencies: leancrypto_static_lib
 				)
 	sphincs_tester_128s = executable('sphincs_tester_128s',
 				[ 'sphincs_tester.c' ],
@@ -48,7 +48,7 @@ if get_option('sphincs_shake_256s').enabled()
 					include_sphincs_internal
 				],
 				c_args : '-DLC_SPHINCS_TYPE_128S',
-				link_with: leancrypto_static_lib
+				dependencies: leancrypto_static_lib
 				)
 	sphincs_tester_128f = executable('sphincs_tester_128f',
 				[ 'sphincs_tester.c' ],
@@ -58,7 +58,7 @@ if get_option('sphincs_shake_256s').enabled()
 					include_sphincs_internal
 				],
 				c_args : '-DLC_SPHINCS_TYPE_128F',
-				link_with: leancrypto_static_lib
+				dependencies: leancrypto_static_lib
 				)
 	sphincs_internal_tester_256s = executable('sphincs_internal_tester_256s',
 				[ 'sphincs_internal_tester.c' ],
@@ -67,7 +67,7 @@ if get_option('sphincs_shake_256s').enabled()
 					include_internal_dirs,
 					include_sphincs_internal
 				],
-				link_with: leancrypto_static_lib
+				dependencies: leancrypto_static_lib
 				)
 	sphincs_internal_tester_256f = executable('sphincs_internal_tester_256f',
 				[ 'sphincs_internal_tester.c' ],
@@ -77,7 +77,7 @@ if get_option('sphincs_shake_256s').enabled()
 					include_sphincs_internal
 				],
 				c_args : '-DLC_SPHINCS_TYPE_256F',
-				link_with: leancrypto_static_lib
+				dependencies: leancrypto_static_lib
 				)
 	sphincs_internal_tester_192s = executable('sphincs_internal_tester_192s',
 				[ 'sphincs_internal_tester.c' ],
@@ -87,7 +87,7 @@ if get_option('sphincs_shake_256s').enabled()
 					include_sphincs_internal
 				],
 				c_args : '-DLC_SPHINCS_TYPE_192S',
-				link_with: leancrypto_static_lib
+				dependencies: leancrypto_static_lib
 				)
 	sphincs_internal_tester_192f = executable('sphincs_internal_tester_192f',
 				[ 'sphincs_internal_tester.c' ],
@@ -97,7 +97,7 @@ if get_option('sphincs_shake_256s').enabled()
 					include_sphincs_internal
 				],
 				c_args : '-DLC_SPHINCS_TYPE_192F',
-				link_with: leancrypto_static_lib
+				dependencies: leancrypto_static_lib
 				)
 	sphincs_internal_tester_128s = executable('sphincs_internal_tester_128s',
 				[ 'sphincs_internal_tester.c' ],
@@ -107,7 +107,7 @@ if get_option('sphincs_shake_256s').enabled()
 					include_sphincs_internal
 				],
 				c_args : '-DLC_SPHINCS_TYPE_128S',
-				link_with: leancrypto_static_lib
+				dependencies: leancrypto_static_lib
 				)
 	sphincs_internal_tester_128f = executable('sphincs_internal_tester_128f',
 				[ 'sphincs_internal_tester.c' ],
@@ -117,7 +117,7 @@ if get_option('sphincs_shake_256s').enabled()
 					include_sphincs_internal
 				],
 				c_args : '-DLC_SPHINCS_TYPE_128F',
-				link_with: leancrypto_static_lib
+				dependencies: leancrypto_static_lib
 				)
 
 	sphincs_prehash_tester_256s = executable('sphincs_prehash_tester_256s',
@@ -127,7 +127,7 @@ if get_option('sphincs_shake_256s').enabled()
 					include_internal_dirs,
 					include_sphincs_internal
 				],
-				link_with: leancrypto_static_lib
+				dependencies: leancrypto_static_lib
 				)
 	sphincs_prehash_tester_256f = executable('sphincs_prehash_tester_256f',
 				[ 'sphincs_prehash_tester.c' ],
@@ -137,7 +137,7 @@ if get_option('sphincs_shake_256s').enabled()
 					include_sphincs_internal
 				],
 				c_args : '-DLC_SPHINCS_TYPE_256F',
-				link_with: leancrypto_static_lib
+				dependencies: leancrypto_static_lib
 				)
 	sphincs_prehash_tester_192s = executable('sphincs_prehash_tester_192s',
 				[ 'sphincs_prehash_tester.c' ],
@@ -147,7 +147,7 @@ if get_option('sphincs_shake_256s').enabled()
 					include_sphincs_internal
 				],
 				c_args : '-DLC_SPHINCS_TYPE_192S',
-				link_with: leancrypto_static_lib
+				dependencies: leancrypto_static_lib
 				)
 	sphincs_prehash_tester_192f = executable('sphincs_prehash_tester_192f',
 				[ 'sphincs_prehash_tester.c' ],
@@ -157,7 +157,7 @@ if get_option('sphincs_shake_256s').enabled()
 					include_sphincs_internal
 				],
 				c_args : '-DLC_SPHINCS_TYPE_192F',
-				link_with: leancrypto_static_lib
+				dependencies: leancrypto_static_lib
 				)
 	sphincs_prehash_tester_128s = executable('sphincs_prehash_tester_128s',
 				[ 'sphincs_prehash_tester.c' ],
@@ -167,7 +167,7 @@ if get_option('sphincs_shake_256s').enabled()
 					include_sphincs_internal
 				],
 				c_args : '-DLC_SPHINCS_TYPE_128S',
-				link_with: leancrypto_static_lib
+				dependencies: leancrypto_static_lib
 				)
 	sphincs_prehash_tester_128f = executable('sphincs_prehash_tester_128f',
 				[ 'sphincs_prehash_tester.c' ],
@@ -177,7 +177,7 @@ if get_option('sphincs_shake_256s').enabled()
 					include_sphincs_internal
 				],
 				c_args : '-DLC_SPHINCS_TYPE_128F',
-				link_with: leancrypto_static_lib
+				dependencies: leancrypto_static_lib
 				)
 
 	sphincs_official_tester = executable('sphincs_official_tester',
@@ -217,7 +217,7 @@ if get_option('sphincs_shake_256s').enabled()
 						include_sphincs_internal
 					],
 					c_args : '-DLC_SPHINCS_TYPE_128S_ASCON',
-					link_with: leancrypto_static_lib
+					dependencies: leancrypto_static_lib
 					)
 	endif
 
@@ -230,7 +230,7 @@ if get_option('sphincs_shake_256s').enabled()
 						include_sphincs_internal
 					],
 					c_args : '-DLC_SPHINCS_TYPE_128F_ASCON',
-					link_with: leancrypto_static_lib
+					dependencies: leancrypto_static_lib
 					)
 	endif
 

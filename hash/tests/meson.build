@@ -183,7 +183,7 @@ if get_option('chacha20poly1305').enabled()
 			include_directories: [
 				include_dirs,
 				include_internal_dirs ],
-			link_with: leancrypto_static_lib
+			dependencies: leancrypto_static_lib
 		)
 
 	test('Poly1305', poly1305_tester, suite: regression)

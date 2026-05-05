@@ -948,7 +948,10 @@ if build_shared
 		)
 
 	leancrypto_lib = leancrypto_both_libs.get_shared_lib()
-	leancrypto_static_lib = leancrypto_both_libs.get_static_lib()
+	leancrypto_static_lib = declare_dependency(
+		link_with : leancrypto_both_libs.get_static_lib(),
+		link_args: link_args_fips140
+		)
 
 	# Create the official shared FIPS library
 	leancrypto_both_libs_fips = both_libraries('leancrypto-fips',

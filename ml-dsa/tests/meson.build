@@ -42,7 +42,7 @@ if get_option('dilithium_87').enabled()
 					include_dirs,
 					include_internal_dirs
 				],
-				link_with: leancrypto_static_lib
+				dependencies: leancrypto_static_lib
 				)
 	dilithium_invalid_tester = executable('dilithium_invalid_tester',
 				[ 'dilithium_invalid_tester.c', internal_src ],
@@ -476,7 +476,7 @@ if get_option('dilithium_87').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_dilithium_internal
-					], link_with: leancrypto_static_lib
+					], dependencies: leancrypto_static_lib
 					)
 		dilithium_ed25519_iuf_tester = executable('dilithium_ed25519_iuf_tester',
 					[ 'dilithium_ed25519_iuf_tester.c',
@@ -485,7 +485,7 @@ if get_option('dilithium_87').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_dilithium_internal
-					], link_with: leancrypto_static_lib
+					], dependencies: leancrypto_static_lib
 					)
 		dilithium_ed25519_tester_official = executable('dilithium_ed25519_tester_official',
 					[ 'dilithium_ed25519_tester_official.c',
@@ -523,7 +523,7 @@ if get_option('dilithium_87').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_dilithium_internal
-					], link_with: leancrypto_static_lib
+					], dependencies: leancrypto_static_lib
 					)
 		dilithium_ed448_iuf_tester = executable('dilithium_ed448_iuf_tester',
 					[ 'dilithium_ed448_iuf_tester.c',
@@ -532,7 +532,7 @@ if get_option('dilithium_87').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_dilithium_internal
-					], link_with: leancrypto_static_lib
+					], dependencies: leancrypto_static_lib
 					)
 		dilithium_ed448_tester_official = executable('dilithium_ed448_tester_official',
 					[ 'dilithium_ed448_tester_official.c',
@@ -610,7 +610,7 @@ if get_option('dilithium_65').enabled()
 					include_dirs,
 					include_internal_dirs
 				],
-				link_with: leancrypto_static_lib,
+				dependencies: leancrypto_static_lib,
 				c_args : '-DLC_DILITHIUM_TYPE_65'
 				)
 	dilithium_65_invalid_tester = executable('dilithium_65_invalid_tester',
@@ -1045,7 +1045,7 @@ if get_option('dilithium_65').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_dilithium_internal
-					], link_with: leancrypto_static_lib,
+					], dependencies: leancrypto_static_lib,
 					c_args : '-DLC_DILITHIUM_TYPE_65'
 					)
 		dilithium_65_ed25519_iuf_tester = executable('dilithium_65_ed25519_iuf_tester',
@@ -1055,7 +1055,7 @@ if get_option('dilithium_65').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_dilithium_internal
-					], link_with: leancrypto_static_lib,
+					], dependencies: leancrypto_static_lib,
 					c_args : '-DLC_DILITHIUM_TYPE_65'
 					)
 		dilithium_65_ed25519_tester_official = executable('dilithium_65_ed25519_tester_official',
@@ -1093,7 +1093,7 @@ if get_option('dilithium_65').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_dilithium_internal
-					], link_with: leancrypto_static_lib,
+					], dependencies: leancrypto_static_lib,
 					c_args : '-DLC_DILITHIUM_TYPE_65'
 					)
 		dilithium_65_ed448_iuf_tester = executable('dilithium_65_ed448_iuf_tester',
@@ -1103,7 +1103,7 @@ if get_option('dilithium_65').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_dilithium_internal
-					], link_with: leancrypto_static_lib,
+					], dependencies: leancrypto_static_lib,
 					c_args : '-DLC_DILITHIUM_TYPE_65'
 					)
 		dilithium_65_ed448_tester_official = executable('dilithium_65_ed448_tester_official',
@@ -1181,7 +1181,7 @@ if get_option('dilithium_44').enabled()
 					include_dirs,
 					include_internal_dirs
 				],
-				link_with: leancrypto_static_lib,
+				dependencies: leancrypto_static_lib,
 				c_args : '-DLC_DILITHIUM_TYPE_44'
 				)
 	dilithium_44_invalid_tester = executable('dilithium_44_invalid_tester',
@@ -1419,7 +1419,7 @@ if get_option('dilithium_44').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_dilithium_internal
-					], link_with: leancrypto_static_lib,
+					], dependencies: leancrypto_static_lib,
 					c_args : '-DLC_DILITHIUM_TYPE_44'
 					)
 		dilithium_44_ed25519_iuf_tester = executable('dilithium_44_ed25519_iuf_tester',
@@ -1429,7 +1429,7 @@ if get_option('dilithium_44').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_dilithium_internal
-					], link_with: leancrypto_static_lib,
+					], dependencies: leancrypto_static_lib,
 					c_args : '-DLC_DILITHIUM_TYPE_44'
 					)
 		dilithium_44_ed25519_tester_official = executable('dilithium_44_ed25519_tester_official',
@@ -1467,7 +1467,7 @@ if get_option('dilithium_44').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_dilithium_internal
-					], link_with: leancrypto_static_lib,
+					], dependencies: leancrypto_static_lib,
 					c_args : '-DLC_DILITHIUM_TYPE_44'
 					)
 		dilithium_44_ed448_iuf_tester = executable('dilithium_44_ed448_iuf_tester',
@@ -1477,7 +1477,7 @@ if get_option('dilithium_44').enabled()
 						include_dirs,
 						include_internal_dirs,
 						include_dilithium_internal
-					], link_with: leancrypto_static_lib,
+					], dependencies: leancrypto_static_lib,
 					c_args : '-DLC_DILITHIUM_TYPE_44'
 					)
 		dilithium_44_ed448_tester_official = executable('dilithium_44_ed448_tester_official',

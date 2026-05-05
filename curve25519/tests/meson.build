@@ -5,7 +5,7 @@ if get_option('kyber_x25519').enabled()
 				include_directories: [
 					include_dirs,
 					include_internal_dirs
-				], link_with: leancrypto_static_lib
+				], dependencies: leancrypto_static_lib
 				)
 	test('ECDH X25519 C', x25519_c_tester, suite: regression,
 	     should_fail: fips140_negative_expect_fail)
@@ -17,7 +17,7 @@ if get_option('kyber_x25519').enabled()
 				include_directories: [
 					include_dirs,
 					include_internal_dirs
-				], link_with: leancrypto_static_lib
+				], dependencies: leancrypto_static_lib
 				)
 	test('ECDH X25519 Common', x25519_common_tester, suite: regression)
 	test('ECDH X25519 Common 100,000 scalar mult', x25519_common_tester, args : [ 'c' ],
@@ -29,7 +29,7 @@ if get_option('kyber_x25519').enabled()
 					include_directories: [
 						include_dirs,
 						include_internal_dirs
-					], link_with: leancrypto_static_lib
+					], dependencies: leancrypto_static_lib
 					)
 		test('ECDH X25519 AVX', x25519_avx_tester, suite: regression)
 	endif
@@ -41,7 +41,7 @@ if get_option('kyber_x25519').enabled()
 				include_dirs,
 				include_internal_dirs
 			],
-			link_with: leancrypto_static_lib
+			dependencies: leancrypto_static_lib
 			)
 	x25519_keygen_tester = executable('x25519_keygen_tester',
 			[ 'x25519_keygen_tester.c',
@@ -50,7 +50,7 @@ if get_option('kyber_x25519').enabled()
 				include_dirs,
 				include_internal_dirs
 			],
-			link_with: leancrypto_static_lib
+			dependencies: leancrypto_static_lib
 			)
 	x25519_disabled_tester = executable('x25519_disabled_tester',
 			[ 'x25519_disabled_tester.c',
@@ -78,13 +78,12 @@ endif
 
 if get_option('dilithium_ed25519').enabled()
 	ed25519_tester = executable('ed25519_tester',
-			[ 'ed25519_tester.c',
-				internal_src ],
+			[ 'ed25519_tester.c' ],
 			include_directories: [
 				include_dirs,
 				include_internal_dirs
 			],
-			link_with: leancrypto_static_lib
+			dependencies: leancrypto_static_lib
 			)
 	ed25519_disabled_tester = executable('ed25519_disabled_tester',
 			[ 'ed25519_disabled_tester.c',
