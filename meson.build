@@ -1041,7 +1041,6 @@ else
 		)
 	leancrypto_static_lib = declare_dependency(
 		link_with : leancrypto_static_lib_gen,
-		link_args: link_args_fips140
 		)
 	leancrypto_lib = leancrypto_static_lib
 
