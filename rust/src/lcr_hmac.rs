@@ -18,9 +18,11 @@
  */
 
 use std::ptr;
+use std::sync::atomic;
 use crate::ffi::leancrypto;
 use crate::error::HashError;
 
+#[derive(Copy, Clone)]
 pub enum lcr_hmac_type {
 	lcr_sha2_256,
 	lcr_sha2_384,
@@ -29,6 +31,90 @@ pub enum lcr_hmac_type {
 	lcr_sha3_256,
 	lcr_sha3_384,
 	lcr_sha3_512,
+}
+
+fn lcr_type_mapping(hmac: lcr_hmac_type) -> *const leancrypto::lc_hash {
+	unsafe {
+		match hmac {
+			lcr_hmac_type::lcr_sha2_256 =>
+				leancrypto::lc_sha256,
+			lcr_hmac_type::lcr_sha2_384 =>
+				leancrypto::lc_sha384,
+			lcr_hmac_type::lcr_sha2_512 =>
+				leancrypto::lc_sha512,
+			lcr_hmac_type::lcr_sha3_224 =>
+				leancrypto::lc_sha3_224,
+			lcr_hmac_type::lcr_sha3_256 =>
+				leancrypto::lc_sha3_256,
+			lcr_hmac_type::lcr_sha3_384 =>
+				leancrypto::lc_sha3_384,
+			lcr_hmac_type::lcr_sha3_512 =>
+				leancrypto::lc_sha3_512,
+		}
+	}
+}
+
+fn lcr_digestsize_mapping(hmac: lcr_hmac_type) -> usize {
+	match hmac {
+		lcr_hmac_type::lcr_sha2_256 => 32,
+		lcr_hmac_type::lcr_sha2_384 => 48,
+		lcr_hmac_type::lcr_sha2_512 => 64,
+		lcr_hmac_type::lcr_sha3_224 => 28,
+		lcr_hmac_type::lcr_sha3_256 => 32,
+		lcr_hmac_type::lcr_sha3_384 => 48,
+		lcr_hmac_type::lcr_sha3_512 => 64,
+	}
+}
+
+
+pub struct lcr_hmac_key {
+	/// Immutable context of key
+	hmac_key: leancrypto::lc_hmac_key,
+
+	/// Leancrypto hmac reference
+	hmac: lcr_hmac_type
+}
+
+#[allow(dead_code)]
+impl lcr_hmac_key {
+	pub fn new(hmac_type: lcr_hmac_type) -> Self {
+		lcr_hmac_key {
+			hmac_key: unsafe { std::mem::zeroed() },
+			hmac: hmac_type
+		}
+	}
+
+	/// HMAC Init: Initializes key handle
+	///
+	/// [key] key used for HMAC
+	pub fn init(&mut self, key: &[u8]) -> Result<(), HashError> {
+		let result = unsafe {
+			leancrypto::lc_hmac_setkey(&mut self.hmac_key,
+						   lcr_type_mapping(self.hmac),
+						   key.as_ptr(), key.len())
+		};
+		if result < 0 {
+			return Err(HashError::ProcessingError);
+		}
+		Ok(())
+	}
+
+	pub fn get_hmac_key(&self) -> &leancrypto::lc_hmac_key {
+		return &self.hmac_key
+	}
+}
+
+/// This ensures the buffer is always freed
+/// regardless of when it goes out of scope
+impl Drop for lcr_hmac_key {
+	fn drop(&mut self) {
+		let /*mut*/ key: leancrypto::lc_hmac_key = unsafe {
+			std::mem::zeroed()
+		};
+
+		unsafe { std::ptr::write_volatile(&mut self.hmac_key, key) };
+		atomic::compiler_fence(atomic::Ordering::SeqCst);
+	}
 }
 
 /// Leancrypto wrapper for lc_hmac
@@ -49,39 +135,6 @@ impl lcr_hmac {
 		}
 	}
 
-	fn lcr_type_mapping(&mut self) -> *const leancrypto::lc_hash {
-		unsafe {
-			match self.hmac {
-				lcr_hmac_type::lcr_sha2_256 =>
-					leancrypto::lc_sha256,
-				lcr_hmac_type::lcr_sha2_384 =>
-					leancrypto::lc_sha384,
-				lcr_hmac_type::lcr_sha2_512 =>
-					leancrypto::lc_sha512,
-				lcr_hmac_type::lcr_sha3_224 =>
-					leancrypto::lc_sha3_224,
-				lcr_hmac_type::lcr_sha3_256 =>
-					leancrypto::lc_sha3_256,
-				lcr_hmac_type::lcr_sha3_384 =>
-					leancrypto::lc_sha3_384,
-				lcr_hmac_type::lcr_sha3_512 =>
-					leancrypto::lc_sha3_512,
-			}
-		}
-	}
-
-	fn lcr_digestsize_mapping(&mut self) -> usize {
-		match self.hmac {
-			lcr_hmac_type::lcr_sha2_256 => 32,
-			lcr_hmac_type::lcr_sha2_384 => 48,
-			lcr_hmac_type::lcr_sha2_512 => 64,
-			lcr_hmac_type::lcr_sha3_224 => 28,
-			lcr_hmac_type::lcr_sha3_256 => 32,
-			lcr_hmac_type::lcr_sha3_384 => 48,
-			lcr_hmac_type::lcr_sha3_512 => 64,
-		}
-	}
-
 	/// Create HMAC
 	///
 	/// [key] key used for HMAC
@@ -89,12 +142,12 @@ impl lcr_hmac {
 	/// [mac] Buffer to be filled with digest
 	pub fn hmac(&mut self, key: &[u8], msg: &[u8], mac: &mut [u8]) ->
 		Result<(), HashError> {
-		if mac.len() < Self::lcr_digestsize_mapping(self) {
+		if mac.len() < lcr_digestsize_mapping(self.hmac) {
 			return Err(HashError::ProcessingError)
 		}
 
 		unsafe {
-			leancrypto::lc_hmac(self.lcr_type_mapping(),
+			leancrypto::lc_hmac(lcr_type_mapping(self.hmac),
 					    key.as_ptr(), key.len(),
 					    msg.as_ptr(), msg.len(),
 					    mac.as_mut_ptr());
@@ -113,7 +166,7 @@ impl lcr_hmac {
 			/* Allocate the hmac context */
 			result = unsafe {
 				leancrypto::lc_hmac_alloc(
-					self.lcr_type_mapping(),
+					lcr_type_mapping(self.hmac),
 					&mut self.hmac_ctx)
 			};
 		}
@@ -124,6 +177,39 @@ impl lcr_hmac {
 				leancrypto::lc_hmac_init(self.hmac_ctx,
 							 key.as_ptr(),
 							 key.len())
+			};
+			if result < 0 {
+				return Err(HashError::ProcessingError);
+			}
+			Ok(())
+		} else {
+			Err(HashError::AllocationError)
+		}
+	}
+
+	/// HMAC Init: Initializes message digest handle
+	///
+	/// [key] key used for HMAC
+	pub fn init_with_hmac_key(
+		&mut self,
+		key: &lcr_hmac_key
+	) -> Result<(), HashError> {
+		let mut result = 0;
+
+		if self.hmac_ctx.is_null() {
+			/* Allocate the hmac context */
+			result = unsafe {
+				leancrypto::lc_hmac_alloc(
+					lcr_type_mapping(self.hmac),
+					&mut self.hmac_ctx)
+			};
+		}
+
+		// Error handle
+		if result >= 0 {
+			result = unsafe {
+				leancrypto::lc_hmac_init_with_hmac_key(
+					self.hmac_ctx, key.get_hmac_key())
 			};
 			if result < 0 {
 				return Err(HashError::ProcessingError);
@@ -156,7 +242,7 @@ impl lcr_hmac {
 			return Err(HashError::UninitializedContext);
 		}
 
-		if mac.len() < Self::lcr_digestsize_mapping(self) {
+		if mac.len() < lcr_digestsize_mapping(self.hmac) {
 			return Err(HashError::ProcessingError)
 		}
 
@@ -175,7 +261,7 @@ impl lcr_hmac {
 	///
 	/// [digestsize] Size of digest
 	pub fn digestsize(&mut self) -> usize {
-		Self::lcr_digestsize_mapping(self)
+		lcr_digestsize_mapping(self.hmac)
 	}
 }
 

@@ -42,35 +42,45 @@ static void hmac_selftest(void)
 
 LC_INTERFACE_FUNCTION(void, lc_hmac_reinit, struct lc_hmac_ctx *hmac_ctx)
 {
-	struct lc_hash_ctx *hash_ctx = &hmac_ctx->hash_ctx;
+	struct lc_hash_ctx *hash_ctx;
+	const struct lc_hmac_key *key;
+
+	if (!hmac_ctx)
+		return;
+
+	hash_ctx = &hmac_ctx->hash_ctx;
+	key = hmac_ctx->key;
+
+	if (!key)
+		return;
 
 	if (lc_hash_init(hash_ctx))
 		return;
-	lc_hash_update(hash_ctx, hmac_ctx->k_ipad, lc_hash_blocksize(hash_ctx));
+	lc_hash_update(hash_ctx, key->k_ipad, lc_hash_blocksize(hash_ctx));
 }
 
-static int lc_hmac_init_nocheck(struct lc_hmac_ctx *hmac_ctx,
-				const uint8_t *key, size_t keylen)
+LC_INTERFACE_FUNCTION(int, lc_hmac_setkey, struct lc_hmac_key *hmac_key,
+		      const struct lc_hash *hash, const uint8_t *key,
+		      size_t keylen)
 {
-	struct lc_hash_ctx *hash_ctx = &hmac_ctx->hash_ctx;
-	const unsigned int blocksize = lc_hash_blocksize(hash_ctx);
-	const size_t digestsize = lc_hash_digestsize(hash_ctx);
 	uint8_t *k_opad, *k_ipad;
 	unsigned int i;
 	int ret = 0;
+
+	CKNULL(hash, -EINVAL);
+	const unsigned int blocksize = hash->sponge_rate;
+	const size_t digestsize = hash->get_digestsize(NULL);
 
 	CKINT(fips140_min_keysize(keylen));
 
 	/* Timecop: key is sensitive. */
 	poison(key, keylen);
 
-	k_opad = hmac_ctx->k_opad;
-	k_ipad = hmac_ctx->k_ipad;
+	k_opad = hmac_key->k_opad;
+	k_ipad = hmac_key->k_ipad;
 
 	if (keylen > blocksize) {
-		CKINT(lc_hash_init(hash_ctx));
-		lc_hash_update(hash_ctx, key, keylen);
-		lc_hash_final(hash_ctx, k_opad);
+		CKINT(lc_hash(hash, key, keylen, k_opad));
 		memset(k_opad + digestsize, 0, blocksize - digestsize);
 	} else {
 		memcpy(k_opad, key, keylen);
@@ -82,6 +92,30 @@ static int lc_hmac_init_nocheck(struct lc_hmac_ctx *hmac_ctx,
 		k_opad[i] ^= OPAD;
 	}
 
+out:
+	return ret;
+}
+
+static int lc_hmac_init_nocheck(struct lc_hmac_ctx *hmac_ctx,
+				const uint8_t *key, size_t keylen)
+{
+	const struct lc_hash_ctx *hash_ctx;
+	const struct lc_hash *hash;
+	struct lc_hmac_key *hmac_key;
+	int ret = 0;
+
+	CKNULL(hmac_ctx, -EINVAL);
+
+	hash_ctx = &hmac_ctx->hash_ctx;
+	hash = hash_ctx->hash;
+
+	/*
+	 * _LC_HMAC_SET_CTX sets the hmac_key buffer directly following the
+	 * lc_hmac_ctx structure.
+	 */
+	hmac_key = (struct lc_hmac_key *)(hmac_ctx->key);
+
+	CKINT(lc_hmac_setkey(hmac_key, hash, key, keylen));
 	lc_hmac_reinit(hmac_ctx);
 
 out:
@@ -97,6 +131,31 @@ LC_INTERFACE_FUNCTION(int, lc_hmac_init, struct lc_hmac_ctx *hmac_ctx,
 	return lc_hmac_init_nocheck(hmac_ctx, key, keylen);
 }
 
+static int lc_hmac_init_with_hmac_key_nocheck(
+	struct lc_hmac_ctx *hmac_ctx, const struct lc_hmac_key *hmac_key)
+{
+	int ret = 0;
+
+	CKNULL(hmac_ctx, -EINVAL);
+	CKNULL(hmac_key, -EINVAL);
+
+	hmac_ctx->key = hmac_key;
+	lc_hmac_reinit(hmac_ctx);
+
+out:
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_hmac_init_with_hmac_key,
+		      struct lc_hmac_ctx *hmac_ctx,
+		      const struct lc_hmac_key *hmac_key)
+{
+	hmac_selftest();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_HMAC);
+
+	return lc_hmac_init_with_hmac_key_nocheck(hmac_ctx, hmac_key);
+}
+
 LC_INTERFACE_FUNCTION(void, lc_hmac_update, struct lc_hmac_ctx *hmac_ctx,
 		      const uint8_t *in, size_t inlen)
 {
@@ -109,7 +168,8 @@ LC_INTERFACE_FUNCTION(void, lc_hmac_final, struct lc_hmac_ctx *hmac_ctx,
 		      uint8_t *mac)
 {
 	struct lc_hash_ctx *hash_ctx = &hmac_ctx->hash_ctx;
-	uint8_t *k_opad = hmac_ctx->k_opad;
+	const struct lc_hmac_key *key = hmac_ctx->key;
+	const uint8_t *k_opad = key->k_opad;
 
 	lc_hash_final(hash_ctx, mac);
 

@@ -46,6 +46,7 @@ static int hmac_sha2_256_tester(void)
 					   0xb4, 0xcd };
 	uint8_t act[LC_SHA256_SIZE_DIGEST];
 	struct lc_hmac_ctx *hmac_ctx;
+	struct lc_hmac_key key = { 0 };
 	int ret;
 
 	if (lc_hmac_alloc(lc_sha256, &hmac_ctx))
@@ -53,9 +54,19 @@ static int hmac_sha2_256_tester(void)
 	CKINT(lc_hmac_init(hmac_ctx, key_256, sizeof(key_256)));
 	lc_hmac_update(hmac_ctx, msg_256, sizeof(msg_256));
 	lc_hmac_final(hmac_ctx, act);
+	lc_hmac_zero(hmac_ctx);
+
+	ret = lc_compare(act, exp_256, LC_SHA256_SIZE_DIGEST,
+			 "HMAC SHA2-256 I");
+
+	CKINT(lc_hmac_setkey(&key, lc_sha256, key_256, sizeof(key_256)));
+	CKINT(lc_hmac_init_with_hmac_key(hmac_ctx, &key));
+	lc_hmac_update(hmac_ctx, msg_256, sizeof(msg_256));
+	lc_hmac_final(hmac_ctx, act);
 	lc_hmac_zero_free(hmac_ctx);
 
-	ret = lc_compare(act, exp_256, LC_SHA256_SIZE_DIGEST, "HMAC SHA2-256");
+	ret = lc_compare(act, exp_256, LC_SHA256_SIZE_DIGEST,
+			 "HMAC SHA2-256 II");
 
 out:
 	return !!ret;

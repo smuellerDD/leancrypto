@@ -43,22 +43,24 @@ extern "C" {
 #error "No known maximum block size defined - include sha3.h, sha512.h or sha256.h before hmac.h"
 #endif
 
-struct lc_hmac_ctx {
-	uint8_t *k_opad;
-	uint8_t *k_ipad;
-	struct lc_hash_ctx hash_ctx;
+struct lc_hmac_key {
+	uint8_t k_opad[LC_SHA_MAX_SIZE_BLOCK];
+	uint8_t k_ipad[LC_SHA_MAX_SIZE_BLOCK];
 };
 
-#define LC_HMAC_STATE_SIZE (LC_HMAC_STATE_SIZE_HASH + 2 * LC_SHA_MAX_SIZE_BLOCK)
+struct lc_hmac_ctx {
+	struct lc_hash_ctx hash_ctx;
+	const struct lc_hmac_key *key;
+};
+
+#define LC_HMAC_STATE_SIZE                                                     \
+	(LC_HMAC_STATE_SIZE_HASH + sizeof(struct lc_hmac_key))
 #define LC_HMAC_CTX_SIZE (LC_HMAC_STATE_SIZE + sizeof(struct lc_hmac_ctx))
 
 #define _LC_HMAC_SET_CTX(name, hashname, ctx, offset)                          \
 	_LC_HASH_SET_CTX((&name->hash_ctx), hashname, ctx, offset);            \
-	name->k_opad = (uint8_t *)((uint8_t *)ctx + offset +                   \
-				   LC_HASH_STATE_SIZE(hashname));              \
-	name->k_ipad = (uint8_t *)((uint8_t *)ctx + offset +                   \
-				   LC_HASH_STATE_SIZE(hashname) +              \
-				   LC_SHA_MAX_SIZE_BLOCK)
+	name->key = (struct lc_hmac_key *)((uint8_t *)ctx + offset +           \
+					   LC_HASH_STATE_SIZE(hashname))
 
 #define LC_HMAC_SET_CTX(name, hashname)                                        \
 	_LC_HMAC_SET_CTX(name, hashname, name, sizeof(struct lc_hmac_ctx))
@@ -96,6 +98,43 @@ int lc_hmac_init(struct lc_hmac_ctx *hmac_ctx, const uint8_t *key,
  *			perform HMAC calculation with.
  */
 void lc_hmac_reinit(struct lc_hmac_ctx *hmac_ctx);
+
+/**
+ * @ingroup HMAC
+ * @brief Initialize HMAC key context
+ *
+ * This key context takes in the key and processes them to make them usable
+ * as HMAC keys. Yet, the caller can keep the \p hmac_key structure a const
+ * after this call.
+ *
+ * @param [out] hmac_key Structure to fill with the processed key
+ * @param [in] hash Hash type
+ * @param [in] key MAC key of arbitrary size
+ * @param [in] keylen Size of the MAC key
+ *
+ * @return 0 on success; < 0 on error
+ */
+int lc_hmac_setkey(struct lc_hmac_key *hmac_key, const struct lc_hash *hash,
+		   const uint8_t *key, size_t keylen);
+
+/**
+ * @ingroup HMAC
+ * @brief Initialize HMAC context with preprocessed key
+ *
+ * The \p hmac_key structure must be initialized with \p lc_hmac_setkey. The
+ * caller must keep the \p hmac_key accessible for the duration of \p hmac_ctx.
+ *
+ * @param [in] hmac_ctx Reference to hmac context implementation to be used to
+ *			perform HMAC calculation with.
+ * @param [in] hmac_key Pre-processed HMAC key
+ *
+ * The caller must provide an allocated hmac_ctx. This can be achieved by
+ * using HMAC_CTX_ON_STACK or by using hmac_alloc.
+ *
+ * @return 0 on success; < 0 on error
+ */
+int lc_hmac_init_with_hmac_key(struct lc_hmac_ctx *hmac_ctx,
+			       const struct lc_hmac_key *hmac_key);
 
 /**
  * @ingroup HMAC
