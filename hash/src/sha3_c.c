@@ -670,6 +670,9 @@ size_t shake_get_digestsize(void *_state)
 {
 	struct lc_sha3_256_state *ctx = _state;
 
+	if (!ctx)
+		return sha3_512_digestsize(NULL);
+
 	return ctx->digestsize;
 }
 

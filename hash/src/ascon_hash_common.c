@@ -213,5 +213,8 @@ size_t ascon_xof_get_digestsize(void *_state)
 {
 	struct lc_ascon_hash *ctx = _state;
 
+	if (!ctx)
+		return ascon_digestsize(NULL);
+
 	return ctx->digestsize;
 }

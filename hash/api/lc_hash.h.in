@@ -199,7 +199,7 @@ int lc_hash_set_digestsize(struct lc_hash_ctx *hash_ctx, size_t digestsize);
  * @param [in] hash_ctx Reference to hash context implementation to be used to
  *			perform hash calculation with.
  */
-size_t lc_hash_digestsize(struct lc_hash_ctx *hash_ctx);
+size_t lc_hash_digestsize(const struct lc_hash_ctx *hash_ctx);
 
 /**
  * @ingroup Hashing
@@ -209,7 +209,7 @@ size_t lc_hash_digestsize(struct lc_hash_ctx *hash_ctx);
  * @param [in] hash_ctx Reference to hash context implementation to be used to
  *			perform hash calculation with.
  */
-unsigned int lc_hash_blocksize(struct lc_hash_ctx *hash_ctx);
+unsigned int lc_hash_blocksize(const struct lc_hash_ctx *hash_ctx);
 
 /**
  * @ingroup Hashing

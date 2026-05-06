@@ -70,7 +70,8 @@ LC_INTERFACE_FUNCTION(int, lc_hash_set_digestsize, struct lc_hash_ctx *hash_ctx,
 	return 0;
 }
 
-LC_INTERFACE_FUNCTION(size_t, lc_hash_digestsize, struct lc_hash_ctx *hash_ctx)
+LC_INTERFACE_FUNCTION(size_t, lc_hash_digestsize,
+		      const struct lc_hash_ctx *hash_ctx)
 {
 	const struct lc_hash *hash;
 
@@ -82,7 +83,7 @@ LC_INTERFACE_FUNCTION(size_t, lc_hash_digestsize, struct lc_hash_ctx *hash_ctx)
 }
 
 LC_INTERFACE_FUNCTION(unsigned int, lc_hash_blocksize,
-		      struct lc_hash_ctx *hash_ctx)
+		      const struct lc_hash_ctx *hash_ctx)
 {
 	const struct lc_hash *hash;
 
