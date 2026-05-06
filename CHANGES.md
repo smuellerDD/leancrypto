@@ -1,4 +1,4 @@
-Changes 1.7.3-prerelease
+Changes 1.8.0-prerelease
 * X.509: provide a common automated serial number generator which is the 20 leftmost bytes of the SHA3-256 hash of the certificate DER blob with the serial number being 20 bytes of 0xff and the signature part equally a range of 0xff bytes
 
 * Add full support for internal IV generation with GCM - this allows AES-GCM to be used in FIPS mode
