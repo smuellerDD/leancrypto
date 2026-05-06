@@ -58,6 +58,8 @@ static int hmac_sha2_256_tester(void)
 
 	ret = lc_compare(act, exp_256, LC_SHA256_SIZE_DIGEST,
 			 "HMAC SHA2-256 I");
+	if (ret)
+		goto out;
 
 	CKINT(lc_hmac_setkey(&key, lc_sha256, key_256, sizeof(key_256)));
 	CKINT(lc_hmac_init_with_hmac_key(hmac_ctx, &key));
