@@ -45,7 +45,10 @@
  *
  */
 #define member_to_struct(member, data_type, member_var)                        \
-	(data_type *)((char *)(member) - (char *)&((data_type *)0)->member_var)
+	(member && &((data_type *)0)->member_var) ?                            \
+		(data_type *)((char *)(member) -                               \
+			      (char *)&((data_type *)0)->member_var) :         \
+		0
 
 struct list_entry {
 	struct list_entry *next;

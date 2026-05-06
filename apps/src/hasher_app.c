@@ -80,6 +80,9 @@ static int hasher_get_trailing(const char *string, const char **found)
 		return -EINVAL;
 	}
 
+	if (!saveptr)
+		return -ENOENT;
+
 	*found = saveptr + 1;
 	return 0;
 }
