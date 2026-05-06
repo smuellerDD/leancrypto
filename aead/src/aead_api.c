@@ -85,6 +85,13 @@ LC_INTERFACE_FUNCTION(int, lc_aead_encrypt, struct lc_aead_ctx *ctx,
 	if (!aead || !aead_state || !aead->encrypt)
 		return -EOPNOTSUPP;
 
+	/*
+	 * In case of an in-place operation, allow the caller to provide a
+	 * NULL plaintext buffer.
+	 */
+	if (!plaintext)
+		plaintext = ciphertext;
+
 	aead->encrypt(aead_state, plaintext, ciphertext, datalen, aad, aadlen,
 		      tag, taglen);
 
@@ -126,6 +133,13 @@ LC_INTERFACE_FUNCTION(int, lc_aead_enc_update, struct lc_aead_ctx *ctx,
 
 	if (!aead || !aead_state || !aead->enc_update)
 		return -EOPNOTSUPP;
+
+	/*
+	 * In case of an in-place operation, allow the caller to provide a
+	 * NULL plaintext buffer.
+	 */
+	if (!plaintext)
+		plaintext = ciphertext;
 
 	aead->enc_update(aead_state, plaintext, ciphertext, datalen);
 
@@ -169,6 +183,13 @@ LC_INTERFACE_FUNCTION(int, lc_aead_decrypt, struct lc_aead_ctx *ctx,
 	if (!aead || !aead_state || !aead->decrypt)
 		return -EOPNOTSUPP;
 
+	/*
+	 * In case of an in-place operation, allow the caller to provide a
+	 * NULL ciphertext buffer.
+	 */
+	if (!ciphertext)
+		ciphertext = plaintext;
+
 	return aead->decrypt(aead_state, ciphertext, plaintext, datalen, aad,
 			     aadlen, tag, taglen);
 }
@@ -208,6 +229,13 @@ LC_INTERFACE_FUNCTION(int, lc_aead_dec_update, struct lc_aead_ctx *ctx,
 
 	if (!aead || !aead_state || !aead->dec_update)
 		return -EOPNOTSUPP;
+
+	/*
+	 * In case of an in-place operation, allow the caller to provide a
+	 * NULL ciphertext buffer.
+	 */
+	if (!ciphertext)
+		ciphertext = plaintext;
 
 	aead->dec_update(aead_state, ciphertext, plaintext, datalen);
 
