@@ -398,7 +398,7 @@ The following files are affected:
 asn1/src/asn1_encoder_helper.c
 
 
-The associated asn1/src/*.asn1 files are derived from different RFCs and draft
+The associated asn1/src/*_asn1 files are derived from different RFCs and draft
 RFCs as marked in the header of those files and subject to the following
 license:
 
@@ -463,6 +463,12 @@ SOFTWARE.
 
 The error code definitions used for the EFI compilation are licensed as:
 SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note.
+
+Note, the same considerations as mentioned above for the x86intrin with respect
+to GPL and not tainting the leancrypto code base accordingly considering that
+these files only contain macros that are inlined into the code. The duplication
+is only made for environments where the POSIX error declarations are not
+available (e.g. the EFI environment).
 
 This affects the following files:
 
