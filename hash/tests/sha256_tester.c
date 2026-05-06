@@ -49,7 +49,7 @@ static int _sha256_tester(const struct lc_hash *sha256, const char *name)
 
 	printf("hash ctx %s (%s implementation) len %u\n", name,
 	       sha256 == lc_sha256_c ? "C" : "accelerated",
-	       (unsigned int)LC_HASH_CTX_SIZE(sha256));
+	       (unsigned int)LC_HASH_CTX_SIZE);
 	if (lc_hash_init(ctx256_stack))
 		return 1;
 	lc_hash_update(ctx256_stack, msg_256, sizeof(msg_256));

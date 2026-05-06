@@ -19,6 +19,7 @@
 
 #include "ascon_hash_common.h"
 #include "ascon_selftest.h"
+#include "build_bug_on.h"
 #include "compare.h"
 
 static inline void ascon_ctx_init(struct lc_ascon_hash *ctx)
@@ -32,6 +33,8 @@ static void ascon_256_init_common(struct lc_ascon_hash *ctx)
 {
 	if (!ctx)
 		return;
+
+	BUILD_BUG_ON(LC_HASH_STATE_SIZE < sizeof(struct lc_ascon_hash));
 
 	ascon_ctx_init(ctx);
 	ctx->roundb = 12;

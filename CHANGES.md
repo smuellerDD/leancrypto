@@ -13,6 +13,10 @@ Changes 1.7.3-prerelease
 
 * X.509: Add support for ED25519 and ED448 certificates to support rustTLS for a smooth transition to PQC
 
+* HMAC: deentangle key and hash management
+
+* Hash: remove VLA
+
 Changes 1.7.2
 * Fix RDSEED counter
 

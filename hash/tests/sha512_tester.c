@@ -53,7 +53,7 @@ static int _sha512_tester(const struct lc_hash *sha512, const char *name)
 
 	printf("hash ctx %s (%s implementation) len %u\n", name,
 	       sha512 == lc_sha512_c ? "C" : "accelerated",
-	       (unsigned int)LC_HASH_CTX_SIZE(sha512));
+	       (unsigned int)LC_HASH_CTX_SIZE);
 	if (lc_hash_init(ctx512_stack))
 		return 1;
 	lc_hash_update(ctx512_stack, msg_512, sizeof(msg_512));

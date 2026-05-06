@@ -19,6 +19,7 @@
  */
 
 #include "bitshift_be.h"
+#include "build_bug_on.h"
 #include "compare.h"
 #include "ext_headers_internal.h"
 #include "fips_mode.h"
@@ -71,6 +72,8 @@ int lc_sha256_init_nocheck(void *_state)
 
 	if (!ctx)
 		return -EINVAL;
+
+	BUILD_BUG_ON(LC_HASH_STATE_SIZE < sizeof(struct lc_sha256_state));
 
 	ctx->H[0] = 0x6a09e667;
 	ctx->H[1] = 0xbb67ae85;

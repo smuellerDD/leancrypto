@@ -88,7 +88,7 @@ static int _shake_sqeeze_more_tester(const struct lc_hash *shake_256,
 
 	printf("hash ctx %s (%s implementation) len %u\n", name,
 	       shake_256 == lc_shake256_c ? "C" : "accelerated",
-	       (unsigned int)LC_HASH_CTX_SIZE(shake_256));
+	       (unsigned int)LC_HASH_CTX_SIZE);
 
 	for (i = 1; i <= sizeof(exp2); i++) {
 		act2_p = act2;

@@ -48,7 +48,7 @@ static int ascon_128_tester(const struct lc_hash *ascon, const char *name)
 
 	printf("hash ctx %s (%s implementation) len %u\n", name,
 	       ascon == lc_ascon_256_c ? "C" : "accelerated",
-	       (unsigned int)LC_HASH_CTX_SIZE(ascon));
+	       (unsigned int)LC_HASH_CTX_SIZE);
 
 	if (lc_hash(ascon, msg, sizeof(msg), act))
 		return 1;

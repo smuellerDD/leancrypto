@@ -58,9 +58,9 @@ struct lc_hmac_ctx {
 #define LC_HMAC_CTX_SIZE (LC_HMAC_STATE_SIZE + sizeof(struct lc_hmac_ctx))
 
 #define _LC_HMAC_SET_CTX(name, hashname, ctx, offset)                          \
-	_LC_HASH_SET_CTX((&name->hash_ctx), hashname, ctx, offset);            \
+	_LC_HASH_SET_CTX((&name->hash_ctx), hashname);                         \
 	name->key = (struct lc_hmac_key *)((uint8_t *)ctx + offset +           \
-					   LC_HASH_STATE_SIZE(hashname))
+					   LC_HASH_STATE_SIZE)
 
 #define LC_HMAC_SET_CTX(name, hashname)                                        \
 	_LC_HMAC_SET_CTX(name, hashname, name, sizeof(struct lc_hmac_ctx))

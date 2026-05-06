@@ -48,7 +48,7 @@ static int ascon_xof_tester(const struct lc_hash *ascon, const char *name)
 
 	printf("hash ctx %s (%s implementation) len %u\n", name,
 	       ascon == lc_ascon_xof_c ? "C" : "accelerated",
-	       (unsigned int)LC_HASH_CTX_SIZE(ascon));
+	       (unsigned int)LC_HASH_CTX_SIZE);
 
 	if (lc_xof(ascon, msg, sizeof(msg), act, sizeof(act)))
 		return 1;

@@ -198,6 +198,8 @@ static inline void sha3_ctx_init(void *_state)
 	 */
 	struct lc_sha3_224_state *ctx = _state;
 
+	BUILD_BUG_ON(LC_HASH_STATE_SIZE < sizeof(struct lc_sha3_224_state));
+
 	/*
 	 * Zeroize the actual state which is required by some implementations
 	 * like ARM-CE.

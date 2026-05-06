@@ -69,8 +69,7 @@ extern const struct lc_aead *lc_cshake_aead;
 
 /* Ensure that ->keystream is aligned to XOR alignment requirement */
 #define _LC_CC_SET_CTX(name, hashname)                                         \
-	_LC_HASH_SET_CTX((&name->cshake), hashname, name,                      \
-			 (sizeof(struct lc_cc_cryptor)));                      \
+	_LC_HASH_SET_CTX((&name->cshake), hashname);                           \
 	_LC_CSHAKE_SET_CTX_REINIT(                                             \
 		(&name->auth_ctx), hashname, name,                             \
 		(sizeof(struct lc_cc_cryptor) + LC_CSHAKE_STATE_SIZE));        \

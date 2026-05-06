@@ -51,7 +51,7 @@ static int _sha384_tester(const struct lc_hash *sha384, const char *name)
 
 	printf("hash ctx %s (%s implementation) len %u\n", name,
 	       sha384 == lc_sha384_c ? "C" : "accelerated",
-	       (unsigned int)LC_HASH_CTX_SIZE(sha384));
+	       (unsigned int)LC_HASH_CTX_SIZE);
 	if (lc_hash_init(ctx384_stack))
 		return 1;
 	lc_hash_update(ctx384_stack, msg_384, sizeof(msg_384));

@@ -53,7 +53,7 @@ static int s_ha3_384_tester(const struct lc_hash *sha3_384, const char *name)
 
 	printf("hash ctx %s (%s implementation) len %u\n", name,
 	       sha3_384 == lc_sha3_384_c ? "C" : "accelerated",
-	       (unsigned int)LC_HASH_CTX_SIZE(sha3_384));
+	       (unsigned int)LC_HASH_CTX_SIZE);
 	if (lc_hash_init(ctx384))
 		return 1;
 	lc_hash_update(ctx384, msg_384, 3);

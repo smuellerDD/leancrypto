@@ -53,11 +53,6 @@ struct lc_hash {
 	unsigned short statesize;
 };
 
-struct lc_hash_ctx {
-	const struct lc_hash *hash;
-	void *hash_state;
-};
-
 /*
  * Align the hash_state pointer to 8 bytes boundary irrespective where
  * it is embedded into. This is achieved by adding 7 more bytes than necessary
@@ -72,41 +67,38 @@ struct lc_hash_ctx {
 #define LC_HASH_COMMON_ALIGNMENT @hash_common_alignment@
 #endif
 
+#if __has_include("lc_sha3.h")
+#define LC_HASH_STATE_SIZE (224)
+#elif __has_include("lc_sha512.h")
+#define LC_HASH_STATE_SIZE (200)
+#elif __has_include("lc_sha256.h")
+#define LC_HASH_STATE_SIZE (104)
+#elif __has_include("lc_ascon_hash.h")
+#define LC_HASH_STATE_SIZE (88)
+#else
+#error "No known maximum block size defined"
+#endif
+
+struct lc_hash_ctx {
+	const struct lc_hash *hash;
+	void *hash_state;
+	uint8_t __state[LC_HASH_STATE_SIZE + LC_HASH_COMMON_ALIGNMENT];
+};
+
 #define LC_ALIGN_HASH_MASK(p)                                                  \
 	LC_ALIGN_PTR_64(p, LC_ALIGNMENT_MASK(LC_HASH_COMMON_ALIGNMENT))
 
 #define LC_SHA_MAX_SIZE_DIGEST 64
 
 #define LC_HASH_STATE_SIZE_ALIGN(x) (x + LC_HASH_COMMON_ALIGNMENT)
+#define LC_HASH_CTX_SIZE (sizeof(struct lc_hash_ctx))
 
-/*
- * This is the source of the compiler warning of using Variable-Length-Arrays
- * (VLA). It is considered to be harmless to have this VLA here. If you do not
- * want it, you have the following options:
- *
- * 1. Define a hard-coded value here, e.g. sizeof(struct lc_sha3_224_state)
- *    as the SHA3-224 has the largest structure.
- * 2. Only use the SHA-specific stack allocation functions
- *    (e.g. LC_SHA3_256_CTX_ON_STACK) instead of the generic
- *    LC_HASH_CTX_ON_STACK call.
- * 3. Do not use stack-allocation function.
- * 4. Ignore the warning by using
- * #pragma GCC diagnostic push
- * #pragma GCC diagnostic ignored "-Wvla"
- * LC_HASH_CTX_ON_STACK()
- * #pragma GCC diagnostic pop
- */
-#define LC_HASH_STATE_SIZE_NONALIGNED(x) ((unsigned long)(x->statesize))
-#define LC_HASH_STATE_SIZE(x)                                                  \
-	(LC_HASH_STATE_SIZE_NONALIGNED(x) + LC_HASH_COMMON_ALIGNMENT)
-#define LC_HASH_CTX_SIZE(x) (sizeof(struct lc_hash_ctx) + LC_HASH_STATE_SIZE(x))
-
-#define _LC_HASH_SET_CTX(name, hashname, ctx, offset)                          \
-	name->hash_state = LC_ALIGN_HASH_MASK(((uint8_t *)(ctx)) + (offset));  \
+#define _LC_HASH_SET_CTX(name, hashname)                                       \
+	name->hash_state = LC_ALIGN_HASH_MASK(name->__state);                  \
 	name->hash = hashname
 
 #define LC_HASH_SET_CTX(name, hashname)                                        \
-	_LC_HASH_SET_CTX(name, hashname, name, sizeof(struct lc_hash_ctx))
+	_LC_HASH_SET_CTX(name, hashname)
 /// \endcond
 
 /** @defgroup Hashing Message Digest and XOF Support
@@ -240,10 +232,9 @@ void lc_hash_zero(struct lc_hash_ctx *hash_ctx);
  */
 #define LC_HASH_CTX_ON_STACK(name, hashname)                                        \
 	_Pragma("GCC diagnostic push")                                              \
-		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
-			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
+		_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
 			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
-					  LC_HASH_CTX_SIZE(hashname),               \
+					  LC_HASH_CTX_SIZE,                         \
 					  LC_HASH_COMMON_ALIGNMENT);                \
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name##_ctx_buf;            \
 	LC_HASH_SET_CTX(name, hashname);                                            \

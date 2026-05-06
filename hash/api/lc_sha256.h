@@ -59,7 +59,7 @@ struct lc_sha256_state {
 #define LC_SHA256_CTX_ON_STACK(name)                                           \
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_SHA256_CTX_SIZE,          \
+		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_HASH_CTX_SIZE,            \
 				  LC_HASH_COMMON_ALIGNMENT);                   \
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name##_ctx_buf;       \
 	LC_SHA256_CTX(name);                                                   \

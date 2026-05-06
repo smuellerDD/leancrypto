@@ -92,6 +92,8 @@ int lc_sha384_init_nocheck(void *_state)
 	if (!ctx)
 		return -EINVAL;
 
+	BUILD_BUG_ON(LC_HASH_STATE_SIZE < sizeof(struct lc_sha512_state));
+
 	ctx->H[0] = 0xcbbb9d5dc1059ed8ULL;
 	ctx->H[1] = 0x629a292a367cd507ULL;
 	ctx->H[2] = 0x9159015a3070dd17ULL;

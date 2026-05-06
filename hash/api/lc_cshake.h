@@ -107,16 +107,16 @@ struct lc_cshake_ctx {
 	(LC_CSHAKE_STATE_SIZE_REINIT + sizeof(struct lc_cshake_ctx))
 
 #define _LC_CSHAKE_SET_CTX(name, hashname, ctx, offset)                        \
-	_LC_HASH_SET_CTX((&name->hash_ctx), hashname, ctx, offset);            \
+	_LC_HASH_SET_CTX((&name->hash_ctx), hashname);                         \
 	name->shadow_ctx = NULL
 
 #define LC_CSHAKE_SET_CTX(name, hashname)                                      \
 	_LC_CSHAKE_SET_CTX(name, hashname, name, sizeof(struct lc_cshake_ctx))
 
 #define _LC_CSHAKE_SET_CTX_REINIT(name, hashname, ctx, offset)                 \
-	_LC_HASH_SET_CTX((&name->hash_ctx), hashname, ctx, offset);            \
-	name->shadow_ctx = (uint8_t *)((uint8_t *)ctx + offset +               \
-				       LC_HASH_STATE_SIZE(hashname))
+	_LC_HASH_SET_CTX((&name->hash_ctx), hashname);                         \
+	name->shadow_ctx =                                                     \
+		(uint8_t *)((uint8_t *)ctx + offset + LC_HASH_STATE_SIZE)
 
 #define LC_CSHAKE_SET_CTX_REINIT(name, hashname)                               \
 	_LC_CSHAKE_SET_CTX_REINIT(name, hashname, name,                        \
