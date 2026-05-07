@@ -58,7 +58,7 @@ LC_INIT_FUNCTION(int, lc_init, unsigned int flags)
 	 * Handle graceful the invocation of this functions multiple times
 	 * or even when the initializations automatically were performed.
 	 */
-	if (lc_status_get_result(LC_ALG_STATUS_FLAG_LIB) >
+	if (lc_status_get_result(LC_ALG_STATUS_LIB) >
 	    lc_alg_status_result_ongoing)
 		return 0;
 
