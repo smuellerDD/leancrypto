@@ -22,6 +22,7 @@ use std::sync::atomic;
 use crate::ffi::leancrypto;
 use crate::error::KemError;
 
+#[derive(Debug, Copy, Clone)]
 pub enum lcr_kyber_type {
 	lcr_kyber_512,
 	lcr_kyber_768,

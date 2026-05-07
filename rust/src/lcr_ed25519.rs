@@ -55,6 +55,16 @@ impl lcr_ed25519 {
 		}
 	}
 
+	pub fn enable(&self) -> Result<(), SignatureError> {
+		let result = unsafe {
+			leancrypto::lc_init(leancrypto::LC_INIT_NON_PQC_ENABLED)
+		};
+		if result < 0 {
+			return Err(SignatureError::ProcessingError);
+		}
+		Ok(())
+	}
+
 	/// Load secret key for using with leancrypto
 	///
 	/// [sk_buf] buffer with raw secret key

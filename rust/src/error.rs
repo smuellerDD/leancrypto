@@ -217,7 +217,9 @@ impl std::fmt::Display for HkdfError {
 #[derive(PartialEq)]
 pub enum X509Error {
 	AllocationError,
+	UninitializedContext,
 	ProcessingError,
+	VerifyError
 }
 
 impl std::error::Error for X509Error {}
@@ -227,8 +229,12 @@ impl std::fmt::Display for X509Error {
 		match self {
 			X509Error::AllocationError =>
 				write!(f, "failed to allocate X509 context"),
+			X509Error::UninitializedContext =>
+				write!(f, "X.509 context is not initialized"),
 			X509Error::ProcessingError =>
-				write!(f, "HKDF processing error occurred"),
+				write!(f, "X.509 processing error occurred"),
+			X509Error::VerifyError =>
+				write!(f, "X.509 signature verification error"),
 		}
 	}
 }

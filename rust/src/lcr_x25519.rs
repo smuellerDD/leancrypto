@@ -57,6 +57,16 @@ impl lcr_x25519 {
 		}
 	}
 
+	pub fn enable(&self) -> Result<(), X25519Error> {
+		let result = unsafe {
+			leancrypto::lc_init(leancrypto::LC_INIT_NON_PQC_ENABLED)
+		};
+		if result < 0 {
+			return Err(X25519Error::ProcessingError);
+		}
+		Ok(())
+	}
+
 	/// Generate X25519 key pair
 	pub fn keypair(&mut self) ->
 		Result<(), X25519Error> {
@@ -76,7 +86,7 @@ impl lcr_x25519 {
 		Ok(())
 	}
 
-	/// Shared secret
+	/// Shared secret generation
 	pub fn shared_secret(&mut self) -> Result<(), X25519Error> {
 		if self.sk_set == false || self.pk_remote_set == false {
 			return Err(X25519Error::UninitializedContext);

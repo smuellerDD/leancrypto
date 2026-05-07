@@ -23,6 +23,10 @@ fn lc_rust_x25519_one() {
 	let mut x25519_local = lcr_x25519::new();
 	let mut x25519_remote = lcr_x25519::new();
 
+	let result = x25519_local.enable();
+	assert_eq!(result, Ok(()));
+
+
 	/* Generate local key pair */
 	let result = x25519_local.keypair();
 	assert_eq!(result, Ok(()));

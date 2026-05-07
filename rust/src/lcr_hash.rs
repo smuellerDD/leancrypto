@@ -17,13 +17,13 @@
  * DAMAGE.
  */
 
-use std::ptr;
 use crate::ffi::leancrypto;
 use crate::error::HashError;
 
 pub const LC_SHA_MAX_SIZE_DIGEST: usize =
 	leancrypto::LC_SHA_MAX_SIZE_DIGEST as usize;
 
+#[derive(Copy, Clone)]
 pub enum lcr_hash_type {
 	lcr_sha2_256,
 	lcr_sha2_384,
@@ -41,18 +41,21 @@ pub enum lcr_hash_type {
 /// Leancrypto wrapper for lc_hash
 pub struct lcr_hash {
 	/// Context for init/update/final
-	hash_ctx: *mut leancrypto::lc_hash_ctx,
+	hash_ctx: leancrypto::lc_hash_ctx,
 
 	/// Leancrypto hash reference
-	hash: lcr_hash_type
+	hash: lcr_hash_type,
+
+	hash_ctx_init: bool
 }
 
 #[allow(dead_code)]
 impl lcr_hash {
 	pub fn new(hash_type: lcr_hash_type) -> Self {
 		lcr_hash {
-			hash_ctx: ptr::null_mut(),
-			hash: hash_type
+			hash_ctx: unsafe { std::mem::zeroed() },
+			hash: hash_type,
+			hash_ctx_init: false
 		}
 	}
 
@@ -96,6 +99,22 @@ impl lcr_hash {
 			lcr_hash_type::lcr_ascon_256 => 32,
 			_ => 0,
 		}
+	}
+
+	fn ctx_initialize(&mut self) -> Result<(), HashError> {
+		if !self.hash_ctx_init {
+			let result = unsafe {
+				leancrypto::lc_hash_set_ctx(
+					self.lcr_type_mapping(),
+					&mut self.hash_ctx)
+			};
+			if result < 0 {
+				return Err(HashError::ProcessingError);
+			}
+			self.hash_ctx_init = true;
+		}
+
+		Ok(())
 	}
 
 	/// Create message digest
@@ -149,66 +168,38 @@ impl lcr_hash {
 	///	 desired, S is set to the empty string.
 	pub fn cshake_init(&mut self, n: &[u8], s: &[u8]) ->
 		Result<(), HashError> {
-		let mut result = 0;
 
-		if self.hash_ctx.is_null() {
-			/* Allocate the hash context */
-			result = unsafe {
-				leancrypto::lc_hash_alloc(
-					self.lcr_type_mapping(),
-					&mut self.hash_ctx)
-			};
-		}
+		self.ctx_initialize()?;
 
 		// Error handle
-		if result >= 0 {
-			result = unsafe { leancrypto::lc_cshake_init(
-				self.hash_ctx, n.as_ptr(), n.len(), s.as_ptr(),
-				s.len()) };
-			if result < 0 {
-				return Err(HashError::ProcessingError);
-			}
-			Ok(())
-		} else {
-			Err(HashError::AllocationError)
+		let result = unsafe { leancrypto::lc_cshake_init(
+			&mut self.hash_ctx, n.as_ptr(), n.len(),
+			s.as_ptr(), s.len()) };
+		if result < 0 {
+			return Err(HashError::ProcessingError);
 		}
+		Ok(())
 	}
 
 	/// Hash Init: Initializes message digest handle
 	pub fn init(&mut self) -> Result<(), HashError> {
-		let mut result = 0;
 
-		if self.hash_ctx.is_null() {
-			/* Allocate the hash context */
-			result = unsafe {
-				leancrypto::lc_hash_alloc(
-					self.lcr_type_mapping(),
-					&mut self.hash_ctx)
-			};
-		}
+		self.ctx_initialize()?;
 
 		// Error handle
-		if result >= 0 {
-			result = unsafe {
-				leancrypto::lc_hash_init(self.hash_ctx)
-			};
-			if result < 0 {
-				return Err(HashError::ProcessingError);
-			}
-			Ok(())
-		} else {
-			Err(HashError::AllocationError)
+		let result = unsafe {
+			leancrypto::lc_hash_init(&mut self.hash_ctx)
+		};
+		if result < 0 {
+			return Err(HashError::ProcessingError);
 		}
+		Ok(())
 	}
 
 	/// Hash Update: Insert data into message digest handle
 	pub fn update(&mut self, msg: &[u8]) -> Result<(), HashError> {
-		if self.hash_ctx.is_null() {
-			return Err(HashError::UninitializedContext);
-		}
-
 		unsafe {
-			leancrypto::lc_hash_update(self.hash_ctx,
+			leancrypto::lc_hash_update(&mut self.hash_ctx,
 						   msg.as_ptr(), msg.len())
 		};
 
@@ -220,12 +211,8 @@ impl lcr_hash {
 	/// [digestsize] Size of digest
 	pub fn set_digestsize(&mut self, digestsize: usize) ->
 		Result<(), HashError> {
-		if self.hash_ctx.is_null() {
-			return Err(HashError::UninitializedContext);
-		}
-
 		unsafe {
-			leancrypto::lc_hash_set_digestsize(self.hash_ctx,
+			leancrypto::lc_hash_set_digestsize(&mut self.hash_ctx,
 							   digestsize)
 		};
 
@@ -236,26 +223,23 @@ impl lcr_hash {
 	///
 	/// [digestsize] Size of digest
 	pub fn digestsize(&mut self) -> usize {
-		if !self.hash_ctx.is_null() {
-			let digestsize = unsafe {
-				leancrypto::lc_hash_digestsize(self.hash_ctx)
-			};
-			return digestsize;
-		}
+		match self.ctx_initialize() {
+			Err(_) => return 0,
+			Ok(v) => v
+		};
 
-		Self::lcr_digestsize_mapping(self)
+		let digestsize = unsafe {
+			leancrypto::lc_hash_digestsize(&mut self.hash_ctx)
+		};
+		return digestsize;
 	}
 
 	/// Hash Final: Calculate message digest from message digest handle
 	///
 	/// [digest] Buffer to be filled with digest
 	pub fn fini(&mut self, digest: &mut [u8]) -> Result<(), HashError> {
-		if self.hash_ctx.is_null() {
-			return Err(HashError::UninitializedContext);
-		}
-
 		let digestsize = unsafe {
-			leancrypto::lc_hash_digestsize(self.hash_ctx)
+			leancrypto::lc_hash_digestsize(&mut self.hash_ctx)
 		};
 
 		if digest.len() < digestsize {
@@ -263,7 +247,7 @@ impl lcr_hash {
 		}
 
 		unsafe {
-			leancrypto::lc_hash_final(self.hash_ctx,
+			leancrypto::lc_hash_final(&mut self.hash_ctx,
 						  digest.as_mut_ptr());
 			// No zeroization to allow multiple squeezes
 		};
@@ -272,12 +256,21 @@ impl lcr_hash {
 	}
 }
 
+/*
+ * Implementing the empty send trait is considered to be appropriate.
+ *
+ * The send trait is used for automatically duplicating the lcr_hash struct.
+ * As part of it, the lc_hash_ctx->hash pointer is to be copied. As this
+ * pointer is a static pointer that is always valid in leancrypto. Thus,
+ * a simply duplication of the pointer is sufficient. Hence, an empty send
+ * trait is considered appropriate.
+ */
+unsafe impl Send for lcr_hash {}
+
 /// This ensures the buffer is always freed
 /// regardless of when it goes out of scope
 impl Drop for lcr_hash {
 	fn drop(&mut self) {
-		if !self.hash_ctx.is_null() {
-			unsafe { leancrypto::lc_hash_zero_free(self.hash_ctx); }
-		}
+		unsafe { leancrypto::lc_hash_zero(&mut self.hash_ctx); }
 	}
 }

@@ -40,6 +40,24 @@ pub struct lcr_rng {
 	seeded: bool,
 }
 
+pub fn lcr_rng_generate_seeded(
+	additional_info: &[u8],
+	rng: &mut [u8]
+) -> Result<(), RngError> {
+	let result = unsafe {
+		leancrypto::lc_rng_generate(
+			leancrypto::lc_seeded_rng, additional_info.as_ptr(),
+			additional_info.len(), rng.as_mut_ptr(),
+			rng.len())
+	};
+
+	if result < 0 {
+		return Err(RngError::ProcessingError);
+	}
+
+	Ok(())
+}
+
 #[allow(dead_code)]
 impl lcr_rng {
 	/// Instantiate the RNG: by default, the seeded RNG is immediately
