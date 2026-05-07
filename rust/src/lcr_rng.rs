@@ -40,6 +40,7 @@ pub struct lcr_rng {
 	seeded: bool,
 }
 
+/// Generate random number from a seeded DRNG
 pub fn lcr_rng_generate_seeded(
 	additional_info: &[u8],
 	rng: &mut [u8]

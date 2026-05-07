@@ -31,11 +31,11 @@ fn lc_rust_kyber_x25519_one(kyber_x25519_type: lcr_kyber_x25519_type) {
 	let result = kyber_x25519.encapsulate(&mut ss1);
 	assert_eq!(result, Ok(()));
 
-	let (ct_kyber_slice, ct_x25519_slice, result) = kyber_x25519.ct();
+	let (ct_kyber_slice, ct_x25519_slice, result) = kyber_x25519.get_ct();
 	assert_eq!(result, Ok(()));
 	let ct_kyber = ct_kyber_slice.to_vec();
 	let ct_x25519 = ct_x25519_slice.to_vec();
-	let (sk_kyber_slice, sk_x25519_slice, result) = kyber_x25519.sk();
+	let (sk_kyber_slice, sk_x25519_slice, result) = kyber_x25519.get_sk();
 	assert_eq!(result, Ok(()));
 	let sk_kyber = sk_kyber_slice.to_vec();
 	let sk_x25519 = sk_x25519_slice.to_vec();
@@ -43,13 +43,13 @@ fn lc_rust_kyber_x25519_one(kyber_x25519_type: lcr_kyber_x25519_type) {
 	let mut kyber_x255192 = lcr_kyber_x25519::new();
 	let result = kyber_x255192.sk_load(&sk_kyber, &sk_x25519);
 	assert_eq!(result, Ok(()));
-	assert_eq!(kyber_x25519.sk().0, kyber_x255192.sk().0);
-	assert_eq!(kyber_x25519.sk().1, kyber_x255192.sk().1);
+	assert_eq!(kyber_x25519.get_sk().0, kyber_x255192.get_sk().0);
+	assert_eq!(kyber_x25519.get_sk().1, kyber_x255192.get_sk().1);
 
 	let result = kyber_x255192.ct_load(&ct_kyber, &ct_x25519);
 	assert_eq!(result, Ok(()));
-	assert_eq!(kyber_x25519.ct().0, kyber_x255192.ct().0);
-	assert_eq!(kyber_x25519.ct().1, kyber_x255192.ct().1);
+	assert_eq!(kyber_x25519.get_ct().0, kyber_x255192.get_ct().0);
+	assert_eq!(kyber_x25519.get_ct().1, kyber_x255192.get_ct().1);
 
 	let result = kyber_x255192.decapsulate(&mut ss2);
 	assert_eq!(result, Ok(()));

@@ -55,6 +55,7 @@ impl lcr_ed25519 {
 		}
 	}
 
+	/// Enable the ED25519 support in leancrypto (by default, it is disabled)
 	pub fn enable(&self) -> Result<(), SignatureError> {
 		let result = unsafe {
 			leancrypto::lc_init(leancrypto::LC_INIT_NON_PQC_ENABLED)
@@ -195,7 +196,7 @@ impl lcr_ed25519 {
 	}
 
 	/// Method for safe immutable access to signature buffer
-	pub fn sig(&mut self) -> (&[u8], Result<(), SignatureError>) {
+	pub fn get_sig(&mut self) -> (&[u8], Result<(), SignatureError>) {
 		if self.sig_set == false {
 			return (&[], Err(SignatureError::UninitializedContext));
 		}
@@ -217,7 +218,7 @@ impl lcr_ed25519 {
 	}
 
 	/// Method for safe immutable access to secret key buffer
-	pub fn sk(&mut self) -> (&[u8], Result<(), SignatureError>) {
+	pub fn get_sk(&mut self) -> (&[u8], Result<(), SignatureError>) {
 		if self.sk_set == false {
 			return (&[], Err(SignatureError::UninitializedContext));
 		}
@@ -239,7 +240,7 @@ impl lcr_ed25519 {
 	}
 
 	/// Method for safe immutable access to public key buffer
-	pub fn pk(&mut self) -> (&[u8], Result<(), SignatureError>) {
+	pub fn get_pk(&mut self) -> (&[u8], Result<(), SignatureError>) {
 		if self.pk_set == false {
 			return (&[], Err(SignatureError::UninitializedContext));
 		}
@@ -271,7 +272,7 @@ impl lcr_ed25519 {
 
 		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-		assert_eq!(Self::sk(self).0, slice);
+		assert_eq!(Self::get_sk(self).0, slice);
 	}
 }
 

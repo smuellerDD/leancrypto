@@ -5,11 +5,11 @@ Changes 1.8.0-prerelease
 
 * Curve448: Fix AVX2 ABI issue
 
-* Rust: add X25519 API to support rustTLS
+* Rust: add X25519 API to support rustls
 
 * Rust: add HKDF API
 
-* Rust: add ED25519 API to support rustTLS
+* Rust: add ED25519 API to support rustls
 
 * X.509: Add support for ED25519 and ED448 certificates to support rustTLS for a smooth transition to PQC
 

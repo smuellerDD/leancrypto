@@ -57,6 +57,7 @@ impl lcr_x25519 {
 		}
 	}
 
+	/// Enable the X25519 support in leancrypto (by default, it is disabled)
 	pub fn enable(&self) -> Result<(), X25519Error> {
 		let result = unsafe {
 			leancrypto::lc_init(leancrypto::LC_INIT_NON_PQC_ENABLED)
@@ -193,7 +194,7 @@ impl lcr_x25519 {
 	}
 
 	/// Method for safe immutable access to secret key buffer
-	pub fn sk(&mut self) -> (&[u8], Result<(), X25519Error>) {
+	pub fn get_sk(&mut self) -> (&[u8], Result<(), X25519Error>) {
 		if self.sk_set == false {
 			return (&[], Err(X25519Error::UninitializedContext));
 		}
@@ -215,7 +216,7 @@ impl lcr_x25519 {
 	}
 
 	/// Method for safe immutable access to public key buffer
-	pub fn pk(&mut self) -> (&[u8], Result<(), X25519Error>) {
+	pub fn get_pk(&mut self) -> (&[u8], Result<(), X25519Error>) {
 		if self.pk_set == false {
 			return (&[], Err(X25519Error::UninitializedContext));
 		}
@@ -237,7 +238,7 @@ impl lcr_x25519 {
 	}
 
 	/// Method for safe immutable access to shared secret buffer
-	pub fn ss(&mut self) -> (&[u8], Result<(), X25519Error>) {
+	pub fn get_ss(&mut self) -> (&[u8], Result<(), X25519Error>) {
 		if self.ss_set == false {
 			return (&[], Err(X25519Error::UninitializedContext));
 		}

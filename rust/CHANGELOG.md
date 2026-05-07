@@ -4,11 +4,15 @@
 
 ### Added
 
-* X25519 interface - this is only intended to support rustTLS
+* X25519 interface - this is only intended to support rustls
 
 * HKDF interface
 
-* ED25519 interface - this is only intended to support rustTLS
+* ED25519 interface - this is only intended to support rustls
+
+### Changed
+
+* API breakage: rename all getter functions to get_* (e.g. sk() -> get_sk())
 
 ## [0.2.2] - 2025-10-18
 

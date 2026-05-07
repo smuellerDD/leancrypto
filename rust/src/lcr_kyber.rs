@@ -227,7 +227,7 @@ impl lcr_kyber {
 	}
 
 	/// Method for safe immutable access to Kyber ciphertext buffer
-	pub fn ct(&mut self) -> (&[u8], Result<(), KemError>) {
+	pub fn get_ct(&mut self) -> (&[u8], Result<(), KemError>) {
 		if self.ct_set == false {
 			return (&[], Err(KemError::UninitializedContext));
 		}
@@ -249,7 +249,7 @@ impl lcr_kyber {
 	}
 
 	/// Method for safe immutable access to secret key buffer
-	pub fn sk(&mut self) -> (&[u8], Result<(), KemError>) {
+	pub fn get_sk(&mut self) -> (&[u8], Result<(), KemError>) {
 		if self.sk_set == false {
 			return (&[], Err(KemError::UninitializedContext));
 		}
@@ -271,7 +271,7 @@ impl lcr_kyber {
 	}
 
 	/// Method for safe immutable access to public key buffer
-	pub fn pk(&mut self) -> (&[u8], Result<(), KemError>) {
+	pub fn get_pk(&mut self) -> (&[u8], Result<(), KemError>) {
 		if self.pk_set == false {
 			return (&[], Err(KemError::UninitializedContext));
 		}
@@ -293,7 +293,7 @@ impl lcr_kyber {
 	}
 
 	/// Method for safe immutable access to shared secret buffer
-	pub fn ss(&mut self) -> (&[u8], Result<(), KemError>) {
+	pub fn get_ss(&mut self) -> (&[u8], Result<(), KemError>) {
 		if self.ss_set == false {
 			return (&[], Err(KemError::UninitializedContext));
 		}

@@ -250,7 +250,7 @@ impl lcr_x509 {
 	}
 
 	/// Method for safe immutable access to certificate
-	// pub fn x509_cert_get(
+	// pub fn _get_x509_cert(
 	// 	&mut self
 	// ) -> (*mut leancrypto::lc_x509_certificate, Result<(), X509Error>) {
 	// 	if self.cert_is_usable() {

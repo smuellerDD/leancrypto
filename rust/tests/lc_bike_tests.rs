@@ -29,26 +29,26 @@ fn lc_rust_bike_one(bike_type: lcr_bike_type) {
 	let result = bike.encapsulate();
 	assert_eq!(result, Ok(()));
 
-	let (ct_slice, result) = bike.ct();
+	let (ct_slice, result) = bike.get_ct();
 	assert_eq!(result, Ok(()));
 	let ct = ct_slice.to_vec();
-	let (sk_slice, result) = bike.sk();
+	let (sk_slice, result) = bike.get_sk();
 	assert_eq!(result, Ok(()));
 	let sk = sk_slice.to_vec();
 
 	let mut bike2 = lcr_bike::new();
 	let result = bike2.sk_load(&sk);
 	assert_eq!(result, Ok(()));
-	assert_eq!(bike.sk().0, bike2.sk().0);
+	assert_eq!(bike.get_sk().0, bike2.get_sk().0);
 
 	let result = bike2.ct_load(&ct);
 	assert_eq!(result, Ok(()));
-	assert_eq!(bike.ct().0, bike2.ct().0);
+	assert_eq!(bike.get_ct().0, bike2.get_ct().0);
 
 	let result = bike2.decapsulate();
 	assert_eq!(result, Ok(()));
-	assert_eq!(bike.ss().0, bike2.ss().0);
-	//println!("ct {:x?}",  bike2.ct().to_vec().chunks(10).next());
+	assert_eq!(bike.get_ss().0, bike2.get_ss().0);
+	//println!("ct {:x?}",  bike2.get_ct().to_vec().chunks(10).next());
 }
 
 #[test]

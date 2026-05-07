@@ -59,18 +59,18 @@ fn lc_rust_ed25519_verify_kat() {
 
 	let result = ed25519.pk_load(&pk);
 	assert_eq!(result, Ok(()));
-	assert_eq!(ed25519.pk().0, &pk[..]);
+	assert_eq!(ed25519.get_pk().0, &pk[..]);
 
 	let result = ed25519.sig_load(&sig);
 	assert_eq!(result, Ok(()));
-	assert_eq!(ed25519.sig().0, &sig[..]);
+	assert_eq!(ed25519.get_sig().0, &sig[..]);
 
 	let result = ed25519.verify(&msg);
 	assert_eq!(result, Ok(()));
 
 	let result = ed25519.keypair();
 	assert_eq!(result, Ok(()));
-	assert_ne!(ed25519.pk().0, &pk[..]);
+	assert_ne!(ed25519.get_pk().0, &pk[..]);
 }
 
 #[test]
@@ -119,18 +119,18 @@ fn lc_rust_ed25519_sign_kat() {
 
 	let result = ed25519.sk_load(&sk);
 	assert_eq!(result, Ok(()));
-	assert_eq!(ed25519.sk().0, &sk[..]);
+	assert_eq!(ed25519.get_sk().0, &sk[..]);
 
 	let result = ed25519.sign(&msg);
 	assert_eq!(result, Ok(()));
 
 	/* Export signature */
-	let (sig_slice, result) = ed25519.sig();
+	let (sig_slice, result) = ed25519.get_sig();
 	assert_eq!(result, Ok(()));
 	let sig_act = sig_slice.to_vec();
 	assert_ne!(&sig_act[..], &sig[..]);
 
 	let result = ed25519.keypair();
 	assert_eq!(result, Ok(()));
-	assert_ne!(ed25519.sk().0, &sk[..]);
+	assert_ne!(ed25519.get_sk().0, &sk[..]);
 }
