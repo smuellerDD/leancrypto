@@ -58,8 +58,7 @@ struct lc_cc_cryptor {
  * ->keystream pointer is aligned
  */
 #define LC_CC_STATE_SIZE                                                       \
-	(LC_CSHAKE_STATE_SIZE + LC_CSHAKE_STATE_SIZE_REINIT +                  \
-	 LC_CC_KEYSTREAM_BLOCK + LC_CSHAKE_CRYPT_ALIGNMENT)
+	(LC_HASH_STATE_SIZE + LC_CC_KEYSTREAM_BLOCK + LC_CSHAKE_CRYPT_ALIGNMENT)
 #define LC_CC_CTX_SIZE                                                         \
 	(sizeof(struct lc_aead) + sizeof(struct lc_cc_cryptor) +               \
 	 LC_CC_STATE_SIZE)
@@ -70,13 +69,11 @@ extern const struct lc_aead *lc_cshake_aead;
 /* Ensure that ->keystream is aligned to XOR alignment requirement */
 #define _LC_CC_SET_CTX(name, hashname)                                         \
 	_LC_HASH_SET_CTX((&name->cshake), hashname);                           \
-	_LC_CSHAKE_SET_CTX_REINIT(                                             \
-		(&name->auth_ctx), hashname, name,                             \
-		(sizeof(struct lc_cc_cryptor) + LC_CSHAKE_STATE_SIZE));        \
+	_LC_CSHAKE_SET_CTX_REINIT((&name->auth_ctx), hashname, name,           \
+				  (sizeof(struct lc_cc_cryptor)));             \
 	name->keystream = LC_ALIGN_CSHAKE_CRYPT_MASK(                          \
 		(uint8_t *)((uint8_t *)name + (sizeof(struct lc_cc_cryptor) +  \
-					       LC_CSHAKE_STATE_SIZE +          \
-					       LC_CSHAKE_STATE_SIZE_REINIT)))
+					       LC_HASH_STATE_SIZE)))
 
 #define LC_CC_SET_CTX(name, hashname)                                          \
 	LC_AEAD_CTX(name, lc_cshake_aead);                                     \

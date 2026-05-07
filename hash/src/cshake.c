@@ -23,6 +23,7 @@
 #include "lc_sha3.h"
 #include "left_encode.h"
 #include "null_buffer.h"
+#include "ret_checkers.h"
 
 #include "visibility.h"
 
@@ -59,9 +60,7 @@ static int lc_cshake_init_impl(struct lc_hash_ctx *ctx, const uint8_t *n,
 		return lc_hash_init(ctx);
 	}
 
-	ret = hash_init(ctx->hash_state);
-	if (ret)
-		return ret;
+	CKINT(hash_init(ctx->hash_state));
 
 	/* bytepad value */
 	//len = left_encode(buf, hash_blocksize(ctx));
@@ -96,7 +95,8 @@ static int lc_cshake_init_impl(struct lc_hash_ctx *ctx, const uint8_t *n,
 	if (len)
 		lc_hash_update(ctx, null_buffer, lc_hash_blocksize(ctx) - len);
 
-	return 0;
+out:
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_cshake_init, struct lc_hash_ctx *ctx,
@@ -104,24 +104,34 @@ LC_INTERFACE_FUNCTION(int, lc_cshake_init, struct lc_hash_ctx *ctx,
 		      size_t slen)
 {
 	const struct lc_hash *hash;
+	int ret;
 
-	if (!ctx)
-		return -EINVAL;
+	CKNULL(ctx, -EINVAL);
 
 	hash = ctx->hash;
-	return lc_cshake_init_impl(ctx, n, nlen, s, slen, hash->init);
+	CKNULL(hash, -EINVAL);
+
+	CKINT(lc_cshake_init_impl(ctx, n, nlen, s, slen, hash->init));
+
+out:
+	return ret;
 }
 
 int lc_cshake_init_nocheck(struct lc_hash_ctx *ctx, const uint8_t *n,
 			   size_t nlen, const uint8_t *s, size_t slen)
 {
 	const struct lc_hash *hash;
+	int ret;
 
-	if (!ctx)
-		return -EINVAL;
+	CKNULL(ctx, -EINVAL);
 
 	hash = ctx->hash;
-	return lc_cshake_init_impl(ctx, n, nlen, s, slen, hash->init_nocheck);
+	CKNULL(hash, -EINVAL);;
+
+	CKINT(lc_cshake_init_impl(ctx, n, nlen, s, slen, hash->init_nocheck));
+
+out:
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_cshake_ctx_init, struct lc_cshake_ctx *cshake_ctx,

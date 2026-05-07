@@ -24,6 +24,9 @@ LC_INTERFACE_FUNCTION(int, lc_hash_init, struct lc_hash_ctx *hash_ctx)
 		return -EINVAL;
 
 	hash = hash_ctx->hash;
+	if (!hash)
+		return -EINVAL;
+
 	return hash->init(hash_ctx->hash_state);
 }
 
@@ -48,6 +51,9 @@ LC_INTERFACE_FUNCTION(void, lc_hash_final, struct lc_hash_ctx *hash_ctx,
 		return;
 
 	hash = hash_ctx->hash;
+	if (!hash)
+		return;
+
 	hash->final(hash_ctx->hash_state, digest);
 }
 
@@ -60,6 +66,9 @@ LC_INTERFACE_FUNCTION(int, lc_hash_set_digestsize, struct lc_hash_ctx *hash_ctx,
 		return -EINVAL;
 
 	hash = hash_ctx->hash;
+	if (!hash)
+		return -EINVAL;
+
 	if (hash->set_digestsize)
 		hash->set_digestsize(hash_ctx->hash_state, digestsize);
 
@@ -79,6 +88,9 @@ LC_INTERFACE_FUNCTION(size_t, lc_hash_digestsize,
 		return 0;
 
 	hash = hash_ctx->hash;
+	if (!hash)
+		return 0;
+
 	return hash->get_digestsize(hash_ctx->hash_state);
 }
 
@@ -91,6 +103,9 @@ LC_INTERFACE_FUNCTION(unsigned int, lc_hash_blocksize,
 		return 0;
 
 	hash = hash_ctx->hash;
+	if (!hash)
+		return 0;
+
 	return hash->sponge_rate;
 }
 
@@ -103,6 +118,9 @@ LC_INTERFACE_FUNCTION(unsigned int, lc_hash_ctxsize,
 		return 0;
 
 	hash = hash_ctx->hash;
+	if (!hash)
+		return 0;
+
 	return hash->statesize;
 }
 
@@ -114,7 +132,27 @@ LC_INTERFACE_FUNCTION(void, lc_hash_zero, struct lc_hash_ctx *hash_ctx)
 		return;
 
 	hash = hash_ctx->hash;
+	if (!hash)
+		return;
+
 	lc_memset_secure(hash_ctx->hash_state, 0, hash->statesize);
+}
+
+LC_INTERFACE_FUNCTION(int, lc_hash_set_ctx, const struct lc_hash *hash,
+		      struct lc_hash_ctx *hash_ctx)
+{
+	int ret = 0;
+
+	CKNULL(hash, -EINVAL);
+	CKNULL(hash_ctx, -EINVAL);
+
+	if (hash_ctx->hash)
+		return -EOPNOTSUPP;
+
+	LC_HASH_SET_CTX(hash_ctx, hash);
+
+out:
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_hash_alloc, const struct lc_hash *hash,

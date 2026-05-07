@@ -326,9 +326,9 @@ LC_INTERFACE_FUNCTION(void, lc_kmac_zero, struct lc_kmac_ctx *kmac_ctx)
 	kmac_ctx->final_called = 0;
 	kmac_ctx->rng_initialized = 0;
 
-	lc_memset_secure((uint8_t *)kmac_ctx + sizeof(struct lc_kmac_ctx), 0,
-			 kmac_ctx->shadow_ctx ? LC_KMAC_STATE_SIZE_REINIT :
-						LC_KMAC_STATE_SIZE);
+	lc_hash_zero(&kmac_ctx->hash_ctx);
+	if (kmac_ctx->shadow_ctx)
+		lc_memset_secure(kmac_ctx->shadow_ctx, 0, LC_HASH_STATE_SIZE);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_kmac, const struct lc_hash *hash,

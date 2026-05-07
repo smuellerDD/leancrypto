@@ -130,6 +130,28 @@ int lc_hash_init(struct lc_hash_ctx *hash_ctx);
 
 /**
  * @ingroup Hashing
+ * @brief Set the hash context's hash implementation
+ *
+ * This function is only required if the caller already has some memory of
+ * \p hash_ctx size available which is not initialized with \p lc_hash_alloc or
+ * \p LC_HASH_CTX_ON_STACK. In this case, the raw memory buffer needs to be
+ * connected with the actual hash algorithm implementation using this function.
+ *
+ * \note This function can only be called if no previous initialization of the
+ * memory was done by either using this function or the aforementioned memory
+ * allocation functions. If you call it on an already initialized memory, it
+ * will return -EOPNOTSUPP.
+ *
+ * @param [in] hash Reference to hash implementation to be used with the context
+ * @param [in] hash_ctx Reference to hash context implementation to be used to
+ *			perform hash calculation with.
+ *
+ * @return 0 on success; < 0 on error
+ */
+int lc_hash_set_ctx(const struct lc_hash *hash, struct lc_hash_ctx *hash_ctx);
+
+/**
+ * @ingroup Hashing
  * @brief Update hash
  *
  * @param [in] hash_ctx Reference to hash context implementation to be used to

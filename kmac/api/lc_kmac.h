@@ -38,23 +38,18 @@ struct lc_kmac_ctx {
 	struct lc_hash_ctx hash_ctx;
 };
 
-#define LC_KMAC_STATE_SIZE (LC_SHA3_224_STATE_SIZE)
-#define LC_KMAC_STATE_SIZE_REINIT (2 * LC_SHA3_224_STATE_SIZE)
-#define LC_KMAC_CTX_SIZE (LC_KMAC_STATE_SIZE + sizeof(struct lc_kmac_ctx))
-#define LC_KMAC_CTX_SIZE_REINIT                                                \
-	(LC_KMAC_STATE_SIZE_REINIT + sizeof(struct lc_kmac_ctx))
+#define LC_KMAC_CTX_SIZE (sizeof(struct lc_kmac_ctx))
+#define LC_KMAC_CTX_SIZE_REINIT (LC_KMAC_CTX_SIZE + LC_HASH_STATE_SIZE)
 
-#define _LC_KMAC_SET_CTX(name, hashname, ctx, offset)                          \
+#define _LC_KMAC_SET_CTX(name, hashname)                                       \
 	_LC_HASH_SET_CTX((&name->hash_ctx), hashname);                         \
 	name->shadow_ctx = NULL
 
-#define LC_KMAC_SET_CTX(name, hashname)                                        \
-	_LC_KMAC_SET_CTX(name, hashname, name, sizeof(struct lc_kmac_ctx))
+#define LC_KMAC_SET_CTX(name, hashname) _LC_KMAC_SET_CTX(name, hashname)
 
 #define _LC_KMAC_SET_CTX_REINIT(name, hashname, ctx, offset)                   \
 	_LC_HASH_SET_CTX((&name->hash_ctx), hashname);                         \
-	name->shadow_ctx =                                                     \
-		(uint8_t *)((uint8_t *)ctx + offset + LC_HASH_STATE_SIZE)
+	name->shadow_ctx = (uint8_t *)((uint8_t *)ctx + offset)
 
 #define LC_KMAC_SET_CTX_REINIT(name, hashname)                                 \
 	_LC_KMAC_SET_CTX_REINIT(name, hashname, name,                          \

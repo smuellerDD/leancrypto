@@ -96,27 +96,22 @@ static inline int lc_cshake_final(struct lc_hash_ctx *ctx, uint8_t *out,
  */
 /// \cond DO_NOT_DOCUMENT
 struct lc_cshake_ctx {
-	uint8_t *shadow_ctx;
 	struct lc_hash_ctx hash_ctx;
+	uint8_t *shadow_ctx;
 };
 
-#define LC_CSHAKE_STATE_SIZE (LC_SHA3_224_STATE_SIZE)
-#define LC_CSHAKE_STATE_SIZE_REINIT (2 * LC_SHA3_224_STATE_SIZE)
-#define LC_CSHAKE_CTX_SIZE (LC_CSHAKE_STATE_SIZE + sizeof(struct lc_cshake_ctx))
-#define LC_CSHAKE_CTX_SIZE_REINIT                                              \
-	(LC_CSHAKE_STATE_SIZE_REINIT + sizeof(struct lc_cshake_ctx))
+#define LC_CSHAKE_CTX_SIZE (sizeof(struct lc_cshake_ctx))
+#define LC_CSHAKE_CTX_SIZE_REINIT (LC_CSHAKE_CTX_SIZE + LC_HASH_STATE_SIZE)
 
-#define _LC_CSHAKE_SET_CTX(name, hashname, ctx, offset)                        \
+#define _LC_CSHAKE_SET_CTX(name, hashname)                                     \
 	_LC_HASH_SET_CTX((&name->hash_ctx), hashname);                         \
 	name->shadow_ctx = NULL
 
-#define LC_CSHAKE_SET_CTX(name, hashname)                                      \
-	_LC_CSHAKE_SET_CTX(name, hashname, name, sizeof(struct lc_cshake_ctx))
+#define LC_CSHAKE_SET_CTX(name, hashname) _LC_CSHAKE_SET_CTX(name, hashname)
 
 #define _LC_CSHAKE_SET_CTX_REINIT(name, hashname, ctx, offset)                 \
 	_LC_HASH_SET_CTX((&name->hash_ctx), hashname);                         \
-	name->shadow_ctx =                                                     \
-		(uint8_t *)((uint8_t *)ctx + offset + LC_HASH_STATE_SIZE)
+	name->shadow_ctx = (uint8_t *)((uint8_t *)ctx + offset)
 
 #define LC_CSHAKE_SET_CTX_REINIT(name, hashname)                               \
 	_LC_CSHAKE_SET_CTX_REINIT(name, hashname, name,                        \
@@ -221,10 +216,10 @@ static inline void lc_cshake_ctx_zero(struct lc_cshake_ctx *cshake_ctx)
 	if (!cshake_ctx)
 		return;
 
-	lc_memset_secure((uint8_t *)cshake_ctx + sizeof(struct lc_cshake_ctx),
-			 0,
-			 cshake_ctx->shadow_ctx ? LC_CSHAKE_STATE_SIZE_REINIT :
-						  LC_CSHAKE_STATE_SIZE);
+	lc_hash_zero(&cshake_ctx->hash_ctx);
+	if (cshake_ctx->shadow_ctx) {
+		lc_memset_secure(cshake_ctx->shadow_ctx, 0, LC_HASH_STATE_SIZE);
+	}
 }
 
 /**

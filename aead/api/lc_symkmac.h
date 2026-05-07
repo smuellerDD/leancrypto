@@ -35,7 +35,7 @@ struct lc_kh_cryptor {
 	struct lc_kmac_ctx auth_ctx;
 };
 
-#define LC_KH_STATE_SIZE(sym) (LC_SYM_STATE_SIZE(sym) + LC_KMAC_STATE_SIZE)
+#define LC_KH_STATE_SIZE(sym) (LC_SYM_STATE_SIZE(sym))
 #define LC_KH_CTX_SIZE(sym)                                                    \
 	(sizeof(struct lc_aead) + sizeof(struct lc_kh_cryptor) +               \
 	 LC_KH_STATE_SIZE(sym))
@@ -46,9 +46,7 @@ extern const struct lc_aead *lc_symkmac_aead;
 #define _LC_KH_SET_CTX(name, symalgo, hash)                                    \
 	_LC_SYM_SET_CTX((&name->sym), symalgo, name,                           \
 			(sizeof(struct lc_kh_cryptor)));                       \
-	_LC_KMAC_SET_CTX(                                                      \
-		(&name->auth_ctx), hash, name,                                 \
-		(sizeof(struct lc_kh_cryptor) + LC_SYM_STATE_SIZE(symalgo)))
+	_LC_KMAC_SET_CTX((&name->auth_ctx), hash)
 
 #define LC_KH_SET_CTX(name, sym, hash)                                         \
 	LC_AEAD_CTX(name, lc_symkmac_aead);                                    \
