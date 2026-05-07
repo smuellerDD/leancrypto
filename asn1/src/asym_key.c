@@ -1484,3 +1484,15 @@ int lc_asym_keypair_load(struct lc_x509_certificate *cert,
 out:
 	return ret;
 }
+
+int lc_asym_key_type(enum lc_sig_types *type,
+		     const struct lc_x509_key_data *keys)
+{
+	int ret = 0;
+
+	CKNULL(keys, -EINVAL);
+	*type = keys->sig_type;
+
+out:
+	return ret;
+}

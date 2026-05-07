@@ -145,13 +145,26 @@ void lc_pkcs8_message_clear(struct lc_pkcs8_message *pkcs8);
 
 /**
  * @ingroup PKCS8
+ * @brief Return signature size derived from private key information
+ *
+ * @param [out] siglen Signature size
+ * @param [in] pkcs8 The parsed PKCS#8 data structure holding the private keys
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_pkcs8_get_signature_size_from_sk(size_t *siglen,
+					const struct lc_pkcs8_message *pkcs8);
+
+/**
+ * @ingroup PKCS8
  * @brief Generate signature over user-supplied data
  *
  * This is the PKCS#8 equivalent to lc_x509_signature_gen.
  *
  * @param [out] sig_data Caller-supplied buffer with signature (it needs to be
  * 			 at least as large as reported by
- * 			 \p lc_x509_get_signature_size_from_sk or
+ * 			 \p lc_x509_get_signature_size_from_sk,
+ *			 \p lc_pkcs8_get_signature_size_from_sk or
  *			 \p lc_x509_get_signature_size_from_cert)
  * @param [in,out] siglen Length of the \p sig_data buffer, the value will be
  *			  updated such that it reflects the length of the
@@ -171,5 +184,17 @@ int lc_pkcs8_signature_gen(uint8_t *sig_data, size_t *siglen,
 			   const struct lc_pkcs8_message *pkcs8,
 			   const uint8_t *m, size_t mlen,
 			   const struct lc_hash *prehash_algo);
+
+/**
+ * @ingroup PKCS8
+ * @brief Return key type
+ *
+ * @param [out] type Key type
+ * @param [in] pkcs8 The PKCS#8 message holding the private key
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_pkcs8_key_type(enum lc_sig_types *type,
+		      const struct lc_pkcs8_message *pkcs8);
 
 #endif /* _CRYPTO_PKCS8_PARSER_H */

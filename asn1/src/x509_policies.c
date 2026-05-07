@@ -361,6 +361,29 @@ LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_time_valid,
 	return LC_X509_POL_TRUE;
 }
 
+LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_time_valid_now,
+		      const struct lc_x509_certificate *cert)
+{
+	time64_t time_since_epoch = 0;
+	int ret;
+
+	ret = lc_get_time(&time_since_epoch, NULL);
+	/*
+	 * If gathering of time is not supported on local system, do not check
+	 * it.
+	 */
+	if (ret == -EOPNOTSUPP) {
+		return LC_X509_POL_TRUE;
+	} else if (ret < 0)
+		return ret;
+
+	/*
+	 * Certificate validation: Check validity of time (if the underlying
+	 * platform offers a time stamp)
+	 */
+	return lc_x509_policy_time_valid(cert, time_since_epoch);
+}
+
 static lc_x509_pol_ret_t lc_x509_policy_consistency(
 	const struct lc_x509_certificate *cert)
 {
@@ -488,33 +511,11 @@ static int lc_x509_policy_verify_general(const struct lc_public_key *pkey,
 					 const struct lc_x509_certificate *cert,
 					 uint64_t flags)
 {
-	time64_t time_since_epoch = 0;
 	int ret;
 
 	(void)flags;
 
-	ret = lc_get_time(&time_since_epoch, NULL);
-	/*
-	 * If gathering of time is not supported on local system, do not check
-	 * it.
-	 */
-	if (ret == -EOPNOTSUPP) {
-		time_since_epoch = 0;
-	} else if (ret)
-		return ret;
-
-	/*
-	 * Certificate validation: Check validity of time (if the underlying
-	 * platform offers a time stamp)
-	 */
-	if (time_since_epoch) {
-		CKINT(lc_x509_policy_time_valid(cert, time_since_epoch));
-		if (ret == LC_X509_POL_FALSE) {
-			printf_debug("Certificate's time not valid\n");
-			return -EKEYREJECTED;
-		}
-		printf_debug("Certificate's time valid\n");
-	}
+	CKINT(lc_x509_policy_time_valid_now(cert));
 
 	/*
 	 * Certificate validation: Check signature

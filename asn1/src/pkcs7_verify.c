@@ -227,10 +227,10 @@ int lc_pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 			      struct lc_x509_certificate *x509,
 			      struct lc_pkcs7_signed_info *sinfo)
 {
-	struct lc_public_key_signature *sig;
+	const struct lc_public_key_signature *sig;
 	struct lc_x509_certificate *p, *start_cert = x509;
 	const struct lc_x509_certificate *trusted;
-	struct lc_asymmetric_key_id *auth0, *auth1;
+	const struct lc_asymmetric_key_id *auth0, *auth1;
 	int ret = 0;
 
 	printf_debug("==> %s()\n", __func__);

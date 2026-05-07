@@ -54,6 +54,18 @@
 #include "x509_san_asn1.h"
 #include "x509_skid_asn1.h"
 
+#define CKINT_POL(x)                                                           \
+	{                                                                      \
+		ret_pol = x;                                                   \
+		if (ret_pol < 0) {                                             \
+			ret = ret_pol;                                         \
+			goto out;                                              \
+		} else if (ret_pol == LC_X509_POL_FALSE) {                     \
+			ret = -EKEYREJECTED;                                   \
+			goto out;                                              \
+		}                                                              \
+	}
+
 /******************************************************************************
  * ASN.1 parser support functions
  ******************************************************************************/
@@ -1177,6 +1189,105 @@ LC_INTERFACE_FUNCTION(int, lc_x509_signature_verify, const uint8_t *sig_data,
 
 out:
 	lc_memset_secure(&sig, 0, sizeof(sig));
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x509_cert_verify,
+		      const struct lc_x509_certificate *signer_cert,
+		      const struct lc_x509_certificate *signed_cert,
+		      uint64_t flags)
+{
+	const struct lc_public_key_signature *sig;
+	const struct lc_asymmetric_key_id *auth0, *auth1;
+	lc_x509_pol_ret_t ret_pol;
+	int ret;
+
+	CKNULL(signer_cert, -EINVAL);
+	CKNULL(signed_cert, -EINVAL);
+
+	/* Verify the signer validity is appropriate */
+	CKINT_POL(lc_x509_policy_time_valid_now(signer_cert));
+
+	/* Do we have a valid certificate? */
+	CKINT_POL(lc_x509_policy_cert_valid(signer_cert));
+
+	/*
+	 * The signature of the signer_cert is explicitly not checked as we
+	 * do not have any knowledge about its signer.
+	 */
+
+	/*
+	 * Check that signed certificate issuers matches the subject of the
+	 * signer.
+	 */
+	CKINT_POL(lc_x509_policy_cert_subject_match(
+		signed_cert, &signer_cert->subject_segments,
+		lc_x509_policy_cert_subject_match_issuer_only));
+
+	sig = &signed_cert->sig;
+	auth0 = &sig->auth_ids[0];
+	auth1 = &sig->auth_ids[1];
+	if (auth0->len) {
+		bin2print_debug(auth0->data, auth0->len, stdout,
+				"- want");
+		CKINT(lc_asymmetric_key_id_same(&signer_cert->id, auth0));
+	} else if (auth1->len) {
+		bin2print_debug(auth1->data, auth1->len, stdout,
+				"- want");
+		CKINT(lc_asymmetric_key_id_same(&signer_cert->skid, auth1));
+	} else {
+
+		/*
+		 * Check that the authentication key ID of the signed
+		 * certificate matches the SKID of the signer.
+		 *
+		 * This call checks that the signer_cert is a CA and therefore
+		 * a valid certificate.
+		 */
+		CKINT_POL(lc_x509_policy_match_akid(
+			signer_cert, signed_cert->raw_akid,
+			signed_cert->raw_akid_size));
+	}
+
+	/*
+	 * This call checks that the signed_cert is a valid certificate as well
+	 * as its time is valid and it performs the signature verification
+	 * check along with the required key usage checks.
+	 */
+	CKINT(lc_x509_policy_verify_cert(&signer_cert->pub, signed_cert,
+					 flags));
+
+out:
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x509_get_signature_size_from_sk, size_t *siglen,
+		      const struct lc_x509_key_data *keys)
+{
+	int ret;
+
+	CKNULL(siglen, -EINVAL);
+	CKNULL(keys, -EINVAL);
+
+	CKINT(lc_public_key_signature_size(siglen, keys->sig_type));
+
+out:
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x509_get_signature_size_from_cert, size_t *siglen,
+		      const struct lc_x509_certificate *cert)
+{
+	const struct lc_public_key *pub;
+	int ret;
+
+	CKNULL(siglen, -EINVAL);
+	CKNULL(cert, -EINVAL);
+
+	pub = &cert->pub;
+	CKINT(lc_public_key_signature_size(siglen, pub->pkey_algo));
+
+out:
 	return ret;
 }
 

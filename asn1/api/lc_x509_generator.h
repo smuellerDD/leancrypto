@@ -118,30 +118,6 @@ int lc_x509_sk_encode(const struct lc_x509_key_data *gendata, uint8_t *data,
 
 /**
  * @ingroup X509Gen
- * @brief Return signature size derived from private key information
- *
- * @param [out] siglen Signature size
- * @param [in] keys The data structure holding the private keys
- *
- * @return 0 on success or < 0 on error
- */
-int lc_x509_get_signature_size_from_sk(size_t *siglen,
-				       const struct lc_x509_key_data *keys);
-
-/**
- * @ingroup X509Gen
- * @brief Return signature size derived from certificate information
- *
- * @param [out] siglen Signature size
- * @param [in] cert The certificate data structure with the available public key
- *
- * @return 0 on success or < 0 on error
- */
-int lc_x509_get_signature_size_from_cert(
-	size_t *siglen, const struct lc_x509_certificate *cert);
-
-/**
- * @ingroup X509Gen
  * @brief Generate signature over user-supplied data
  *
  * @param [out] sig_data Caller-supplied buffer with signature (it needs to be

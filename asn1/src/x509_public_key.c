@@ -138,9 +138,9 @@ int lc_x509_get_sig_params(struct lc_x509_certificate *cert)
  */
 int lc_x509_check_for_self_signed(struct lc_x509_certificate *cert)
 {
-	struct lc_public_key_signature *sig = &cert->sig;
-	struct lc_asymmetric_key_id *auth_id_0 = &sig->auth_ids[0];
-	struct lc_asymmetric_key_id *auth_id_1 = &sig->auth_ids[1];
+	const struct lc_public_key_signature *sig = &cert->sig;
+	const struct lc_asymmetric_key_id *auth_id_0 = &sig->auth_ids[0];
+	const struct lc_asymmetric_key_id *auth_id_1 = &sig->auth_ids[1];
 
 	int ret = 0;
 
@@ -155,8 +155,8 @@ int lc_x509_check_for_self_signed(struct lc_x509_certificate *cert)
 		 * If the AKID is present it may have one or two parts.  If
 		 * both are supplied, both must match.
 		 */
-		int a = lc_asymmetric_key_id_same(&cert->skid, auth_id_1);
-		int b = lc_asymmetric_key_id_same(&cert->id, auth_id_0);
+		const int a = lc_asymmetric_key_id_same(&cert->skid, auth_id_1);
+		const int b = lc_asymmetric_key_id_same(&cert->id, auth_id_0);
 
 		if (!a && !b)
 			goto not_self_signed;

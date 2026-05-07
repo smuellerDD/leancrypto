@@ -1461,36 +1461,6 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(int, lc_x509_get_signature_size_from_sk, size_t *siglen,
-		      const struct lc_x509_key_data *keys)
-{
-	int ret;
-
-	CKNULL(siglen, -EINVAL);
-	CKNULL(keys, -EINVAL);
-
-	CKINT(lc_public_key_signature_size(siglen, keys->sig_type));
-
-out:
-	return ret;
-}
-
-LC_INTERFACE_FUNCTION(int, lc_x509_get_signature_size_from_cert, size_t *siglen,
-		      const struct lc_x509_certificate *cert)
-{
-	const struct lc_public_key *pub;
-	int ret;
-
-	CKNULL(siglen, -EINVAL);
-	CKNULL(cert, -EINVAL);
-
-	pub = &cert->pub;
-	CKINT(lc_public_key_signature_size(siglen, pub->pkey_algo));
-
-out:
-	return ret;
-}
-
 LC_INTERFACE_FUNCTION(int, lc_x509_signature_gen, uint8_t *sig_data,
 		      size_t *siglen, const struct lc_x509_key_data *keys,
 		      const uint8_t *m, size_t mlen,

@@ -82,6 +82,28 @@ void lc_x509_cert_clear(struct lc_x509_certificate *cert);
  * to validate the certificate considering that the loading of the certificate
  * has no information about the use case.
  *
+ * The parsing should follow these steps:
+ *
+ * 1. Allocate the certificate state \p cert on stack or heap using
+ *    \p lc_x509_cert_alloc.
+ *
+ * 2. Use \p lc_x509_cert_decode to decode the certificate
+ *
+ * 3. Operate with the certificate:
+ *
+ *	a) Use \p lc_X509_cert_get_* to get the various information from the
+ *	 certificate
+ *
+ *	b) Use \p lc_x509_signature_verify to use the certificate for
+ *	   verification of data
+ *
+ *	c) Use \p lc_x509_cert_verify to use the certificate for verification
+ *	   of another certificate
+ *
+ *	d) Use \p lc_x509_signature_gen to generate a signature - this requires
+ *	   the private key to be loaded with \p lc_x509_sk_decode or
+ *	   \p lc_pkcs8_decode.
+ *
  * @param [in,out] cert The data structure that is filled with all parameters
  *			from the X.509 certificate data buffer. The buffer must
  *			have been allocated by the caller. It is permissible
@@ -614,6 +636,65 @@ int lc_x509_signature_verify(const uint8_t *sig_data, size_t siglen,
 			     const struct lc_x509_certificate *cert,
 			     const uint8_t *m, size_t mlen,
 			     const struct lc_hash *prehash_algo);
+
+/**
+ * @ingroup X509
+ * @brief Return signature size derived from private key information
+ *
+ * @param [out] siglen Signature size
+ * @param [in] keys The data structure holding the private keys
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_get_signature_size_from_sk(size_t *siglen,
+				       const struct lc_x509_key_data *keys);
+
+/**
+ * @ingroup X509
+ * @brief Return signature size derived from certificate information
+ *
+ * @param [out] siglen Signature size
+ * @param [in] cert The certificate data structure with the available public key
+ *
+ * @return 0 on success or < 0 on error
+ */
+int lc_x509_get_signature_size_from_cert(
+	size_t *siglen, const struct lc_x509_certificate *cert);
+
+/**
+ * @ingroup X509
+ * @brief Verification of an X.509 certificate against a signer certificate
+ *
+ * This function performs the signature verification of the signature associated
+ * with an X.509 certificate against a signer X.509 certificate provided by the
+ * caller. In addition, it performs all validity checks required as part of the
+ * verification operation, including the validity time enforcement. Only if all
+ * checks pass, the certificate is considered to be validated.
+ *
+ * \note Albeit all aspects of the signer and signed certificates are checked,
+ * the signature of the signer certificate is not verified as we do not have
+ * the public key of the signer of the \p signer_cert. Thus, the caller can only
+ * use this API if he trusts the \p signer_cert authenticity. If you want to
+ * verify a full certificate chain, use the APIs of \p lc_pkcs7_verify where the
+ * following approach is taken:
+ *
+ * 1. The parameter \p lc_pkcs7_message is filled with the setter functions
+ *    \p lc_pkcs7_set_* including the setting of the \p signed_cert into the
+ *    PKCS#7 message.
+ *
+ * 2. The certificate chain is added to the trust store parameter with the
+ *    \p lc_pkcs7_trust_store_add API.
+ *
+ * @param [in] signer_cert Signer X.509 certificate that is checked whether it
+ *			   signed \p signed_cert.
+ * @param [in] signed_cert Reference to the certificate to be validated
+ * @param [in] flags Flags for the verification process (currently unused)
+ *
+ * @return 0 on success, < 0 on error
+ */
+int lc_x509_cert_verify(const struct lc_x509_certificate *signer_cert,
+			const struct lc_x509_certificate *signed_cert,
+			uint64_t flags);
 
 #ifdef LC_DILITHIUM_ED25519_SIG
 /**
@@ -1219,10 +1300,21 @@ lc_x509_policy_match_extended_key_usage(const struct lc_x509_certificate *cert,
  *
  * @return < 0 on error, LC_X509_POL_TRUE or LC_X509_POL_FALSE
  */
-
 lc_x509_pol_ret_t
 lc_x509_policy_time_valid(const struct lc_x509_certificate *cert,
 			  time64_t current_time);
+
+/**
+ * @ingroup X509
+ * @brief Check if the current system time falls within the range of the
+ * certificate validity time.
+ *
+ * @param [in] cert Reference to the certificate
+ *
+ * @return < 0 on error, LC_X509_POL_TRUE or LC_X509_POL_FALSE
+ */
+lc_x509_pol_ret_t
+lc_x509_policy_time_valid_now(const struct lc_x509_certificate *cert);
 
 /**
  * @ingroup X509

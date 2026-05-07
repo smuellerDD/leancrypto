@@ -188,6 +188,20 @@ out:
 	return ret;
 }
 
+LC_INTERFACE_FUNCTION(int, lc_pkcs8_get_signature_size_from_sk, size_t *siglen,
+		      const struct lc_pkcs8_message *pkcs8)
+{
+	int ret;
+
+	CKNULL(siglen, -EINVAL);
+	CKNULL(pkcs8, -EINVAL);
+
+	CKINT(lc_x509_get_signature_size_from_sk(siglen, pkcs8->privkey_ptr));
+
+out:
+	return ret;
+}
+
 LC_INTERFACE_FUNCTION(int, lc_pkcs8_signature_gen, uint8_t *sig_data,
 		      size_t *siglen, const struct lc_pkcs8_message *pkcs8,
 		      const uint8_t *m, size_t mlen,
@@ -212,4 +226,16 @@ out:
 	(void)prehash_algo;
 	return -EOPNOTSUPP;
 #endif
+}
+
+LC_INTERFACE_FUNCTION(int, lc_pkcs8_key_type, enum lc_sig_types *type,
+		      const struct lc_pkcs8_message *pkcs8)
+{
+	int ret;
+
+	CKNULL(pkcs8, -EINVAL);
+	CKINT(lc_asym_key_type(type, pkcs8->privkey_ptr));
+
+out:
+	return ret;
 }
