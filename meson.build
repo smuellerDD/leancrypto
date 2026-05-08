@@ -12,6 +12,7 @@
 #		      enhancements, bug fixes only.
 project('leancrypto', 'c',
 	version: '1.8.0',
+	meson_version: '>=0.56.0',
 	default_options: [
 		'warning_level=3',
 		'optimization=3',
