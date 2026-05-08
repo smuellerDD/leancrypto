@@ -462,7 +462,7 @@ if get_option('x509_generator').enabled()
 			suite: regression,
 			should_fail: fips140_negative_expect_fail)
 
-		test('X.509 SLH-DSA-SHAKE-256s Encap/Decap',
+		test('X.509 SLH-DSA-SHAKE-256s Encode/Decode',
 			x509_decode_encode_tester,
 			args: [ '--sk-file', certdir + 'slh-dsa-shake-256s_cacert.privkey',
 				'--x509-cert', certdir + 'slh-dsa-shake-256s_cacert.der' ],
