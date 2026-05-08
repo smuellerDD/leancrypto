@@ -88,7 +88,7 @@ static int test_encrypt_all(const struct lc_sym *aes_impl, const char *name)
 
 	printf("AES block ctx %s (%s implementation) len %u\n", name,
 	       aes_impl == lc_aes_c ? "C" : "accelerated",
-	       (unsigned int)LC_SYM_CTX_SIZE(aes_impl));
+	       (unsigned int)LC_SYM_CTX_SIZE);
 
 	ret = test_encrypt(aes_impl, key256, sizeof(key256), out256);
 	ret += test_encrypt(aes_impl, key192, sizeof(key192), out192);

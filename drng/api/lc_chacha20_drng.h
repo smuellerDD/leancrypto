@@ -36,7 +36,7 @@ struct lc_chacha20_drng_ctx {
 /* ChaCha20-based DRNG */
 extern const struct lc_rng *lc_cc20_drng;
 
-#define LC_CC20_DRNG_SYM_STATE_SIZE (LC_SYM_CTX_SIZE_NONALIGNED(lc_chacha20))
+#define LC_CC20_DRNG_SYM_STATE_SIZE (LC_CC20_STATE_SIZE)
 #define LC_CC20_DRNG_STATE_SIZE                                                \
 	(LC_CC20_DRNG_SYM_STATE_SIZE + sizeof(struct lc_chacha20_drng_ctx))
 #define LC_CC20_DRNG_CTX_SIZE (sizeof(struct lc_rng) + LC_CC20_DRNG_STATE_SIZE)
@@ -59,15 +59,13 @@ extern const struct lc_rng *lc_cc20_drng;
  *
  * \warning You MUST seed the DRNG!
  */
-#define LC_CC20_DRNG_CTX_ON_STACK(name)                                             \
-	_Pragma("GCC diagnostic push")                                              \
-		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
-			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
-			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
-					  LC_CC20_DRNG_CTX_SIZE,                    \
-					  LC_SYM_COMMON_ALIGNMENT);                 \
-	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name##_ctx_buf;              \
-	LC_CC20_DRNG_SET_CTX(name);                                                 \
+#define LC_CC20_DRNG_CTX_ON_STACK(name)                                        \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_CC20_DRNG_CTX_SIZE,       \
+				  LC_SYM_COMMON_ALIGNMENT);                    \
+	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name##_ctx_buf;         \
+	LC_CC20_DRNG_SET_CTX(name);                                            \
 	_Pragma("GCC diagnostic pop")
 
 /**

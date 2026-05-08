@@ -15,7 +15,7 @@ Changes 1.8.0-prerelease
 
 * HMAC: deentangle key and hash management
 
-* Hash: remove VLA
+* Remove VLA in the entire library
 
 Changes 1.7.2
 * Fix RDSEED counter

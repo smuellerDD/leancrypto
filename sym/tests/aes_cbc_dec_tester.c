@@ -114,7 +114,7 @@ static int test_decrypt_cbc(const struct lc_sym *aes, const char *name)
 
 	printf("AES CBC ctx %s (%s implementation) len %u\n", name,
 	       aes == lc_aes_cbc_c ? "C" : "accelerated",
-	       (unsigned int)LC_SYM_CTX_SIZE(aes));
+	       (unsigned int)LC_SYM_CTX_SIZE);
 
 	unpoison(key256, sizeof(key256));
 	memcpy(in, in256, sizeof(in256));

@@ -374,6 +374,7 @@ static void mode_xts_init(struct lc_mode_state *ctx,
 		     LC_AES_AESNI_XTS_MAX_BLOCK_SIZE);
 	BUILD_BUG_ON(LC_AES_RISCV64_XTS_MAX_BLOCK_SIZE <
 		     LC_AES_C_XTS_MAX_BLOCK_SIZE);
+	BUILD_BUG_ON(LC_SYM_INTERNAL_SIZE < LC_AES_RISCV64_XTS_MAX_BLOCK_SIZE);
 
 	ctx->wrapped_cipher = wrapped_cipher;
 	ctx->tweak_cipher = tweak_cipher;

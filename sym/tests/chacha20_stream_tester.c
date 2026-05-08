@@ -382,7 +382,7 @@ static int chacha20_enc_selftest(const struct lc_sym *chacha20_sym,
 	LC_SYM_CTX_ON_STACK(chacha20, chacha20_sym);
 
 	printf("ChaCha20 %s ctx size: %u\n", name,
-	       (unsigned int)LC_SYM_CTX_SIZE(chacha20_sym));
+	       (unsigned int)LC_SYM_CTX_SIZE);
 
 	/* Encrypt */
 	CKINT(lc_sym_init(chacha20));

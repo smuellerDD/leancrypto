@@ -114,7 +114,7 @@ static int test_kw(const struct lc_sym *aes, const char *name)
 
 	printf("AES KW ctx %s (%s implementation) len %u\n", name,
 	       aes == lc_aes_kw_c ? "C" : "accelerated",
-	       (unsigned int)LC_SYM_CTX_SIZE(aes));
+	       (unsigned int)LC_SYM_CTX_SIZE);
 
 	ret = test_encrypt_kw_one(aes_kw, key128, sizeof(key128), pt128,
 				  sizeof(pt128), ct128, iv128);

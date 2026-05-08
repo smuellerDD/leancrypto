@@ -116,7 +116,7 @@ LC_INTERFACE_FUNCTION(int, lc_sym_alloc, const struct lc_sym *sym,
 		return -EINVAL;
 
 	ret = lc_alloc_aligned((void **)&out_ctx, LC_SYM_COMMON_ALIGNMENT,
-			       LC_SYM_CTX_SIZE(sym));
+			       LC_SYM_CTX_SIZE);
 
 	if (ret)
 		return ret;

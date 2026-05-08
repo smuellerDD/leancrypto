@@ -296,6 +296,7 @@ int cc20_init(struct lc_sym_state *ctx)
 	 * sufficiently large.
 	 */
 	BUILD_BUG_ON(LC_CC20_STATE_SIZE < LC_CC20_STATE_SIZE_PRIVATE);
+	BUILD_BUG_ON(LC_SYM_INTERNAL_SIZE < LC_CC20_STATE_SIZE);
 
 	/* String "expand 32-byte k" */
 	cc20_init_constants(ctx);

@@ -228,7 +228,7 @@ static int test_xcrypt_ctr(const struct lc_sym *aes, const char *name,
 
 	printf("AES CTR ctx %s (%s implementation) len %u\n", name,
 	       aes == lc_aes_ctr_c ? "C" : "accelerated",
-	       (unsigned int)LC_SYM_CTX_SIZE(aes));
+	       (unsigned int)LC_SYM_CTX_SIZE);
 
 	ret = test_xcrypt_ctr_one(xcrypt, aes_ctr, key256, sizeof(key256),
 				  iv_sizes, sizeof(iv_sizes), in256, out_sizes,

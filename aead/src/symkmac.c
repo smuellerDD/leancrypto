@@ -343,7 +343,7 @@ LC_INTERFACE_FUNCTION(int, lc_kh_alloc, const struct lc_sym *sym,
 	int ret;
 
 	ret = lc_alloc_aligned((void **)&tmp, LC_MEM_COMMON_ALIGNMENT,
-			       LC_KH_CTX_SIZE(sym));
+			       LC_KH_CTX_SIZE);
 	if (ret)
 		return ret;
 
@@ -356,12 +356,8 @@ LC_INTERFACE_FUNCTION(int, lc_kh_alloc, const struct lc_sym *sym,
 
 static void lc_kh_zero(void *state)
 {
-	struct lc_kh_cryptor *kh = state;
-	struct lc_sym_ctx *sym = &kh->sym;
-	const struct lc_sym *sym_algo = sym->sym;
-
 	lc_memset_secure((uint8_t *)state + sizeof(struct lc_kh_cryptor), 0,
-			 LC_KH_STATE_SIZE(sym_algo));
+			 LC_KH_STATE_SIZE);
 }
 
 static const struct lc_aead _lc_symkmac_aead = {

@@ -189,6 +189,7 @@ static void mode_cbc_init(struct lc_mode_state *ctx,
 		     LC_AES_AESNI_CBC_MAX_BLOCK_SIZE);
 	BUILD_BUG_ON(LC_AES_RISCV64_CBC_MAX_BLOCK_SIZE <
 		     LC_AES_C_CBC_MAX_BLOCK_SIZE);
+	BUILD_BUG_ON(LC_SYM_INTERNAL_SIZE < LC_AES_RISCV64_CBC_MAX_BLOCK_SIZE);
 
 	ctx->wrappeded_cipher = wrapped_cipher;
 	ctx->wrapped_cipher_ctx = wrapped_cipher_ctx;

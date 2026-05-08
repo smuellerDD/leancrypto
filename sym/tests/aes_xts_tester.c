@@ -233,7 +233,7 @@ static int test_xts(const struct lc_sym *aes, const char *name)
 
 	printf("AES XTS ctx %s (%s implementation) len %u\n", name,
 	       aes == lc_aes_xts_c ? "C" : "accelerated",
-	       (unsigned int)LC_SYM_CTX_SIZE(aes));
+	       (unsigned int)LC_SYM_CTX_SIZE);
 
 	ret += test_encrypt_xts_one(aes_xts, key256, sizeof(key256), pt256,
 				    sizeof(pt256), ct256, iv256, sizeof(iv256));

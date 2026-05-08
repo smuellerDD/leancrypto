@@ -35,10 +35,10 @@ struct lc_sh_cryptor {
 	struct lc_hmac_ctx auth_ctx;
 };
 
-#define LC_SH_STATE_SIZE(sym) (LC_SYM_STATE_SIZE(sym) + LC_HMAC_STATE_SIZE)
-#define LC_SH_CTX_SIZE(sym)                                                    \
+#define LC_SH_STATE_SIZE (LC_SYM_STATE_SIZE + LC_HMAC_STATE_SIZE)
+#define LC_SH_CTX_SIZE                                                         \
 	(sizeof(struct lc_aead) + sizeof(struct lc_sh_cryptor) +               \
-	 LC_SH_STATE_SIZE(sym))
+	 LC_SH_STATE_SIZE)
 
 /* AES-CBC with HMAC based AEAD-algorithm */
 extern const struct lc_aead *lc_symhmac_aead;
@@ -46,9 +46,8 @@ extern const struct lc_aead *lc_symhmac_aead;
 #define _LC_SH_SET_CTX(name, symalgo, hash)                                    \
 	_LC_SYM_SET_CTX((&name->sym), symalgo, name,                           \
 			(sizeof(struct lc_sh_cryptor)));                       \
-	_LC_HMAC_SET_CTX(                                                      \
-		(&name->auth_ctx), hash, name,                                 \
-		(sizeof(struct lc_sh_cryptor) + LC_SYM_STATE_SIZE(symalgo)))
+	_LC_HMAC_SET_CTX((&name->auth_ctx), hash, name,                        \
+			 (sizeof(struct lc_sh_cryptor) + LC_SYM_STATE_SIZE))
 
 #define LC_SH_SET_CTX(name, sym, hash)                                         \
 	LC_AEAD_CTX(name, lc_symhmac_aead);                                    \
@@ -318,15 +317,14 @@ int lc_sh_alloc(const struct lc_sym *sym, const struct lc_hash *hash,
  * @param [in] hash HMAC implementation of type struct lc_hmac used for the HMAC
  *		    authentication
  */
-#define LC_SH_CTX_ON_STACK(name, sym, hash)                                         \
-	_Pragma("GCC diagnostic push")                                              \
-		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
-			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
-			LC_ALIGNED_BUFFER(name##_ctx_buf, LC_SH_CTX_SIZE(sym),      \
-					  LC_HASH_COMMON_ALIGNMENT);                \
-	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;            \
-	LC_SH_SET_CTX(name, sym, hash);                                             \
-	lc_aead_zero(name);                                                         \
+#define LC_SH_CTX_ON_STACK(name, sym, hash)                                    \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_SH_CTX_SIZE,              \
+				  LC_HASH_COMMON_ALIGNMENT);                   \
+	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;       \
+	LC_SH_SET_CTX(name, sym, hash);                                        \
+	lc_aead_zero(name);                                                    \
 	_Pragma("GCC diagnostic pop")
 
 #ifdef __cplusplus

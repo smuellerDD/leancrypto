@@ -72,25 +72,18 @@ struct lc_sym_ctx {
 	LC_ALIGN_PTR_64(p, LC_SYM_ALIGNMASK(symname))
 
 /*
- * This is the source of the compiler warning of using Variable-Length-Arrays
- * (VLA). It is considered to be harmless to have this VLA here, because all
- * length definitions are defined by leancrypto at compile time. If you do not
- * want it, you have the following options:
+ * Maximum size of the symmetric context - sizeof(struct lc_sym_state)
  *
- * 1. Use the type-specific LC_AES_*_CTX_ON_STACK
- * 2. Do not use stack-allocation function.
- * 3. Ignore the warning by using
- * #pragma GCC diagnostic push
- * #pragma GCC diagnostic ignored "-Wvla"
- * LC_HASH_CTX_ON_STACK()
- * #pragma GCC diagnostic pop
+ * Note, there is a separate lc_sym_state per block chaining mode in
+ * aes_*_*.c and algorithm (aes vs. chacha20).
  */
-#define LC_SYM_STATE_SIZE_NONALIGNED(x) ((unsigned long)(x->statesize))
-#define LC_SYM_STATE_SIZE(x)                                                   \
-	(LC_SYM_STATE_SIZE_NONALIGNED(x) + LC_SYM_COMMON_ALIGNMENT)
-#define LC_SYM_CTX_SIZE_NONALIGNED(x)                                          \
-	(sizeof(struct lc_sym_ctx) + LC_SYM_STATE_SIZE_NONALIGNED(x))
-#define LC_SYM_CTX_SIZE(x) (sizeof(struct lc_sym_ctx) + LC_SYM_STATE_SIZE(x))
+#define LC_SYM_INTERNAL_SIZE (792)
+#define LC_SYM_STATE_SIZE_NONALIGNED (LC_SYM_INTERNAL_SIZE)
+#define LC_SYM_STATE_SIZE                                                      \
+	(LC_SYM_STATE_SIZE_NONALIGNED + LC_SYM_COMMON_ALIGNMENT)
+#define LC_SYM_CTX_SIZE_NONALIGNED                                             \
+	(sizeof(struct lc_sym_ctx) + LC_SYM_STATE_SIZE_NONALIGNED)
+#define LC_SYM_CTX_SIZE (sizeof(struct lc_sym_ctx) + LC_SYM_STATE_SIZE)
 
 #define LC_SYM_STATE_SIZE_LEN(len) ((len) + LC_SYM_COMMON_ALIGNMENT)
 #define LC_SYM_CTX_SIZE_LEN(len)                                               \
@@ -280,16 +273,14 @@ enum lc_alg_status_val lc_sym_ctx_alg_status(const struct lc_sym_ctx *ctx);
  * @param [in] symname Pointer of type struct sym referencing the sym
  *		       implementation to be used
  */
-#define LC_SYM_CTX_ON_STACK(name, symname)                                          \
-	_Pragma("GCC diagnostic push")                                              \
-		_Pragma("GCC diagnostic ignored \"-Wvla\"") _Pragma(                \
-			"GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
-			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
-					  LC_SYM_CTX_SIZE(symname),                 \
-					  LC_SYM_COMMON_ALIGNMENT);                 \
-	struct lc_sym_ctx *name = (struct lc_sym_ctx *)name##_ctx_buf;              \
-	LC_SYM_SET_CTX(name, symname);                                              \
-	lc_sym_zero(name);                                                          \
+#define LC_SYM_CTX_ON_STACK(name, symname)                                     \
+	_Pragma("GCC diagnostic push") _Pragma(                                \
+		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_SYM_CTX_SIZE,             \
+				  LC_SYM_COMMON_ALIGNMENT);                    \
+	struct lc_sym_ctx *name = (struct lc_sym_ctx *)name##_ctx_buf;         \
+	LC_SYM_SET_CTX(name, symname);                                         \
+	lc_sym_zero(name);                                                     \
 	_Pragma("GCC diagnostic pop")
 
 #ifdef __cplusplus
