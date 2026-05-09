@@ -204,7 +204,7 @@ static int hkdf_expand_internal(struct lc_hkdf_ctx *hkdf_ctx,
 
 	h = lc_hmac_macsize(hmac_ctx);
 
-	if (dlen > h * (255 - (hkdf_ctx->ctr)))
+	if (dlen > h * (256 - (hkdf_ctx->ctr)))
 		return -EINVAL;
 
 	/* Expand phase - expects a HMAC handle from the extract phase */
