@@ -285,7 +285,6 @@ static void lc_chacha20_poly1305_add_aad(void *state, const uint8_t *aad,
 
 	/* Add the AAD data into the Poly1305 context */
 	lc_poly1305_update(poly1305, aad, aadlen);
-
 	cc20p1305->aadlen += aadlen;
 }
 
@@ -293,16 +292,16 @@ static inline void
 lc_chacha20_poly1305_aad_pad(struct lc_chacha20_poly1305_cryptor *cc20p1305)
 {
 	struct lc_poly1305_context *poly1305 = &cc20p1305->poly1305_ctx;
-	size_t padlen;
+	size_t padlen = cc20p1305->aadlen % 16;
 
-	if (cc20p1305->datalen || !cc20p1305->aadlen)
+	if (!padlen)
 		return;
 
 	/*
 	 * Finish the lc_chacha20_poly1305_add_aad operation which requires the
 	 * addition of the padding.
 	 */
-	padlen = 16 - (cc20p1305->aadlen % 16);
+	padlen = 16 - padlen;
 
 	lc_poly1305_update(poly1305, null_buffer, padlen);
 }
@@ -312,10 +311,13 @@ static void lc_chacha20_poly1305_encrypt_tag(void *state, uint8_t *tag,
 {
 	struct lc_chacha20_poly1305_cryptor *cc20p1305 = state;
 	struct lc_poly1305_context *poly1305 = &cc20p1305->poly1305_ctx;
-	size_t padlen = 16 - (cc20p1305->datalen % 16);
+	size_t padlen = cc20p1305->datalen % 16;
 	uint8_t length[8];
 
-	lc_poly1305_update(poly1305, null_buffer, padlen);
+	if (padlen) {
+		padlen = 16 - padlen;
+		lc_poly1305_update(poly1305, null_buffer, padlen);
+	}
 
 	le64_to_ptr(length, (uint64_t)cc20p1305->aadlen);
 	lc_poly1305_update(poly1305, length, sizeof(length));
