@@ -97,6 +97,7 @@ impl lcr_x25519 {
 			leancrypto::lc_x25519_ss(
 				&mut self.ss, &self.pk_remote, &self.sk)
 		};
+
 		if result < 0 {
 			return Err(X25519Error::ProcessingError);
 		}
@@ -123,6 +124,26 @@ impl lcr_x25519 {
 		}
 
 		self.pk_set = true;
+
+		Ok(())
+	}
+
+	/// Load private key for using with leancrypto
+	///
+	/// [pk_buf] buffer with raw public key
+	pub fn sk_load(&mut self, sk_buf: &[u8]) -> Result<(), X25519Error> {
+		// No check for self.sk_set == false as we allow overwriting
+		// of existing key.
+		let result = unsafe {
+			leancrypto::lc_x25519_sk_load(&mut self.sk,
+						      sk_buf.as_ptr(),
+						      sk_buf.len())
+		};
+		if result < 0 {
+			return Err(X25519Error::ProcessingError);
+		}
+
+		self.sk_set = true;
 
 		Ok(())
 	}
