@@ -1606,7 +1606,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_keypair_data_alloc,
 		return -EINVAL;
 	}
 
-	CKINT(lc_alloc_aligned((void **)&tmp, 8, LC_X509_KEYS_SIZE));
+	CKINT(lc_alloc_aligned((void **)&tmp, 8, alloc_size));
 
 	switch (flags) {
 	case lc_x509_keypair_data_alloc_flags_complete_key_pairs:
