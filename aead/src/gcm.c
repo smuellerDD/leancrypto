@@ -923,11 +923,14 @@ LC_INTERFACE_FUNCTION(int, lc_aes_gcm_generate_iv, struct lc_aead_ctx *ctx,
 	if (fixed_field_len >= ivlen)
 		return -EINVAL;
 
-	if (fixed_field && fixed_field != iv)
-		memcpy(iv, fixed_field, fixed_field_len);
-
 	switch (type) {
 	case lc_aes_gcm_iv_generate_new:
+		if (fixed_field_len && fips140_mode_enabled())
+			return -EINVAL;
+
+		if (fixed_field && fixed_field != iv)
+			memcpy(iv, fixed_field, fixed_field_len);
+
 		CKINT(lc_rng_generate(lc_seeded_rng, NULL, 0,
 				      iv + fixed_field_len,
 				      ivlen - fixed_field_len));
