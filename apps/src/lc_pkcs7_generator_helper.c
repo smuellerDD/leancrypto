@@ -308,7 +308,9 @@ static int pkcs7_load_signer(struct pkcs7_generator_opts *opts)
 
 	pkcs7_add_x509(opts, x509);
 
-	CKINT(lc_x509_keypair_data_alloc(&x509->signer_key_data));
+	CKINT(lc_x509_keypair_data_alloc(
+		&x509->signer_key_data,
+		lc_x509_keypair_data_alloc_flags_complete_key_pairs));
 	signer_key_data = x509->signer_key_data;
 	CKINT_LOG(get_data(opts->x509_signer_file, &x509->signer_data,
 			   &x509->signer_data_len, lc_pem_flag_certificate),

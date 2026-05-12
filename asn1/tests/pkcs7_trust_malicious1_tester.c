@@ -87,9 +87,15 @@ static int pkcs7_maclious_gen_certs(struct workspace *ws, int set_ca3_akid_null)
 	size_t blob_len;
 	int ret;
 
-	CKINT(lc_x509_keypair_data_alloc(&ws->keys1));
-	CKINT(lc_x509_keypair_data_alloc(&ws->keys2));
-	CKINT(lc_x509_keypair_data_alloc(&ws->keys3));
+	CKINT(lc_x509_keypair_data_alloc(
+		&ws->keys1,
+		lc_x509_keypair_data_alloc_flags_complete_key_pairs));
+	CKINT(lc_x509_keypair_data_alloc(
+		&ws->keys2,
+		lc_x509_keypair_data_alloc_flags_complete_key_pairs));
+	CKINT(lc_x509_keypair_data_alloc(
+		&ws->keys3,
+		lc_x509_keypair_data_alloc_flags_complete_key_pairs));
 
 	/* Set identical identifiers for both certs */
 	CKINT(pkcs7_malicious_set_cert(&ws->ca1));

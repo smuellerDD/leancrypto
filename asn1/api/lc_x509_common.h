@@ -323,6 +323,7 @@ struct lc_x509_key_data {
 	uint8_t pk_digest[LC_X509_SKID_DEFAULT_HASHSIZE];
 
 	unsigned int sk_seed_set : 1;
+	unsigned int sk_seed_memory_only : 1;
 };
 
 #ifdef LC_DILITHIUM_ED448
@@ -341,6 +342,13 @@ struct lc_x509_key_data {
 #define LC_X509_KEYS_PK_SIZE (0)
 #define LC_X509_KEYS_SK_SIZE (0)
 #endif
+
+#define LC_X509_KEYS_SIZE_META (sizeof(struct lc_x509_key_data))
+#define LC_X509_KEYS_PK_SIZE_ALIGNED (8 + LC_X509_KEYS_PK_SIZE)
+#define LC_X509_KEYS_SK_SIZE_ALIGNED (8 + LC_X509_KEYS_SK_SIZE)
+#define LC_X509_KEYS_SIZE                                                      \
+	(LC_X509_KEYS_SIZE_META + LC_X509_KEYS_PK_SIZE_ALIGNED +               \
+	 LC_X509_KEYS_SK_SIZE_ALIGNED)
 
 struct lc_x509_certificate {
 	struct lc_x509_certificate *next;

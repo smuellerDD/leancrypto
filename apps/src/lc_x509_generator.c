@@ -678,7 +678,9 @@ static int x509_load_sk(struct x509_generator_opts *opts)
 	int ret;
 
 	if (!signer_key_data) {
-		CKINT(lc_x509_keypair_data_alloc(&opts->signer_key_data));
+		CKINT(lc_x509_keypair_data_alloc(
+			&opts->signer_key_data,
+			lc_x509_keypair_data_alloc_flags_complete_key_pairs));
 		signer_key_data = opts->signer_key_data;
 	}
 
@@ -705,7 +707,9 @@ static int x509_enc_set_signer(struct x509_generator_opts *opts)
 	int ret;
 
 	if (!signer_key_data) {
-		CKINT(lc_x509_keypair_data_alloc(&opts->signer_key_data));
+		CKINT(lc_x509_keypair_data_alloc(
+			&opts->signer_key_data,
+			lc_x509_keypair_data_alloc_flags_complete_key_pairs));
 		signer_key_data = opts->signer_key_data;
 	}
 
@@ -749,7 +753,9 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	if (!keys) {
-		CKINT(lc_x509_keypair_data_alloc(&opts->key_data));
+		CKINT(lc_x509_keypair_data_alloc(
+			&opts->key_data,
+			lc_x509_keypair_data_alloc_flags_complete_key_pairs));
 		keys = opts->key_data;
 	}
 

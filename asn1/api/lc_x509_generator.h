@@ -166,16 +166,25 @@ int lc_x509_keypair_gen(struct lc_x509_certificate *cert,
 			struct lc_x509_key_data *keys,
 			enum lc_sig_types create_keypair_algo);
 
+enum lc_x509_keypair_data_alloc_flags {
+	/** Allocate memory to hold full key pairs */
+	lc_x509_keypair_data_alloc_flags_complete_key_pairs,
+	/** Allocate memory to hold only seeds */
+	lc_x509_keypair_data_alloc_flags_seeds,
+};
+
 /**
  * @ingroup X509Gen
  * @brief Allocate memory for holding keypair
  *
  * @param [out] keys Buffer that can be used to hold any asymmetric key pair. It
  *		     has to be released with \p lc_x509_keypair_data_zero_free.
+ * @param [in] flags Flags to alter allocation logic
  *
  * @return 0 on success, < 0 on error
  */
-int lc_x509_keypair_data_alloc(struct lc_x509_key_data **keys);
+int lc_x509_keypair_data_alloc(struct lc_x509_key_data **keys,
+			       enum lc_x509_keypair_data_alloc_flags flags);
 
 /**
  * @ingroup X509Gen

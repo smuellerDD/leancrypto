@@ -306,7 +306,9 @@ static int x509_enc_crypto_algo(struct x509_checker_options *opts)
 	int ret;
 
 	if (!keys) {
-		CKINT(lc_x509_keypair_data_alloc(&opts->key_data));
+		CKINT(lc_x509_keypair_data_alloc(
+			&opts->key_data,
+			lc_x509_keypair_data_alloc_flags_complete_key_pairs));
 		keys = opts->key_data;
 	}
 

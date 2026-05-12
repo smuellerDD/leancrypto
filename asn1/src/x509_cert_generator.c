@@ -1585,26 +1585,46 @@ LC_INTERFACE_FUNCTION(int, lc_x509_keypair_load,
 	return lc_asym_keypair_load(cert, keys);
 }
 
-#define LC_X509_KEYS_SIZE                                                      \
-	(sizeof(struct lc_x509_key_data) + 16 + LC_X509_KEYS_PK_SIZE +         \
-	 LC_X509_KEYS_SK_SIZE)
-
 LC_INTERFACE_FUNCTION(int, lc_x509_keypair_data_alloc,
-		      struct lc_x509_key_data **keys)
+		      struct lc_x509_key_data **keys,
+		      enum lc_x509_keypair_data_alloc_flags flags)
 {
 	struct lc_x509_key_data *tmp = NULL;
+	size_t alloc_size = LC_X509_KEYS_SIZE_META;
 	uint8_t *ptr;
 	int ret;
 
+	switch (flags) {
+	case lc_x509_keypair_data_alloc_flags_complete_key_pairs:
+		alloc_size += LC_X509_KEYS_PK_SIZE_ALIGNED;
+		alloc_size += LC_X509_KEYS_SK_SIZE_ALIGNED;
+		break;
+	case lc_x509_keypair_data_alloc_flags_seeds:
+		/* Do nothing - seeds are held in lc_x509_key_data */
+		break;
+	default:
+		return -EINVAL;
+	}
+
 	CKINT(lc_alloc_aligned((void **)&tmp, 8, LC_X509_KEYS_SIZE));
 
-	ptr = (uint8_t *)tmp + sizeof(struct lc_x509_key_data);
-	tmp->pk.dilithium_pk =
-		(struct lc_dilithium_pk *)LC_ALIGN_PTR_64(ptr, 8);
+	switch (flags) {
+	case lc_x509_keypair_data_alloc_flags_complete_key_pairs:
+		ptr = (uint8_t *)tmp + LC_X509_KEYS_SIZE_META;
+		tmp->pk.dilithium_pk =
+			(struct lc_dilithium_pk *)LC_ALIGN_PTR_64(ptr, 8);
 
-	ptr += LC_X509_KEYS_PK_SIZE;
-	tmp->sk.dilithium_sk =
-		(struct lc_dilithium_sk *)LC_ALIGN_PTR_64(ptr, 8);
+		ptr += LC_X509_KEYS_PK_SIZE;
+		tmp->sk.dilithium_sk =
+			(struct lc_dilithium_sk *)LC_ALIGN_PTR_64(ptr, 8);
+
+		break;
+	case lc_x509_keypair_data_alloc_flags_seeds:
+		tmp->sk_seed_memory_only = 1;
+		break;
+	default:
+		return -EINVAL;
+	}
 
 	*keys = tmp;
 	tmp = NULL;
@@ -1618,9 +1638,18 @@ out:
 LC_INTERFACE_FUNCTION(void, lc_x509_keypair_data_zero_free,
 		      struct lc_x509_key_data *keys)
 {
+	size_t alloc_size;
+
 	if (!keys)
 		return;
 
-	lc_memset_secure(keys, 0, LC_X509_KEYS_SIZE);
+	alloc_size = LC_X509_KEYS_SIZE_META;
+
+	if (keys->sk.dilithium_sk)
+		alloc_size += LC_X509_KEYS_SK_SIZE_ALIGNED;
+	if (keys->pk.dilithium_pk)
+		alloc_size += LC_X509_KEYS_PK_SIZE_ALIGNED;
+
+	lc_memset_secure(keys, 0, alloc_size);
 	lc_free(keys);
 }
