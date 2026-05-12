@@ -129,9 +129,9 @@ static int lc_chacha20_poly1305_test(int argc)
 
 	unpoison(act_ct, sizeof(act_ct));
 	ret += lc_compare(act_ct, exp_ct, sizeof(exp_ct),
-			  "ChaCha20 Poly 1305 encrypt ciphertext");
+			  "ChaCha20 Poly 1305 encrypt ciphertext (2)");
 	ret += lc_compare(act_tag, exp_tag, sizeof(exp_tag),
-			  "ChaCha20 Poly 1305 encrypt tag");
+			  "ChaCha20 Poly 1305 encrypt tag (2)");
 	lc_aead_zero(cc20p1305);
 
 	return ret;

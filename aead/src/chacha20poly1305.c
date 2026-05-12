@@ -292,8 +292,13 @@ static inline void
 lc_chacha20_poly1305_aad_pad(struct lc_chacha20_poly1305_cryptor *cc20p1305)
 {
 	struct lc_poly1305_context *poly1305 = &cc20p1305->poly1305_ctx;
-	size_t padlen = cc20p1305->aadlen % 16;
+	size_t padlen;
 
+	/* Allow multiple invocations of this function during a stream update */
+	if (cc20p1305->datalen)
+		return;
+
+	padlen = cc20p1305->aadlen % 16;
 	if (!padlen)
 		return;
 
