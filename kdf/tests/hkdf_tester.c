@@ -24,6 +24,8 @@
 #include "test_helper_common.h"
 #include "visibility.h"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wframe-larger-than="
 static int hkdf_tester(void)
 {
 	/* RFC 5869 vector */
@@ -158,6 +160,7 @@ static int hkdf_tester(void)
 
 	return ret;
 }
+#pragma GCC diagnostic pop
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {

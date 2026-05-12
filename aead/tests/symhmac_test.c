@@ -29,6 +29,8 @@
 #include "test_helper_common.h"
 #include "visibility.h"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wframe-larger-than="
 static int sh_tester_one(const struct lc_sym *sym, const struct lc_hash *hash,
 			 const uint8_t *pt, size_t ptlen, const uint8_t *aad,
 			 size_t aadlen, const uint8_t *key, size_t keylen,
@@ -143,6 +145,7 @@ static int sh_tester_one(const struct lc_sym *sym, const struct lc_hash *hash,
 
 	return ret_checked;
 }
+#pragma GCC diagnostic pop
 
 static int sh_nonaligned(void)
 {

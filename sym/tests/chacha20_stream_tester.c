@@ -40,6 +40,8 @@
 		ret += chacha20_stream_test(chacha20_impl, #chacha20_impl);    \
 	}
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wframe-larger-than="
 static int chacha20_enc_large(const struct lc_sym *chacha20_sym,
 			      const char *name)
 {
@@ -349,6 +351,7 @@ out:
 	lc_sym_zero(chacha20);
 	return !!ret;
 }
+#pragma GCC diagnostic pop
 
 /* Test vector according to RFC 7539 section 2.4.2 */
 static const uint8_t rfc_key[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
