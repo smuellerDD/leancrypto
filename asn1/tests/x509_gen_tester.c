@@ -30,11 +30,8 @@
 #include "lc_x509_generator.h"
 #include "lc_x509_parser.h"
 
-#include "../../apps/src/lc_x509_generator_helper.h"
-
 struct x509_checker_options {
-	struct lc_x509_key_input_data key_input_data;
-	struct lc_x509_key_data key_data;
+	struct lc_x509_key_data *key_data;
 	struct lc_x509_certificate cert;
 	struct lc_dilithium_sk sk;
 	struct lc_dilithium_pk pk;
@@ -190,6 +187,8 @@ static void x509_clean_opts(struct x509_checker_options *opts)
 		free(opts->raw_akid);
 	if (opts->raw_serial)
 		free(opts->raw_serial);
+
+	lc_x509_keypair_data_zero_free(opts->key_data);
 }
 
 static int x509_enc_san_ip(struct x509_checker_options *opts, char *opt_optarg)
@@ -303,16 +302,18 @@ out:
 static int x509_enc_crypto_algo(struct x509_checker_options *opts)
 {
 	struct lc_x509_certificate *gcert = &opts->cert;
-	struct lc_x509_key_input_data *key_input_data = &opts->key_input_data;
-	struct lc_x509_key_data *keys = &opts->key_data;
+	struct lc_x509_key_data *keys = opts->key_data;
 	int ret;
 
-	LC_X509_LINK_INPUT_DATA(keys, key_input_data);
+	if (!keys) {
+		CKINT(lc_x509_keypair_data_alloc(&opts->key_data));
+		keys = opts->key_data;
+	}
 
 	CKINT(lc_x509_keypair_gen(gcert, keys, LC_SIG_DILITHIUM_44));
 
 out:
-	return 0;
+	return ret;
 }
 
 static void asn1_usage(void)

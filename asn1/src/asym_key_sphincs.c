@@ -352,10 +352,13 @@ int asym_keypair_gen_sphincs(struct lc_x509_certificate *cert,
 
 	CKINT(lc_sphincs_keypair(keys->pk.sphincs_pk, keys->sk.sphincs_sk,
 				 lc_seeded_rng, sphincs_key_type));
-	CKINT(asym_set_sphincs_keypair(&cert->sig_gen_data, keys->pk.sphincs_pk,
-				       keys->sk.sphincs_sk));
-	CKINT(asym_set_sphincs_keypair(&cert->pub_gen_data, keys->pk.sphincs_pk,
-				       NULL));
+	if (cert) {
+		CKINT(asym_set_sphincs_keypair(&cert->sig_gen_data,
+					       keys->pk.sphincs_pk,
+					       keys->sk.sphincs_sk));
+		CKINT(asym_set_sphincs_keypair(&cert->pub_gen_data,
+					       keys->pk.sphincs_pk, NULL));
+	}
 
 out:
 	return ret;

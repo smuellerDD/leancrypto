@@ -25,8 +25,6 @@
 #include "small_stack_support.h"
 #include "visibility.h"
 
-#include "../../apps/src/lc_x509_generator_helper.h"
-
 /*
  * This is a large memory buffer - use heap to allocate it as stack may
  * explode on some platforms like macOS.
@@ -35,11 +33,9 @@ struct workspace {
 	struct lc_pkcs7_trust_store trust_store;
 	struct lc_x509_certificate ca1, ca2, ca3, ca1_dec, ca2_dec, ca3_dec;
 	struct lc_pkcs7_message pkcs7, pkcs7_dec;
-	struct lc_x509_key_input_data key_input_data1, key_input_data2,
-		key_input_data3;
 	uint8_t pkcs7_blob[65536], ca1_blob[65536], ca2_blob[65536],
 		ca3_blob[65536];
-	struct lc_x509_key_data keys1, keys2, keys3;
+	struct lc_x509_key_data *keys1, *keys2, *keys3;
 };
 
 static const uint8_t id[] = { 0x01, 0x02, 0x03, 0x04 };
@@ -91,9 +87,9 @@ static int pkcs7_maclious_gen_certs(struct workspace *ws, int set_ca3_akid_null)
 	size_t blob_len;
 	int ret;
 
-	LC_X509_LINK_INPUT_DATA(&ws->keys1, &ws->key_input_data1);
-	LC_X509_LINK_INPUT_DATA(&ws->keys2, &ws->key_input_data2);
-	LC_X509_LINK_INPUT_DATA(&ws->keys3, &ws->key_input_data3);
+	CKINT(lc_x509_keypair_data_alloc(&ws->keys1));
+	CKINT(lc_x509_keypair_data_alloc(&ws->keys2));
+	CKINT(lc_x509_keypair_data_alloc(&ws->keys3));
 
 	/* Set identical identifiers for both certs */
 	CKINT(pkcs7_malicious_set_cert(&ws->ca1));
@@ -101,9 +97,9 @@ static int pkcs7_maclious_gen_certs(struct workspace *ws, int set_ca3_akid_null)
 	CKINT(pkcs7_malicious_set_cert2(&ws->ca3));
 
 	/* Generate keypair */
-	CKINT(lc_x509_keypair_gen(&ws->ca1, &ws->keys1, LC_SIG_DILITHIUM_44));
-	CKINT(lc_x509_keypair_gen(&ws->ca2, &ws->keys2, LC_SIG_DILITHIUM_44));
-	CKINT(lc_x509_keypair_gen(&ws->ca3, &ws->keys3, LC_SIG_DILITHIUM_44));
+	CKINT(lc_x509_keypair_gen(&ws->ca1, ws->keys1, LC_SIG_DILITHIUM_44));
+	CKINT(lc_x509_keypair_gen(&ws->ca2, ws->keys2, LC_SIG_DILITHIUM_44));
+	CKINT(lc_x509_keypair_gen(&ws->ca3, ws->keys3, LC_SIG_DILITHIUM_44));
 
 	/*
 	 * Encode / decode certs - and generate self-signed signatures
@@ -121,7 +117,7 @@ static int pkcs7_maclious_gen_certs(struct workspace *ws, int set_ca3_akid_null)
 				      sizeof(ws->ca2_blob) - blob_len),
 		  "X.509 decode CA1\n");
 	/* Set the full key pair again to the parsed certificate */
-	CKINT(lc_x509_keypair_load(&ws->ca1_dec, &ws->keys1));
+	CKINT(lc_x509_keypair_load(&ws->ca1_dec, ws->keys1));
 
 	blob_len = sizeof(ws->ca2_blob);
 	CKINT_LOG(lc_x509_cert_encode(&ws->ca2, ws->ca2_blob, &blob_len),
@@ -130,10 +126,10 @@ static int pkcs7_maclious_gen_certs(struct workspace *ws, int set_ca3_akid_null)
 				      sizeof(ws->ca2_blob) - blob_len),
 		  "X.509 decode CA2\n");
 	/* Set the full key pair again to the parsed certificate */
-	CKINT(lc_x509_keypair_load(&ws->ca2_dec, &ws->keys2));
+	CKINT(lc_x509_keypair_load(&ws->ca2_dec, ws->keys2));
 
 	/* Set signer for CA3 */
-	CKINT(lc_x509_cert_set_signer(&ws->ca3, &ws->keys2, &ws->ca2_dec));
+	CKINT(lc_x509_cert_set_signer(&ws->ca3, ws->keys2, &ws->ca2_dec));
 
 	if (set_ca3_akid_null) {
 		ws->ca3.raw_akid = NULL;
@@ -146,7 +142,7 @@ static int pkcs7_maclious_gen_certs(struct workspace *ws, int set_ca3_akid_null)
 	CKINT_LOG(lc_x509_cert_decode(&ws->ca3_dec, ws->ca3_blob,
 				      sizeof(ws->ca3_blob) - blob_len),
 		  "X.509 decode CA3\n");
-	CKINT(lc_x509_cert_set_signer(&ws->ca3_dec, &ws->keys3, &ws->ca2_dec));
+	CKINT(lc_x509_cert_set_signer(&ws->ca3_dec, ws->keys3, &ws->ca2_dec));
 
 out:
 	return ret;
@@ -201,6 +197,10 @@ static void pkcs7_malicious_clear(struct workspace *ws)
 	lc_x509_cert_clear(&ws->ca1_dec);
 	lc_x509_cert_clear(&ws->ca2_dec);
 	lc_x509_cert_clear(&ws->ca3_dec);
+
+	lc_x509_keypair_data_zero_free(ws->keys1);
+	lc_x509_keypair_data_zero_free(ws->keys2);
+	lc_x509_keypair_data_zero_free(ws->keys3);
 
 	/* Do not clear trust store all all its certs are cleared before */
 	//lc_pkcs7_trust_store_clear(&ws->trust_store);

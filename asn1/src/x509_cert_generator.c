@@ -22,6 +22,8 @@
 #include "build_bug_on.h"
 #include "conv_be_le.h"
 #include "helper.h"
+#include "lc_memory_support.h"
+#include "lc_x509_common.h"
 #include "lc_x509_generator.h"
 #include "math_helper.h"
 #include "oid_registry.h"
@@ -1581,4 +1583,44 @@ LC_INTERFACE_FUNCTION(int, lc_x509_keypair_load,
 		      const struct lc_x509_key_data *keys)
 {
 	return lc_asym_keypair_load(cert, keys);
+}
+
+#define LC_X509_KEYS_SIZE                                                      \
+	(sizeof(struct lc_x509_key_data) + 16 + LC_X509_KEYS_PK_SIZE +         \
+	 LC_X509_KEYS_SK_SIZE)
+
+LC_INTERFACE_FUNCTION(int, lc_x509_keypair_data_alloc,
+		      struct lc_x509_key_data **keys)
+{
+	struct lc_x509_key_data *tmp = NULL;
+	uint8_t *ptr;
+	int ret;
+
+	CKINT(lc_alloc_aligned((void **)&tmp, 8, LC_X509_KEYS_SIZE));
+
+	ptr = (uint8_t *)tmp + sizeof(struct lc_x509_key_data);
+	tmp->pk.dilithium_pk =
+		(struct lc_dilithium_pk *)LC_ALIGN_PTR_64(ptr, 8);
+
+	ptr += LC_X509_KEYS_PK_SIZE;
+	tmp->sk.dilithium_sk =
+		(struct lc_dilithium_sk *)LC_ALIGN_PTR_64(ptr, 8);
+
+	*keys = tmp;
+	tmp = NULL;
+
+out:
+	if (tmp)
+		lc_free(tmp);
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(void, lc_x509_keypair_data_zero_free,
+		      struct lc_x509_key_data *keys)
+{
+	if (!keys)
+		return;
+
+	lc_memset_secure(keys, 0, LC_X509_KEYS_SIZE);
+	lc_free(keys);
 }

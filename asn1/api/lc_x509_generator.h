@@ -151,7 +151,9 @@ int lc_x509_signature_gen(uint8_t *sig_data, size_t *siglen,
  *
  * @param [out] cert X.509 certificate data structure to be filled
  * @param [out] keys Buffer that is filled with the newly generated key data
- *		     where the buffer must have the same lifetime as \p cert
+ *		     where the buffer must have the same lifetime as \p cert.
+ *		     This buffer may be allocated with
+ *		     \p lc_x509_keypair_data_alloc.
  * @param [in] create_keypair_algo Algorithm to generate the key pair for
  *
  * \note If keys->sk_seed_set is set to 1 by the caller, the function stores
@@ -163,6 +165,25 @@ int lc_x509_signature_gen(uint8_t *sig_data, size_t *siglen,
 int lc_x509_keypair_gen(struct lc_x509_certificate *cert,
 			struct lc_x509_key_data *keys,
 			enum lc_sig_types create_keypair_algo);
+
+/**
+ * @ingroup X509Gen
+ * @brief Allocate memory for holding keypair
+ *
+ * @param [out] keys Buffer that can be used to hold any asymmetric key pair. It
+ *		     has to be released with \p lc_x509_keypair_data_zero_free.
+ *
+ * @return 0 on success, < 0 on error
+ */
+int lc_x509_keypair_data_alloc(struct lc_x509_key_data **keys);
+
+/**
+ * @ingroup X509Gen
+ * @brief Free memory for holding keypair
+ *
+ * @param [in] keys Buffer that shall be freed.
+ */
+void lc_x509_keypair_data_zero_free(struct lc_x509_key_data *keys);
 
 /**
  * @ingroup X509Gen

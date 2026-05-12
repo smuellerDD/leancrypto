@@ -27,6 +27,7 @@
 #include "ext_headers_internal.h"
 #include "lc_pkcs8_common.h"
 #include "lc_pkcs8_generator.h"
+#include "lc_pkcs8_parser.h"
 #include "lc_x509_generator.h"
 #include "oid_registry.h"
 #include "pkcs8_asn1.h"

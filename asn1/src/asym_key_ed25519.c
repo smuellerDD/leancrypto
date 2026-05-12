@@ -237,10 +237,13 @@ int asym_keypair_gen_ed25519(struct lc_x509_certificate *cert,
 	CKINT(lc_ed25519_pk_load(keys->pk.ed25519_pk, ws->pk_ed25519.pk,
 				 LC_ED25519_PUBLICKEYBYTES));
 
-	CKINT(asym_set_ed25519_keypair(&cert->sig_gen_data, keys->pk.ed25519_pk,
-				       keys->sk.ed25519_sk));
-	CKINT(asym_set_ed25519_keypair(&cert->pub_gen_data, keys->pk.ed25519_pk,
-				       NULL));
+	if (cert) {
+		CKINT(asym_set_ed25519_keypair(&cert->sig_gen_data,
+					       keys->pk.ed25519_pk,
+					       keys->sk.ed25519_sk));
+		CKINT(asym_set_ed25519_keypair(&cert->pub_gen_data,
+					       keys->pk.ed25519_pk, NULL));
+	}
 
 out:
 	LC_RELEASE_MEM(ws);

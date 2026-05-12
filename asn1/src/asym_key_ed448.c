@@ -235,10 +235,13 @@ int asym_keypair_gen_ed448(struct lc_x509_certificate *cert,
 	CKINT(lc_ed448_pk_load(keys->pk.ed448_pk, ws->pk_ed448.pk,
 				 LC_ED448_PUBLICKEYBYTES));
 
-	CKINT(asym_set_ed448_keypair(&cert->sig_gen_data, keys->pk.ed448_pk,
-				     keys->sk.ed448_sk));
-	CKINT(asym_set_ed448_keypair(&cert->pub_gen_data, keys->pk.ed448_pk,
-				     NULL));
+	if (cert) {
+		CKINT(asym_set_ed448_keypair(&cert->sig_gen_data,
+					     keys->pk.ed448_pk,
+					     keys->sk.ed448_sk));
+		CKINT(asym_set_ed448_keypair(&cert->pub_gen_data,
+					     keys->pk.ed448_pk, NULL));
+	}
 
 out:
 	LC_RELEASE_MEM(ws);

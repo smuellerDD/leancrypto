@@ -22,7 +22,6 @@
 
 #include "lc_pkcs7_generator.h"
 #include "lc_pkcs8_parser.h"
-#include "lc_x509_generator_helper.h"
 #include "x509_checker.h"
 
 #ifdef __cplusplus
@@ -40,8 +39,7 @@ extern "C" {
 struct pkcs7_x509 {
 	struct pkcs7_x509 *next;
 
-	struct lc_x509_key_input_data signer_key_input_data;
-	struct lc_x509_key_data signer_key_data;
+	struct lc_x509_key_data *signer_key_data;
 	struct lc_x509_certificate *x509;
 
 	uint8_t *x509_data;

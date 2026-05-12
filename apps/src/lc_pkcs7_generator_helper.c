@@ -50,6 +50,7 @@ void pkcs7_clean_opts(struct pkcs7_generator_opts *opts)
 			     lc_pem_flag_certificate);
 
 		lc_x509_cert_clear(x509->x509);
+		lc_x509_keypair_data_zero_free(x509->signer_key_data);
 		lc_free(x509->x509);
 
 		lc_free(x509);
@@ -293,7 +294,6 @@ static int pkcs7_load_signer(struct pkcs7_generator_opts *opts)
 {
 	struct lc_pkcs7_message *pkcs7 = opts->pkcs7;
 	struct pkcs7_x509 *x509;
-	struct lc_x509_key_input_data *signer_key_input_data;
 	struct lc_x509_key_data *signer_key_data;
 	struct lc_x509_certificate *newcert = NULL;
 	enum lc_sig_types pkey_type;
@@ -308,8 +308,8 @@ static int pkcs7_load_signer(struct pkcs7_generator_opts *opts)
 
 	pkcs7_add_x509(opts, x509);
 
-	signer_key_input_data = &x509->signer_key_input_data;
-	signer_key_data = &x509->signer_key_data;
+	CKINT(lc_x509_keypair_data_alloc(&x509->signer_key_data));
+	signer_key_data = x509->signer_key_data;
 	CKINT_LOG(get_data(opts->x509_signer_file, &x509->signer_data,
 			   &x509->signer_data_len, lc_pem_flag_certificate),
 		  "mmap failure\n");
@@ -327,7 +327,6 @@ static int pkcs7_load_signer(struct pkcs7_generator_opts *opts)
 				  x509->signer_data_len));
 
 	/* Set the private key to the newly create certificate */
-	LC_X509_LINK_INPUT_DATA(signer_key_data, signer_key_input_data);
 	CKINT(lc_x509_cert_get_pubkey(newcert, NULL, NULL, &pkey_type));
 	CKINT_LOG(
 		pkcs7_sk_decode(opts, signer_key_data, pkey_type,

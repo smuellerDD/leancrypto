@@ -34,7 +34,6 @@
 #include "lc_x509_csr_generator.h"
 #include "lc_x509_generator.h"
 #include "lc_x509_generator_file_helper.h"
-#include "lc_x509_generator_helper.h"
 #include "lc_x509_csr_parser.h"
 #include "lc_x509_parser.h"
 #include "lc_pkcs8_parser.h"
@@ -48,10 +47,8 @@
 struct x509_generator_opts {
 	struct lc_x509_certificate cert;
 	struct lc_x509_certificate signer_cert;
-	struct lc_x509_key_input_data key_input_data;
-	struct lc_x509_key_data key_data;
-	struct lc_x509_key_input_data signer_key_input_data;
-	struct lc_x509_key_data signer_key_data;
+	struct lc_x509_key_data *key_data;
+	struct lc_x509_key_data *signer_key_data;
 	struct x509_checker_options checker_opts;
 	struct lc_pkcs8_message pkcs8;
 	uint8_t *raw_skid;
@@ -288,6 +285,9 @@ static void x509_clean_opts(struct x509_generator_opts *opts)
 		     x509_pem_type(opts));
 	release_data(opts->x509_csr_data, opts->x509_csr_data_len,
 		     lc_pem_flag_csr);
+
+	lc_x509_keypair_data_zero_free(opts->key_data);
+	lc_x509_keypair_data_zero_free(opts->signer_key_data);
 }
 
 static int x509_enc_eku(struct x509_generator_opts *opts,
@@ -673,11 +673,14 @@ out:
 
 static int x509_load_sk(struct x509_generator_opts *opts)
 {
-	struct lc_x509_key_data *signer_key_data = &opts->signer_key_data;
-	struct lc_x509_key_input_data *signer_key_input_data =
-		&opts->signer_key_input_data;
+	struct lc_x509_key_data *signer_key_data = opts->signer_key_data;
 	enum lc_sig_types pkey_type;
 	int ret;
+
+	if (!signer_key_data) {
+		CKINT(lc_x509_keypair_data_alloc(&opts->signer_key_data));
+		signer_key_data = opts->signer_key_data;
+	}
 
 	CKINT_LOG(get_data(opts->signer_sk_file, &opts->signer_sk_data,
 			   &opts->signer_sk_len, lc_pem_flag_priv_key),
@@ -687,7 +690,6 @@ static int x509_load_sk(struct x509_generator_opts *opts)
 	CKINT(lc_x509_cert_get_pubkey(&opts->signer_cert, NULL, NULL,
 				      &pkey_type));
 
-	LC_X509_LINK_SK_INPUT_DATA(signer_key_data, signer_key_input_data);
 	CKINT_LOG(x509_sk_decode(opts, signer_key_data, pkey_type,
 				 opts->signer_sk_data, opts->signer_sk_len),
 		  "Loading signer private key from file failed: %d\n", ret);
@@ -699,10 +701,13 @@ out:
 static int x509_enc_set_signer(struct x509_generator_opts *opts)
 {
 	struct lc_x509_certificate *gcert = &opts->cert;
-	struct lc_x509_key_data *signer_key_data = &opts->signer_key_data;
-	struct lc_x509_key_input_data *signer_key_input_data =
-		&opts->signer_key_input_data;
+	struct lc_x509_key_data *signer_key_data = opts->signer_key_data;
 	int ret;
+
+	if (!signer_key_data) {
+		CKINT(lc_x509_keypair_data_alloc(&opts->signer_key_data));
+		signer_key_data = opts->signer_key_data;
+	}
 
 	CKNULL(opts->x509_signer_file, -EINVAL);
 
@@ -718,7 +723,6 @@ static int x509_enc_set_signer(struct x509_generator_opts *opts)
 	if (ret != LC_X509_POL_TRUE)
 		printf("WARNING: X.509 signer is no CA!\n");
 
-	LC_X509_LINK_PK_INPUT_DATA(signer_key_data, signer_key_input_data);
 	if (opts->signer_sk_file) {
 		CKINT_LOG(x509_load_sk(opts),
 			  "Loading of private key failed\n");
@@ -738,14 +742,16 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 		uint8_t der_sk[DATASIZE];
 	};
 	struct lc_x509_certificate *gcert = &opts->cert;
-	struct lc_x509_key_input_data *key_input_data = &opts->key_input_data;
-	struct lc_x509_key_data *keys = &opts->key_data;
+	struct lc_x509_key_data *keys = opts->key_data;
 	size_t der_sk_len = DATASIZE;
 	unsigned int self_signed = !(opts->x509_signer_file);
 	int ret = 0;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	LC_X509_LINK_INPUT_DATA(keys, key_input_data);
+	if (!keys) {
+		CKINT(lc_x509_keypair_data_alloc(&opts->key_data));
+		keys = opts->key_data;
+	}
 
 	if (opts->create_keypair_algo) {
 		keys->sk_seed_set = opts->generate_sk_seed;
@@ -902,7 +908,7 @@ out:
 
 static int x509_sign_data(struct x509_generator_opts *opts)
 {
-	const struct lc_x509_key_data *key_data = &opts->key_data;
+	const struct lc_x509_key_data *key_data = opts->key_data;
 	size_t siglen;
 	uint8_t *sigptr = NULL;
 	int ret;
@@ -914,6 +920,8 @@ static int x509_sign_data(struct x509_generator_opts *opts)
 		printf("Using a CSR to sign data is prohibited\n");
 		return -EOPNOTSUPP;
 	}
+
+	CKNULL(key_data, -EFAULT);
 
 	CKINT(lc_x509_get_signature_size_from_sk(&siglen, key_data));
 

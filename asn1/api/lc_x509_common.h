@@ -325,6 +325,23 @@ struct lc_x509_key_data {
 	unsigned int sk_seed_set : 1;
 };
 
+#ifdef LC_DILITHIUM_ED448
+#define LC_X509_KEYS_PK_SIZE (sizeof(struct lc_dilithium_ed448_pk))
+#define LC_X509_KEYS_SK_SIZE (sizeof(struct lc_dilithium_ed448_sk))
+#elif defined(LC_DILITHIUM_ED25519)
+#define LC_X509_KEYS_PK_SIZE (sizeof(struct lc_dilithium_ed25519_pk))
+#define LC_X509_KEYS_SK_SIZE (sizeof(struct lc_dilithium_ed25519_sk))
+#elif defined(LC_DILITHIUM)
+#define LC_X509_KEYS_PK_SIZE (sizeof(struct lc_dilithium_pk))
+#define LC_X509_KEYS_SK_SIZE (sizeof(struct lc_dilithium_sk))
+#elif defined(LC_SPHINCS)
+#define LC_X509_KEYS_PK_SIZE (sizeof(struct lc_sphincs_pk))
+#define LC_X509_KEYS_SK_SIZE (sizeof(struct lc_sphincs_sk))
+#else
+#define LC_X509_KEYS_PK_SIZE (0)
+#define LC_X509_KEYS_SK_SIZE (0)
+#endif
+
 struct lc_x509_certificate {
 	struct lc_x509_certificate *next;
 	struct lc_x509_certificate *signer; /* Certificate that signed this one */

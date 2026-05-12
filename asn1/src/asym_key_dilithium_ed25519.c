@@ -501,11 +501,14 @@ int asym_keypair_gen_dilithium_ed25519(struct lc_x509_certificate *cert,
 					   ws->pk_ed25519.pk,
 					   LC_ED25519_PUBLICKEYBYTES));
 
-	CKINT(asym_set_dilithium_ed25519_keypair(
-		&cert->sig_gen_data, keys->pk.dilithium_ed25519_pk,
-		keys->sk.dilithium_ed25519_sk));
-	CKINT(asym_set_dilithium_ed25519_keypair(
-		&cert->pub_gen_data, keys->pk.dilithium_ed25519_pk, NULL));
+	if (cert) {
+		CKINT(asym_set_dilithium_ed25519_keypair(
+			&cert->sig_gen_data, keys->pk.dilithium_ed25519_pk,
+			keys->sk.dilithium_ed25519_sk));
+		CKINT(asym_set_dilithium_ed25519_keypair(
+			&cert->pub_gen_data, keys->pk.dilithium_ed25519_pk,
+			NULL));
+	}
 
 out:
 	LC_RELEASE_MEM(ws);
