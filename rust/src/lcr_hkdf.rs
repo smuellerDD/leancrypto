@@ -69,39 +69,7 @@ impl lcr_hkdf {
 		}
 	}
 
-	/// HKDF extract
-	pub fn extract(&mut self, ikm: &[u8], salt: &[u8]) ->
-		Result<(), HkdfError> {
-		let mut result;
-
-		if self.hkdf_ctx.is_null() {
-			/* Allocate the hash context */
-			result = unsafe {
-				leancrypto::lc_hkdf_alloc(
-					self.lcr_type_mapping(),
-					&mut self.hkdf_ctx)
-			};
-		} else {
-			return Err(HkdfError::ProcessingError);
-		}
-
-		// Error handle
-		if result >= 0 {
-			result = unsafe { leancrypto::lc_hkdf_extract(
-				self.hkdf_ctx, ikm.as_ptr(), ikm.len(),
-				salt.as_ptr(), salt.len()) };
-			if result < 0 {
-				return Err(HkdfError::ProcessingError);
-			}
-			Ok(())
-		} else {
-			Err(HkdfError::AllocationError)
-		}
-	}
-
-	/// HKDF extract returning the PRK
-	pub fn extract_prk(&mut self, ikm: &[u8], salt: &[u8], prk: &mut [u8]) ->
-		Result<(), HkdfError> {
+	fn init(&mut self) -> Result<(), HkdfError> {
 		let mut result = 0;
 
 		if self.hkdf_ctx.is_null() {
@@ -113,19 +81,49 @@ impl lcr_hkdf {
 			};
 		}
 
+		if result < 0 {
+			return Err(HkdfError::ProcessingError);
+		}
+
+		Ok(())
+	}
+
+	/// HKDF extract
+	pub fn extract(&mut self, ikm: &[u8], salt: &[u8]) ->
+		Result<(), HkdfError> {
+
+		self.init()?;
+
 		// Error handle
-		if result >= 0 {
-			result = unsafe { leancrypto::lc_hkdf_extract_prk(
+		let result = unsafe {
+			leancrypto::lc_hkdf_extract(
+				self.hkdf_ctx, ikm.as_ptr(), ikm.len(),
+				salt.as_ptr(), salt.len())
+			};
+		if result < 0 {
+			return Err(HkdfError::ProcessingError);
+		}
+		Ok(())
+	}
+
+	/// HKDF extract returning the PRK
+	pub fn extract_prk(&mut self, ikm: &[u8], salt: &[u8], prk: &mut [u8]) ->
+		Result<(), HkdfError> {
+
+		self.init()?;
+
+		// Error handle
+		let result = unsafe {
+			leancrypto::lc_hkdf_extract_prk(
 				self.hkdf_ctx, ikm.as_ptr(), ikm.len(),
 				salt.as_ptr(), salt.len(), prk.as_mut_ptr(),
-				prk.len()) };
-			if result < 0 {
-				return Err(HkdfError::ProcessingError);
-			}
-			Ok(())
-		} else {
-			Err(HkdfError::AllocationError)
+				prk.len())
+			};
+		if result < 0 {
+			return Err(HkdfError::ProcessingError);
 		}
+
+		Ok(())
 	}
 
 	/// HKDF expand
@@ -135,9 +133,11 @@ impl lcr_hkdf {
 			return Err(HkdfError::UninitializedContext);
 		}
 
-		let result = unsafe { leancrypto::lc_hkdf_expand(
-				      self.hkdf_ctx, info.as_ptr(), info.len(),
-				      dst.as_mut_ptr(), dst.len()) };
+		let result = unsafe {
+			leancrypto::lc_hkdf_expand(
+				self.hkdf_ctx, info.as_ptr(), info.len(),
+				dst.as_mut_ptr(), dst.len())
+			};
 		if result < 0 {
 			return Err(HkdfError::ProcessingError);
 		}
@@ -147,9 +147,8 @@ impl lcr_hkdf {
 	/// HKDF expand using the given PRK
 	pub fn expand_prk(&mut self, info: &[u8], prk: &[u8], dst: &mut [u8]) ->
 		Result<(), HkdfError> {
-		if self.hkdf_ctx.is_null() {
-			return Err(HkdfError::UninitializedContext);
-		}
+
+		self.init()?;
 
 		let result = unsafe { leancrypto::lc_hkdf_expand_prk(
 				      self.hkdf_ctx, info.as_ptr(), info.len(),
