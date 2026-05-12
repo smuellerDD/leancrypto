@@ -67,6 +67,10 @@
  *   without defining it as seed using lc_x509_keypair_gen.
  * * For all other algorithms, the common key type
  *
+ * \note If \p data is NULL, the call returns the suggested amount of memory
+ * to be allocated for \p data in the parameter \p avail_datalen. Yet, no
+ * operation is performed.
+ *
  * @param [in] pkcs8 The data structure that is filled by the caller before this
  *		     invocation using the various setter functions.
  * @param [in,out] data Raw PKCS#8 data blob in DER / BER format - the caller

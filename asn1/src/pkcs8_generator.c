@@ -155,8 +155,18 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs8_encode,
 	int ret;
 
 	CKNULL(pkcs8, -EINVAL);
-	CKNULL(data, -EINVAL);
 	CKNULL(avail_datalen, -EINVAL);
+
+	if (!data) {
+		const struct lc_x509_key_data *key = pkcs8->privkey_ptr;
+
+		*avail_datalen = LC_X509_KEYS_SIZE_META + 50;
+
+		if (key->sk_seed_set)
+			*avail_datalen +=  LC_X509_KEYS_SK_SIZE;
+
+		return 0;
+	}
 
 	ctx.pkcs8 = pkcs8;
 
