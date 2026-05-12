@@ -34,6 +34,7 @@
 #include <getopt.h>
 
 #include "asn1.h"
+#include "asn1_debug.h"
 #include "authenticode_SpcIndirectDataContent_asn1.h"
 #include "authenticode_SpcPeImageData_asn1.h"
 #include "image.h"

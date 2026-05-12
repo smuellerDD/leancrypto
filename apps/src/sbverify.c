@@ -33,6 +33,7 @@
 
 #include <getopt.h>
 
+#include "asn1_debug.h"
 #include "authenticode_SpcIndirectDataContent_asn1.h"
 #include "image.h"
 #include "lc_memcmp_secure.h"
