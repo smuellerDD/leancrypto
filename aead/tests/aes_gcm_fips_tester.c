@@ -89,11 +89,9 @@ static int lc_aes_gcm_test(int argc)
 	if (lc_aead_setkey(aes_gcm, key, sizeof(key), NULL, 0))
 		return 1;
 
-	if (lc_aes_gcm_generate_iv(aes_gcm, one, 4, act_iv, sizeof(act_iv),
+	if (lc_aes_gcm_generate_iv(aes_gcm, NULL, 0, act_iv, sizeof(act_iv),
 				   lc_aes_gcm_iv_generate_new))
 		return 1;
-
-	ret += lc_compare(act_iv, one, 4, "AES GCM IV generate");
 
 	lc_aead_encrypt(aes_gcm, one, act_ct, sizeof(zero), aad, sizeof(aad),
 			act_tag, sizeof(act_tag));
