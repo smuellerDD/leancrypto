@@ -90,10 +90,19 @@ impl lcr_aead {
 
 	/// Set key and IV for AEAD context
 	///
-	/// [key] key used for AEAD
-	/// [iv] IV
-	pub fn setkey(&mut self, key: &[u8], iv: &[u8]) ->
-		Result<(), AeadError> {
+	/// # Arguments
+	///
+	/// * `key` key used for AEAD
+	/// * `iv` IV to be used for the AEAD operation
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or AeadError on error
+	pub fn setkey(
+		&mut self,
+		key: &[u8],
+		iv: &[u8]
+	) -> Result<(), AeadError> {
 		if self.aead_ctx.is_null() {
 			let result = self.lcr_aead_alloc();
 
@@ -114,32 +123,49 @@ impl lcr_aead {
 		Ok(())
 	}
 
-	/// AEAD encrypt
+	/// AEAD one-shot encrypt
 	///
-	/// [plaintext] plaintext to be encrypted
-	/// [ciphertext] buffer to be filled with ciphertext (can be the same
-	///		 the plaintext buffer)
-	/// [aad] AAD to be used for encryption
-	/// [tag] Buffer to be filled with the generated tag
+	/// # Arguments
+	///
+	/// * `plaintext` plaintext to be encrypted
+	/// * `ciphertext` buffer to be filled with ciphertext (can be the same
+	///		   the plaintext buffer)
+	/// * `aad` AAD to be used for encryption
+	/// * `tag` Buffer to be filled with the generated tag
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or AeadError on error
 	pub fn encrypt(&mut self,
-		       plaintext: &[u8],
-		       ciphertext: &mut [u8],
-		       aad: &[u8],
-		       tag: &mut [u8]) ->
-		Result<(), AeadError> {
+		plaintext: &[u8],
+		ciphertext: &mut [u8],
+		aad: &[u8],
+		tag: &mut [u8]
+	) -> Result<(), AeadError> {
 		if self.aead_ctx.is_null() {
 			return Err(AeadError::UninitializedContext)
 		}
-		if plaintext.len() != ciphertext.len() {
+		if plaintext.len() > 0 && plaintext.len() != ciphertext.len() {
 			return Err(AeadError::ProcessingError)
+		}
+
+		/*
+		 * &[].as_ptr() returns 0x1 and not a NULL pointer
+		 */
+		let mut ptptr = plaintext.as_ptr();
+		if plaintext.len() == 0 {
+			ptptr = ptr::null();
+		}
+		let mut ctptr = ciphertext.as_mut_ptr();
+		if ciphertext.len() == 0 {
+			ctptr = ptr::null_mut();
 		}
 
 		let result = unsafe {
 			leancrypto::lc_aead_encrypt(
-				self.aead_ctx, plaintext.as_ptr(),
-				ciphertext.as_mut_ptr(), ciphertext.len(),
-				aad.as_ptr(), aad.len(), tag.as_mut_ptr(),
-				tag.len())
+				self.aead_ctx, ptptr, ctptr,
+				ciphertext.len(), aad.as_ptr(), aad.len(),
+				tag.as_mut_ptr(), tag.len())
 		};
 
 		if result < 0 {
@@ -149,10 +175,18 @@ impl lcr_aead {
 		Ok(())
 	}
 
-	/// AEAD initialize encrypt
+	/// AEAD initialize encrypt for stream operation
 	///
-	/// [aad] AAD to be used for encryption
-	pub fn enc_init(&mut self, aad: &[u8]) -> Result<(), AeadError> {
+	/// # Arguments
+	///
+	/// * `aad` AAD to be used for encryption
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or AeadError on error
+	pub fn enc_init(
+		&mut self, aad: &[u8]
+	) -> Result<(), AeadError> {
 		if self.aead_ctx.is_null() {
 			return Err(AeadError::UninitializedContext)
 		}
@@ -169,13 +203,22 @@ impl lcr_aead {
 		Ok(())
 	}
 
-	/// AEAD encrypt of plaintext
+	/// AEAD stream mode encryption of plaintext
 	///
-	/// [plaintext] plaintext to be encrypted
-	/// [ciphertext] buffer to be filled with ciphertext (can be the same
-	///		 the plaintext buffer)
-	pub fn enc_update(&mut self,  plaintext: &[u8], ciphertext: &mut [u8],) ->
-		Result<(), AeadError> {
+	/// # Arguments
+	///
+	/// * `plaintext` plaintext to be encrypted
+	/// * `ciphertext` buffer to be filled with ciphertext (can be the same
+	///		   the plaintext buffer)
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or AeadError on error
+	pub fn enc_update(
+		&mut self,
+		plaintext: &[u8],
+		ciphertext: &mut [u8]
+	) -> Result<(), AeadError> {
 		if self.aead_ctx.is_null() {
 			return Err(AeadError::UninitializedContext)
 		}
@@ -196,10 +239,19 @@ impl lcr_aead {
 		Ok(())
 	}
 
-	/// AEAD encrypt - generation of tag
+	/// AEAD stream mode encryption finalization - calculation of tag
 	///
-	/// [tag] Buffer to be filled with the generated tag
-	pub fn enc_final(&mut self, tag: &mut [u8]) -> Result<(), AeadError> {
+	/// # Arguments
+	///
+	/// * `tag` Buffer to be filled with the generated tag
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or AeadError on error
+	pub fn enc_final(
+		&mut self,
+		tag: &mut [u8]
+	) -> Result<(), AeadError> {
 		if self.aead_ctx.is_null() {
 			return Err(AeadError::UninitializedContext)
 		}
@@ -216,32 +268,46 @@ impl lcr_aead {
 		Ok(())
 	}
 
-	/// AEAD decrypt
+	/// AEAD one-shot decrypt
 	///
-	/// [ciphertext] ciphertext to be decrypted
-	/// [plaintext] buffer to be filled with plaintext (can be the same
-	///		the ciphertext buffer)
-	/// [aad] AAD to be used for encryption
-	/// [tag] Buffer to be used as tag
-	pub fn decrypt(&mut self,
-		       ciphertext: &[u8],
-		       plaintext: &mut [u8],
-		       aad: &[u8],
-		       tag: &[u8]) ->
-		Result<(), AeadError> {
+	/// # Arguments
+	///
+	/// * `ciphertext` ciphertext to be decrypted
+	/// * `plaintext` buffer to be filled with plaintext (can be the same
+	///		  the plaintext buffer)
+	/// * `aad` AAD to be used for encryption
+	/// * `tag` Buffer to be filled with the generated tag
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or AeadError on error
+	pub fn decrypt(
+		&mut self,
+		ciphertext: &[u8],
+		plaintext: &mut [u8],
+		aad: &[u8],
+		tag: &[u8]
+	) -> Result<(), AeadError> {
 		if self.aead_ctx.is_null() {
 			return Err(AeadError::UninitializedContext)
 		}
-		if plaintext.len() != ciphertext.len() {
+		if ciphertext.len() > 0 &&plaintext.len() != ciphertext.len() {
 			return Err(AeadError::ProcessingError)
+		}
+
+		/*
+		 * &[].as_ptr() returns 0x1 and not a NULL pointer
+		 */
+		let mut ctptr = ciphertext.as_ptr();
+		if ciphertext.len() == 0 {
+			ctptr = ptr::null();
 		}
 
 		let result = unsafe {
 			leancrypto::lc_aead_decrypt(
-				self.aead_ctx, ciphertext.as_ptr(),
-				plaintext.as_mut_ptr(), plaintext.len(),
-				aad.as_ptr(), aad.len(), tag.as_ptr(),
-				tag.len())
+				self.aead_ctx, ctptr, plaintext.as_mut_ptr(),
+				plaintext.len(), aad.as_ptr(), aad.len(),
+				tag.as_ptr(), tag.len())
 		};
 
 		if result == -1*(leancrypto::EBADMSG as i32) {
@@ -254,10 +320,19 @@ impl lcr_aead {
 		Ok(())
 	}
 
-	/// AEAD initialize decrypt
+	/// AEAD initialize decrypt for stream operation
 	///
-	/// [aad] AAD to be used for encryption
-	pub fn dec_init(&mut self, aad: &[u8]) -> Result<(), AeadError> {
+	/// # Arguments
+	///
+	/// * `aad` AAD to be used for decryption
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or AeadError on error
+	pub fn dec_init(
+		&mut self,
+		aad: &[u8]
+	) -> Result<(), AeadError> {
 		if self.aead_ctx.is_null() {
 			return Err(AeadError::UninitializedContext)
 		}
@@ -273,13 +348,22 @@ impl lcr_aead {
 		Ok(())
 	}
 
-	/// AEAD decrypt of ciphertext
+	/// AEAD stream mode decryption of plaintext
 	///
-	/// [ciphertext] ciphertext to be decrypted
-	/// [plaintext] buffer to be filled with plaintext (can be the same
-	///		the ciphertext buffer)
-	pub fn dec_update(&mut self, ciphertext: &[u8], plaintext: &mut [u8]) ->
-		Result<(), AeadError> {
+	/// # Arguments
+	///
+	/// * `ciphertext` ciphertext to be decrypted
+	/// * `plaintext` buffer to be filled with plaintext (can be the same
+	///		  the plaintext buffer)
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or AeadError on error
+	pub fn dec_update(
+		&mut self,
+		ciphertext: &[u8],
+		plaintext: &mut [u8]
+	) -> Result<(), AeadError> {
 		if self.aead_ctx.is_null() {
 			return Err(AeadError::UninitializedContext)
 		}
@@ -299,10 +383,19 @@ impl lcr_aead {
 		Ok(())
 	}
 
-	/// AEAD decryption authentication
+	/// AEAD stream mode decryption finalization - verification of tag
 	///
-	/// [tag] Buffer to be used as tag
-	pub fn dec_final(&mut self, tag: &[u8]) -> Result<(), AeadError> {
+	/// # Arguments
+	///
+	/// * `tag` Buffer to be filled with the generated tag
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or AeadError on error
+	pub fn dec_final(
+		&mut self,
+		tag: &[u8]
+	) -> Result<(), AeadError> {
 		if self.aead_ctx.is_null() {
 			return Err(AeadError::UninitializedContext)
 		}
