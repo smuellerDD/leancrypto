@@ -916,6 +916,10 @@ LC_INTERFACE_FUNCTION(int, lc_aes_gcm_generate_iv, struct lc_aead_ctx *ctx,
 
 	CKNULL(ctx, -EINVAL);
 	CKNULL(iv, -EINVAL);
+
+	if (ivlen < 12)
+		return -EINVAL;
+
 	if (fixed_field_len >= ivlen)
 		return -EINVAL;
 

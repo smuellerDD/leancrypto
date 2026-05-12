@@ -112,7 +112,7 @@ enum lc_aes_gcm_iv_type {
  * @param [in] fixed_field Fixed field data
  * @param [in] fixed_field_len Length of fixed field
  * @param [out] iv buffer with fixed_field || random number
- * @param [in] ivlen of the IV to be generated
+ * @param [in] ivlen of the IV to be generated - the minimum length is 12
  * @param [in] type IV generation type
  *
  * @return 0 on succes, < 0 on error
