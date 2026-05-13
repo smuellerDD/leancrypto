@@ -15,6 +15,7 @@ categories = ["cryptography", "external-ffi-bindings"]
 pkg-config = ["dep:pkg-config"]
 
 [dependencies]
+zeroize = "1.8.2"
 
 [build-dependencies]
 bindgen = { version = "0.69.1", features = ["experimental"] }

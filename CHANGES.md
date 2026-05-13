@@ -17,6 +17,8 @@ Changes 1.8.0-prerelease
 
 * Remove VLA in the entire library
 
+* Fixes to ChaCha20-Poly1305 and HKDF based on Wycheproof
+
 Changes 1.7.2
 * Fix RDSEED counter
 
