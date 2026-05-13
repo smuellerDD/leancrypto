@@ -553,6 +553,380 @@ out:
 }
 
 /*
+ * Return the signature size of a given signature type
+ */
+int lc_public_key_size(size_t *keylen, enum lc_sig_types sig_type)
+{
+	int ret = 0;
+
+	switch (sig_type) {
+	case LC_SIG_DILITHIUM_44:
+#ifdef LC_DILITHIUM_44_ENABLED
+		*keylen = lc_dilithium_pk_size(LC_DILITHIUM_44);
+#else
+		*keylen = 0;
+		return -ENOPKG;
+#endif
+		break;
+	case LC_SIG_DILITHIUM_65:
+#ifdef LC_DILITHIUM_65_ENABLED
+		*keylen = lc_dilithium_pk_size(LC_DILITHIUM_65);
+#else
+		*keylen = 0;
+		return -ENOPKG;
+#endif
+		break;
+	case LC_SIG_DILITHIUM_87:
+#ifdef LC_DILITHIUM_87_ENABLED
+		*keylen = lc_dilithium_pk_size(LC_DILITHIUM_87);
+#else
+		*keylen = 0;
+		return -ENOPKG;
+#endif
+		break;
+
+	case LC_SIG_SPHINCS_SHAKE_128F:
+#ifdef LC_SPHINCS_SHAKE_128f_ENABLED
+		*keylen = lc_sphincs_pk_size(LC_SPHINCS_SHAKE_128f);
+#else
+		*keylen = 0;
+		return -ENOPKG;
+#endif
+		break;
+	case LC_SIG_SPHINCS_SHAKE_128S:
+#ifdef LC_SPHINCS_SHAKE_128s_ENABLED
+		*keylen = lc_sphincs_pk_size(LC_SPHINCS_SHAKE_128s);
+#else
+		*keylen = 0;
+		return -ENOPKG;
+#endif
+		break;
+	case LC_SIG_SPHINCS_SHAKE_192F:
+#ifdef LC_SPHINCS_SHAKE_192f_ENABLED
+		*keylen = lc_sphincs_pk_size(LC_SPHINCS_SHAKE_192f);
+#else
+		*keylen = 0;
+		return -ENOPKG;
+#endif
+		break;
+	case LC_SIG_SPHINCS_SHAKE_192S:
+#ifdef LC_SPHINCS_SHAKE_192s_ENABLED
+		*keylen = lc_sphincs_pk_size(LC_SPHINCS_SHAKE_192s);
+#else
+		*keylen = 0;
+		return -ENOPKG;
+#endif
+		break;
+	case LC_SIG_SPHINCS_SHAKE_256F:
+#ifdef LC_SPHINCS_SHAKE_256f_ENABLED
+		*keylen = lc_sphincs_pk_size(LC_SPHINCS_SHAKE_256f);
+#else
+		*keylen = 0;
+		return -ENOPKG;
+#endif
+		break;
+	case LC_SIG_SPHINCS_SHAKE_256S:
+#ifdef LC_SPHINCS_SHAKE_256s_ENABLED
+		*keylen = lc_sphincs_pk_size(LC_SPHINCS_SHAKE_256s);
+#else
+		*keylen = 0;
+		ret = -ENOPKG;
+		goto out;
+#endif
+		break;
+
+	case LC_SIG_DILITHIUM_44_ED25519:
+#if defined(LC_DILITHIUM_ED25519) && defined(LC_DILITHIUM_44_ENABLED)
+		CKINT(public_key_size_dilithium_ed25519(
+			LC_DILITHIUM_44, keylen));
+#else
+		*keylen = 0;
+		ret = -ENOPKG;
+		goto out;
+#endif
+		break;
+	case LC_SIG_DILITHIUM_65_ED25519:
+#if defined(LC_DILITHIUM_ED25519) && defined(LC_DILITHIUM_65_ENABLED)
+		CKINT(public_key_size_dilithium_ed25519(
+			LC_DILITHIUM_65, keylen));
+#else
+		*keylen = 0;
+		ret = -ENOPKG;
+		goto out;
+#endif
+		break;
+	case LC_SIG_DILITHIUM_87_ED25519:
+#if defined(LC_DILITHIUM_ED25519) && defined(LC_DILITHIUM_87_ENABLED)
+		CKINT(public_key_size_dilithium_ed25519(
+			LC_DILITHIUM_87, keylen));
+#else
+		*keylen = 0;
+		ret = -ENOPKG;
+		goto out;
+#endif
+		break;
+	case LC_SIG_DILITHIUM_44_ED448:
+#if defined(LC_DILITHIUM_ED448) && defined(LC_DILITHIUM_44_ENABLED)
+		CKINT(public_key_size_dilithium_ed448(LC_DILITHIUM_44,
+								keylen));
+#else
+		*keylen = 0;
+		ret = -ENOPKG;
+		goto out;
+#endif
+		break;
+	case LC_SIG_DILITHIUM_65_ED448:
+#if defined(LC_DILITHIUM_ED448) && defined(LC_DILITHIUM_65_ENABLED)
+		CKINT(public_key_size_dilithium_ed448(LC_DILITHIUM_65,
+								keylen));
+#else
+		*keylen = 0;
+		ret = -ENOPKG;
+		goto out;
+#endif
+		break;
+	case LC_SIG_DILITHIUM_87_ED448:
+#if defined(LC_DILITHIUM_ED448) && defined(LC_DILITHIUM_87_ENABLED)
+		CKINT(public_key_size_dilithium_ed448(LC_DILITHIUM_87,
+								keylen));
+#else
+		*keylen = 0;
+		ret = -ENOPKG;
+		goto out;
+#endif
+		break;
+
+	case LC_SIG_ED25519:
+#ifdef LC_DILITHIUM_ED25519
+		*keylen = lc_ed25519_pk_size();
+#else
+		*keylen = 0;
+		return -ENOPKG;
+#endif
+		break;
+	case LC_SIG_ED448:
+#ifdef LC_DILITHIUM_ED448
+		*keylen = lc_ed448_pk_size();
+#else
+		*keylen = 0;
+		ret = -ENOPKG;
+		goto out;
+#endif
+		break;
+
+	case LC_SIG_RSA_PKCS1:
+	case LC_SIG_RSA_PKCS1_SHA2_256:
+	case LC_SIG_RSA_PKCS1_SHA2_384:
+	case LC_SIG_RSA_PKCS1_SHA2_512:
+	case LC_SIG_RSA_PKCS1_SHA3_256:
+	case LC_SIG_RSA_PKCS1_SHA3_384:
+	case LC_SIG_RSA_PKCS1_SHA3_512:
+	case LC_SIG_ECDSA_X963:
+	case LC_SIG_ECDSA_X963_SHA2_256:
+	case LC_SIG_ECDSA_X963_SHA2_384:
+	case LC_SIG_ECDSA_X963_SHA2_512:
+	case LC_SIG_ECDSA_X963_SHA3_256:
+	case LC_SIG_ECDSA_X963_SHA3_384:
+	case LC_SIG_ECDSA_X963_SHA3_512:
+	case LC_SIG_ECRDSA_PKCS1:
+	case LC_SIG_SM2:
+	case LC_SIG_UNKNOWN:
+	default:
+		return -ENOPKG;
+	}
+
+out:
+	return ret;
+}
+
+/*
+ * Return the signature size of a given signature type
+ */
+int lc_private_key_size(size_t *keylen, enum lc_sig_types sig_type)
+{
+	int ret = 0;
+
+	switch (sig_type) {
+	case LC_SIG_DILITHIUM_44:
+#ifdef LC_DILITHIUM_44_ENABLED
+		*keylen = lc_dilithium_sk_size(LC_DILITHIUM_44);
+#else
+		*keylen = 0;
+		return -ENOPKG;
+#endif
+		break;
+	case LC_SIG_DILITHIUM_65:
+#ifdef LC_DILITHIUM_65_ENABLED
+		*keylen = lc_dilithium_sk_size(LC_DILITHIUM_65);
+#else
+		*keylen = 0;
+		return -ENOPKG;
+#endif
+		break;
+	case LC_SIG_DILITHIUM_87:
+#ifdef LC_DILITHIUM_87_ENABLED
+		*keylen = lc_dilithium_sk_size(LC_DILITHIUM_87);
+#else
+		*keylen = 0;
+		return -ENOPKG;
+#endif
+		break;
+
+	case LC_SIG_SPHINCS_SHAKE_128F:
+#ifdef LC_SPHINCS_SHAKE_128f_ENABLED
+		*keylen = lc_sphincs_sk_size(LC_SPHINCS_SHAKE_128f);
+#else
+		*keylen = 0;
+		return -ENOPKG;
+#endif
+		break;
+	case LC_SIG_SPHINCS_SHAKE_128S:
+#ifdef LC_SPHINCS_SHAKE_128s_ENABLED
+		*keylen = lc_sphincs_sk_size(LC_SPHINCS_SHAKE_128s);
+#else
+		*keylen = 0;
+		return -ENOPKG;
+#endif
+		break;
+	case LC_SIG_SPHINCS_SHAKE_192F:
+#ifdef LC_SPHINCS_SHAKE_192f_ENABLED
+		*keylen = lc_sphincs_sk_size(LC_SPHINCS_SHAKE_192f);
+#else
+		*keylen = 0;
+		return -ENOPKG;
+#endif
+		break;
+	case LC_SIG_SPHINCS_SHAKE_192S:
+#ifdef LC_SPHINCS_SHAKE_192s_ENABLED
+		*keylen = lc_sphincs_sk_size(LC_SPHINCS_SHAKE_192s);
+#else
+		*keylen = 0;
+		return -ENOPKG;
+#endif
+		break;
+	case LC_SIG_SPHINCS_SHAKE_256F:
+#ifdef LC_SPHINCS_SHAKE_256f_ENABLED
+		*keylen = lc_sphincs_sk_size(LC_SPHINCS_SHAKE_256f);
+#else
+		*keylen = 0;
+		return -ENOPKG;
+#endif
+		break;
+	case LC_SIG_SPHINCS_SHAKE_256S:
+#ifdef LC_SPHINCS_SHAKE_256s_ENABLED
+		*keylen = lc_sphincs_sk_size(LC_SPHINCS_SHAKE_256s);
+#else
+		*keylen = 0;
+		ret = -ENOPKG;
+		goto out;
+#endif
+		break;
+
+	case LC_SIG_DILITHIUM_44_ED25519:
+#if defined(LC_DILITHIUM_ED25519) && defined(LC_DILITHIUM_44_ENABLED)
+		CKINT(public_key_size_dilithium_ed25519(
+			LC_DILITHIUM_44, keylen));
+#else
+		*keylen = 0;
+		ret = -ENOPKG;
+		goto out;
+#endif
+		break;
+	case LC_SIG_DILITHIUM_65_ED25519:
+#if defined(LC_DILITHIUM_ED25519) && defined(LC_DILITHIUM_65_ENABLED)
+		CKINT(public_key_size_dilithium_ed25519(
+			LC_DILITHIUM_65, keylen));
+#else
+		*keylen = 0;
+		ret = -ENOPKG;
+		goto out;
+#endif
+		break;
+	case LC_SIG_DILITHIUM_87_ED25519:
+#if defined(LC_DILITHIUM_ED25519) && defined(LC_DILITHIUM_87_ENABLED)
+		CKINT(public_key_size_dilithium_ed25519(
+			LC_DILITHIUM_87, keylen));
+#else
+		*keylen = 0;
+		ret = -ENOPKG;
+		goto out;
+#endif
+		break;
+	case LC_SIG_DILITHIUM_44_ED448:
+#if defined(LC_DILITHIUM_ED448) && defined(LC_DILITHIUM_44_ENABLED)
+		CKINT(public_key_size_dilithium_ed448(LC_DILITHIUM_44,
+								keylen));
+#else
+		*keylen = 0;
+		ret = -ENOPKG;
+		goto out;
+#endif
+		break;
+	case LC_SIG_DILITHIUM_65_ED448:
+#if defined(LC_DILITHIUM_ED448) && defined(LC_DILITHIUM_65_ENABLED)
+		CKINT(public_key_size_dilithium_ed448(LC_DILITHIUM_65,
+								keylen));
+#else
+		*keylen = 0;
+		ret = -ENOPKG;
+		goto out;
+#endif
+		break;
+	case LC_SIG_DILITHIUM_87_ED448:
+#if defined(LC_DILITHIUM_ED448) && defined(LC_DILITHIUM_87_ENABLED)
+		CKINT(public_key_size_dilithium_ed448(LC_DILITHIUM_87,
+								keylen));
+#else
+		*keylen = 0;
+		ret = -ENOPKG;
+		goto out;
+#endif
+		break;
+
+	case LC_SIG_ED25519:
+#ifdef LC_DILITHIUM_ED25519
+		*keylen = lc_ed25519_sk_size();
+#else
+		*keylen = 0;
+		return -ENOPKG;
+#endif
+		break;
+	case LC_SIG_ED448:
+#ifdef LC_DILITHIUM_ED448
+		*keylen = lc_ed448_sk_size();
+#else
+		*keylen = 0;
+		ret = -ENOPKG;
+		goto out;
+#endif
+		break;
+
+	case LC_SIG_RSA_PKCS1:
+	case LC_SIG_RSA_PKCS1_SHA2_256:
+	case LC_SIG_RSA_PKCS1_SHA2_384:
+	case LC_SIG_RSA_PKCS1_SHA2_512:
+	case LC_SIG_RSA_PKCS1_SHA3_256:
+	case LC_SIG_RSA_PKCS1_SHA3_384:
+	case LC_SIG_RSA_PKCS1_SHA3_512:
+	case LC_SIG_ECDSA_X963:
+	case LC_SIG_ECDSA_X963_SHA2_256:
+	case LC_SIG_ECDSA_X963_SHA2_384:
+	case LC_SIG_ECDSA_X963_SHA2_512:
+	case LC_SIG_ECDSA_X963_SHA3_256:
+	case LC_SIG_ECDSA_X963_SHA3_384:
+	case LC_SIG_ECDSA_X963_SHA3_512:
+	case LC_SIG_ECRDSA_PKCS1:
+	case LC_SIG_SM2:
+	case LC_SIG_UNKNOWN:
+	default:
+		return -ENOPKG;
+	}
+
+out:
+	return ret;
+}
+
+/*
  * Encode a private key into DER
  */
 int lc_privkey_key_encode(struct x509_generate_privkey_context *ctx,
@@ -1286,7 +1660,9 @@ int lc_asym_keypair_gen(struct lc_x509_certificate *cert,
 	unsigned int generate_sk_seed;
 	int ret;
 
-	CKNULL(cert, -EINVAL);
+	/*
+	 * We allow cert to be NULL - must be handled in subordinate functions
+	 */
 	CKNULL(keys, -EINVAL);
 
 	/*
@@ -1394,8 +1770,10 @@ int lc_asym_keypair_gen(struct lc_x509_certificate *cert,
 		return -ENOPKG;
 	}
 
-	cert->sig.pkey_algo = create_keypair_algo;
-	cert->pub.pkey_algo = create_keypair_algo;
+	if (cert) {
+		cert->sig.pkey_algo = create_keypair_algo;
+		cert->pub.pkey_algo = create_keypair_algo;
+	}
 	keys->sig_type = create_keypair_algo;
 
 out:

@@ -64,6 +64,8 @@ int lc_pkcs8_note_OID_enc(void *context, uint8_t *data, size_t *avail_datalen,
 
 	(void)tag;
 
+	CKNULL(privkey, -EINVAL);
+
 	CKINT(lc_x509_sig_type_to_oid(privkey->sig_type, &oid));
 
 	CKINT(lc_OID_to_data(oid, &oid_data, &oid_datalen));
@@ -129,6 +131,8 @@ int lc_pkcs8_note_key_enc(void *context, uint8_t *data, size_t *avail_datalen,
 
 	(void)tag;
 
+	CKNULL(pkcs8->privkey_ptr, -EINVAL);
+
 	privkey_ctx.keys = pkcs8->privkey_ptr;
 
 	CKINT(lc_privkey_key_encode(&privkey_ctx, data, avail_datalen));
@@ -160,10 +164,14 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs8_encode,
 	if (!data) {
 		const struct lc_x509_key_data *key = pkcs8->privkey_ptr;
 
-		*avail_datalen = LC_X509_KEYS_SIZE_META + 50;
+		if (!key->sk_seed_memory_only) {
+			CKINT(lc_private_key_size(avail_datalen,
+						  key->sig_type));
+		} else {
+			*avail_datalen += LC_X509_PQC_SK_SEED_SIZE;
+		}
 
-		if (key->sk_seed_set)
-			*avail_datalen +=  LC_X509_KEYS_SK_SIZE;
+		*avail_datalen += 50;
 
 		return 0;
 	}

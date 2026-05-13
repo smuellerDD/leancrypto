@@ -63,6 +63,8 @@ int lc_ed448_pk_load(struct lc_ed448_pk *pk, const uint8_t *src_key,
 int lc_ed448_sig_load(struct lc_ed448_sig *sig, const uint8_t *src_sig,
 		      size_t src_sig_len);
 unsigned int lc_ed448_sig_size(void);
+unsigned int lc_ed448_pk_size(void);
+unsigned int lc_ed448_sk_size(void);
 
 /* Receive a message pre-hashed with SHAKE-256 */
 int lc_ed448ph_sign(struct lc_ed448_sig *sig, const uint8_t *msg, size_t mlen,

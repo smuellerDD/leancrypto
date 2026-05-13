@@ -1355,6 +1355,21 @@ out:
  * API functions
  ******************************************************************************/
 
+static size_t
+x509_cert_directory_name_len(const struct lc_x509_certificate_name *name)
+{
+	size_t result;
+
+	result = name->c.size;
+	result += name->st.size;
+	result += name->o.size;
+	result += name->ou.size;
+	result += name->cn.size;
+	result += name->email.size;
+
+	return result;
+}
+
 LC_INTERFACE_FUNCTION(int, lc_x509_cert_encode,
 		      const struct lc_x509_certificate *x509, uint8_t *data,
 		      size_t *avail_datalen)
@@ -1371,7 +1386,35 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_encode,
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	CKNULL(x509, -EINVAL);
-	CKNULL(data, -EINVAL);
+
+	if (!data) {
+		size_t len;
+		const struct lc_x509_key_data *gendata = &x509->pub_gen_data;
+
+		CKINT(lc_public_key_signature_size(avail_datalen,
+						   x509->sig.pkey_algo));
+		CKINT(lc_public_key_size(&len, x509->sig.pkey_algo));
+		*avail_datalen += len;
+
+		*avail_datalen += 300;
+		*avail_datalen += x509->san_dns_len;
+		*avail_datalen += x509->san_ip_len;
+		*avail_datalen += x509->san_email_len;
+		*avail_datalen += x509_cert_directory_name_len(
+					&x509->san_directory_name_segments);
+		*avail_datalen += x509_cert_directory_name_len(
+					&x509->subject_segments);
+		*avail_datalen += x509_cert_directory_name_len(
+					&x509->issuer_segments);
+		*avail_datalen += x509->raw_skid_size ?
+				  x509->raw_skid_size :
+				  sizeof(gendata->pk_digest);
+		*avail_datalen += x509->raw_akid_size;
+		*avail_datalen += x509->raw_serial_size ?
+				  x509->raw_serial_size :
+				  LC_X509_SERIAL_MAX_SIZE;
+		return 0;
+	}
 
 	if (x509->is_csr)
 		return -EOPNOTSUPP;
@@ -1618,9 +1661,12 @@ LC_INTERFACE_FUNCTION(int, lc_x509_keypair_data_alloc,
 		tmp->sk.dilithium_sk =
 			(struct lc_dilithium_sk *)LC_ALIGN_PTR_64(ptr, 8);
 
+		tmp->sk_seed_set = 0;
 		break;
 	case lc_x509_keypair_data_alloc_flags_seeds:
 		tmp->sk_seed_memory_only = 1;
+		/* Force generation of seed key */
+		tmp->sk_seed_set = 1;
 		break;
 	default:
 		return -EINVAL;

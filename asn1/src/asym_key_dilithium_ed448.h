@@ -55,6 +55,10 @@ int asym_keypair_gen_dilithium_ed448(struct lc_x509_certificate *cert,
 #ifdef LC_DILITHIUM_ED448
 int public_key_signature_size_dilithium_ed448(
 	enum lc_dilithium_type dilithium_type, size_t *size);
+int public_key_size_dilithium_ed448(enum lc_dilithium_type dilithium_type,
+				    size_t *size);
+int private_key_size_dilithium_ed448(enum lc_dilithium_type dilithium_type,
+				     size_t *size);
 int public_key_decode_dilithium_ed448(
 	struct lc_dilithium_ed448_pk *dilithium_ed448_pk, const uint8_t *data,
 	size_t datalen);

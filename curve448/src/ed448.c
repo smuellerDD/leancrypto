@@ -951,3 +951,13 @@ LC_PURE LC_INTERFACE_FUNCTION(unsigned int, lc_ed448_sig_size, void)
 {
 	return LC_ED448_SIGBYTES;
 }
+
+LC_PURE LC_INTERFACE_FUNCTION(unsigned int, lc_ed448_pk_size, void)
+{
+	return LC_ED448_PUBLICKEYBYTES;
+}
+
+LC_PURE LC_INTERFACE_FUNCTION(unsigned int, lc_ed448_sk_size, void)
+{
+	return LC_ED448_PUBLICKEYBYTES;
+}

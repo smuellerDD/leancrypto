@@ -62,6 +62,8 @@ int lc_public_key_generate_signature(const struct lc_x509_key_data *gen_data,
 int lc_public_key_extract(struct x509_generate_context *ctx, uint8_t *dst_data,
 			  size_t *available_len);
 int lc_public_key_signature_size(size_t *siglen, enum lc_sig_types sig_type);
+int lc_public_key_size(size_t *keylen, enum lc_sig_types sig_type);
+int lc_private_key_size(size_t *keylen, enum lc_sig_types sig_type);
 int lc_privkey_key_encode(struct x509_generate_privkey_context *ctx,
 			  uint8_t *dst_data, size_t *available_len);
 int lc_privkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,

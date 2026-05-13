@@ -405,6 +405,22 @@ int public_key_signature_size_dilithium_ed448(
 	return 0;
 }
 
+int public_key_size_dilithium_ed448(
+	enum lc_dilithium_type dilithium_type, size_t *size)
+{
+	/* sig sizes of all components */
+	*size = lc_dilithium_pk_size(dilithium_type) + LC_ED448_PUBLICKEYBYTES;
+	return 0;
+}
+
+int private_key_size_dilithium_ed448(
+	enum lc_dilithium_type dilithium_type, size_t *size)
+{
+	/* sig sizes of all components */
+	*size = lc_dilithium_sk_size(dilithium_type) + LC_ED448_SECRETKEYBYTES;
+	return 0;
+}
+
 int asym_set_dilithium_ed448_keypair(struct lc_x509_key_data *gen_data,
 				     struct lc_dilithium_ed448_pk *pk,
 				     struct lc_dilithium_ed448_sk *sk)

@@ -809,3 +809,13 @@ LC_PURE LC_INTERFACE_FUNCTION(unsigned int, lc_ed25519_sig_size, void)
 {
 	return LC_ED25519_SIGBYTES;
 }
+
+LC_PURE LC_INTERFACE_FUNCTION(unsigned int, lc_ed25519_pk_size, void)
+{
+	return LC_ED25519_PUBLICKEYBYTES;
+}
+
+LC_PURE LC_INTERFACE_FUNCTION(unsigned int, lc_ed25519_sk_size, void)
+{
+	return LC_ED25519_PUBLICKEYBYTES;
+}

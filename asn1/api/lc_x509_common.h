@@ -343,6 +343,18 @@ struct lc_x509_key_data {
 #define LC_X509_KEYS_SK_SIZE (0)
 #endif
 
+#if defined(LC_SPHINCS)
+#define LC_X509_KEYS_SIG_SIZE (sizeof(struct lc_sphincs_sig))
+#elif defined(LC_DILITHIUM_ED448)
+#define LC_X509_KEYS_SIG_SIZE (sizeof(struct lc_dilithium_ed448_sig))
+#elif defined(LC_DILITHIUM_ED25519)
+#define LC_X509_KEYS_SIG_SIZE (sizeof(struct lc_dilithium_ed25519_sig))
+#elif defined(LC_DILITHIUM)
+#define LC_X509_KEYS_SIG_SIZE (sizeof(struct lc_dilithium_sig))
+#else
+#define LC_X509_KEYS_SIG_SIZE (0)
+#endif
+
 #define LC_X509_KEYS_SIZE_META (sizeof(struct lc_x509_key_data))
 #define LC_X509_KEYS_PK_SIZE_ALIGNED (8 + LC_X509_KEYS_PK_SIZE)
 #define LC_X509_KEYS_SK_SIZE_ALIGNED (8 + LC_X509_KEYS_SK_SIZE)

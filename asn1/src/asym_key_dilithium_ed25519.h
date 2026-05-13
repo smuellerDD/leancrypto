@@ -54,6 +54,10 @@ int asym_keypair_gen_dilithium_ed25519(
 #ifdef LC_DILITHIUM_ED25519
 int public_key_signature_size_dilithium_ed25519(
 	enum lc_dilithium_type dilithium_type, size_t *size);
+int public_key_size_dilithium_ed25519(enum lc_dilithium_type dilithium_type,
+				      size_t *size);
+int private_key_size_dilithium_ed25519(enum lc_dilithium_type dilithium_type,
+				       size_t *size);
 int public_key_decode_dilithium_ed25519(
 	struct lc_dilithium_ed25519_pk *dilithium_ed25519_pk,
 	const uint8_t *data, size_t datalen);
