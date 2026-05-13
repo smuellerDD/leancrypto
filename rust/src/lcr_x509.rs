@@ -537,7 +537,7 @@ impl lcr_x509_key {
 	/// Wrapper around lc_x509_cert_set_san_ip
 	pub fn cert_set_san_ip(
 		&mut self,
-		ip: &str
+		ip: &[u8]
 	) -> Result<(), X509Error> {
 		self.cert_configurable()?;
 
@@ -554,7 +554,7 @@ impl lcr_x509_key {
 	/// Wrapper around lc_x509_cert_set_skid
 	pub fn cert_set_skid(
 		&mut self,
-		skid: &str
+		skid: &[u8]
 	) -> Result<(), X509Error> {
 		self.cert_configurable()?;
 
@@ -571,7 +571,7 @@ impl lcr_x509_key {
 	/// Wrapper around lc_x509_cert_set_akid
 	pub fn cert_set_akid(
 		&mut self,
-		akid: &str
+		akid: &[u8]
 	) -> Result<(), X509Error> {
 		self.cert_configurable()?;
 
@@ -628,7 +628,8 @@ impl lcr_x509_key {
 
 		let result = unsafe {
 			leancrypto::lc_x509_cert_set_subject_cn(
-				&mut self.x509_cert, cn.as_ptr(), cn.len())
+				&mut self.x509_cert,
+				CString::new(cn).unwrap().as_ptr(), cn.len())
 		};
 		if result < 0 {
 			return Err(X509Error::ProcessingError)
@@ -645,7 +646,8 @@ impl lcr_x509_key {
 
 		let result = unsafe {
 			leancrypto::lc_x509_cert_set_subject_email(
-				&mut self.x509_cert, email.as_ptr(),
+				&mut self.x509_cert,
+				CString::new(email).unwrap().as_ptr(),
 				email.len())
 		};
 		if result < 0 {
@@ -663,7 +665,8 @@ impl lcr_x509_key {
 
 		let result = unsafe {
 			leancrypto::lc_x509_cert_set_subject_ou(
-				&mut self.x509_cert, ou.as_ptr(), ou.len())
+				&mut self.x509_cert,
+				CString::new(ou).unwrap().as_ptr(), ou.len())
 		};
 		if result < 0 {
 			return Err(X509Error::ProcessingError)
@@ -680,7 +683,8 @@ impl lcr_x509_key {
 
 		let result = unsafe {
 			leancrypto::lc_x509_cert_set_subject_o(
-				&mut self.x509_cert, o.as_ptr(), o.len())
+				&mut self.x509_cert,
+				CString::new(o).unwrap().as_ptr(), o.len())
 		};
 		if result < 0 {
 			return Err(X509Error::ProcessingError)
@@ -697,7 +701,8 @@ impl lcr_x509_key {
 
 		let result = unsafe {
 			leancrypto::lc_x509_cert_set_subject_st(
-				&mut self.x509_cert, st.as_ptr(), st.len())
+				&mut self.x509_cert,
+				CString::new(st).unwrap().as_ptr(), st.len())
 		};
 		if result < 0 {
 			return Err(X509Error::ProcessingError)
@@ -714,7 +719,8 @@ impl lcr_x509_key {
 
 		let result = unsafe {
 			leancrypto::lc_x509_cert_set_subject_c(
-				&mut self.x509_cert, c.as_ptr(), c.len())
+				&mut self.x509_cert,
+				CString::new(c).unwrap().as_ptr(), c.len())
 		};
 		if result < 0 {
 			return Err(X509Error::ProcessingError)
@@ -731,7 +737,8 @@ impl lcr_x509_key {
 
 		let result = unsafe {
 			leancrypto::lc_x509_cert_set_issuer_cn(
-				&mut self.x509_cert, cn.as_ptr(), cn.len())
+				&mut self.x509_cert,
+				CString::new(cn).unwrap().as_ptr(), cn.len())
 		};
 		if result < 0 {
 			return Err(X509Error::ProcessingError)
@@ -748,7 +755,8 @@ impl lcr_x509_key {
 
 		let result = unsafe {
 			leancrypto::lc_x509_cert_set_issuer_email(
-				&mut self.x509_cert, email.as_ptr(),
+				&mut self.x509_cert,
+				CString::new(email).unwrap().as_ptr(),
 				email.len())
 		};
 		if result < 0 {
@@ -766,7 +774,8 @@ impl lcr_x509_key {
 
 		let result = unsafe {
 			leancrypto::lc_x509_cert_set_issuer_ou(
-				&mut self.x509_cert, ou.as_ptr(), ou.len())
+				&mut self.x509_cert,
+				CString::new(ou).unwrap().as_ptr(), ou.len())
 		};
 		if result < 0 {
 			return Err(X509Error::ProcessingError)
@@ -783,7 +792,8 @@ impl lcr_x509_key {
 
 		let result = unsafe {
 			leancrypto::lc_x509_cert_set_issuer_o(
-				&mut self.x509_cert, o.as_ptr(), o.len())
+				&mut self.x509_cert,
+				CString::new(o).unwrap().as_ptr(), o.len())
 		};
 		if result < 0 {
 			return Err(X509Error::ProcessingError)
@@ -800,7 +810,8 @@ impl lcr_x509_key {
 
 		let result = unsafe {
 			leancrypto::lc_x509_cert_set_issuer_st(
-				&mut self.x509_cert, st.as_ptr(), st.len())
+				&mut self.x509_cert,
+				CString::new(st).unwrap().as_ptr(), st.len())
 		};
 		if result < 0 {
 			return Err(X509Error::ProcessingError)
@@ -817,7 +828,8 @@ impl lcr_x509_key {
 
 		let result = unsafe {
 			leancrypto::lc_x509_cert_set_issuer_c(
-				&mut self.x509_cert, c.as_ptr(), c.len())
+				&mut self.x509_cert,
+				CString::new(c).unwrap().as_ptr(), c.len())
 		};
 		if result < 0 {
 			return Err(X509Error::ProcessingError)
