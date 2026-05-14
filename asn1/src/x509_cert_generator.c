@@ -1389,7 +1389,6 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_encode,
 
 	if (!data) {
 		size_t len;
-		const struct lc_x509_key_data *gendata = &x509->pub_gen_data;
 
 		CKINT(lc_public_key_signature_size(avail_datalen,
 						   x509->sig.pkey_algo));
@@ -1408,7 +1407,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_encode,
 					&x509->issuer_segments);
 		*avail_datalen += x509->raw_skid_size ?
 				  x509->raw_skid_size :
-				  sizeof(gendata->pk_digest);
+				  LC_X509_SKID_DEFAULT_HASHSIZE;
 		*avail_datalen += x509->raw_akid_size;
 		*avail_datalen += x509->raw_serial_size ?
 				  x509->raw_serial_size :
