@@ -59,6 +59,8 @@ int lc_public_key_verify_signature(const struct lc_public_key *pkey,
 int lc_public_key_generate_signature(const struct lc_x509_key_data *gen_data,
 				     const struct lc_public_key_signature *sig,
 				     uint8_t *sig_data, size_t *available_len);
+int lc_public_key_extract_from_keys(const struct lc_x509_key_data *key,
+				    uint8_t *dst_data, size_t *available_len);
 int lc_public_key_extract(struct x509_generate_context *ctx, uint8_t *dst_data,
 			  size_t *available_len);
 int lc_public_key_signature_size(size_t *siglen, enum lc_sig_types sig_type);

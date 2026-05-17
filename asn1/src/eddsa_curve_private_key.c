@@ -45,7 +45,7 @@ int lc_x509_eddsa_private_key_enc(void *context, uint8_t *data,
 	CKINT(lc_x509_concatenate_bit_string(&data, avail_datalen, skptr,
 					     sklen));
 
-	printf_debug("Set composite secret key of size %zu\n", sklen);
+	printf_debug("Set Ed25519 secret key of size %zu\n", sklen);
 
 out:
 	return ret;
@@ -75,7 +75,7 @@ int lc_x509_eddsa_private_key(void *context, size_t hdrlen, unsigned char tag,
 		return -EOPNOTSUPP;
 	}
 
-	printf_debug("Loaded composite public key of size %zu\n", vlen);
+	printf_debug("Loaded Ed25519 private key of size %zu\n", vlen);
 
 out:
 	return ret;

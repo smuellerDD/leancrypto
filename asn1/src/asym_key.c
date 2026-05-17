@@ -243,29 +243,27 @@ out:
  *
  * NOTE, only pointers to the DER data stream are set.
  */
-int lc_public_key_extract(struct x509_generate_context *ctx, uint8_t *dst_data,
-			  size_t *available_len)
+int lc_public_key_extract_from_keys(const struct lc_x509_key_data *key,
+				    uint8_t *dst_data, size_t *available_len)
 {
 #ifdef LC_X509_GENERATOR
-	const struct lc_x509_certificate *cert = ctx->cert;
-	const struct lc_x509_key_data *keys = &cert->pub_gen_data;
 	size_t pklen = 0;
 	uint8_t *ptr;
 	int ret;
 
-	if (keys->pk.dilithium_pk) {
+	if (key->pk.dilithium_pk) {
 		/*
 		 * The caller provided the key data, e.g. from a key generation
 		 * call.
 		 */
 
-		switch (keys->sig_type) {
+		switch (key->sig_type) {
 		case LC_SIG_DILITHIUM_44:
 		case LC_SIG_DILITHIUM_65:
 		case LC_SIG_DILITHIUM_87:
 #ifdef LC_DILITHIUM
 			CKINT(lc_dilithium_pk_ptr(&ptr, &pklen,
-						  keys->pk.dilithium_pk));
+						  key->pk.dilithium_pk));
 #else
 			return -ENOPKG;
 #endif
@@ -278,7 +276,7 @@ int lc_public_key_extract(struct x509_generate_context *ctx, uint8_t *dst_data,
 		case LC_SIG_SPHINCS_SHAKE_256S:
 #ifdef LC_SPHINCS
 			CKINT(lc_sphincs_pk_ptr(&ptr, &pklen,
-						keys->pk.sphincs_pk));
+						key->pk.sphincs_pk));
 #else
 			return -ENOPKG;
 #endif
@@ -287,21 +285,21 @@ int lc_public_key_extract(struct x509_generate_context *ctx, uint8_t *dst_data,
 		case LC_SIG_DILITHIUM_65_ED25519:
 		case LC_SIG_DILITHIUM_87_ED25519:
 			CKINT(public_key_encode_dilithium_ed25519(
-				dst_data, available_len, ctx));
+				dst_data, available_len, key));
 			goto out;
 			break;
 		case LC_SIG_DILITHIUM_44_ED448:
 		case LC_SIG_DILITHIUM_65_ED448:
 		case LC_SIG_DILITHIUM_87_ED448:
 			CKINT(public_key_encode_dilithium_ed448(
-				dst_data, available_len, ctx));
+				dst_data, available_len, key));
 			goto out;
 			break;
 
 		case LC_SIG_ED25519:
 #ifdef LC_DILITHIUM_ED25519
 			CKINT(lc_ed25519_pk_ptr(&ptr, &pklen,
-						keys->pk.ed25519_pk));
+						key->pk.ed25519_pk));
 #else
 			return -ENOPKG;
 #endif
@@ -309,7 +307,7 @@ int lc_public_key_extract(struct x509_generate_context *ctx, uint8_t *dst_data,
 
 		case LC_SIG_ED448:
 #ifdef LC_DILITHIUM_ED448
-			CKINT(lc_ed448_pk_ptr(&ptr, &pklen, keys->pk.ed448_pk));
+			CKINT(lc_ed448_pk_ptr(&ptr, &pklen, key->pk.ed448_pk));
 #else
 			return -ENOPKG;
 #endif
@@ -336,15 +334,8 @@ int lc_public_key_extract(struct x509_generate_context *ctx, uint8_t *dst_data,
 			return -ENOPKG;
 		}
 	} else {
-		/*
-		 * The caller may, however, also provide a public key straight
-		 * from a parsed certificate where decoded key is present.
-		 */
-		const struct lc_public_key *pub = &cert->pub;
-
-		/* unconstify harmless as pointer is only read */
-		ptr = (uint8_t *)pub->key;
-		pklen = pub->keylen;
+		ret = -ENOENT;
+		goto out;
 	}
 
 	CKINT(lc_x509_sufficient_size(available_len, pklen));
@@ -357,6 +348,49 @@ int lc_public_key_extract(struct x509_generate_context *ctx, uint8_t *dst_data,
 
 out:
 	return ret;
+#else
+	(void)key;
+	(void)dst_data;
+	(void)available_len;
+	return -EOPNOTSUPP;
+#endif
+}
+
+int lc_public_key_extract(struct x509_generate_context *ctx, uint8_t *dst_data,
+			  size_t *available_len)
+{
+#ifdef LC_X509_GENERATOR
+	const struct lc_x509_certificate *cert = ctx->cert;
+	const struct lc_x509_key_data *key = &cert->pub_gen_data;
+	int ret =  lc_public_key_extract_from_keys(key, dst_data,
+						   available_len);
+
+	if (ret == -ENOENT) {
+		size_t pklen = 0;
+		uint8_t *ptr;
+
+		/*
+		 * The caller may, however, also provide a public key straight
+		 * from a parsed certificate where decoded key is present.
+		 */
+		const struct lc_public_key *pub = &cert->pub;
+
+		/* unconstify harmless as pointer is only read */
+		ptr = (uint8_t *)pub->key;
+		pklen = pub->keylen;
+
+		CKINT(lc_x509_sufficient_size(available_len, pklen));
+
+		/* Set the BIT STRING metadata */
+		if (pklen) {
+			memcpy(dst_data, ptr, pklen);
+			*available_len -= pklen;
+		}
+	}
+
+out:
+	return ret;
+
 #else
 	(void)ctx;
 	(void)dst_data;

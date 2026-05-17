@@ -180,18 +180,16 @@ out:
 }
 
 int public_key_encode_dilithium_ed448(uint8_t *data, size_t *avail_datalen,
-				      struct x509_generate_context *ctx)
+				      const struct lc_x509_key_data *key)
 {
 #ifdef LC_X509_GENERATOR
-	const struct lc_x509_certificate *cert = ctx->cert;
-	const struct lc_x509_key_data *gen_data = &cert->pub_gen_data;
 	size_t ml_dsa_pklen, ed448_pklen;
 	uint8_t *ml_dsa_ptr, *ed448_ptr;
 	int ret;
 
 	CKINT(lc_dilithium_ed448_pk_ptr(&ml_dsa_ptr, &ml_dsa_pklen, &ed448_ptr,
 					&ed448_pklen,
-					gen_data->pk.dilithium_ed448_pk));
+					key->pk.dilithium_ed448_pk));
 
 	/*
 	 * Concatenate the signature data into the buffer according to

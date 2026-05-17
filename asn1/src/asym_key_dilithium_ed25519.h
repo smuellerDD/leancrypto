@@ -29,7 +29,7 @@ extern "C" {
 #endif
 
 int public_key_encode_dilithium_ed25519(uint8_t *data, size_t *avail_datalen,
-					struct x509_generate_context *ctx);
+					const struct lc_x509_key_data *key);
 int private_key_encode_dilithium_ed25519(
 	uint8_t *data, size_t *avail_datalen,
 	struct x509_generate_privkey_context *ctx);
