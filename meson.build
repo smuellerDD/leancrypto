@@ -98,6 +98,10 @@ if (cc.has_argument('-ffat-lto-objects') and
 	add_global_arguments([ '-ffat-lto-objects' ], language: 'c')
 endif
 
+if build_machine.system() == 'sunos'
+	add_global_arguments([ '-Wa,--divide' ], language: 'c')
+endif
+
 if get_option('optimization') == '0'
 	add_global_arguments([ '-DDEBUG' ], language: 'c')
 elif get_option('efi').disabled()
