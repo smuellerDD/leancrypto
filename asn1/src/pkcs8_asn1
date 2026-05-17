@@ -11,7 +11,8 @@ PrivateKeyInfo ::= SEQUENCE {
 	version			Version,
 	privateKeyAlgorithm	PrivateKeyAlgorithmIdentifier,
 	privateKey		PrivateKey,
-	attributes		[0] IMPLICIT Attributes OPTIONAL
+	attributes		[0] IMPLICIT Attributes OPTIONAL,
+	publicKey		[1] IMPLICIT PublicKey OPTIONAL
 }
 
 Version ::= INTEGER  ({ lc_pkcs8_note_version })
@@ -23,6 +24,8 @@ PrivateKey ::= OCTET STRING ({ lc_pkcs8_note_key })
 Attributes ::= SET OF Attribute
 
 Attribute ::= ANY
+
+PublicKey ::= ANY
 
 AlgorithmIdentifier ::= SEQUENCE {
 	algorithm   OBJECT IDENTIFIER ({ lc_pkcs8_note_OID }),

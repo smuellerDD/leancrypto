@@ -57,15 +57,17 @@ static const unsigned char pkcs8_machine[] = {
 	// Attributes
 	[  17] =  ASN1_OP_MATCH_JUMP_OR_SKIP,		// attributes
 	[  18] =  _tagn(CONT, CONS,  0),
-	[  19] =  _jump_target(22),		// --> Attributes
-	[  20] = ASN1_OP_END_SEQ,
-	[  21] = ASN1_OP_COMPLETE,
+	[  19] =  _jump_target(23),		// --> Attributes
+	// PublicKey
+	[  20] =  ASN1_OP_MATCH_ANY_OR_SKIP,
+	[  21] = ASN1_OP_END_SEQ,
+	[  22] = ASN1_OP_COMPLETE,
 
 	// Attribute
-	[  22] =  ASN1_OP_MATCH_ANY,
-	[  23] = ASN1_OP_END_SET_OF,
-	[  24] = _jump_target(22),
-	[  25] = ASN1_OP_RETURN,
+	[  23] =  ASN1_OP_MATCH_ANY,
+	[  24] = ASN1_OP_END_SET_OF,
+	[  25] = _jump_target(23),
+	[  26] = ASN1_OP_RETURN,
 };
 
 const struct lc_asn1_decoder lc_pkcs8_decoder = {

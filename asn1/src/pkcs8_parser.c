@@ -82,13 +82,15 @@ int lc_pkcs8_note_version(void *context, size_t hdrlen, unsigned char tag,
 		 * to RFC5958 chapter 2 complies with the following statement:
 		 * "When v1, PrivateKeyInfo is the same as it was in [RFC5208]".
 		 */
+		printf_debug("PKCS#8 version 1\n");
 		break;
 	case 1:
 		/*
 		 * This implementation as of now does not cover the inclusion
 		 * of the public key with the OneAsymmetricKey definition.
 		 */
-		fallthrough;
+		printf_debug("PKCS#8 version 2\n");
+		break;
 	default:
 		printf_debug("Unsupported PKCS#8 version\n");
 		return -EBADMSG;
@@ -113,6 +115,7 @@ int lc_pkcs8_note_algo(void *context, size_t hdrlen, unsigned char tag,
 	(void)value;
 	(void)vlen;
 
+	printf_debug("OID %u lookup\n", ctx->last_oid);
 	CKINT(lc_x509_oid_to_sig_type(ctx->last_oid, &keypair->sig_type));
 
 out:
