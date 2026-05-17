@@ -39,8 +39,12 @@ extern "C" {
  * For accelerated ChaCha20 implementatinos, the key and the counter must be
  * aligned to 16 bytes boundary. This is guaranteed when aligning the entire
  * structure to 16 bytes as the constant field is 16 bytes in size.
+ *
+ * Force at least 4-byte alignment so that sizeof(struct lc_sym_state) is
+ * consistent (132) on architectures where uint32_t has only 2-byte alignment
+ * (e.g. m68k without -malign-int).
  */
-struct lc_sym_state {
+struct __attribute__((aligned(4))) lc_sym_state {
 	uint32_t constants[4];
 	union {
 		uint32_t u[LC_CC20_KEY_SIZE_WORDS];
