@@ -59,7 +59,6 @@ Static Code Analysis  | GitHub                | [![Static Code Analysis](https:/
 Compile Reduced LC    | GitHub                | [![Reduced LC](https://github.com/smuellerDD/leancrypto/actions/workflows/compile-reduced.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/compile-reduced.yml)
 EFI compilation       | GitHub                | [![EFI](https://github.com/smuellerDD/leancrypto/actions/workflows/efi.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/efi.yml)
 Rust                  | GitHub                | [![Rust](https://github.com/smuellerDD/leancrypto/actions/workflows/rust.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/rust.yml)
-Rustls                | GitHub                | [![Rustls](https://github.com/smuellerDD/leancrypto/actions/workflows/rustls.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/rustls.yml)
 FIPS140 Negative      | GitHub                | [![FIPS140 Negative](https://github.com/smuellerDD/leancrypto/actions/workflows/fips-negative-tests.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/fips-negative-tests.yml)
 No Acceleration       | GitHub                | [![No Acceleration](https://github.com/smuellerDD/leancrypto/actions/workflows/disable-asm.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/disable-asm.yml)
 
