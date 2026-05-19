@@ -19,6 +19,8 @@ Changes 1.8.0-prerelease
 
 * Fixes to ChaCha20-Poly1305 and HKDF based on Wycheproof
 
+* Add first drop of rustls-leancrypto provider - this code is not production-ready, but it works with OpenSSL via localhost as well as AWS-provider procedurally
+
 Changes 1.7.2
 * Fix RDSEED counter
 

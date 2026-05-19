@@ -1,0 +1,34 @@
+[package]
+name = "rustls-leancrypto"
+authors = ["Stephan Mueller <smueller@chronox.de>"]
+version = "0.0.1"
+edition = "2024"
+license = "BSD-3-Clause"
+description = "Rustls crypto provider for leancrypto"
+homepage = "https://leancrypto.org"
+repository = "https://github.com/smuellerDD/leancrypto"
+readme = "README.md"
+keywords = ["Rustls", "PQC"]
+
+[dependencies]
+foreign-types = "0.3.1"
+once_cell = "1.8.0"
+leancrypto-sys = { version = "0.3.0", path = "../rust" }
+rustls = { version = "0.23.20", default-features = false }
+zeroize = "1.8.1"
+
+[dev-dependencies]
+hex = "0.4.3"
+rcgen = { version = "0.13.2", workspace = "true" , default-features = false, features = [
+	"aws_lc_rs"
+] }
+rstest = "0.25.0"
+# Use aws_lc_rs to test our provider
+rustls = { version = "0.23.0", features = ["aws_lc_rs"] }
+rustls-pemfile = "2"
+webpki-roots = "0.26"
+wycheproof = { version = "0.6.0", default-features = false, features = [
+	"aead",
+	"hkdf",
+	"xdh",
+] }
