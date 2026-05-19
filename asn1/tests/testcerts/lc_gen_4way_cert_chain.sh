@@ -64,6 +64,7 @@ else
 	echo "  SLH-DSA"
 	echo "  ML-DSA"
 	echo "  Composite-ML-DSA"
+	echo "  EDDSA"
 	exit 1
 fi
 
@@ -104,7 +105,8 @@ ${X509_CMD}							\
   --akid 0a0b0c0d0e0f						\
   -o ${TARGETDIR}/${CA_FILENAME}_cacert.der			\
   --sk-file ${TARGETDIR}/${CA_FILENAME}_cacert.privkey		\
-  --create-keypair-pkcs8 ${CA_KEYTYPE}
+  --create-keypair-pkcs8 ${CA_KEYTYPE}				\
+  --enable-non-pqc-algoritms
 
 if [ $? -eq 0 ]
 then
@@ -141,7 +143,8 @@ ${X509_CMD}							\
   --create-keypair-pkcs8 ${INT1_KEYTYPE}			\
   --pem-output							\
   --x509-signer ${TARGETDIR}/${CA_FILENAME}_cacert.der		\
-  --signer-sk-file ${TARGETDIR}/${CA_FILENAME}_cacert.privkey
+  --signer-sk-file ${TARGETDIR}/${CA_FILENAME}_cacert.privkey	\
+  --enable-non-pqc-algoritms
 
 if [ $? -eq 0 ]
 then
@@ -175,9 +178,10 @@ ${X509_CMD}							\
   --skid 0c0d0e0f000102						\
   -o ${TARGETDIR}/${INT2_FILENAME}_int2.der			\
   --sk-file ${TARGETDIR}/${INT2_FILENAME}_int2.privkey		\
-  --create-keypair ${INT2_KEYTYPE}			\
+  --create-keypair-pkcs8 ${INT2_KEYTYPE}			\
   --x509-signer ${TARGETDIR}/${INT1_FILENAME}_int1.der		\
-  --signer-sk-file ${TARGETDIR}/${INT1_FILENAME}_int1.privkey
+  --signer-sk-file ${TARGETDIR}/${INT1_FILENAME}_int1.privkey	\
+  --enable-non-pqc-algoritms
 
 if [ $? -eq 0 ]
 then
@@ -197,10 +201,10 @@ fi
 ${X509_CMD}							\
   --eku critical						\
   --eku serverAuth						\
-  --eku codeSigning						\
   --valid-from 1729527728					\
   --valid-to 2044210606						\
-  --subject-cn "leancrypto test leaf"				\
+  --san-dns "localhost"						\
+  --subject-cn "localhost"					\
   --subject-ou "leancrypto test OU"				\
   --subject-o leancrypto					\
   --subject-st Saxony						\
@@ -209,9 +213,10 @@ ${X509_CMD}							\
   --skid 0d0e0f00010203						\
   -o ${TARGETDIR}/${LEAF_FILENAME}_leaf.der			\
   --sk-file ${TARGETDIR}/${LEAF_FILENAME}_leaf.privkey		\
-  --create-keypair ${LEAF_KEYTYPE}			\
+  --create-keypair-pkcs8 ${LEAF_KEYTYPE}			\
   --x509-signer ${TARGETDIR}/${INT2_FILENAME}_int2.der		\
-  --signer-sk-file ${TARGETDIR}/${INT2_FILENAME}_int2.privkey
+  --signer-sk-file ${TARGETDIR}/${INT2_FILENAME}_int2.privkey	\
+  --enable-non-pqc-algoritms
 
 if [ $? -eq 0 ]
 then
@@ -240,4 +245,5 @@ ${PKCS7_CMD}							\
   --x509-cert ${TARGETDIR}/${INT2_FILENAME}_int2.der		\
   --x509-cert ${TARGETDIR}/${INT1_FILENAME}_int1.der		\
   --x509-cert ${TARGETDIR}/${CA_FILENAME}_cacert.der		\
-  --trust-anchor ${TARGETDIR}/${CA_FILENAME}_cacert.der
+  --trust-anchor ${TARGETDIR}/${CA_FILENAME}_cacert.der		\
+  --enable-non-pqc-algoritms
