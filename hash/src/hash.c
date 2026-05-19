@@ -35,10 +35,13 @@ LC_INTERFACE_FUNCTION(void, lc_hash_update, struct lc_hash_ctx *hash_ctx,
 {
 	const struct lc_hash *hash;
 
-	if (!hash_ctx)
+	if (!hash_ctx || !inlen)
 		return;
 
 	hash = hash_ctx->hash;
+	if (!hash)
+		return;
+
 	hash->update(hash_ctx->hash_state, in, inlen);
 }
 
@@ -146,9 +149,12 @@ LC_INTERFACE_FUNCTION(int, lc_hash_set_ctx, const struct lc_hash *hash,
 	CKNULL(hash, -EINVAL);
 	CKNULL(hash_ctx, -EINVAL);
 
-	if (hash_ctx->hash)
-		return -EOPNOTSUPP;
-
+	/*
+	 * We allow updating an already set context (i.e. where the
+	 * hash_ctx->hash_state pointer is already set), because the memory
+	 * could be duplicated from an existing state and we just need to adjust
+	 * the pointer anew.
+	 */
 	LC_HASH_SET_CTX(hash_ctx, hash);
 
 out:

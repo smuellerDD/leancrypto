@@ -46,6 +46,7 @@ static int _sha384_tester(const struct lc_hash *sha384, const char *name)
 	};
 	uint8_t act[LC_SHA384_SIZE_DIGEST];
 	int ret;
+	struct lc_hash_ctx ctx2;
 	LC_HASH_CTX_ON_STACK(ctx384_stack, sha384);
 	LC_SHA384_CTX_ON_STACK(sha384_stack);
 
@@ -73,9 +74,14 @@ static int _sha384_tester(const struct lc_hash *sha384, const char *name)
 	if (lc_hash_init(sha384_stack))
 		return 1;
 	lc_hash_update(sha384_stack, msg_384, sizeof(msg_384));
+	memcpy(&ctx2, sha384_stack, sizeof(ctx2));
+	lc_hash_set_ctx(sha384, &ctx2);
 	lc_hash_final(sha384_stack, act);
 	lc_hash_zero(sha384_stack);
 	ret += lc_compare(act, exp_384, LC_SHA384_SIZE_DIGEST, "SHA-384 stack");
+	lc_hash_final(&ctx2, act);
+	lc_hash_zero(&ctx2);
+	ret += lc_compare(act, exp_384, LC_SHA384_SIZE_DIGEST, "SHA-384 duplicated context");
 
 	return ret;
 }
