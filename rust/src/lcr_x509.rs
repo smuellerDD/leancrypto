@@ -93,6 +93,17 @@ impl lcr_x509_key {
 		return self;
 	}
 
+	/// Enable the ED25519 support in leancrypto (by default, it is disabled)
+	pub fn enable(&self) -> Result<(), X509Error> {
+		let result = unsafe {
+			leancrypto::lc_init(leancrypto::LC_INIT_NON_PQC_ENABLED)
+		};
+		if result < 0 {
+			return Err(X509Error::ProcessingError);
+		}
+		Ok(())
+	}
+
 	fn alloc_key_data(
 		&mut self
 	) -> Result<(), X509Error> {
@@ -215,6 +226,41 @@ impl lcr_x509_key {
 		unsafe { self.sk_der_key.set_len(orig_size - pkcs8_size) }
 
 		Ok(&self.sk_der_key)
+	}
+
+	pub fn get_pk(
+		&mut self,
+	) -> Result<Vec<u8>, X509Error> {
+		self.key_is_usable()?;
+
+		let mut pk_size: usize = 0;
+
+		/* Get the length of the memory to allocate */
+		let result = unsafe {
+			leancrypto::lc_x509_keypair_pk(self.x509_key_data,
+						       ptr::null_mut(),
+						       &mut pk_size)
+		};
+		if result < 0 {
+			return Err(X509Error::ProcessingError);
+		}
+
+		let mut pk_der_key = Vec::with_capacity(pk_size);
+		let orig_size = pk_size;
+
+		let result = unsafe {
+			leancrypto::lc_x509_keypair_pk(self.x509_key_data,
+						       pk_der_key.as_mut_ptr(),
+						       &mut pk_size)
+		};
+		if result < 0 {
+			return Err(X509Error::ProcessingError);
+		}
+
+		/* Set vector to to consumed length */
+		unsafe { pk_der_key.set_len(orig_size - pk_size) }
+
+		Ok(pk_der_key)
 	}
 
 	/// Load private key formatted as PKCS8 DER blob
@@ -344,7 +390,7 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	pub fn get_pk(
+	pub fn get_cert(
 		&self
 	) -> Result<leancrypto::lc_x509_certificate, X509Error> {
 		if !self.has_certificate {
@@ -934,6 +980,17 @@ impl lcr_x509 {
 		lcr_x509 { }
 	}
 
+	/// Enable the ED25519 support in leancrypto (by default, it is disabled)
+	pub fn enable(&self) -> Result<(), X509Error> {
+		let result = unsafe {
+			leancrypto::lc_init(leancrypto::LC_INIT_NON_PQC_ENABLED)
+		};
+		if result < 0 {
+			return Err(X509Error::ProcessingError);
+		}
+		Ok(())
+	}
+
 	/// Verify another certificate with self
 	pub fn verify(
 		&mut self,
@@ -943,7 +1000,7 @@ impl lcr_x509 {
 	) -> Result<(), X509Error> {
 		x509_key.cert_is_usable()?;
 
-		let cert_res = x509_key.get_pk();
+		let cert_res = x509_key.get_cert();
 		let cert = match cert_res {
 			Ok(cert_blob) => cert_blob,
 			Err(error) => return Err(error),

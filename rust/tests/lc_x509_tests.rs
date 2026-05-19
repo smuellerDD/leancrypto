@@ -23,6 +23,8 @@ use leancrypto_sys::lcr_x509::lcr_x509_key_type;
 fn pkcs8_key_pair_one(key_type: lcr_x509_key_type) {
 	/* Generate PKCS8 blob */
 	let mut key = lcr_x509_key::new();
+	let result = key.enable();
+	assert_eq!(result, Ok(()));
 	let result = key.key_pair_generation(key_type);
 	assert_eq!(result, Ok(()));
 	let der_key_result = key.pkcs8_generation();
@@ -38,6 +40,16 @@ fn pkcs8_key_pair_one(key_type: lcr_x509_key_type) {
 	let mut pkcs8_2 = lcr_x509_key::new();
 	let result = pkcs8_2.pkcs8_sk_load(der_key);
 	assert_eq!(result, Ok(()));
+}
+
+#[test]
+fn pkcs8_key_pair_ed25519() {
+	pkcs8_key_pair_one(lcr_x509_key_type::lcr_ed25519);
+}
+
+#[test]
+fn pkcs8_key_pair_ed448() {
+	pkcs8_key_pair_one(lcr_x509_key_type::lcr_ed448);
 }
 
 #[test]
@@ -104,6 +116,8 @@ fn x509_cert_one(key_type: lcr_x509_key_type) {
 	let mut key = lcr_x509_key::new();
 	let result = key.key_pair_generation(key_type);
 	assert_eq!(result, Ok(()));
+	let result = key.enable();
+	assert_eq!(result, Ok(()));
 
 	/*
 	 * Set the different properties of the certifificate
@@ -144,10 +158,20 @@ fn x509_cert_one(key_type: lcr_x509_key_type) {
 
 	println!("X.509 certificate blob len {}", cert_der.len());
 
-	/* Import PKCS8 blob into new PKCS8 component */
+	/* Import DER blob into new X.509 component */
 	let mut key2 = lcr_x509_key::new();
 	let result = key2.cert_load(cert_der);
 	assert_eq!(result, Ok(()));
+}
+
+#[test]
+fn x509_key_pair_ed25519() {
+	x509_cert_one(lcr_x509_key_type::lcr_ed25519);
+}
+
+#[test]
+fn x509_key_pair_ed448() {
+	x509_cert_one(lcr_x509_key_type::lcr_ed448);
 }
 
 #[test]
