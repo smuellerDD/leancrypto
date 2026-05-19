@@ -199,7 +199,7 @@ int ascon_cxof_init(void *_state)
 	return ascon_cxof_init_nocheck(_state);
 }
 
-size_t ascon_digestsize(void *_state)
+size_t ascon_digestsize(const void *_state)
 {
 	(void)_state;
 	return LC_ASCON_HASH_DIGESTSIZE;
@@ -212,9 +212,9 @@ void ascon_xof_set_digestsize(void *_state, size_t digestsize)
 	ctx->digestsize = digestsize;
 }
 
-size_t ascon_xof_get_digestsize(void *_state)
+size_t ascon_xof_get_digestsize(const void *_state)
 {
-	struct lc_ascon_hash *ctx = _state;
+	const struct lc_ascon_hash *ctx = _state;
 
 	if (!ctx)
 		return ascon_digestsize(NULL);

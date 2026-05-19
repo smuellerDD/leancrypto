@@ -245,7 +245,7 @@ static int sha3_224_init(void *_state)
 	return sha3_224_init_nocheck(_state);
 }
 
-size_t sha3_224_digestsize(void *_state)
+size_t sha3_224_digestsize(const void *_state)
 {
 	(void)_state;
 	return LC_SHA3_224_SIZE_DIGEST;
@@ -285,7 +285,7 @@ static int sha3_256_init(void *_state)
 	return sha3_256_init_nocheck(_state);
 }
 
-size_t sha3_256_digestsize(void *_state)
+size_t sha3_256_digestsize(const void *_state)
 {
 	(void)_state;
 	return LC_SHA3_256_SIZE_DIGEST;
@@ -325,7 +325,7 @@ static int sha3_384_init(void *_state)
 	return sha3_384_init_nocheck(_state);
 }
 
-size_t sha3_384_digestsize(void *_state)
+size_t sha3_384_digestsize(const void *_state)
 {
 	(void)_state;
 	return LC_SHA3_384_SIZE_DIGEST;
@@ -365,7 +365,7 @@ static int sha3_512_init(void *_state)
 	return sha3_512_init_nocheck(_state);
 }
 
-size_t sha3_512_digestsize(void *_state)
+size_t sha3_512_digestsize(const void *_state)
 {
 	(void)_state;
 	return LC_SHA3_512_SIZE_DIGEST;
@@ -668,9 +668,9 @@ void shake_set_digestsize(void *_state, size_t digestsize)
 	ctx->digestsize = digestsize;
 }
 
-size_t shake_get_digestsize(void *_state)
+size_t shake_get_digestsize(const void *_state)
 {
-	struct lc_sha3_256_state *ctx = _state;
+	const struct lc_sha3_256_state *ctx = _state;
 
 	if (!ctx)
 		return sha3_512_digestsize(NULL);

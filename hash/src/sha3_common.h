@@ -36,16 +36,16 @@ static inline void sha3_state_init(uint64_t state[LC_SHA3_STATE_WORDS])
 }
 
 void sha3_224_init_common(void *_state);
-size_t sha3_224_digestsize(void *_state);
+size_t sha3_224_digestsize(const void *_state);
 
 void sha3_256_init_common(void *_state);
-size_t sha3_256_digestsize(void *_state);
+size_t sha3_256_digestsize(const void *_state);
 
 void sha3_384_init_common(void *_state);
-size_t sha3_384_digestsize(void *_state);
+size_t sha3_384_digestsize(const void *_state);
 
 void sha3_512_init_common(void *_state);
-size_t sha3_512_digestsize(void *_state);
+size_t sha3_512_digestsize(const void *_state);
 
 void shake_128_init_common(void *_state);
 void shake_256_init_common(void *_state);
@@ -53,7 +53,7 @@ void shake_512_init_common(void *_state);
 void cshake_256_init_common(void *_state);
 void cshake_128_init_common(void *_state);
 
-size_t shake_get_digestsize(void *_state);
+size_t shake_get_digestsize(const void *_state);
 void shake_set_digestsize(void *_state, size_t digestsize);
 
 #ifdef __cplusplus

@@ -289,7 +289,7 @@ static void sha256_final_c(void *_state, uint8_t *digest)
 	lc_sha256_final(ctx, digest, sha256_transform_block_c);
 }
 
-size_t lc_sha256_get_digestsize(void *_state)
+size_t lc_sha256_get_digestsize(const void *_state)
 {
 	(void)_state;
 	return LC_SHA256_SIZE_DIGEST;

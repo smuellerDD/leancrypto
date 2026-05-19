@@ -377,13 +377,13 @@ void lc_sha512_extract_bytes(const void *state, uint8_t *data, size_t offset,
 			     be_bswap64, be_bswap32, be64_to_ptr, be32_to_ptr);
 }
 
-size_t lc_sha384_get_digestsize(void *_state)
+size_t lc_sha384_get_digestsize(const void *_state)
 {
 	(void)_state;
 	return LC_SHA384_SIZE_DIGEST;
 }
 
-size_t lc_sha512_get_digestsize(void *_state)
+size_t lc_sha512_get_digestsize(const void *_state)
 {
 	(void)_state;
 	return LC_SHA512_SIZE_DIGEST;
