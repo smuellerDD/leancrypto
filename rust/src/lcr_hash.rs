@@ -59,7 +59,7 @@ impl lcr_hash {
 		}
 	}
 
-	fn lcr_type_mapping(&mut self) -> *const leancrypto::lc_hash {
+	fn lcr_type_mapping(&self) -> *const leancrypto::lc_hash {
 		unsafe {
 			match self.hash {
 				lcr_hash_type::lcr_sha2_256 =>
@@ -266,6 +266,28 @@ impl lcr_hash {
  * trait is considered appropriate.
  */
 unsafe impl Send for lcr_hash {}
+unsafe impl Sync for lcr_hash {}
+
+impl Clone for lcr_hash {
+	fn clone(&self) -> Self {
+		// Clone the entire hash context state
+		let mut state = self.hash_ctx.clone();
+
+		// Adjust the memory pointer
+		let _res = unsafe {
+			leancrypto::lc_hash_set_ctx(
+				self.lcr_type_mapping(),
+				&mut state)
+		};
+
+		// Create a new object
+		Self {
+			hash_ctx: state,
+			hash: self.hash,
+			hash_ctx_init: true
+		}
+	}
+}
 
 /// This ensures the buffer is always freed
 /// regardless of when it goes out of scope
