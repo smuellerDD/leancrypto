@@ -31,7 +31,7 @@ extern "C" {
 
 /// \cond DO_NOT_DOCUMENT
 struct lc_hash {
-	/* SHA3 / SHAKE interface */
+	/* SHA2 / SHA3 / SHAKE interface */
 	int (*init)(void *state);
 	int (*init_nocheck)(void *state);
 	void (*update)(void *state, const uint8_t *in, size_t inlen);
@@ -54,13 +54,15 @@ struct lc_hash {
 };
 
 /*
- * Align the hash_state pointer to 8 bytes boundary irrespective where
- * it is embedded into. This is achieved by adding 7 more bytes than necessary
- * to LC_ALIGNED_BUFFER and then adjusting the pointer offset in that range
- * accordingly.
+ * Align the hash_state pointer to the given alignment boundary irrespective
+ * where it is embedded into. This is achieved by adding 7 more bytes than
+ * necessary to LC_ALIGNED_BUFFER and then adjusting the pointer offset in
+ * that range accordingly.
  *
  * It is permissible to set the alignment requirement with compile-time
- * arguments.
+ * arguments, but beware that insufficient alignment may cause random
+ * problems that are hard to debug since memory is transparently accessed
+ * by the CPU at different locations than expected by the code!
  */
 #ifndef LC_HASH_COMMON_ALIGNMENT
 /* Macro set during leancrypto compile time for target platform */
@@ -428,7 +430,6 @@ enum lc_alg_status_val lc_hash_alg_status(const struct lc_hash *hash);
  * @return algorithm status
  */
 enum lc_alg_status_val lc_hash_ctx_alg_status(const struct lc_hash_ctx *ctx);
-
 
 #ifdef __cplusplus
 }
