@@ -67,22 +67,62 @@ fn test_with_provider(
 }
 
 #[rstest]
-#[case::tls13_aes_128_gcm_sha256(
+#[case::tls13_aes_128_gcm_sha256_x25519(
 	rustls_leancrypto::cipher_suite::TLS13_AES_128_GCM_SHA256,
 	rustls_leancrypto::kx_group::X25519,
 	server::Alg::ED25519,
 	CipherSuite::TLS13_AES_128_GCM_SHA256
 )]
-#[case::tls13_aes_256_gcm_sha384(
+#[case::tls13_aes_128_gcm_sha256_mlkem1024(
+	rustls_leancrypto::cipher_suite::TLS13_AES_128_GCM_SHA256,
+	rustls_leancrypto::kx_group::MLKEM1024,
+	server::Alg::ED25519,
+	CipherSuite::TLS13_AES_128_GCM_SHA256
+)]
+#[case::tls13_aes_128_gcm_sha256(
+	rustls_leancrypto::cipher_suite::TLS13_AES_128_GCM_SHA256,
+	rustls_leancrypto::kx_group::MLKEM768,
+	server::Alg::ED25519,
+	CipherSuite::TLS13_AES_128_GCM_SHA256
+)]
+
+#[case::tls13_aes_256_gcm_sha384_x25519_mlkem768(
+	rustls_leancrypto::cipher_suite::TLS13_AES_256_GCM_SHA384,
+	rustls_leancrypto::kx_group::X25519,
+//	server::Alg::ML_DSA_87,
+	server::Alg::ED25519,
+	CipherSuite::TLS13_AES_256_GCM_SHA384
+)]
+#[case::tls13_aes_256_gcm_sha384_mlkem1024(
+	rustls_leancrypto::cipher_suite::TLS13_AES_256_GCM_SHA384,
+	rustls_leancrypto::kx_group::MLKEM1024,
+//	server::Alg::ML_DSA_87,
+	server::Alg::ED25519,
+	CipherSuite::TLS13_AES_256_GCM_SHA384
+)]
+#[case::tls13_aes_256_gcm_sha384_mlkem768(
 	rustls_leancrypto::cipher_suite::TLS13_AES_256_GCM_SHA384,
 	rustls_leancrypto::kx_group::MLKEM768,
 //	server::Alg::ML_DSA_87,
 	server::Alg::ED25519,
 	CipherSuite::TLS13_AES_256_GCM_SHA384
 )]
-#[case::tls13_chacha20_poly1305_sha256(
+
+#[case::tls13_chacha20_poly1305_sha256_x25519(
+	rustls_leancrypto::cipher_suite::TLS13_CHACHA20_POLY1305_SHA256,
+	rustls_leancrypto::kx_group::X25519,
+	server::Alg::ED25519,
+	CipherSuite::TLS13_CHACHA20_POLY1305_SHA256
+)]
+#[case::tls13_chacha20_poly1305_sha256_mlkem1024(
 	rustls_leancrypto::cipher_suite::TLS13_CHACHA20_POLY1305_SHA256,
 	rustls_leancrypto::kx_group::MLKEM1024,
+	server::Alg::ED25519,
+	CipherSuite::TLS13_CHACHA20_POLY1305_SHA256
+)]
+#[case::tls13_chacha20_poly1305_sha256_mlkem768(
+	rustls_leancrypto::cipher_suite::TLS13_CHACHA20_POLY1305_SHA256,
+	rustls_leancrypto::kx_group::MLKEM768,
 	server::Alg::ED25519,
 	CipherSuite::TLS13_CHACHA20_POLY1305_SHA256
 )]
