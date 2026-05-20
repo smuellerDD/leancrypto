@@ -353,9 +353,11 @@ impl lcr_kyber {
 	/// # Returns
 	///
 	/// * Returns Ok() with the public key on success or KemError on error
-	pub fn get_pk(&mut self) -> (&[u8], Result<(), KemError>) {
+	pub fn get_pk(
+		&mut self
+	) -> Result<&[u8], KemError> {
 		if self.pk_set == false {
-			return (&[], Err(KemError::UninitializedContext));
+			return Err(KemError::UninitializedContext);
 		}
 
 		let mut ptr: *mut u8 = ptr::null_mut();
@@ -366,12 +368,12 @@ impl lcr_kyber {
 						    &mut self.pk)
 		};
 		if result < 0 {
-			return (&[], Err(KemError::ProcessingError));
+			return Err(KemError::ProcessingError);
 		}
 
 		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-		(&slice, Ok(()))
+		Ok(&slice)
 	}
 
 	/// Method for safe immutable access to ML-KEM shared secret

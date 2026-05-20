@@ -22,13 +22,11 @@ use leancrypto_sys::lcr_kyber_x25519::lcr_kyber_x25519_type;
 
 fn lc_rust_kyber_x25519_one(kyber_x25519_type: lcr_kyber_x25519_type) {
 	let mut kyber_x25519 = lcr_kyber_x25519::new();
-	let mut ss1: [u8; 32] = [0u8; 32];
-	let mut ss2: [u8; 32] = [0u8; 32];
 
 	let result = kyber_x25519.keypair(kyber_x25519_type);
 	assert_eq!(result, Ok(()));
 
-	let result = kyber_x25519.encapsulate(&mut ss1);
+	let result = kyber_x25519.encapsulate();
 	assert_eq!(result, Ok(()));
 
 	let (ct_kyber_slice, ct_x25519_slice) =
@@ -55,9 +53,12 @@ fn lc_rust_kyber_x25519_one(kyber_x25519_type: lcr_kyber_x25519_type) {
 	assert_eq!(kyber_x25519.get_ct().expect("get_ct").1,
 		   kyber_x255192.get_ct().expect("get_ct").1);
 
-	let result = kyber_x255192.decapsulate(&mut ss2);
+	let result = kyber_x255192.decapsulate();
 	assert_eq!(result, Ok(()));
-	assert_eq!(ss1, ss2);
+	assert_eq!(kyber_x25519.get_ss().expect("get_ss").0,
+		   kyber_x255192.get_ss().expect("get_ss").0);
+	assert_eq!(kyber_x25519.get_ss().expect("get_ss").1,
+		   kyber_x255192.get_ss().expect("get_ss").1);
 	//println!("ct {:x?}",  kyber_x255192.ct().to_vec().chunks(10).next());
 }
 

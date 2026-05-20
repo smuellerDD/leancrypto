@@ -12,6 +12,8 @@
 
 * All getter methods are changed to return data as part of Ok()
 
+* lcr_kyber_x25519 operation changed to provide non-KDF version usable for rustls
+
 ### Changed
 
 * API breakage: rename all getter functions to get_* (e.g. sk() -> get_sk())

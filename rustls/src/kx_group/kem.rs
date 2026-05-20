@@ -1,7 +1,8 @@
 //! Key Encapsulation Mechanism (KEM) key exchange groups.
 use leancrypto_sys::lcr_kyber::lcr_kyber;
 use leancrypto_sys::lcr_kyber::lcr_kyber_type;
-use leancrypto_sys::lcr_x25519::lcr_x25519;
+use leancrypto_sys::lcr_kyber_x25519::lcr_kyber_x25519;
+use leancrypto_sys::lcr_kyber_x25519::lcr_kyber_x25519_type;
 use rustls::crypto::{ActiveKeyExchange, CompletedKeyExchange, SharedSecret, SupportedKxGroup};
 use rustls::{Error, NamedGroup, ProtocolVersion};
 
@@ -28,10 +29,10 @@ pub const MLKEM1024: &dyn SupportedKxGroup = &KxGroup {
 /// This is the [X25519MLKEM768] key exchange.
 ///
 /// [X25519MLKEM768]: <https://datatracker.ietf.org/doc/draft-kwiatkowski-tls-ecdhe-mlkem/>
-pub const X25519MLKEM768: &dyn SupportedKxGroup = &X25519HybridKxGroup(KxGroup {
-    named_group: NamedGroup::X25519MLKEM768,
-    algorithm_name: lcr_kyber_type::lcr_kyber_768,
-});
+pub const X25519MLKEM768: &dyn SupportedKxGroup = &KxGroupX25519 {
+	named_group: NamedGroup::X25519MLKEM768,
+	algorithm_name: lcr_kyber_x25519_type::lcr_kyber_768,
+};
 
 /// A key exchange group based on a key encapsulation mechanism.
 #[derive(Debug, Copy, Clone)]
@@ -54,10 +55,14 @@ impl KxGroup {
 		kyber.keypair(self.algorithm_name).
 			map_err(|e| Error::General(format!("lc:MLKEM-X25519: key pair generation error: {e}")))?;
 
-		let (pk_slice, result) = kyber.get_pk();
-		result.map_err(|e| Error::General(format!("lc:MLKEM-X25519: public key extraction error: {e}")))?;
-
+		let pk_slice = match kyber.get_pk() {
+			Ok(ret) => ret,
+			Err(e) => {
+				return Err(Error::General(format!("lc:MLKEM-X25519: public key extraction error: {e}")))
+			}
+		};
 		let public_key = pk_slice.to_vec();
+
 		Ok(KeyExchange {
 			priv_key: kyber,
 			pub_key: public_key,
@@ -155,61 +160,100 @@ impl ActiveKeyExchange for KeyExchange {
 	}
 }
 
+/// A key exchange group based on a key encapsulation mechanism.
 #[derive(Debug, Copy, Clone)]
-struct X25519HybridKxGroup(KxGroup);
-
-struct X25519HybridKeyExchange {
-	inner: KeyExchange,
-	x25519_priv_key: lcr_x25519,
-	x25519_pub_key: Vec<u8>,
+struct KxGroupX25519 {
+	named_group: NamedGroup,
+	algorithm_name: lcr_kyber_x25519_type,
 }
 
-impl SupportedKxGroup for X25519HybridKxGroup {
-	fn start(&self) -> Result<Box<dyn ActiveKeyExchange>, Error> {
-		let inner = self.0.start_internal()?;
+struct KeyExchangeX25519 {
+	priv_key: lcr_kyber_x25519,
+	pub_key: Vec<u8>,
+	group: KxGroupX25519,
+}
 
-		//ML-KEM
-		//let pqc_pub_key = inner.pub_key();
+impl KxGroupX25519 {
+	/// [KxGroup::start] but returns a concrete `KeyExchange` instead of a trait object.
+	fn start_internal(&self) -> Result<KeyExchangeX25519, Error> {
+		let mut kyber_x25519 = lcr_kyber_x25519::new();
 
-		//X25519
-		let mut x25519 = lcr_x25519::new();
+		kyber_x25519.keypair(self.algorithm_name).
+			map_err(|e| Error::General(format!("lc:MLKEM-X25519: key pair generation error: {e}")))?;
 
-		x25519.enable()
-			.map_err(|e| Error::General(format!("lc:X25519: enabling error: {e}")))?;
-		x25519.keypair().
-			map_err(|e| Error::General(format!("lc:X25519: key pair generation error: {e}")))?;
-
-		let x25519_pk_slice = match x25519.get_pk() {
-			Ok(ret) => ret,
+		let (pk_slice, pk_x25519_slice) = match kyber_x25519.get_pk() {
+			Ok((ret1, ret2)) => (ret1, ret2),
 			Err(e) => {
-				return Err(Error::General(format!("lc:X25519: pub key extraction error: {e}")))
+				return Err(Error::General(format!("lc:MLKEM-X25519: public key extraction error: {e}")))
 			}
 		};
+		let mut public_key = vec![];
+		public_key.extend_from_slice(pk_slice);
+		public_key.extend_from_slice(pk_x25519_slice);
+		Ok(KeyExchangeX25519 {
+			priv_key: kyber_x25519,
+			pub_key: public_key,
+			group: *self,
+		})
+	}
+}
 
-		let x25519_pk = x25519_pk_slice.to_vec();
-
-		Ok(
-			Box::new(X25519HybridKeyExchange {
-				inner,
-				x25519_priv_key: x25519,
-				x25519_pub_key: x25519_pk,
-			}) as Box<dyn ActiveKeyExchange>)
+impl SupportedKxGroup for KxGroupX25519 {
+	fn start(&self) -> Result<Box<dyn ActiveKeyExchange>, Error> {
+		self.start_internal()
+		.map(|kx| Box::new(kx) as Box<dyn ActiveKeyExchange>)
 	}
 
 	fn name(&self) -> NamedGroup {
-		self.0.named_group
+		self.named_group
 	}
 
 	fn usable_for_version(&self, version: ProtocolVersion) -> bool {
-		self.0.usable_for_version(version)
+		version == ProtocolVersion::TLSv1_3
 	}
 
 	fn ffdhe_group(&self) -> Option<rustls::ffdhe_groups::FfdheGroup<'static>> {
 		None
 	}
 
-	fn start_and_complete(&self, peer_pub_key: &[u8]) -> Result<CompletedKeyExchange, Error> {
-		self.0.start_and_complete(peer_pub_key)
+	fn start_and_complete(
+		&self,
+		peer_pub_key: &[u8],
+	) -> Result<rustls::crypto::CompletedKeyExchange, Error> {
+		let mut kyber_x25519 = lcr_kyber_x25519::new();
+
+		kyber_x25519.pk_load(&peer_pub_key[..peer_pub_key.len() - 32],
+				     &peer_pub_key[peer_pub_key.len() - 32..]).
+			map_err(|e| Error::General(format!("lc:MLKEM-X25519: loading local pub key error: {e}")))?;
+
+		kyber_x25519.encapsulate().
+			map_err(|e| Error::General(format!("lc:MLKEM-X25519: encapsulation error: {e}")))?;
+
+		let (ct_slice, ct_x25519_slice) = match kyber_x25519.get_ct() {
+			Ok((ret1, ret2)) => (ret1, ret2),
+			Err(e) => {
+				return Err(Error::General(format!("lc:MLKEM-X25519: ciphertext extraction error: {e}")))
+			}
+		};
+		let mut ct = vec![];
+		ct.extend_from_slice(ct_slice);
+		ct.extend_from_slice(ct_x25519_slice);
+
+		let (ss_slice, ss_x25519_slice) = match kyber_x25519.get_ss() {
+			Ok((ret1, ret2)) => (ret1, ret2),
+			Err(e) => {
+				return Err(Error::General(format!("lc:MLKEM-X25519 shared secret extraction error: {e}")))
+			}
+		};
+		let mut ss = vec![];
+		ss.extend_from_slice(ss_slice);
+		ss.extend_from_slice(ss_x25519_slice);
+
+		Ok(CompletedKeyExchange {
+			group: self.named_group,
+			pub_key: ct,
+			secret: SharedSecret::from(ss),
+		})
 	}
 
 	fn fips(&self) -> bool {
@@ -217,45 +261,38 @@ impl SupportedKxGroup for X25519HybridKxGroup {
 	}
 }
 
-impl ActiveKeyExchange for X25519HybridKeyExchange {
-	fn complete(self: Box<Self>, peer_pub_key: &[u8]) -> Result<SharedSecret, Error> {
-		//TODO is this only the Kyber CT or the CT || X25519 Pubkey?
-		Box::new(self.inner).complete(peer_pub_key)
+impl ActiveKeyExchange for KeyExchangeX25519 {
+	fn complete(
+		self: Box<Self>,
+		peer_pub_key: &[u8]
+	) -> Result<SharedSecret, Error> {
+		let mut kyber_x25519 = self.priv_key;
+
+		kyber_x25519.ct_load(&peer_pub_key[..peer_pub_key.len() - 32],
+				     &peer_pub_key[peer_pub_key.len() - 32..]).
+			map_err(|e| Error::General(format!("lc:MLKEM-X25519: loading ciphertext error: {e}")))?;
+
+		kyber_x25519.decapsulate().
+			map_err(|e| Error::General(format!("lc:MLKEM-X25519: decapsulation error: {e}")))?;
+
+		let (ss_slice, ss_x25519_slice) = match kyber_x25519.get_ss() {
+			Ok((ret1, ret2)) => (ret1, ret2),
+			Err(e) => {
+				return Err(Error::General(format!("lc:MLKEM-X25519 shared secret extraction error: {e}")))
+			}
+		};
+		let mut ss = vec![];
+		ss.extend_from_slice(ss_slice);
+		ss.extend_from_slice(ss_x25519_slice);
+
+		Ok(SharedSecret::from(ss))
 	}
 
 	fn pub_key(&self) -> &[u8] {
-		//TODO is this only the Kyber CT or the CT || X25519 Pubkey?
-		&self.inner.pub_key
+		&self.pub_key
 	}
 
 	fn group(&self) -> NamedGroup {
-		self.inner.group.named_group
-	}
-
-	fn hybrid_component(&self) -> Option<(NamedGroup, &[u8])> {
-		Some((NamedGroup::X25519, &self.x25519_pub_key))
-	}
-
-	fn complete_hybrid_component(
-		self: Box<Self>,
-		peer_pub_key: &[u8],
-	) -> Result<SharedSecret, Error> {
-		let mut x25519 = self.x25519_priv_key;
-
-		let result = x25519.pk_remote_load(peer_pub_key);
-		result.map_err(|e| Error::General(format!("lc:MLKEM-X25519: loading remote pub key error: {e}")))?;
-
-		x25519.shared_secret().
-			map_err(|e| Error::General(format!("lc:MLKEM-X25519: shared secret generation error: {e}")))?;
-
-		let ss_slice = match x25519.get_ss() {
-			Ok(ret) => ret,
-			Err(e) => {
-				return Err(Error::General(format!("lc:MLKEM-X25519: shared secret extraction error: {e}")))
-			}
-		};
-
-		let ss = ss_slice.to_vec();
-		Ok(SharedSecret::from(ss.as_slice()))
+		self.group.named_group
 	}
 }

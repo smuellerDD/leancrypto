@@ -22,6 +22,7 @@ use std::sync::atomic;
 use crate::ffi::leancrypto;
 use crate::error::KemError;
 
+#[derive(Debug, Copy, Clone)]
 pub enum lcr_kyber_x25519_type {
 	lcr_kyber_512,
 	lcr_kyber_768,
@@ -42,9 +43,13 @@ pub struct lcr_kyber_x25519 {
 	/// Kyber cipher text
 	ct: leancrypto::lc_kyber_x25519_ct,
 
+	/// Kyber shared secret
+	ss: leancrypto::lc_kyber_x25519_ss,
+
 	pk_set: bool,
 	sk_set: bool,
 	ct_set: bool,
+	ss_set: bool,
 }
 
 #[allow(dead_code)]
@@ -55,9 +60,11 @@ impl lcr_kyber_x25519 {
 			pk: unsafe { std::mem::zeroed() },
 			sk: unsafe { std::mem::zeroed() },
 			ct: unsafe { std::mem::zeroed() },
+			ss: unsafe { std::mem::zeroed() },
 			pk_set: false,
 			sk_set: false,
 			ct_set: false,
+			ss_set: false,
 		}
 	}
 
@@ -216,28 +223,25 @@ impl lcr_kyber_x25519 {
 	/// The ciphertext and the secret key must be already loaded. Upon
 	/// success, the shared secret is present and can be retrieved.
 	///
-	/// # Arguments
-	///
-	/// `ss` Buffer to be filled with shared secret
-	///
 	/// # Returns
 	///
 	/// * Returns Ok() on success or KemError on error
 	pub fn decapsulate(
-		&mut self,
-		ss: &mut [u8]
+		&mut self
 	) -> Result<(), KemError> {
 		if self.sk_set == false || self.ct_set == false {
 			return Err(KemError::UninitializedContext);
 		}
 
 		let result = unsafe {
-			leancrypto::lc_kyber_x25519_dec_kdf(
-				ss.as_mut_ptr(), ss.len(), &self.ct, &self.sk)
+			leancrypto::lc_kyber_x25519_dec(
+				&mut self.ss, &self.ct, &self.sk)
 		};
 		if result < 0 {
 			return Err(KemError::ProcessingError);
 		}
+
+		self.ss_set = true;
 
 		Ok(())
 	}
@@ -247,31 +251,26 @@ impl lcr_kyber_x25519 {
 	/// The publick key must be already loaded. Upon success, the shared
 	/// secret and the ciphertext are present and can be retrieved.
 	///
-	/// # Arguments
-	///
-	/// `ss` Buffer to be filled with shared secret
-	///
 	/// # Returns
 	///
 	/// * Returns Ok() on success or KemError on error
 	pub fn encapsulate(
-		&mut self,
-		ss: &mut [u8]
+		&mut self
 	) -> Result<(), KemError> {
 		if self.pk_set == false {
 			return Err(KemError::UninitializedContext);
 		}
 
 		let result = unsafe {
-			leancrypto::lc_kyber_x25519_enc_kdf(
-				&mut self.ct, ss.as_mut_ptr(), ss.len(),
-				&self.pk)
+			leancrypto::lc_kyber_x25519_enc(
+				&mut self.ct, &mut self.ss, &self.pk)
 		};
 		if result < 0 {
 			return Err(KemError::ProcessingError);
 		}
 
 		self.ct_set = true;
+		self.ss_set = true;
 
 		Ok(())
 	}
@@ -386,6 +385,45 @@ impl lcr_kyber_x25519 {
 
 		Ok((&slice_kyber, &slice_x25519))
 	}
+
+	/// Method for safe immutable access to hybrid ML-KEM shared secret
+	/// buffer
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() with the ciphertext on success or KemError on error
+	pub fn get_ss(
+		&mut self
+	) -> Result<(&[u8], &[u8]), KemError> {
+		if self.ss_set == false {
+			return Err(KemError::UninitializedContext);
+		}
+
+		let mut kyber_ptr: *mut u8 = ptr::null_mut();
+		let mut kyber_len: usize = 0;
+		let mut x25519_ptr: *mut u8 = ptr::null_mut();
+		let mut x25519_len: usize = 0;
+
+		let result = unsafe {
+			leancrypto::lc_kyber_x25519_ss_ptr(
+				&mut kyber_ptr, &mut kyber_len,
+				&mut x25519_ptr, &mut x25519_len,
+				&mut self.ss)
+		};
+		if result < 0 {
+println!("ret {}", result);
+			return Err(KemError::ProcessingError);
+		}
+
+		let slice_kyber = unsafe {
+			std::slice::from_raw_parts(kyber_ptr, kyber_len)
+		};
+		let slice_x25519 = unsafe {
+			std::slice::from_raw_parts(x25519_ptr, x25519_len)
+		};
+
+		Ok((&slice_kyber, &slice_x25519))
+	}
 }
 
 /// This ensures the sensitive buffers are always zeroized
@@ -404,6 +442,13 @@ impl Drop for lcr_kyber_x25519 {
 		};
 
 		unsafe { std::ptr::write_volatile(&mut self.ct, ct) };
+		atomic::compiler_fence(atomic::Ordering::SeqCst);
+
+		let ss: leancrypto::lc_kyber_x25519_ss = unsafe {
+			std::mem::zeroed()
+		};
+
+		unsafe { std::ptr::write_volatile(&mut self.ss, ss) };
 		atomic::compiler_fence(atomic::Ordering::SeqCst);
 	}
 }
