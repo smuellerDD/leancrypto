@@ -33,16 +33,16 @@ pub struct lcr_bike {
 	// Context
 	//bike_ctx: *mut leancrypto::lc_bike_ctx,
 
-	/// Bike shared secret
+	/// BIKE shared secret
 	ss: leancrypto::lc_bike_ss,
 
-	/// Bike public key
+	/// BIKE public key
 	pk: leancrypto::lc_bike_pk,
 
-	/// Bike secret key
+	/// BIKE secret key
 	sk: leancrypto::lc_bike_sk,
 
-	/// Bike cipher text
+	/// BIKE cipher text
 	ct: leancrypto::lc_bike_ct,
 
 	pk_set: bool,
@@ -69,8 +69,17 @@ impl lcr_bike {
 
 	/// Load secret key for using with leancrypto
 	///
-	/// [sk_buf] buffer with raw secret key
-	pub fn sk_load(&mut self, sk_buf: &[u8]) -> Result<(), KemError> {
+	/// # Arguments
+	///
+	/// * `sk_buf` buffer with raw secret key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or KemError on error
+	pub fn sk_load(
+		&mut self,
+		sk_buf: &[u8]
+	) -> Result<(), KemError> {
 		// No check for self.sk_set == false as we allow overwriting
 		// of existing key.
 
@@ -90,8 +99,17 @@ impl lcr_bike {
 
 	/// Load public key for using with leancrypto
 	///
-	/// [pk_buf] buffer with raw public key
-	pub fn pk_load(&mut self, pk_buf: &[u8]) -> Result<(), KemError> {
+	/// # Arguments
+	///
+	/// * `pk_buf` buffer with raw public key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or KemError on error
+	pub fn pk_load(
+		&mut self,
+		pk_buf: &[u8]
+	) -> Result<(), KemError> {
 		// No check for self.pk_set == false as we allow overwriting
 		// of existing key.
 
@@ -109,11 +127,19 @@ impl lcr_bike {
 		Ok(())
 	}
 
-	/// Load ct using with leancrypto
+	/// Load BIKE ciphertext using with leancrypto
 	///
-	/// [ct_buf] buffer with raw Bike cipher text
-	pub fn ct_load(&mut self, ct_buf: &[u8]) ->
-		Result<(), KemError> {
+	/// # Arguments
+	///
+	/// * `ct_buf` buffer with raw BIKE ciphertext
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or KemError on error
+	pub fn ct_load(
+		&mut self,
+		ct_buf: &[u8]
+	) -> Result<(), KemError> {
 		// No check for self.ct_set == false as we allow overwriting
 		// of existing key.
 
@@ -131,11 +157,19 @@ impl lcr_bike {
 		Ok(())
 	}
 
-	/// Load shared secret using with leancrypto
+	/// Load BIKE shared secret using with leancrypto
 	///
-	/// [ss_buf] buffer with raw shared secret
-	pub fn ss_load(&mut self, ss_buf: &[u8]) ->
-		Result<(), KemError> {
+	/// # Arguments
+	///
+	/// * `ss_buf` buffer with raw BIKE shared secret
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or KemError on error
+	pub fn ss_load(
+		&mut self,
+		ss_buf: &[u8]
+	) -> Result<(), KemError> {
 		// No check for self.ss_set == false as we allow overwriting
 		// of existing key.
 
@@ -153,8 +187,14 @@ impl lcr_bike {
 		Ok(())
 	}
 
-	fn lcr_bike_type_mapping(bike_type: lcr_bike_type) ->
-		u32 {
+	/// Mapping of lcr_bike_type to leancrypto BIKE implementation type
+	///
+	/// # Returns
+	///
+	/// * Returns leancrypto BIKE implementation type
+	fn lcr_bike_type_mapping(
+		bike_type: lcr_bike_type
+	) -> u32 {
 		match bike_type {
 			lcr_bike_type::lcr_bike_1 =>
 				leancrypto::lc_bike_type_LC_BIKE_1,
@@ -165,11 +205,19 @@ impl lcr_bike {
 		}
 	}
 
-	/// Generate Bike / ML-KEM key pair
+	/// Generate BIKE key pair
 	///
-	/// [bike_type] key type
-	pub fn keypair(&mut self, bike_type: lcr_bike_type) ->
-		Result<(), KemError> {
+	/// # Arguments
+	///
+	/// * `bike_type` BIKE type to generate key pair for
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or KemError on error
+	pub fn keypair(
+		&mut self,
+		bike_type: lcr_bike_type
+	) -> Result<(), KemError> {
 		let result = unsafe {
 			leancrypto::lc_bike_keypair(
 				&mut self.pk, &mut self.sk,
@@ -187,7 +235,16 @@ impl lcr_bike {
 	}
 
 	/// Decapsulate message
-	pub fn decapsulate(&mut self) -> Result<(), KemError> {
+	///
+	/// The ciphertext and the secret key must be already loaded. Upon
+	/// success, the shared secret is present and can be retrieved.
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or KemError on error
+	pub fn decapsulate(
+		&mut self
+	) -> Result<(), KemError> {
 		if self.sk_set == false || self.ct_set == false {
 			return Err(KemError::UninitializedContext);
 		}
@@ -205,8 +262,17 @@ impl lcr_bike {
 		Ok(())
 	}
 
-	/// Deterministically sign message with pure signature operation
-	pub fn encapsulate(&mut self) -> Result<(), KemError> {
+	/// Encapsulate message
+	///
+	/// The publick key must be already loaded. Upon success, the shared
+	/// secret and the ciphertext are present and can be retrieved.
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or KemError on error
+	pub fn encapsulate(
+		&mut self
+	) -> Result<(), KemError> {
 		if self.pk_set == false {
 			return Err(KemError::UninitializedContext);
 		}
@@ -225,10 +291,16 @@ impl lcr_bike {
 		Ok(())
 	}
 
-	/// Method for safe immutable access to Bike ciphertext buffer
-	pub fn get_ct(&mut self) -> (&[u8], Result<(), KemError>) {
+	/// Method for safe immutable access to BIKE ciphertext buffer
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() with the ciphertext on success or KemError on error
+	pub fn get_ct(
+		&mut self
+	) -> Result<&[u8], KemError> {
 		if self.ct_set == false {
-			return (&[], Err(KemError::UninitializedContext));
+			return Err(KemError::UninitializedContext);
 		}
 
 		let mut ptr: *mut u8 = ptr::null_mut();
@@ -239,18 +311,24 @@ impl lcr_bike {
 						   &mut self.ct)
 		};
 		if result < 0 {
-			return (&[], Err(KemError::ProcessingError));
+			return Err(KemError::ProcessingError);
 		}
 
 		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-		(&slice, Ok(()))
+		Ok(&slice)
 	}
 
-	/// Method for safe immutable access to secret key buffer
-	pub fn get_sk(&mut self) -> (&[u8], Result<(), KemError>) {
+	/// Method for safe immutable access to BIKE secret key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() with the secret key on success or KemError on error
+	pub fn get_sk(
+		&mut self
+	) -> Result<&[u8], KemError> {
 		if self.sk_set == false {
-			return (&[], Err(KemError::UninitializedContext));
+			return Err(KemError::UninitializedContext);
 		}
 
 		let mut ptr: *mut u8 = ptr::null_mut();
@@ -261,18 +339,24 @@ impl lcr_bike {
 						   &mut self.sk)
 		};
 		if result < 0 {
-			return (&[], Err(KemError::ProcessingError));
+			return Err(KemError::ProcessingError);
 		}
 
 		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-		(&slice, Ok(()))
+		Ok(&slice)
 	}
 
-	/// Method for safe immutable access to public key buffer
-	pub fn get_pk(&mut self) -> (&[u8], Result<(), KemError>) {
+	/// Method for safe immutable access to BIKE public key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() with the public key on success or KemError on error
+	pub fn get_pk(
+		&mut self
+	) -> Result<&[u8], KemError> {
 		if self.pk_set == false {
-			return (&[], Err(KemError::UninitializedContext));
+			return Err(KemError::UninitializedContext);
 		}
 
 		let mut ptr: *mut u8 = ptr::null_mut();
@@ -283,18 +367,24 @@ impl lcr_bike {
 						   &mut self.pk)
 		};
 		if result < 0 {
-			return (&[], Err(KemError::ProcessingError));
+			return Err(KemError::ProcessingError);
 		}
 
 		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-		(&slice, Ok(()))
+		Ok(&slice)
 	}
 
-	/// Method for safe immutable access to shared secret buffer
-	pub fn get_ss(&mut self) -> (&[u8], Result<(), KemError>) {
+	/// Method for safe immutable access to BIKE shared secret
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() with the shared secret on success or KemError on error
+	pub fn get_ss(
+		&mut self
+	) -> Result<&[u8], KemError> {
 		if self.ss_set == false {
-			return (&[], Err(KemError::UninitializedContext));
+			return Err(KemError::UninitializedContext);
 		}
 
 		let mut ptr: *mut u8 = ptr::null_mut();
@@ -305,12 +395,12 @@ impl lcr_bike {
 						   &mut self.ss)
 		};
 		if result < 0 {
-			return (&[], Err(KemError::ProcessingError));
+			return Err(KemError::ProcessingError);
 		}
 
 		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-		(&slice, Ok(()))
+		Ok(&slice)
 	}
 }
 

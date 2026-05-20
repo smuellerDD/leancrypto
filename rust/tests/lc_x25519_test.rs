@@ -32,8 +32,7 @@ fn lc_rust_x25519_one() {
 	assert_eq!(result, Ok(()));
 
 	/* Export local public key */
-	let (pk_local_slice, result) = x25519_local.get_pk();
-	assert_eq!(result, Ok(()));
+	let pk_local_slice = x25519_local.get_pk().expect("get_pk");
 	let pk_local = pk_local_slice.to_vec();
 
 	/* Generate remote key pair */
@@ -41,8 +40,7 @@ fn lc_rust_x25519_one() {
 	assert_eq!(result, Ok(()));
 
 	/* Export remote public key */
-	let (pk_remote_slice, result) = x25519_remote.get_pk();
-	assert_eq!(result, Ok(()));
+	let pk_remote_slice = x25519_remote.get_pk().expect("get_pk");
 	let pk_remote = pk_remote_slice.to_vec();
 
 	/* Load remote PK into local context */
@@ -58,8 +56,7 @@ fn lc_rust_x25519_one() {
 	assert_eq!(result, Ok(()));
 
 	/* Export local shared secret */
-	let (ss_local_slice, result) = x25519_local.get_ss();
-	assert_eq!(result, Ok(()));
+	let ss_local_slice = x25519_local.get_ss().expect("get_ss");
 	let ss_local = ss_local_slice.to_vec();
 
 	/* Generate remote shared secret */
@@ -67,7 +64,7 @@ fn lc_rust_x25519_one() {
 	assert_eq!(result, Ok(()));
 
 	/* Export remote shared secret */
-	let (ss_remote_slice, result) = x25519_remote.get_ss();
+	let ss_remote_slice = x25519_remote.get_ss().expect("get_ss");
 	assert_eq!(result, Ok(()));
 	let ss_remote = ss_remote_slice.to_vec();
 

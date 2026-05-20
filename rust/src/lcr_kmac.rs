@@ -44,7 +44,14 @@ impl lcr_kmac {
 		}
 	}
 
-	fn lcr_type_mapping(&mut self) -> *const leancrypto::lc_hash {
+	/// Mapping of lcr_kmac_type to leancrypto KMAC implementation type
+	///
+	/// # Returns
+	///
+	/// * Returns leancrypto KMAC implementation type
+	fn lcr_type_mapping(
+		&mut self
+	) -> *const leancrypto::lc_hash {
 		unsafe {
 			match self.kmac {
 				lcr_kmac_type::lcr_kmac_128 =>
@@ -57,12 +64,23 @@ impl lcr_kmac {
 
 	/// Create KMAC
 	///
-	/// [key] key used for KMAC
-	/// [s] Optional customization string
-	/// [msg] holds the message to be digested
-	/// [mac] Buffer to be filled with digest
-	pub fn kmac(&mut self, key: &[u8], s: &[u8], msg: &[u8], mac: &mut [u8]) ->
-		Result<(), HashError> {
+	/// # Arguments
+	///
+	/// * `key` key used for KMAC
+	/// * `s` Optional customization string
+	/// * `msg` holds the message to be digested
+	/// * `mac` Buffer to be filled with digest
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or HashError on error
+	pub fn kmac(
+		&mut self,
+		key: &[u8],
+		s: &[u8],
+		msg: &[u8],
+		mac: &mut [u8]
+	) -> Result<(), HashError> {
 		if mac.len() < 4 {
 			return Err(HashError::ProcessingError)
 		}
@@ -80,12 +98,23 @@ impl lcr_kmac {
 
 	/// Create KMAC XOF
 	///
-	/// [key] key used for KMAC
-	/// [s] Optional customization string
-	/// [msg] holds the message to be digested
-	/// [mac] Buffer to be filled with digest
-	pub fn kmac_xof(&mut self, key: &[u8], s: &[u8], msg: &[u8], mac: &mut [u8]) ->
-		Result<(), HashError> {
+	/// # Arguments
+	///
+	/// * `key` key used for KMAC
+	/// * `s` Optional customization string
+	/// * `msg` holds the message to be digested
+	/// * `mac` Buffer to be filled with digest
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or HashError on error
+	pub fn kmac_xof(
+		&mut self,
+		key: &[u8],
+		s: &[u8],
+		msg: &[u8],
+		mac: &mut [u8]
+	) -> Result<(), HashError> {
 		if mac.len() < 4 {
 			return Err(HashError::ProcessingError)
 		}
@@ -103,9 +132,19 @@ impl lcr_kmac {
 
 	/// KMAC Init: Initializes message digest handle
 	///
-	/// [key] key used for KMAC
-	/// [s] Optional customization string
-	pub fn init(&mut self, key: &[u8], s: &[u8]) -> Result<(), HashError> {
+	/// # Arguments
+	///
+	/// * `key` key used for KMAC
+	/// * `s` Optional customization string
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or HashError on error
+	pub fn init(
+		&mut self,
+		key: &[u8],
+		s: &[u8]
+	) -> Result<(), HashError> {
 		let mut result = 0;
 
 		if self.kmac_ctx.is_null() {
@@ -132,7 +171,14 @@ impl lcr_kmac {
 	}
 
 	/// KMAC Update: Insert data into message digest handle
-	pub fn update(&mut self, msg: &[u8]) -> Result<(), HashError> {
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or HashError on error
+	pub fn update(
+		&mut self,
+		msg: &[u8]
+	) -> Result<(), HashError> {
 		if self.kmac_ctx.is_null() {
 			return Err(HashError::UninitializedContext);
 		}
@@ -147,8 +193,17 @@ impl lcr_kmac {
 
 	/// KMAC Final: Calculate message digest from message digest handle
 	///
-	/// [mac] Buffer to be filled with digest
-	pub fn fini(&mut self, mac: &mut [u8]) -> Result<(), HashError> {
+	/// # Arguments
+	///
+	/// * `mac` Buffer to be filled with digest
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or HashError on error
+	pub fn fini(
+		&mut self,
+		mac: &mut [u8]
+	) -> Result<(), HashError> {
 		if self.kmac_ctx.is_null() {
 			return Err(HashError::UninitializedContext);
 		}
@@ -171,8 +226,17 @@ impl lcr_kmac {
 
 	/// KMAC XOF Final: Calculate message digest from message digest handle
 	///
-	/// [mac] Buffer to be filled with digest
-	pub fn fini_xof(&mut self, mac: &mut [u8]) -> Result<(), HashError> {
+	/// # Arguments
+	///
+	/// * `mac` Buffer to be filled with digest
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or HashError on error
+	pub fn fini_xof(
+		&mut self,
+		mac: &mut [u8]
+	) -> Result<(), HashError> {
 		if self.kmac_ctx.is_null() {
 			return Err(HashError::UninitializedContext);
 		}

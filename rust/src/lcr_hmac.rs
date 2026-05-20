@@ -33,6 +33,12 @@ pub enum lcr_hmac_type {
 	lcr_sha3_512,
 }
 
+/// Mapping of lcr_hmac_type to leancrypto message digest
+/// implementation type
+///
+/// # Returns
+///
+/// * Returns leancrypto message digest implementation type
 fn lcr_type_mapping(hmac: lcr_hmac_type) -> *const leancrypto::lc_hash {
 	unsafe {
 		match hmac {
@@ -54,6 +60,11 @@ fn lcr_type_mapping(hmac: lcr_hmac_type) -> *const leancrypto::lc_hash {
 	}
 }
 
+/// Mapping of lcr_hmac_type to digest size
+///
+/// # Returns
+///
+/// * Returns digest size
 fn lcr_digestsize_mapping(hmac: lcr_hmac_type) -> usize {
 	match hmac {
 		lcr_hmac_type::lcr_sha2_256 => 32,
@@ -65,7 +76,6 @@ fn lcr_digestsize_mapping(hmac: lcr_hmac_type) -> usize {
 		lcr_hmac_type::lcr_sha3_512 => 64,
 	}
 }
-
 
 pub struct lcr_hmac_key {
 	/// Immutable context of key
@@ -84,10 +94,19 @@ impl lcr_hmac_key {
 		}
 	}
 
-	/// HMAC Init: Initializes key handle
+	/// HMAC Init: Initializes message digest handle
 	///
-	/// [key] key used for HMAC
-	pub fn init(&mut self, key: &[u8]) -> Result<(), HashError> {
+	/// # Arguments
+	///
+	/// * `key` HMAC key to be set
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or HashError on error
+	pub fn init(
+		&mut self,
+		key: &[u8]
+	) -> Result<(), HashError> {
 		let result = unsafe {
 			leancrypto::lc_hmac_setkey(&mut self.hmac_key,
 						   lcr_type_mapping(self.hmac),
@@ -99,7 +118,14 @@ impl lcr_hmac_key {
 		Ok(())
 	}
 
-	pub fn get_hmac_key(&self) -> &leancrypto::lc_hmac_key {
+	/// Return HMAC key
+	///
+	/// # Returns
+	///
+	/// * HMAC key
+	pub fn get_hmac_key(
+		&self
+	) -> &leancrypto::lc_hmac_key {
 		return &self.hmac_key
 	}
 }
@@ -137,11 +163,21 @@ impl lcr_hmac {
 
 	/// Create HMAC
 	///
-	/// [key] key used for HMAC
-	/// [msg] holds the message to be digested
-	/// [mac] Buffer to be filled with digest
-	pub fn hmac(&mut self, key: &[u8], msg: &[u8], mac: &mut [u8]) ->
-		Result<(), HashError> {
+	/// # Arguments
+	///
+	/// * `key` key used for HMAC
+	/// * `msg` holds the message to be digested
+	/// * `mac` Buffer to be filled with digest
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or HashError on error
+	pub fn hmac(
+		&mut self,
+		key: &[u8],
+		msg: &[u8],
+		mac: &mut [u8]
+	) -> Result<(), HashError> {
 		if mac.len() < lcr_digestsize_mapping(self.hmac) {
 			return Err(HashError::ProcessingError)
 		}
@@ -158,8 +194,17 @@ impl lcr_hmac {
 
 	/// HMAC Init: Initializes message digest handle
 	///
-	/// [key] key used for HMAC
-	pub fn init(&mut self, key: &[u8]) -> Result<(), HashError> {
+	/// # Arguments
+	///
+	/// * `key` key used for HMAC
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or HashError on error
+	pub fn init(
+		&mut self,
+		key: &[u8]
+	) -> Result<(), HashError> {
 		let mut result = 0;
 
 		if self.hmac_ctx.is_null() {
@@ -189,7 +234,13 @@ impl lcr_hmac {
 
 	/// HMAC Init: Initializes message digest handle
 	///
-	/// [key] key used for HMAC
+	/// # Arguments
+	///
+	/// * `key` key used for HMAC
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or HashError on error
 	pub fn init_with_hmac_key(
 		&mut self,
 		key: &lcr_hmac_key
@@ -221,7 +272,18 @@ impl lcr_hmac {
 	}
 
 	/// HMAC Update: Insert data into message digest handle
-	pub fn update(&mut self, msg: &[u8]) -> Result<(), HashError> {
+	///
+	/// # Arguments
+	///
+	/// * `msg` holds the message to be digested
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or HashError on error
+	pub fn update(
+		&mut self,
+		msg: &[u8]
+	) -> Result<(), HashError> {
 		if self.hmac_ctx.is_null() {
 			return Err(HashError::UninitializedContext);
 		}
@@ -236,8 +298,17 @@ impl lcr_hmac {
 
 	/// HMAC Final: Calculate message digest from message digest handle
 	///
-	/// [mac] Buffer to be filled with digest
-	pub fn fini(&mut self, mac: &mut [u8]) -> Result<(), HashError> {
+	/// # Arguments
+	///
+	/// * `mac` Buffer to be filled with digest
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or HashError on error
+	pub fn fini(
+		&mut self,
+		mac: &mut [u8]
+	) -> Result<(), HashError> {
 		if self.hmac_ctx.is_null() {
 			return Err(HashError::UninitializedContext);
 		}
@@ -259,7 +330,9 @@ impl lcr_hmac {
 
 	/// Get the size of the message digest
 	///
-	/// [digestsize] Size of digest
+	/// # Returns
+	///
+	/// * Returns digest size
 	pub fn digestsize(&mut self) -> usize {
 		lcr_digestsize_mapping(self.hmac)
 	}

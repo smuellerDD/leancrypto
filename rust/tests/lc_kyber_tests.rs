@@ -29,25 +29,26 @@ fn lc_rust_kyber_one(kyber_type: lcr_kyber_type) {
 	let result = kyber.encapsulate();
 	assert_eq!(result, Ok(()));
 
-	let (ct_slice, result) = kyber.get_ct();
-	assert_eq!(result, Ok(()));
+	let ct_slice = kyber.get_ct().expect("get_ct");
 	let ct = ct_slice.to_vec();
-	let (sk_slice, result) = kyber.get_sk();
-	assert_eq!(result, Ok(()));
+	let sk_slice = kyber.get_sk().expect("get_sk");
 	let sk = sk_slice.to_vec();
 
 	let mut kyber2 = lcr_kyber::new();
 	let result = kyber2.sk_load(&sk);
 	assert_eq!(result, Ok(()));
-	assert_eq!(kyber.get_sk().0, kyber2.get_sk().0);
+	assert_eq!(kyber.get_sk().expect("get_sk"),
+		   kyber2.get_sk().expect("get_sk"));
 
 	let result = kyber2.ct_load(&ct);
 	assert_eq!(result, Ok(()));
-	assert_eq!(kyber.get_ct().0, kyber2.get_ct().0);
+	assert_eq!(kyber.get_ct().expect("get_ct"),
+		   kyber2.get_ct().expect("get_ct"));
 
 	let result = kyber2.decapsulate();
 	assert_eq!(result, Ok(()));
-	assert_eq!(kyber.get_ss().0, kyber2.get_ss().0);
+	assert_eq!(kyber.get_ss().expect("get_ss"),
+		   kyber2.get_ss().expect("get_ss"));
 	//println!("ct {:x?}",  kyber2.ct().to_vec().chunks(10).next());
 }
 

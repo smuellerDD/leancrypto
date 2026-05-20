@@ -27,7 +27,7 @@ fn pkcs8_key_pair_one(key_type: lcr_x509_key_type) {
 	assert_eq!(result, Ok(()));
 	let result = key.key_pair_generation(key_type);
 	assert_eq!(result, Ok(()));
-	let der_key_result = key.pkcs8_generation();
+	let der_key_result = key.pkcs8_encode();
 
 	let der_key = match der_key_result {
 		Ok(der_blob) => der_blob,
@@ -149,7 +149,7 @@ fn x509_cert_one(key_type: lcr_x509_key_type) {
 	let result = key.cert_check_issuer_ca();
 	assert_eq!(result, Ok(()));
 
-	let cert_der_result = key.certificate_generation();
+	let cert_der_result = key.cert_encode();
 
 	let cert_der = match cert_der_result {
 		Ok(der_blob) => der_blob,
@@ -160,7 +160,7 @@ fn x509_cert_one(key_type: lcr_x509_key_type) {
 
 	/* Import DER blob into new X.509 component */
 	let mut key2 = lcr_x509_key::new();
-	let result = key2.cert_load(cert_der);
+	let result = key2.cert_decode(cert_der);
 	assert_eq!(result, Ok(()));
 }
 

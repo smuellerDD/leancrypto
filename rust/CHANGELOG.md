@@ -10,6 +10,8 @@
 
 * ED25519 interface - this is only intended to support rustls
 
+* All getter methods are changed to return data as part of Ok()
+
 ### Changed
 
 * API breakage: rename all getter functions to get_* (e.g. sk() -> get_sk())

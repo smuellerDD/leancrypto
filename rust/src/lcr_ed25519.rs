@@ -56,7 +56,13 @@ impl lcr_ed25519 {
 	}
 
 	/// Enable the ED25519 support in leancrypto (by default, it is disabled)
-	pub fn enable(&self) -> Result<(), SignatureError> {
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SignatureError on error
+	pub fn enable(
+		&self
+	) -> Result<(), SignatureError> {
 		let result = unsafe {
 			leancrypto::lc_init(leancrypto::LC_INIT_NON_PQC_ENABLED)
 		};
@@ -68,8 +74,17 @@ impl lcr_ed25519 {
 
 	/// Load secret key for using with leancrypto
 	///
-	/// [sk_buf] buffer with raw secret key
-	pub fn sk_load(&mut self, sk_buf: &[u8]) -> Result<(), SignatureError> {
+	/// # Arguments
+	///
+	/// * `sk_buf` buffer with raw secret key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SignatureError on error
+	pub fn sk_load(
+		&mut self,
+		sk_buf: &[u8]
+	) -> Result<(), SignatureError> {
 		// No check for self.sk_set == false as we allow overwriting
 		// of existing key.
 
@@ -89,8 +104,17 @@ impl lcr_ed25519 {
 
 	/// Load public key for using with leancrypto
 	///
-	/// [pk_buf] buffer with raw public key
-	pub fn pk_load(&mut self, pk_buf: &[u8]) -> Result<(), SignatureError> {
+	/// # Arguments
+	///
+	/// * `pk_buf` buffer with raw public key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SignatureError on error
+	pub fn pk_load(
+		&mut self,
+		pk_buf: &[u8]
+	) -> Result<(), SignatureError> {
 		// No check for self.pk_set == false as we allow overwriting
 		// of existing key.
 
@@ -110,9 +134,17 @@ impl lcr_ed25519 {
 
 	/// Load signature using with leancrypto
 	///
-	/// [sig_buf] buffer with raw signature
-	pub fn sig_load(&mut self, sig_buf: &[u8]) ->
-		Result<(), SignatureError> {
+	/// # Arguments
+	///
+	/// * `sig_buf` buffer with raw public key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SignatureError on error
+	pub fn sig_load(
+		&mut self,
+		sig_buf: &[u8]
+	) -> Result<(), SignatureError> {
 		// No check for self.sig_set == false as we allow overwriting
 		// of existing key.
 
@@ -130,11 +162,18 @@ impl lcr_ed25519 {
 		Ok(())
 	}
 
-	/// Generate ED25519 / ML-DSA key pair
+	/// Generate ED25519 key pair
 	///
-	/// [ed25519_type] key type
-	pub fn keypair(&mut self) ->
-		Result<(), SignatureError> {
+	/// # Arguments
+	///
+	/// * `dilithium_type` ED25519 type to generate key pair for
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SignatureError on error
+	pub fn keypair(
+		&mut self
+	) -> Result<(), SignatureError> {
 		let result = unsafe {
 			leancrypto::lc_ed25519_keypair(
 				&mut self.pk, &mut self.sk,
@@ -150,10 +189,22 @@ impl lcr_ed25519 {
 		Ok(())
 	}
 
-	/// Sign message with pure signature operation
+	/// Sign message
 	///
-	/// [msg] holds the message to be signed
-	pub fn sign(&mut self, msg: &[u8]) -> Result<(), SignatureError> {
+	/// The the secret key must be already loaded. Upon success, the
+	/// signature is present and can be retrieved.
+	///
+	/// # Arguments
+	///
+	/// * `msg` message to be signed
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SignatureError on error
+	pub fn sign(
+		&mut self,
+		msg: &[u8]
+	) -> Result<(), SignatureError> {
 		if self.sk_set == false {
 			return Err(SignatureError::UninitializedContext);
 		}
@@ -174,8 +225,19 @@ impl lcr_ed25519 {
 
 	/// Verify message with pure signature operation
 	///
-	/// [msg] holds the message to be verified
-	pub fn verify(&mut self, msg: &[u8]) -> Result<(), SignatureError> {
+	/// The the publich key must be already loaded.
+	///
+	/// # Arguments
+	///
+	/// * `msg` message to be verified
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SignatureError on error
+	pub fn verify(
+		&mut self,
+		msg: &[u8]
+	) -> Result<(), SignatureError> {
 		if self.pk_set == false || self.sig_set == false {
 			return Err(SignatureError::UninitializedContext);
 		}
@@ -196,9 +258,15 @@ impl lcr_ed25519 {
 	}
 
 	/// Method for safe immutable access to signature buffer
-	pub fn get_sig(&mut self) -> (&[u8], Result<(), SignatureError>) {
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() with the signature on success or SignatureError on error
+	pub fn get_sig(
+		&mut self
+	) -> Result<&[u8], SignatureError> {
 		if self.sig_set == false {
-			return (&[], Err(SignatureError::UninitializedContext));
+			return Err(SignatureError::UninitializedContext);
 		}
 
 		let mut ptr: *mut u8 = ptr::null_mut();
@@ -209,18 +277,24 @@ impl lcr_ed25519 {
 						       &mut self.sig)
 		};
 		if result < 0 {
-			return (&[], Err(SignatureError::ProcessingError));
+			return Err(SignatureError::ProcessingError);
 		}
 
 		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-		(&slice, Ok(()))
+		Ok(&slice)
 	}
 
-	/// Method for safe immutable access to secret key buffer
-	pub fn get_sk(&mut self) -> (&[u8], Result<(), SignatureError>) {
+	/// Method for safe immutable access to ED25519 secret key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() with the secret key on success or SignatureError on error
+	pub fn get_sk(
+		&mut self
+	) -> Result<&[u8], SignatureError> {
 		if self.sk_set == false {
-			return (&[], Err(SignatureError::UninitializedContext));
+			return Err(SignatureError::UninitializedContext);
 		}
 
 		let mut ptr: *mut u8 = ptr::null_mut();
@@ -231,18 +305,24 @@ impl lcr_ed25519 {
 						      &mut self.sk)
 		};
 		if result < 0 {
-			return (&[], Err(SignatureError::ProcessingError));
+			return Err(SignatureError::ProcessingError);
 		}
 
 		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-		(&slice, Ok(()))
+		Ok(&slice)
 	}
 
-	/// Method for safe immutable access to public key buffer
-	pub fn get_pk(&mut self) -> (&[u8], Result<(), SignatureError>) {
+	/// Method for safe immutable access to ED25519 public key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() with the public key on success or SignatureError on error
+	pub fn get_pk(
+		&mut self
+	) -> Result<&[u8], SignatureError> {
 		if self.pk_set == false {
-			return (&[], Err(SignatureError::UninitializedContext));
+			return Err(SignatureError::UninitializedContext);
 		}
 
 		let mut ptr: *mut u8 = ptr::null_mut();
@@ -253,26 +333,12 @@ impl lcr_ed25519 {
 						      &mut self.pk)
 		};
 		if result < 0 {
-			return (&[], Err(SignatureError::ProcessingError));
+			return Err(SignatureError::ProcessingError);
 		}
 
 		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-		(&slice, Ok(()))
-	}
-
-	/// This is a test function verifying whether the zeroization succeeds
-	fn zeroize_check(&mut self, sk: &mut leancrypto::lc_ed25519_sk)
-	{
-		let mut ptr: *mut u8 = ptr::null_mut();
-		let mut len: usize = 0;
-		unsafe {
-			leancrypto::lc_ed25519_sk_ptr(&mut ptr, &mut len, sk)
-		};
-
-		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
-
-		assert_eq!(Self::get_sk(self).0, slice);
+		Ok(&slice)
 	}
 }
 
@@ -286,6 +352,5 @@ impl Drop for lcr_ed25519 {
 
 		unsafe { std::ptr::write_volatile(&mut self.sk, sk) };
 		atomic::compiler_fence(atomic::Ordering::SeqCst);
-		//Self::zeroize_check(self, &mut sk);
 	}
 }

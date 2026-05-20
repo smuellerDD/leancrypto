@@ -40,7 +40,15 @@ impl lcr_hkdf {
 		}
 	}
 
-	fn lcr_type_mapping(&mut self) -> *const leancrypto::lc_hash {
+	/// Mapping of lcr_hash_type to leancrypto message digest
+	/// implementation type
+	///
+	/// # Returns
+	///
+	/// * Returns leancrypto message digest implementation type
+	fn lcr_type_mapping(
+		&mut self
+	) -> *const leancrypto::lc_hash {
 		unsafe {
 			match self.hash {
 				lcr_hash_type::lcr_sha2_256 =>
@@ -69,7 +77,10 @@ impl lcr_hkdf {
 		}
 	}
 
-	fn init(&mut self) -> Result<(), HkdfError> {
+	/// Initialize the context if not already initialized
+	fn init(
+		&mut self
+	) -> Result<(), HkdfError> {
 		let mut result = 0;
 
 		if self.hkdf_ctx.is_null() {
@@ -89,8 +100,20 @@ impl lcr_hkdf {
 	}
 
 	/// HKDF extract
-	pub fn extract(&mut self, ikm: &[u8], salt: &[u8]) ->
-		Result<(), HkdfError> {
+	///
+	/// # Arguments
+	///
+	/// * `ikm` buffer with IKM
+	/// * `salt` buffer with salt
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or HkdfError on error
+	pub fn extract(
+		&mut self,
+		ikm: &[u8],
+		salt: &[u8]
+	) -> Result<(), HkdfError> {
 
 		self.init()?;
 
@@ -107,8 +130,23 @@ impl lcr_hkdf {
 	}
 
 	/// HKDF extract returning the PRK
-	pub fn extract_prk(&mut self, ikm: &[u8], salt: &[u8], prk: &mut [u8]) ->
-		Result<(), HkdfError> {
+	///
+	/// # Arguments
+	///
+	/// * `ikm` buffer with IKM
+	/// * `salt` buffer with salt
+	/// * `prk` buffer to be filled with PRK - buffer must be at least
+	///	    as big as the digest size of the used hash
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or HkdfError on error
+	pub fn extract_prk(
+		&mut self,
+		ikm: &[u8],
+		salt: &[u8],
+		prk: &mut [u8]
+	) -> Result<(), HkdfError> {
 
 		self.init()?;
 
@@ -127,8 +165,20 @@ impl lcr_hkdf {
 	}
 
 	/// HKDF expand
-	pub fn expand(&mut self, info: &[u8], dst: &mut [u8]) ->
-		Result<(), HkdfError> {
+	///
+	/// # Arguments
+	///
+	/// * `info` buffer with IKM
+	/// * `dst` buffer to be filled with HKDF expand output
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or HkdfError on error
+	pub fn expand(
+		&mut self,
+		info: &[u8],
+		dst: &mut [u8]
+	) -> Result<(), HkdfError> {
 		if self.hkdf_ctx.is_null() {
 			return Err(HkdfError::UninitializedContext);
 		}
@@ -145,8 +195,22 @@ impl lcr_hkdf {
 	}
 
 	/// HKDF expand using the given PRK
-	pub fn expand_prk(&mut self, info: &[u8], prk: &[u8], dst: &mut [u8]) ->
-		Result<(), HkdfError> {
+	///
+	/// # Arguments
+	///
+	/// * `info` buffer with IKM
+	/// * `dst` buffer to be filled with HKDF expand output
+	/// * `prk` buffer with PRK from extract operation
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or HkdfError on error
+	pub fn expand_prk(
+		&mut self,
+		info: &[u8],
+		prk: &[u8],
+		dst: &mut [u8]
+	) -> Result<(), HkdfError> {
 
 		self.init()?;
 

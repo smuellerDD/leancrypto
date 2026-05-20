@@ -58,7 +58,13 @@ impl lcr_x25519 {
 	}
 
 	/// Enable the X25519 support in leancrypto (by default, it is disabled)
-	pub fn enable(&self) -> Result<(), X25519Error> {
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X25519Error on error
+	pub fn enable(
+		&self
+	) -> Result<(), X25519Error> {
 		let result = unsafe {
 			leancrypto::lc_init(leancrypto::LC_INIT_NON_PQC_ENABLED)
 		};
@@ -68,9 +74,14 @@ impl lcr_x25519 {
 		Ok(())
 	}
 
-	/// Generate X25519 key pair
-	pub fn keypair(&mut self) ->
-		Result<(), X25519Error> {
+	/// Generate hybrid X25519 key pair
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X25519Error on error
+	pub fn keypair(
+		&mut self
+	) -> Result<(), X25519Error> {
 		let result = unsafe {
 			leancrypto::lc_x25519_keypair(
 				&mut self.pk, &mut self.sk,
@@ -88,7 +99,16 @@ impl lcr_x25519 {
 	}
 
 	/// Shared secret generation
-	pub fn shared_secret(&mut self) -> Result<(), X25519Error> {
+	///
+	/// The remote public key and the secret key must be already loaded.
+	/// Upon success, the shared secret is present and can be retrieved.
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X25519Error on error
+	pub fn shared_secret(
+		&mut self
+	) -> Result<(), X25519Error> {
 		if self.sk_set == false || self.pk_remote_set == false {
 			return Err(X25519Error::UninitializedContext);
 		}
@@ -109,8 +129,17 @@ impl lcr_x25519 {
 
 	/// Load public key for using with leancrypto
 	///
-	/// [pk_buf] buffer with raw public key
-	pub fn pk_load(&mut self, pk_buf: &[u8]) -> Result<(), X25519Error> {
+	/// # Arguments
+	///
+	/// * `pk_buf` buffer with X25519 raw public key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X25519Error on error
+	pub fn pk_load(
+		&mut self,
+		pk_buf: &[u8]
+	) -> Result<(), X25519Error> {
 		// No check for self.pk_set == false as we allow overwriting
 		// of existing key.
 
@@ -128,10 +157,19 @@ impl lcr_x25519 {
 		Ok(())
 	}
 
-	/// Load private key for using with leancrypto
+	/// Load secret key for using with leancrypto
 	///
-	/// [pk_buf] buffer with raw public key
-	pub fn sk_load(&mut self, sk_buf: &[u8]) -> Result<(), X25519Error> {
+	/// # Arguments
+	///
+	/// * `sk_buf` buffer with X25519 raw public key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X25519Error on error
+	pub fn sk_load(
+		&mut self,
+		sk_buf: &[u8]
+	) -> Result<(), X25519Error> {
 		// No check for self.sk_set == false as we allow overwriting
 		// of existing key.
 		let result = unsafe {
@@ -148,11 +186,19 @@ impl lcr_x25519 {
 		Ok(())
 	}
 
-	/// Load remote public key using with leancrypto
+	/// Load remote public key for using with leancrypto
 	///
-	/// [pk_buf] buffer with raw Kyber cipher text
-	pub fn pk_remote_load(&mut self, pk_buf: &[u8]) ->
-		Result<(), X25519Error> {
+	/// # Arguments
+	///
+	/// * `pk_buf` buffer with remote X25519 raw public key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X25519Error on error
+	pub fn pk_remote_load(
+		&mut self,
+		pk_buf: &[u8]
+	) -> Result<(), X25519Error> {
 		// No check for self.pk_remote_set == false as we allow
 		// overwriting of existing key.
 
@@ -170,11 +216,19 @@ impl lcr_x25519 {
 		Ok(())
 	}
 
-	/// Load shared secret using with leancrypto
+	/// Load remote public key for using with leancrypto
 	///
-	/// [ss_buf] buffer with raw shared secret
-	pub fn ss_load(&mut self, ss_buf: &[u8]) ->
-		Result<(), X25519Error> {
+	/// # Arguments
+	///
+	/// * `ss_buf` buffer with raw X25519 shared secret
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X25519Error on error
+	pub fn ss_load(
+		&mut self,
+		ss_buf: &[u8]
+	) -> Result<(), X25519Error> {
 		// No check for self.ss_set == false as we allow overwriting
 		// of existing key.
 
@@ -192,10 +246,16 @@ impl lcr_x25519 {
 		Ok(())
 	}
 
-	/// Method for safe immutable access to X25519 ciphertext buffer
-	pub fn pk_remote(&mut self) -> (&[u8], Result<(), X25519Error>) {
+	/// Method for safe immutable access to X25519 remote public key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() with the public key on success or X25519Error on error
+	pub fn get_pk_remote(
+		&mut self
+	) -> Result<&[u8], X25519Error> {
 		if self.pk_remote_set == false {
-			return (&[], Err(X25519Error::UninitializedContext));
+			return Err(X25519Error::UninitializedContext);
 		}
 
 		let mut ptr: *mut u8 = ptr::null_mut();
@@ -206,18 +266,24 @@ impl lcr_x25519 {
 						     &mut self.pk_remote)
 		};
 		if result < 0 {
-			return (&[], Err(X25519Error::ProcessingError));
+			return Err(X25519Error::ProcessingError);
 		}
 
 		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-		(&slice, Ok(()))
+		Ok(&slice)
 	}
 
-	/// Method for safe immutable access to secret key buffer
-	pub fn get_sk(&mut self) -> (&[u8], Result<(), X25519Error>) {
+	/// Method for safe immutable access to X25519 secret key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() with the secret key on success or X25519Error on error
+	pub fn get_sk(
+		&mut self
+	) -> Result<&[u8], X25519Error> {
 		if self.sk_set == false {
-			return (&[], Err(X25519Error::UninitializedContext));
+			return Err(X25519Error::UninitializedContext);
 		}
 
 		let mut ptr: *mut u8 = ptr::null_mut();
@@ -228,18 +294,24 @@ impl lcr_x25519 {
 						     &mut self.sk)
 		};
 		if result < 0 {
-			return (&[], Err(X25519Error::ProcessingError));
+			return Err(X25519Error::ProcessingError);
 		}
 
 		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-		(&slice, Ok(()))
+		Ok(&slice)
 	}
 
-	/// Method for safe immutable access to public key buffer
-	pub fn get_pk(&mut self) -> (&[u8], Result<(), X25519Error>) {
+	/// Method for safe immutable access to X25519 public key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() with the public key on success or X25519Error on error
+	pub fn get_pk(
+		&mut self
+	) -> Result<&[u8], X25519Error> {
 		if self.pk_set == false {
-			return (&[], Err(X25519Error::UninitializedContext));
+			return Err(X25519Error::UninitializedContext);
 		}
 
 		let mut ptr: *mut u8 = ptr::null_mut();
@@ -250,18 +322,24 @@ impl lcr_x25519 {
 						     &mut self.pk)
 		};
 		if result < 0 {
-			return (&[], Err(X25519Error::ProcessingError));
+			return Err(X25519Error::ProcessingError);
 		}
 
 		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-		(&slice, Ok(()))
+		Ok(&slice)
 	}
 
-	/// Method for safe immutable access to shared secret buffer
-	pub fn get_ss(&mut self) -> (&[u8], Result<(), X25519Error>) {
+	/// Method for safe immutable access to X25519 shared secret
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() with the shared secret on success or X25519Error on error
+	pub fn get_ss(
+		&mut self
+	) -> Result<&[u8], X25519Error> {
 		if self.ss_set == false {
-			return (&[], Err(X25519Error::UninitializedContext));
+			return Err(X25519Error::UninitializedContext);
 		}
 
 		let mut ptr: *mut u8 = ptr::null_mut();
@@ -272,12 +350,12 @@ impl lcr_x25519 {
 						     &mut self.ss)
 		};
 		if result < 0 {
-			return (&[], Err(X25519Error::ProcessingError));
+			return Err(X25519Error::ProcessingError);
 		}
 
 		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-		(&slice, Ok(()))
+		Ok(&slice)
 	}
 }
 

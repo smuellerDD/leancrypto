@@ -59,7 +59,15 @@ impl lcr_hash {
 		}
 	}
 
-	fn lcr_type_mapping(&self) -> *const leancrypto::lc_hash {
+	/// Mapping of lcr_hash_type to leancrypto message digest
+	/// implementation type
+	///
+	/// # Returns
+	///
+	/// * Returns leancrypto message digest implementation type
+	fn lcr_type_mapping(
+		&self
+	) -> *const leancrypto::lc_hash {
 		unsafe {
 			match self.hash {
 				lcr_hash_type::lcr_sha2_256 =>
@@ -88,7 +96,14 @@ impl lcr_hash {
 		}
 	}
 
-	fn lcr_digestsize_mapping(&mut self) -> usize {
+	/// Mapping of lcr_hash_type to digest size
+	///
+	/// # Returns
+	///
+	/// * Returns digest size
+	fn lcr_digestsize_mapping(
+		&mut self
+	) -> usize {
 		match self.hash {
 			lcr_hash_type::lcr_sha2_256 => 32,
 			lcr_hash_type::lcr_sha2_384 => 48,
@@ -101,7 +116,10 @@ impl lcr_hash {
 		}
 	}
 
-	fn ctx_initialize(&mut self) -> Result<(), HashError> {
+	/// Initialize the context if not already initialized
+	fn ctx_initialize(
+		&mut self
+	) -> Result<(), HashError> {
 		if !self.hash_ctx_init {
 			let result = unsafe {
 				leancrypto::lc_hash_set_ctx(
@@ -119,10 +137,19 @@ impl lcr_hash {
 
 	/// Create message digest
 	///
-	/// [msg] holds the message to be digested
-	/// [digest] Buffer to be filled with digest
-	pub fn digest(&mut self, msg: &[u8], digest: &mut [u8]) ->
-		Result<(), HashError> {
+	/// # Arguments
+	///
+	/// * `msg` holds the message to be digested
+	/// * `digest` Buffer to be filled with digest
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or HashError on error
+	pub fn digest(
+		&mut self,
+		msg: &[u8],
+		digest: &mut [u8]
+	) -> Result<(), HashError> {
 
 		if digest.len() < Self::lcr_digestsize_mapping(self) {
 			return Err(HashError::ProcessingError)
@@ -142,10 +169,19 @@ impl lcr_hash {
 
 	/// Create XOF message digest
 	///
-	/// [msg] holds the message to be digested
-	/// [digest] Buffer to be filled with digest
-	pub fn xof(&mut self, msg: &[u8], digest: &mut [u8]) ->
-		Result<(), HashError> {
+	/// # Arguments
+	///
+	/// * `msg` holds the message to be digested
+	/// * `digest` Buffer to be filled with digest
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or HashError on error
+	pub fn xof(
+		&mut self,
+		msg: &[u8],
+		digest: &mut [u8]
+	) -> Result<(), HashError> {
 		let result = unsafe {
 			leancrypto::lc_xof(self.lcr_type_mapping(),
 					   msg.as_ptr(), msg.len(),
@@ -160,12 +196,18 @@ impl lcr_hash {
 
 	/// cSHAKE Init: Initializes message digest handle
 	///
-	/// [n] N is a function-name bit string, used by NIST to define
-	///	 functions based on cSHAKE. When no function other than cSHAKE
-	///	 is desired, N is set to the empty string.
-	/// [s] S is a customization bit string. The user selects this string
-	///	 to define a variant of the function. When no customization is
-	///	 desired, S is set to the empty string.
+	/// # Arguments
+	///
+	/// * `n` N is a function-name bit string, used by NIST to define
+	///	  functions based on cSHAKE. When no function other than cSHAKE
+	///	  is desired, N is set to the empty string.
+	/// * `s` S is a customization bit string. The user selects this string
+	///	  to define a variant of the function. When no customization is
+	///	  desired, S is set to the empty string.
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or HashError on error
 	pub fn cshake_init(&mut self, n: &[u8], s: &[u8]) ->
 		Result<(), HashError> {
 
@@ -182,7 +224,13 @@ impl lcr_hash {
 	}
 
 	/// Hash Init: Initializes message digest handle
-	pub fn init(&mut self) -> Result<(), HashError> {
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or HashError on error
+	pub fn init(
+		&mut self
+	) -> Result<(), HashError> {
 
 		self.ctx_initialize()?;
 
@@ -197,7 +245,18 @@ impl lcr_hash {
 	}
 
 	/// Hash Update: Insert data into message digest handle
-	pub fn update(&mut self, msg: &[u8]) -> Result<(), HashError> {
+	///
+	/// # Arguments
+	///
+	/// * `msg` holds the message to be digested
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or HashError on error
+	pub fn update(
+		&mut self,
+		msg: &[u8]
+	) -> Result<(), HashError> {
 		unsafe {
 			leancrypto::lc_hash_update(&mut self.hash_ctx,
 						   msg.as_ptr(), msg.len())
@@ -208,9 +267,17 @@ impl lcr_hash {
 
 	/// Set the size of the message digest - this call is intended for SHAKE
 	///
-	/// [digestsize] Size of digest
-	pub fn set_digestsize(&mut self, digestsize: usize) ->
-		Result<(), HashError> {
+	/// # Arguments
+	///
+	/// * `digestsize` Size of digest
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or HashError on error
+	pub fn set_digestsize(
+		&mut self,
+		digestsize: usize
+	) -> Result<(), HashError> {
 		unsafe {
 			leancrypto::lc_hash_set_digestsize(&mut self.hash_ctx,
 							   digestsize)
@@ -221,7 +288,9 @@ impl lcr_hash {
 
 	/// Get the size of the message digest
 	///
-	/// [digestsize] Size of digest
+	/// # Returns
+	///
+	/// * Returns digest size
 	pub fn digestsize(&mut self) -> usize {
 		match self.ctx_initialize() {
 			Err(_) => return 0,
@@ -236,8 +305,17 @@ impl lcr_hash {
 
 	/// Hash Final: Calculate message digest from message digest handle
 	///
-	/// [digest] Buffer to be filled with digest
-	pub fn fini(&mut self, digest: &mut [u8]) -> Result<(), HashError> {
+	/// # Arguments
+	///
+	/// * `digest` Buffer to be filled with digest
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or HashError on error
+	pub fn fini(
+		&mut self,
+		digest: &mut [u8]
+	) -> Result<(), HashError> {
 		let digestsize = unsafe {
 			leancrypto::lc_hash_digestsize(&mut self.hash_ctx)
 		};

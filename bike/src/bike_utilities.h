@@ -158,13 +158,14 @@ static inline uint32_t secure_cmp32(const uint32_t v1, const uint32_t v2)
 			     : "cc" /*The condition code flag*/);
 	return res;
 #elif defined(__x86_64__) || defined(__i386__)
-	uint32_t res;
+	uint32_t res, tmp = v2;
 	__asm__ __volatile__("xor  %%edx, %%edx; \n"
 			     "cmp  %1, %2; \n "
 			     "sete %%dl; \n"
 			     "mov %%edx, %0; \n"
+			     "mov %2, %%edx; \n"
 			     : "=r"(res)
-			     : "r"(v1), "r"(v2)
+			     : "r"(v1), "r"(v2), "r"(tmp)
 			     : "rdx");
 	return res;
 #else

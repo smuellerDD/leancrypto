@@ -94,7 +94,13 @@ impl lcr_x509_key {
 	}
 
 	/// Enable the ED25519 support in leancrypto (by default, it is disabled)
-	pub fn enable(&self) -> Result<(), X509Error> {
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
+	pub fn enable(
+		&self
+	) -> Result<(), X509Error> {
 		let result = unsafe {
 			leancrypto::lc_init(leancrypto::LC_INIT_NON_PQC_ENABLED)
 		};
@@ -104,6 +110,7 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
+	/// Allocate key data structure
 	fn alloc_key_data(
 		&mut self
 	) -> Result<(), X509Error> {
@@ -131,6 +138,15 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
+	/// Generate asymmetric key pair
+	///
+	/// # Arguments
+	///
+	/// * `lcr_x509_key_type` Asymmetric key pair to be generated
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn key_pair_generation(
 		&mut self,
 		key_type: lcr_x509_key_type,
@@ -192,8 +208,15 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Wrapper around lc_pkcs8_encode
-	pub fn pkcs8_generation(
+	/// Generate PKCS#8 DER blob holding the private key
+	///
+	/// See leancrypto C-API: lc_pkcs8_encode
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success holding the PKCS#8 DER buffer or X509Error
+	///   on error
+	pub fn pkcs8_encode(
 		&mut self,
 	) -> Result<&Vec<u8>, X509Error> {
 		self.key_is_usable()?;
@@ -228,6 +251,11 @@ impl lcr_x509_key {
 		Ok(&self.sk_der_key)
 	}
 
+	/// Method for safe immutable access to public key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() with the public key on success or X509Error on error
 	pub fn get_pk(
 		&mut self,
 	) -> Result<Vec<u8>, X509Error> {
@@ -264,6 +292,16 @@ impl lcr_x509_key {
 	}
 
 	/// Load private key formatted as PKCS8 DER blob
+	///
+	/// Wrapper around
+	///
+	/// # Arguments
+	///
+	/// * `sk_der_key` buffer with DER secret key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn pkcs8_sk_load(
 		&mut self,
 		sk_der_key: &[u8]
@@ -336,7 +374,11 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Is the key present and usable?
+	/// Does the key object contain the secret key and is therefore usable?
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn key_is_usable(
 		&self
 	) -> Result<(), X509Error> {
@@ -346,6 +388,11 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
+	/// Method for safe immutable access to secret key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() with the secret key on success or X509Error on error
 	pub fn get_sk(
 		&self
 	) -> Result<leancrypto::lc_pkcs8_message, X509Error> {
@@ -355,8 +402,18 @@ impl lcr_x509_key {
 		Ok(self.pkcs8_sk)
 	}
 
-	/// Wrapper around lc_x509_cert_decode
-	pub fn cert_load(
+	/// Load a X.509 DER certificate and decode it
+	///
+	/// See leancrypto C-API: lc_x509_cert_decode
+	///
+	/// # Arguments
+	///
+	/// * `der_certificate` buffer with DER formatted X.509 certificate
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() with the secret key on success or X509Error on error
+	pub fn cert_decode(
 		&mut self,
 		der_certificate: &[u8]
 	) -> Result<(), X509Error> {
@@ -380,7 +437,11 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Is the certificate present and usable?
+	/// Does the key object contain the certificate and is therefore usable?
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn cert_is_usable(
 		&self
 	) -> Result<(), X509Error> {
@@ -390,6 +451,12 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
+	/// Method for safe immutable access the DER blob with the X.509
+	/// certificate
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() with the certificate on success or X509Error on error
 	pub fn get_cert(
 		&self
 	) -> Result<leancrypto::lc_x509_certificate, X509Error> {
@@ -408,7 +475,17 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Wrapper around lc_x509_cert_set_signer
+	/// Set X.509 certificate signer
+	///
+	/// See leancrypto C-API: lc_x509_cert_set_signer
+	///
+	/// # Arguments
+	///
+	/// * `signer` Signer key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn cert_set_signer(
 		&mut self,
 		signer: lcr_x509_key
@@ -426,7 +503,17 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Wrapper around lc_x509_cert_set_eku
+	/// Set X.509 certificate extended key usage
+	///
+	/// See leancrypto C-API: lc_x509_cert_set_eku
+	///
+	/// # Arguments
+	///
+	/// * `eku` String with extended key usage
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn cert_set_eku(
 		&mut self,
 		eku: &str
@@ -444,7 +531,17 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Wrapper around lc_x509_cert_set_eku_val
+	/// Set X.509 certificate extended key usage based on integer
+	///
+	/// See leancrypto C-API: lc_x509_cert_set_eku_val
+	///
+	/// # Arguments
+	///
+	/// * `eku` Integer with extended key usage
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn cert_set_eku_val(
 		&mut self,
 		eku: u16
@@ -461,7 +558,17 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Wrapper around lc_x509_cert_set_keyusage
+	/// Set X.509 certificate key usage
+	///
+	/// See leancrypto C-API: lc_x509_cert_set_keyusage
+	///
+	/// # Arguments
+	///
+	/// * `keyusage` String with key usage
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn cert_set_keyusage(
 		&mut self,
 		keyusage: &str
@@ -479,7 +586,17 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Wrapper around lc_x509_cert_set_keyusage_val
+	/// Set X.509 certificate key usage based on integer
+	///
+	/// See leancrypto C-API: lc_x509_cert_set_keyusage_val
+	///
+	/// # Arguments
+	///
+	/// * `keyusage` Integer with key usage
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn cert_set_keyusage_val(
 		&mut self,
 		keyusage: u16
@@ -496,7 +613,17 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Wrapper around lc_x509_cert_set_ca
+	/// Set X.509 certificate CA property
+	///
+	/// See leancrypto C-API: lc_x509_cert_set_ca
+	///
+	/// # Arguments
+	///
+	/// * `keyusage` Integer with key usage
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn cert_set_ca(
 		&mut self
 	) -> Result<(), X509Error> {
@@ -511,7 +638,16 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Wrapper around lc_x509_cert_check_issuer_ca
+	/// Set X.509 set the signer's subject as certificate's issuer
+	///
+	/// This call is intended as a final sanity check before a
+	/// certificate_generation.
+	///
+	/// See leancrypto C-API: lc_x509_cert_check_issuer_ca
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn cert_check_issuer_ca(
 		&mut self
 	) -> Result<(), X509Error> {
@@ -527,7 +663,17 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Wrapper around lc_x509_cert_set_ca_pathlen
+	/// Set X.509 maximum path length
+	///
+	/// See leancrypto C-API: lc_x509_cert_set_ca_pathlen
+	///
+	/// # Arguments
+	///
+	/// * `pathlen` Integer with the path length
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn cert_set_ca_pathlen(
 		&mut self,
 		pathlen: u32
@@ -544,7 +690,17 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Wrapper around lc_x509_cert_set_san_email
+	/// Set X.509 email as SAN
+	///
+	/// See leancrypto C-API: lc_x509_cert_set_san_email
+	///
+	/// # Arguments
+	///
+	/// * `email` string with email
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn cert_set_san_email(
 		&mut self,
 		email: &str
@@ -562,7 +718,17 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Wrapper around lc_x509_cert_set_san_dns
+	/// Set X.509 Full Qualified Domain Name as SAN
+	///
+	/// See leancrypto C-API: lc_x509_cert_set_san_dns
+	///
+	/// # Arguments
+	///
+	/// * `dns` string with FQDN
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn cert_set_san_dns(
 		&mut self,
 		dns: &str
@@ -580,7 +746,17 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Wrapper around lc_x509_cert_set_san_ip
+	/// Set X.509 Full Qualified Domain Name as SAN
+	///
+	/// See leancrypto C-API: lc_x509_cert_set_san_ip
+	///
+	/// # Arguments
+	///
+	/// * `ip` buffer with binary representation of IP address
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn cert_set_san_ip(
 		&mut self,
 		ip: &[u8]
@@ -597,7 +773,17 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Wrapper around lc_x509_cert_set_skid
+	/// Set X.509 SKID
+	///
+	/// See leancrypto C-API: lc_x509_cert_set_skid
+	///
+	/// # Arguments
+	///
+	/// * `skid` buffer with SKID
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn cert_set_skid(
 		&mut self,
 		skid: &[u8]
@@ -614,7 +800,17 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Wrapper around lc_x509_cert_set_akid
+	/// Set X.509 AKID
+	///
+	/// See leancrypto C-API: lc_x509_cert_set_akid
+	///
+	/// # Arguments
+	///
+	/// * `akid` buffer with AKID
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn cert_set_akid(
 		&mut self,
 		akid: &[u8]
@@ -631,7 +827,17 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Wrapper around lc_x509_cert_set_valid_from
+	/// Set X.509 validity time - start time
+	///
+	/// See leancrypto C-API: lc_x509_cert_set_valid_from
+	///
+	/// # Arguments
+	///
+	/// * `time` time since Epoch
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn cert_set_valid_from(
 		&mut self,
 		time: i64
@@ -648,7 +854,17 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Wrapper around lc_x509_cert_set_valid_to
+	/// Set X.509 validity time - end time
+	///
+	/// See leancrypto C-API: lc_x509_cert_set_valid_to
+	///
+	/// # Arguments
+	///
+	/// * `time` time since Epoch
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn cert_set_valid_to(
 		&mut self,
 		time: i64
@@ -665,7 +881,17 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Wrapper around lc_x509_cert_set_subject_cn
+	/// Set X.509 subject CN
+	///
+	/// See leancrypto C-API: lc_x509_cert_set_subject_cn
+	///
+	/// # Arguments
+	///
+	/// * `cn` CN string
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn cert_set_subject_cn(
 		&mut self,
 		cn: &str
@@ -683,7 +909,17 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Wrapper around lc_x509_cert_set_subject_email
+	/// Set X.509 subject email
+	///
+	/// See leancrypto C-API: lc_x509_cert_set_subject_email
+	///
+	/// # Arguments
+	///
+	/// * `email` Email string
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn cert_set_subject_email(
 		&mut self,
 		email: &str
@@ -702,7 +938,17 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Wrapper around lc_x509_cert_set_subject_ou
+	/// Set X.509 subject OU
+	///
+	/// See leancrypto C-API: lc_x509_cert_set_subject_ou
+	///
+	/// # Arguments
+	///
+	/// * `ou` OU string
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn cert_set_subject_ou(
 		&mut self,
 		ou: &str
@@ -720,7 +966,17 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Wrapper arond lc_x509_cert_set_subject_o
+	/// Set X.509 subject O
+	///
+	/// See leancrypto C-API: lc_x509_cert_set_subject_o
+	///
+	/// # Arguments
+	///
+	/// * `o` O string
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn cert_set_subject_o(
 		&mut self,
 		o: &str
@@ -738,7 +994,17 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Wrapper arstnd lc_x509_cert_set_subject_st
+	/// Set X.509 subject ST
+	///
+	/// See leancrypto C-API: lc_x509_cert_set_subject_st
+	///
+	/// # Arguments
+	///
+	/// * `st` ST string
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn cert_set_subject_st(
 		&mut self,
 		st: &str
@@ -756,7 +1022,17 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Wrapper arcnd lc_x509_cert_set_subject_c
+	/// Set X.509 subject C
+	///
+	/// See leancrypto C-API: lc_x509_cert_set_subject_c
+	///
+	/// # Arguments
+	///
+	/// * `c` C string
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn cert_set_subject_c(
 		&mut self,
 		c: &str
@@ -774,7 +1050,17 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Wrapper around lc_x509_cert_set_issuer_cn
+	/// Set X.509 issuer CN
+	///
+	/// See leancrypto C-API: lc_x509_cert_set_issuer_cn
+	///
+	/// # Arguments
+	///
+	/// * `cn` CN string
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn cert_set_issuer_cn(
 		&mut self,
 		cn: &str
@@ -792,7 +1078,17 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Wrapper around lc_x509_cert_set_issuer_email
+	/// Set X.509 issuer email
+	///
+	/// See leancrypto C-API: lc_x509_cert_set_issuer_email
+	///
+	/// # Arguments
+	///
+	/// * `email` Email string
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn cert_set_issuer_email(
 		&mut self,
 		email: &str
@@ -811,7 +1107,17 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Wrapper around lc_x509_cert_set_issuer_ou
+	/// Set X.509 issuer OU
+	///
+	/// See leancrypto C-API: lc_x509_cert_set_issuer_ou
+	///
+	/// # Arguments
+	///
+	/// * `ou` OU string
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn cert_set_issuer_ou(
 		&mut self,
 		ou: &str
@@ -829,7 +1135,17 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Wrapper arond lc_x509_cert_set_issuer_o
+	/// Set X.509 issuer O
+	///
+	/// See leancrypto C-API: lc_x509_cert_set_issuer_o
+	///
+	/// # Arguments
+	///
+	/// * `o` O string
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn cert_set_issuer_o(
 		&mut self,
 		o: &str
@@ -847,7 +1163,17 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Wrapper arstnd lc_x509_cert_set_issuer_st
+	/// Set X.509 issuer ST
+	///
+	/// See leancrypto C-API: lc_x509_cert_set_issuer_st
+	///
+	/// # Arguments
+	///
+	/// * `st` ST string
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn cert_set_issuer_st(
 		&mut self,
 		st: &str
@@ -865,7 +1191,17 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Wrapper arcnd lc_x509_cert_set_issuer_c
+	/// Set X.509 issuer C
+	///
+	/// See leancrypto C-API: lc_x509_cert_set_issuer_c
+	///
+	/// # Arguments
+	///
+	/// * `c` C string
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn cert_set_issuer_c(
 		&mut self,
 		c: &str
@@ -883,7 +1219,17 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Wrapper arcnd lc_x509_cert_set_serial
+	/// Set X.509 serial number
+	///
+	/// See leancrypto C-API: lc_x509_cert_set_serial
+	///
+	/// # Arguments
+	///
+	/// * `serial` serial string
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn cert_set_serial(
 		&mut self,
 		serial: &str
@@ -901,9 +1247,14 @@ impl lcr_x509_key {
 		Ok(())
 	}
 
-	/// Generate certificate of previously set certificate details
-	/// Wrapper around lc_x509_cert_encode
-	pub fn certificate_generation(
+	/// Generate a X.509 DER blob from the set certificate properties
+	///
+	/// See leancrypto C-API: lc_x509_cert_encode
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() with the certificate on success or X509Error on error
+	pub fn cert_encode(
 		&mut self,
 	) -> Result<&Vec<u8>, X509Error> {
 		self.cert_configurable()?;
@@ -981,7 +1332,13 @@ impl lcr_x509 {
 	}
 
 	/// Enable the ED25519 support in leancrypto (by default, it is disabled)
-	pub fn enable(&self) -> Result<(), X509Error> {
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
+	pub fn enable(
+		&self
+	) -> Result<(), X509Error> {
 		let result = unsafe {
 			leancrypto::lc_init(leancrypto::LC_INIT_NON_PQC_ENABLED)
 		};
@@ -991,7 +1348,19 @@ impl lcr_x509 {
 		Ok(())
 	}
 
-	/// Verify another certificate with self
+	/// Verify message
+	///
+	/// The the publich key must be already loaded.
+	///
+	/// # Arguments
+	///
+	/// * `x509_key` public key to be used for verification
+	/// * `signature` signature to be verified
+	/// * `message` message to be verified
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn verify(
 		&mut self,
 		x509_key: &lcr_x509_key,
@@ -1019,7 +1388,18 @@ impl lcr_x509 {
 		Ok(())
 	}
 
-	/// Verify another certificate with self
+	/// Verify another certificate with a signer
+	///
+	/// The the publich key must be already loaded.
+	///
+	/// # Arguments
+	///
+	/// * `signer` signer certificate
+	/// * `cert` certificate to be verified
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or X509Error on error
 	pub fn verify_certificate(
 		&mut self,
 		signer: &lcr_x509_key,
@@ -1032,6 +1412,17 @@ impl lcr_x509 {
 		//Ok(())
 	}
 
+	/// Sign message
+	///
+	/// # Arguments
+	///
+	/// * `x509_key` private key
+	/// * `message` message to be signed
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success with the signature buffer or X509Error on
+	///   error
 	pub fn sign(
 		&mut self,
 		x509_key: &lcr_x509_key,

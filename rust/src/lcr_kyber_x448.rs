@@ -61,12 +61,19 @@ impl lcr_kyber_x448 {
 		}
 	}
 
-	/// Load secret key for using with leancrypto
+	/// # Arguments
 	///
-	/// [sk_kyber_buf] buffer with Kyber raw secret key
-	/// [sk_x448_buf] buffer with X448 raw secret key
-	pub fn sk_load(&mut self, sk_kyber_buf: &[u8], sk_x448_buf: &[u8]) ->
-		Result<(), KemError> {
+	/// * `sk_kyber_buf` buffer with ML-KEM raw secret key
+	/// * `sk_x448_buf` buffer with X448 raw secret key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or KemError on error
+	pub fn sk_load(
+		&mut self,
+		sk_kyber_buf: &[u8],
+		sk_x448_buf: &[u8]
+	) -> Result<(), KemError> {
 		// No check for self.sk_set == false as we allow overwriting
 		// of existing key.
 
@@ -87,10 +94,19 @@ impl lcr_kyber_x448 {
 
 	/// Load public key for using with leancrypto
 	///
-	/// [pk_kyber_buf] buffer with Kyber public key
-	/// [pk_x448_buf] buffer with X448 public key
-	pub fn pk_load(&mut self, pk_kyber_buf: &[u8], pk_x448_buf: &[u8]) ->
-		Result<(), KemError> {
+	/// # Arguments
+	///
+	/// * `pk_kyber_buf` buffer with ML-KEM raw public key
+	/// * `pk_x448_buf` buffer with X448 raw public key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or KemError on error
+	pub fn pk_load(
+		&mut self,
+		pk_kyber_buf: &[u8],
+		pk_x448_buf: &[u8]
+	) -> Result<(), KemError> {
 		// No check for self.pk_set == false as we allow overwriting
 		// of existing key.
 
@@ -109,13 +125,21 @@ impl lcr_kyber_x448 {
 		Ok(())
 	}
 
-	/// Load ct using with leancrypto
+	/// Load hybrid ML-KEM ciphertext using with leancrypto
 	///
-	/// [ct_kyber_buf] buffer with raw Kyber cipher text
-	/// [x448_rem_pub_key_buf] buffer with raw X448 remote public key
-	pub fn ct_load(&mut self, ct_kyber_buf: &[u8],
-		       x448_rem_pub_key_buf: &[u8]) ->
-		Result<(), KemError> {
+	/// # Arguments
+	///
+	/// * `ct_kyber_buf` buffer with ML-KEM ciphertext
+	/// * `x448_rem_pub_key_buf` buffer with raw X448 remote public key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or KemError on error
+	pub fn ct_load(
+		&mut self,
+		ct_kyber_buf: &[u8],
+		x448_rem_pub_key_buf: &[u8]
+	) -> Result<(), KemError> {
 		// No check for self.ct_set == false as we allow overwriting
 		// of existing key.
 
@@ -135,6 +159,16 @@ impl lcr_kyber_x448 {
 		Ok(())
 	}
 
+	/// Mapping of lcr_kyber_x448_type to leancrypto hybrid  ML-KEM
+	/// implementation type
+	///
+	/// # Arguments
+	///
+	/// * `kyber_x448_type` ML-KEM type to convert
+	///
+	/// # Returns
+	///
+	/// * Returns leancrypto ML-KEM implementation type
 	fn lcr_kyber_type_mapping(kyber_type: lcr_kyber_x448_type) ->
 		u32 {
 		match kyber_type {
@@ -147,11 +181,19 @@ impl lcr_kyber_x448 {
 		}
 	}
 
-	/// Generate Kyber / ML-KEM key pair
+	/// Generate hybrid ML-KEM key pair
 	///
-	/// [kyber_type] key type
-	pub fn keypair(&mut self, kyber_type: lcr_kyber_x448_type) ->
-		Result<(), KemError> {
+	/// # Arguments
+	///
+	/// * `kyber_x448_type` hybrid ML-KEM type to generate key pair for
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or KemError on error
+	pub fn keypair(
+		&mut self,
+		kyber_type: lcr_kyber_x448_type
+	) -> Result<(), KemError> {
 		let result = unsafe {
 			leancrypto::lc_kyber_x448_keypair(
 				&mut self.pk, &mut self.sk,
@@ -169,7 +211,21 @@ impl lcr_kyber_x448 {
 	}
 
 	/// Decapsulate message
-	pub fn decapsulate(&mut self, ss: &mut [u8]) -> Result<(), KemError> {
+	///
+	/// The ciphertext and the secret key must be already loaded. Upon
+	/// success, the shared secret is present and can be retrieved.
+	///
+	/// # Arguments
+	///
+	/// `ss` Buffer to be filled with shared secret
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or KemError on error
+	pub fn decapsulate(
+		&mut self,
+		ss: &mut [u8]
+	) -> Result<(), KemError> {
 		if self.sk_set == false || self.ct_set == false {
 			return Err(KemError::UninitializedContext);
 		}
@@ -185,8 +241,22 @@ impl lcr_kyber_x448 {
 		Ok(())
 	}
 
-	/// Deterministically sign message with pure signature operation
-	pub fn encapsulate(&mut self, ss: &mut [u8]) -> Result<(), KemError> {
+	/// Encapsulate message
+	///
+	/// The publick key must be already loaded. Upon success, the shared
+	/// secret and the ciphertext are present and can be retrieved.
+	///
+	/// # Arguments
+	///
+	/// `ss` Buffer to be filled with shared secret
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or KemError on error
+	pub fn encapsulate(
+		&mut self,
+		ss: &mut [u8]
+	) -> Result<(), KemError> {
 		if self.pk_set == false {
 			return Err(KemError::UninitializedContext);
 		}
@@ -205,10 +275,16 @@ impl lcr_kyber_x448 {
 		Ok(())
 	}
 
-	/// Method for safe immutable access to Kyber ciphertext buffer
-	pub fn get_ct(&mut self) -> (&[u8], &[u8], Result<(), KemError>) {
+	/// Method for safe immutable access to hybrid ML-KEM ciphertext buffer
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() with the ciphertext on success or KemError on error
+	pub fn get_ct(
+		&mut self
+	) -> Result<(&[u8], &[u8]), KemError> {
 		if self.ct_set == false {
-			return (&[], &[], Err(KemError::UninitializedContext));
+			return Err(KemError::UninitializedContext);
 		}
 
 		let mut kyber_ptr: *mut u8 = ptr::null_mut();
@@ -223,7 +299,7 @@ impl lcr_kyber_x448 {
 				&mut self.ct)
 		};
 		if result < 0 {
-			return (&[], &[], Err(KemError::ProcessingError));
+			return Err(KemError::ProcessingError);
 		}
 
 		let slice_kyber = unsafe {
@@ -233,13 +309,19 @@ impl lcr_kyber_x448 {
 			std::slice::from_raw_parts(x448_ptr, x448_len)
 		};
 
-		(&slice_kyber, &slice_x448, Ok(()))
+		Ok((&slice_kyber, &slice_x448))
 	}
 
-	/// Method for safe immutable access to secret key buffer
-	pub fn get_sk(&mut self) -> (&[u8], &[u8], Result<(), KemError>) {
+	/// Method for safe immutable access to hybrid ML-KEM secret key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() with the secret key on success or KemError on error
+	pub fn get_sk(
+		&mut self
+	) -> Result<(&[u8], &[u8]), KemError> {
 		if self.sk_set == false {
-			return (&[], &[], Err(KemError::UninitializedContext));
+			return Err(KemError::UninitializedContext);
 		}
 
 		let mut kyber_ptr: *mut u8 = ptr::null_mut();
@@ -254,7 +336,7 @@ impl lcr_kyber_x448 {
 				&mut self.sk)
 		};
 		if result < 0 {
-			return (&[], &[], Err(KemError::ProcessingError));
+			return Err(KemError::ProcessingError);
 		}
 
 		let slice_kyber = unsafe {
@@ -264,13 +346,19 @@ impl lcr_kyber_x448 {
 			std::slice::from_raw_parts(x448_ptr, x448_len)
 		};
 
-		(&slice_kyber, &slice_x448, Ok(()))
+		Ok((&slice_kyber, &slice_x448))
 	}
 
-	/// Method for safe immutable access to public key buffer
-	pub fn get_pk(&mut self) -> (&[u8], &[u8], Result<(), KemError>) {
+	/// Method for safe immutable access to hybrid ML-KEM shared secret
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() with the shared secret on success or KemError on error
+	pub fn get_pk(
+		&mut self
+	) -> Result<(&[u8], &[u8]), KemError> {
 		if self.pk_set == false {
-			return (&[], &[], Err(KemError::UninitializedContext));
+			return Err(KemError::UninitializedContext);
 		}
 
 		let mut kyber_ptr: *mut u8 = ptr::null_mut();
@@ -285,7 +373,7 @@ impl lcr_kyber_x448 {
 				&mut self.pk)
 		};
 		if result < 0 {
-			return (&[], &[], Err(KemError::ProcessingError));
+			return Err(KemError::ProcessingError);
 		}
 
 		let slice_kyber = unsafe {
@@ -295,7 +383,7 @@ impl lcr_kyber_x448 {
 			std::slice::from_raw_parts(x448_ptr, x448_len)
 		};
 
-		(&slice_kyber, &slice_x448, Ok(()))
+		Ok((&slice_kyber, &slice_x448))
 	}
 }
 

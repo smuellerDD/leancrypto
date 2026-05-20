@@ -63,8 +63,17 @@ impl lcr_dilithium {
 
 	/// Load secret key for using with leancrypto
 	///
-	/// [sk_buf] buffer with raw secret key
-	pub fn sk_load(&mut self, sk_buf: &[u8]) -> Result<(), SignatureError> {
+	/// # Arguments
+	///
+	/// * `sk_buf` buffer with raw secret key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SignatureError on error
+	pub fn sk_load(
+		&mut self,
+		sk_buf: &[u8]
+	) -> Result<(), SignatureError> {
 		// No check for self.sk_set == false as we allow overwriting
 		// of existing key.
 
@@ -84,8 +93,17 @@ impl lcr_dilithium {
 
 	/// Load public key for using with leancrypto
 	///
-	/// [pk_buf] buffer with raw public key
-	pub fn pk_load(&mut self, pk_buf: &[u8]) -> Result<(), SignatureError> {
+	/// # Arguments
+	///
+	/// * `pk_buf` buffer with raw public key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SignatureError on error
+	pub fn pk_load(
+		&mut self,
+		pk_buf: &[u8]
+	) -> Result<(), SignatureError> {
 		// No check for self.pk_set == false as we allow overwriting
 		// of existing key.
 
@@ -105,9 +123,17 @@ impl lcr_dilithium {
 
 	/// Load signature using with leancrypto
 	///
-	/// [sig_buf] buffer with raw signature
-	pub fn sig_load(&mut self, sig_buf: &[u8]) ->
-		Result<(), SignatureError> {
+	/// # Arguments
+	///
+	/// * `sig_buf` buffer with raw public key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SignatureError on error
+	pub fn sig_load(
+		&mut self,
+		sig_buf: &[u8]
+	) -> Result<(), SignatureError> {
 		// No check for self.sig_set == false as we allow overwriting
 		// of existing key.
 
@@ -125,6 +151,11 @@ impl lcr_dilithium {
 		Ok(())
 	}
 
+	/// Mapping of lcr_dilithium_type to leancrypto ML-DSA implementation type
+	///
+	/// # Returns
+	///
+	/// * Returns leancrypto ML-DSA implementation type
 	fn lcr_dilithium_type_mapping(dilithium_type: lcr_dilithium_type) ->
 		u32 {
 		match dilithium_type {
@@ -137,9 +168,15 @@ impl lcr_dilithium {
 		}
 	}
 
-	/// Generate Dilithium / ML-DSA key pair
+	/// Generate ML-DSA key pair
 	///
-	/// [dilithium_type] key type
+	/// # Arguments
+	///
+	/// * `dilithium_type` ML-DSA type to generate key pair for
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SignatureError on error
 	pub fn keypair(&mut self, dilithium_type: lcr_dilithium_type) ->
 		Result<(), SignatureError> {
 		let result = unsafe {
@@ -160,8 +197,20 @@ impl lcr_dilithium {
 
 	/// Sign message with pure signature operation
 	///
-	/// [msg] holds the message to be signed
-	pub fn sign(&mut self, msg: &[u8]) -> Result<(), SignatureError> {
+	/// The the secret key must be already loaded. Upon success, the
+	/// signature is present and can be retrieved.
+	///
+	/// # Arguments
+	///
+	/// * `msg` message to be signed
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SignatureError on error
+	pub fn sign(
+		&mut self,
+		msg: &[u8]
+	) -> Result<(), SignatureError> {
 		if self.sk_set == false {
 			return Err(SignatureError::UninitializedContext);
 		}
@@ -180,11 +229,22 @@ impl lcr_dilithium {
 		Ok(())
 	}
 
-	/// Deterministically sign message with pure signature operation
+	/// Deterministically sign message
 	///
-	/// [msg] holds the message to be signed
-	pub fn sign_deterministic(&mut self, msg: &[u8]) ->
-		Result<(), SignatureError> {
+	/// The the secret key must be already loaded. Upon success, the
+	/// signature is present and can be retrieved.
+	///
+	/// # Arguments
+	///
+	/// * `msg` message to be signed
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SignatureError on error
+	pub fn sign_deterministic(
+		&mut self,
+		msg: &[u8]
+	) -> Result<(), SignatureError> {
 		if self.sk_set == false {
 			return Err(SignatureError::UninitializedContext);
 		}
@@ -203,10 +263,21 @@ impl lcr_dilithium {
 		Ok(())
 	}
 
-	/// Verify message with pure signature operation
+	/// Verify message
 	///
-	/// [msg] holds the message to be verified
-	pub fn verify(&mut self, msg: &[u8]) -> Result<(), SignatureError> {
+	/// The the publich key must be already loaded.
+	///
+	/// # Arguments
+	///
+	/// * `msg` message to be verified
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SignatureError on error
+	pub fn verify(
+		&mut self,
+		msg: &[u8]
+	) -> Result<(), SignatureError> {
 		if self.pk_set == false || self.sig_set == false {
 			return Err(SignatureError::UninitializedContext);
 		}
@@ -227,9 +298,15 @@ impl lcr_dilithium {
 	}
 
 	/// Method for safe immutable access to signature buffer
-	pub fn get_sig(&mut self) -> (&[u8], Result<(), SignatureError>) {
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() with the signature on success or SignatureError on error
+	pub fn get_sig(
+		&mut self
+	) -> Result<&[u8], SignatureError> {
 		if self.sig_set == false {
-			return (&[], Err(SignatureError::UninitializedContext));
+			return Err(SignatureError::UninitializedContext);
 		}
 
 		let mut ptr: *mut u8 = ptr::null_mut();
@@ -240,18 +317,24 @@ impl lcr_dilithium {
 							 &mut self.sig)
 		};
 		if result < 0 {
-			return (&[], Err(SignatureError::ProcessingError));
+			return Err(SignatureError::ProcessingError);
 		}
 
 		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-		(&slice, Ok(()))
+		Ok(&slice)
 	}
 
-	/// Method for safe immutable access to secret key buffer
-	pub fn get_sk(&mut self) -> (&[u8], Result<(), SignatureError>) {
+	/// Method for safe immutable access to ML-DSA secret key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() with the secret key on success or SignatureError on error
+	pub fn get_sk(
+		&mut self
+	) -> Result<&[u8], SignatureError> {
 		if self.sk_set == false {
-			return (&[], Err(SignatureError::UninitializedContext));
+			return Err(SignatureError::UninitializedContext);
 		}
 
 		let mut ptr: *mut u8 = ptr::null_mut();
@@ -262,18 +345,24 @@ impl lcr_dilithium {
 							&mut self.sk)
 		};
 		if result < 0 {
-			return (&[], Err(SignatureError::ProcessingError));
+			return Err(SignatureError::ProcessingError);
 		}
 
 		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-		(&slice, Ok(()))
+		Ok(&slice,)
 	}
 
-	/// Method for safe immutable access to public key buffer
-	pub fn get_pk(&mut self) -> (&[u8], Result<(), SignatureError>) {
+	/// Method for safe immutable access to ML-DSA public key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() with the public key on success or SignatureError on error
+	pub fn get_pk(
+		&mut self
+	) -> Result<&[u8], SignatureError> {
 		if self.pk_set == false {
-			return (&[], Err(SignatureError::UninitializedContext));
+			return Err(SignatureError::UninitializedContext);
 		}
 
 		let mut ptr: *mut u8 = ptr::null_mut();
@@ -284,26 +373,12 @@ impl lcr_dilithium {
 							&mut self.pk)
 		};
 		if result < 0 {
-			return (&[], Err(SignatureError::ProcessingError));
+			return Err(SignatureError::ProcessingError);
 		}
 
 		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-		(&slice, Ok(()))
-	}
-
-	/// This is a test function verifying whether the zeroization succeeds
-	fn zeroize_check(&mut self, sk: &mut leancrypto::lc_dilithium_sk)
-	{
-		let mut ptr: *mut u8 = ptr::null_mut();
-		let mut len: usize = 0;
-		unsafe {
-			leancrypto::lc_dilithium_sk_ptr(&mut ptr, &mut len, sk)
-		};
-
-		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
-
-		assert_eq!(Self::get_sk(self).0, slice);
+		Ok(&slice)
 	}
 }
 
@@ -311,12 +386,11 @@ impl lcr_dilithium {
 /// regardless of when it goes out of scope
 impl Drop for lcr_dilithium {
 	fn drop(&mut self) {
-		let /*mut*/ sk: leancrypto::lc_dilithium_sk = unsafe {
+		let sk: leancrypto::lc_dilithium_sk = unsafe {
 			std::mem::zeroed()
 		};
 
 		unsafe { std::ptr::write_volatile(&mut self.sk, sk) };
 		atomic::compiler_fence(atomic::Ordering::SeqCst);
-		//Self::zeroize_check(self, &mut sk);
 	}
 }

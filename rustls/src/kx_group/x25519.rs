@@ -24,8 +24,12 @@ impl SupportedKxGroup for X25519KxGroup {
 		x25519.keypair().
 			map_err(|e| Error::General(format!("lc:X25519: key pair generation error: {e}")))?;
 
-		let (pk_slice, result) = x25519.get_pk();
-		result.map_err(|e| Error::General(format!("lc:X25519: pub key extraction error: {e}")))?;
+		let pk_slice = match x25519.get_pk() {
+			Ok(ret) => ret,
+			Err(e) => {
+				return Err(Error::General(format!("lc:X25519: pub key extraction error: {e}")))
+			}
+		};
 		let public_key = pk_slice.to_vec();
 
 		Ok(Box::new(X25519KeyExchange {
@@ -55,8 +59,12 @@ impl ActiveKeyExchange for X25519KeyExchange {
 			map_err(|e| Error::General(format!("lc:X25519: shared secret generation error: {e}")))?;
 
 		/* Export shared secret */
-		let (ss_slice, result) = x25519.get_ss();
-		result.map_err(|e| Error::General(format!("lc:X25519: shared secret extraction error: {e}")))?;
+		let ss_slice = match x25519.get_ss() {
+			Ok(ret) => ret,
+			Err(e) => {
+				return Err(Error::General(format!("lc:X25519: shared secret extraction error: {e}")))
+			}
+		};
 		let ss = ss_slice.to_vec();
 
 		Ok(SharedSecret::from(ss.as_slice()))

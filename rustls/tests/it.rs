@@ -242,7 +242,7 @@ fn test_ed25119_sign_and_verify() {
 	assert_eq!(result, Ok(()));
 	let result = key.key_pair_generation(lcr_x509_key_type::lcr_ed25519);
 	assert_eq!(result, Ok(()));
-	let der_key_result = key.pkcs8_generation();
+	let der_key_result = key.pkcs8_encode();
 
 	let der_key = match der_key_result {
 		Ok(der_blob) => der_blob,

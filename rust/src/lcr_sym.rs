@@ -48,6 +48,7 @@ impl lcr_sym {
 		}
 	}
 
+	/// Allocate algorithm context
 	fn lcr_sym_alloc(&mut self) -> i32 {
 		match self.sym {
 			lcr_sym_type::lcr_aes_cbc => unsafe {
@@ -80,9 +81,17 @@ impl lcr_sym {
 
 	/// Set key and symmetric context
 	///
-	/// [key] key
-	pub fn setkey(&mut self, key: &[u8]) ->
-		Result<(), SymError> {
+	/// # Arguments
+	///
+	/// * `key` key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SymError on error
+	pub fn setkey(
+		&mut self,
+		key: &[u8]
+	) -> Result<(), SymError> {
 		let mut result;
 
 		if self.sym_ctx.is_null() {
@@ -112,9 +121,17 @@ impl lcr_sym {
 
 	/// Set key and IV for symmetric context
 	///
-	/// [iv] IV
-	pub fn setiv(&mut self, iv: &[u8]) ->
-		Result<(), SymError> {
+	/// # Arguments
+	///
+	/// * `iv` IV
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SymError on error
+	pub fn setiv(
+		&mut self,
+		iv: &[u8]
+	) -> Result<(), SymError> {
 		if self.sym_ctx.is_null() {
 			let result = self.lcr_sym_alloc();
 
@@ -136,13 +153,20 @@ impl lcr_sym {
 
 	/// Symmetric encrypt
 	///
-	/// [plaintext] plaintext to be encrypted
-	/// [ciphertext] buffer to be filled with ciphertext (can be the same
-	///		 the plaintext buffer)
-	pub fn encrypt(&mut self,
-		       plaintext: &[u8],
-		       ciphertext: &mut [u8]) ->
-		Result<(), SymError> {
+	/// # Arguments
+	///
+	/// * `plaintext` plaintext to be encrypted
+	/// * `ciphertext` buffer to be filled with ciphertext (can be the same
+	///		   the plaintext buffer)
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SymError on error
+	pub fn encrypt(
+		&mut self,
+		plaintext: &[u8],
+		ciphertext: &mut [u8]
+	) -> Result<(), SymError> {
 		if self.sym_ctx.is_null() {
 			return Err(SymError::UninitializedContext)
 		}
@@ -161,13 +185,20 @@ impl lcr_sym {
 
 	/// AES KW encrypt
 	///
-	/// [plaintext] plaintext to be encrypted
-	/// [ciphertext] buffer to be filled with ciphertext (can be the same
-	///		 the plaintext buffer)
-	pub fn kw_encrypt(&mut self,
-			  plaintext: &[u8],
-			  ciphertext: &mut [u8]) ->
-		Result<(), SymError> {
+	/// # Arguments
+	///
+	/// * `plaintext` plaintext to be encrypted
+	/// * `ciphertext` buffer to be filled with ciphertext (can be the same
+	///		   the plaintext buffer)
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SymError on error
+	pub fn kw_encrypt(
+		&mut self,
+		plaintext: &[u8],
+		ciphertext: &mut [u8]
+	) -> Result<(), SymError> {
 		if self.sym_ctx.is_null() {
 			return Err(SymError::UninitializedContext)
 		}
@@ -186,9 +217,15 @@ impl lcr_sym {
 
 	/// Symmetric decrypt
 	///
-	/// [ciphertext] ciphertext to be decrypted
-	/// [plaintext] buffer to be filled with plaintext (can be the same
-	///		the ciphertext buffer)
+	/// # Arguments
+	///
+	/// * `ciphertext` ciphertext to be encrypted
+	/// * `plaintext` buffer to be filled with plaintext (can be the same
+	///		  the ciphertext buffer)
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SymError on error
 	pub fn decrypt(&mut self,
 		       ciphertext: &[u8],
 		       plaintext: &mut [u8]) ->
@@ -211,13 +248,20 @@ impl lcr_sym {
 
 	/// AES KW decrypt
 	///
-	/// [ciphertext] ciphertext to be decrypted
-	/// [plaintext] buffer to be filled with plaintext (can be the same
-	///		the ciphertext buffer)
-	pub fn kw_decrypt(&mut self,
-			  ciphertext: &[u8],
-			  plaintext: &mut [u8]) ->
-		Result<(), SymError> {
+	/// # Arguments
+	///
+	/// * `ciphertext` ciphertext to be encrypted
+	/// * `plaintext` buffer to be filled with plaintext (can be the same
+	///		  the ciphertext buffer)
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SymError on error
+	pub fn kw_decrypt(
+		&mut self,
+		ciphertext: &[u8],
+		plaintext: &mut [u8]
+	) -> Result<(), SymError> {
 		if self.sym_ctx.is_null() {
 			return Err(SymError::UninitializedContext)
 		}

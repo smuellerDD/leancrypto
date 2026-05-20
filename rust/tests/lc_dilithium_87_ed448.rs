@@ -37,16 +37,14 @@ fn lc_rust_dilithium_87_ed448() {
 	assert_eq!(result, Ok(()));
 
 	// Get both PKs
-	let (dilithium_pk_slice, ed448_pk_slice, result) =
-		dilithium_ed448.get_pk();
-	assert_eq!(result, Ok(()));
+	let (dilithium_pk_slice, ed448_pk_slice) =
+		dilithium_ed448.get_pk().expect("get_pk");
 	let dilithium_pk = dilithium_pk_slice.to_vec();
 	let ed448_pk = ed448_pk_slice.to_vec();
 
 	// Get both SKs
-	let (dilithium_sk_slice, ed448_sk_slice, result) =
-		dilithium_ed448.get_sk();
-	assert_eq!(result, Ok(()));
+	let (dilithium_sk_slice, ed448_sk_slice) =
+		dilithium_ed448.get_sk().expect("get_sk");
 	let dilithium_sk = dilithium_sk_slice.to_vec();
 	let ed448_sk = ed448_sk_slice.to_vec();
 
@@ -55,29 +53,29 @@ fn lc_rust_dilithium_87_ed448() {
 	let result = dilithium_ed4482.sk_load(&dilithium_sk, &ed448_sk);
 	assert_eq!(result, Ok(()));
 	// Check Dilithium SK
-	assert_eq!(dilithium_ed448.get_sk().0,
-		   dilithium_ed4482.get_sk().0);
+	assert_eq!(dilithium_ed448.get_sk().expect("get_sk").0,
+		   dilithium_ed4482.get_sk().expect("get_sk").0);
 	// Check ED448 SK
-	assert_eq!(dilithium_ed448.get_sk().1,
-		   dilithium_ed4482.get_sk().1);
+	assert_eq!(dilithium_ed448.get_sk().expect("get_sk").1,
+		   dilithium_ed4482.get_sk().expect("get_sk").1);
 
 	let result = dilithium_ed4482.pk_load(&dilithium_pk, &ed448_pk);
 	assert_eq!(result, Ok(()));
 	// Check Dilithium SK
-	assert_eq!(dilithium_ed448.get_pk().0,
-		   dilithium_ed4482.get_pk().0);
+	assert_eq!(dilithium_ed448.get_pk().expect("get_pk").0,
+		   dilithium_ed4482.get_pk().expect("get_pk").0);
 	// Check ED448 SK
-	assert_eq!(dilithium_ed448.get_pk().1,
-		   dilithium_ed4482.get_pk().1);
+	assert_eq!(dilithium_ed448.get_pk().expect("get_pk").1,
+		   dilithium_ed4482.get_pk().expect("get_pk").1);
 
 	let result = dilithium_ed4482.sign_deterministic(&msg);
 	assert_eq!(result, Ok(()));
 	// Check Dilithium Sig
-	assert_eq!(dilithium_ed448.get_sig().0,
-		   dilithium_ed4482.get_sig().0);
+	assert_eq!(dilithium_ed448.get_sig().expect("get_sig").0,
+		   dilithium_ed4482.get_sig().expect("get_sig").0);
 	// Check ED448 Sig
-	assert_eq!(dilithium_ed448.get_sig().1,
-		   dilithium_ed4482.get_sig().1);
+	assert_eq!(dilithium_ed448.get_sig().expect("get_sig").1,
+		   dilithium_ed4482.get_sig().expect("get_sig").1);
 	//println!("sig {:x?}",  dilithium_ed4482.sig().to_vec().chunks(10).next());
 
 	let result = dilithium_ed4482.verify(&msg);

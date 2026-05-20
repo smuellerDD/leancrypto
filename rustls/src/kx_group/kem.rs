@@ -96,12 +96,20 @@ impl SupportedKxGroup for KxGroup {
 		kyber.encapsulate().
 			map_err(|e| Error::General(format!("lc:MLKEM-X25519: encapsulation error: {e}")))?;
 
-		let (ct_slice, result) = kyber.get_ct();
-		result.map_err(|e| Error::General(format!("lc:MLKEM-X25519: ciphertext extraction error: {e}")))?;
+		let ct_slice = match kyber.get_ct() {
+			Ok(ret) => ret,
+			Err(e) => {
+				return Err(Error::General(format!("lc:MLKEM-X25519: ciphertext extraction error: {e}")))
+			}
+		};
 		let ct = ct_slice.to_vec();
 
-		let (ss_slice, result) = kyber.get_ss();
-		result.map_err(|e| Error::General(format!("lc:MLKEM-X25519 shared secret extraction error: {e}")))?;
+		let ss_slice = match kyber.get_ss() {
+			Ok(ret) => ret,
+			Err(e) => {
+				return Err(Error::General(format!("lc:MLKEM-X25519 shared secret extraction error: {e}")))
+			}
+		};
 
 		Ok(CompletedKeyExchange {
 			group: self.named_group,
@@ -128,8 +136,12 @@ impl ActiveKeyExchange for KeyExchange {
 		kyber.decapsulate().
 			map_err(|e| Error::General(format!("lc:MLKEM-X25519: decapsulation error: {e}")))?;
 
-		let (ss_slice, result) = kyber.get_ss();
-		result.map_err(|e| Error::General(format!("lc:MLKEM-X25519: shared secret extraction error: {e}")))?;
+		let ss_slice = match kyber.get_ss() {
+			Ok(ret) => ret,
+			Err(e) => {
+				return Err(Error::General(format!("lc:MLKEM-X25519: shared secret extraction error: {e}")))
+			}
+		};
 
 		Ok(SharedSecret::from(ss_slice))
 	}
@@ -167,8 +179,12 @@ impl SupportedKxGroup for X25519HybridKxGroup {
 		x25519.keypair().
 			map_err(|e| Error::General(format!("lc:X25519: key pair generation error: {e}")))?;
 
-		let (x25519_pk_slice, result) = x25519.get_pk();
-		result.map_err(|e| Error::General(format!("lc:X25519: pub key extraction error: {e}")))?;
+		let x25519_pk_slice = match x25519.get_pk() {
+			Ok(ret) => ret,
+			Err(e) => {
+				return Err(Error::General(format!("lc:X25519: pub key extraction error: {e}")))
+			}
+		};
 
 		let x25519_pk = x25519_pk_slice.to_vec();
 
@@ -232,10 +248,14 @@ impl ActiveKeyExchange for X25519HybridKeyExchange {
 		x25519.shared_secret().
 			map_err(|e| Error::General(format!("lc:MLKEM-X25519: shared secret generation error: {e}")))?;
 
-		let (ss_slice, result) = x25519.get_ss();
-		result.map_err(|e| Error::General(format!("lc:MLKEM-X25519: shared secret extraction error: {e}")))?;
+		let ss_slice = match x25519.get_ss() {
+			Ok(ret) => ret,
+			Err(e) => {
+				return Err(Error::General(format!("lc:MLKEM-X25519: shared secret extraction error: {e}")))
+			}
+		};
 
 		let ss = ss_slice.to_vec();
-                Ok(SharedSecret::from(ss.as_slice()))
+		Ok(SharedSecret::from(ss.as_slice()))
 	}
 }

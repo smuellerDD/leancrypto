@@ -66,8 +66,17 @@ impl lcr_sphincs {
 
 	/// Load secret key for using with leancrypto
 	///
-	/// [sk_buf] buffer with raw secret key
-	pub fn sk_load(&mut self, sk_buf: &[u8]) -> Result<(), SignatureError> {
+	/// # Arguments
+	///
+	/// * `sk_buf` buffer with raw secret key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SignatureError on error
+	pub fn sk_load(
+		&mut self,
+		sk_buf: &[u8]
+	) -> Result<(), SignatureError> {
 		// No check for self.sk_set == false as we allow overwriting
 		// of existing key.
 
@@ -87,8 +96,17 @@ impl lcr_sphincs {
 
 	/// Load public key for using with leancrypto
 	///
-	/// [pk_buf] buffer with raw public key
-	pub fn pk_load(&mut self, pk_buf: &[u8]) -> Result<(), SignatureError> {
+	/// # Arguments
+	///
+	/// * `pk_buf` buffer with raw public key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SignatureError on error
+	pub fn pk_load(
+		&mut self,
+		pk_buf: &[u8]
+	) -> Result<(), SignatureError> {
 		// No check for self.pk_set == false as we allow overwriting
 		// of existing key.
 
@@ -107,7 +125,13 @@ impl lcr_sphincs {
 	}
 
 	/// Define that the public key is to be used for small signature type
-	pub fn pk_set_keytype_small(&mut self) -> Result<(), SignatureError> {
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SignatureError on error
+	pub fn pk_set_keytype_small(
+		&mut self
+	) -> Result<(), SignatureError> {
 		if self.pk_set == false {
 			return Err(SignatureError::UninitializedContext);
 		}
@@ -123,7 +147,13 @@ impl lcr_sphincs {
 	}
 
 	/// Define that the public key is to be used for fast signature type
-	pub fn pk_set_keytype_fast(&mut self) -> Result<(), SignatureError> {
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SignatureError on error
+	pub fn pk_set_keytype_fast(
+		&mut self
+	) -> Result<(), SignatureError> {
 		if self.pk_set == false {
 			return Err(SignatureError::UninitializedContext);
 		}
@@ -139,7 +169,13 @@ impl lcr_sphincs {
 	}
 
 	/// Define that the secret key is to be used for small signature type
-	pub fn sk_set_keytype_small(&mut self) -> Result<(), SignatureError> {
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SignatureError on error
+	pub fn sk_set_keytype_small(
+		&mut self
+	) -> Result<(), SignatureError> {
 		if self.sk_set == false {
 			return Err(SignatureError::UninitializedContext);
 		}
@@ -155,7 +191,13 @@ impl lcr_sphincs {
 	}
 
 	/// Define that the secret key is to be used for fast signature type
-	pub fn sk_set_keytype_fast(&mut self) -> Result<(), SignatureError> {
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SignatureError on error
+	pub fn sk_set_keytype_fast(
+		&mut self
+	) -> Result<(), SignatureError> {
 		if self.sk_set == false {
 			return Err(SignatureError::UninitializedContext);
 		}
@@ -172,9 +214,17 @@ impl lcr_sphincs {
 
 	/// Load signature using with leancrypto
 	///
-	/// [sig_buf] buffer with raw signature
-	pub fn sig_load(&mut self, sig_buf: &[u8]) ->
-		Result<(), SignatureError> {
+	/// # Arguments
+	///
+	/// * `sig_buf` buffer with raw public key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SignatureError on error
+	pub fn sig_load(
+		&mut self,
+		sig_buf: &[u8]
+	) -> Result<(), SignatureError> {
 		// No check for self.sig_set == false as we allow overwriting
 		// of existing key.
 
@@ -192,6 +242,11 @@ impl lcr_sphincs {
 		Ok(())
 	}
 
+	/// Mapping of lcr_sphincs_type to leancrypto ML-DSA implementation type
+	///
+	/// # Returns
+	///
+	/// * Returns leancrypto ML-DSA implementation type
 	fn lcr_sphincs_type_mapping(sphincs_type: lcr_sphincs_type) ->
 		u32 {
 		match sphincs_type {
@@ -211,11 +266,19 @@ impl lcr_sphincs {
 		}
 	}
 
-	/// Generate Sphincs+ / SLH-DSA key pair
+	/// Generate ML-DSA key pair
 	///
-	/// [sphincs_type] key type
-	pub fn keypair(&mut self, sphincs_type: lcr_sphincs_type) ->
-		Result<(), SignatureError> {
+	/// # Arguments
+	///
+	/// * `dilithium_type` ML-DSA type to generate key pair for
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SignatureError on error
+	pub fn keypair(
+		&mut self,
+		sphincs_type: lcr_sphincs_type
+	) -> Result<(), SignatureError> {
 		let result = unsafe {
 			leancrypto::lc_sphincs_keypair(
 				&mut self.pk, &mut self.sk,
@@ -234,8 +297,20 @@ impl lcr_sphincs {
 
 	/// Sign message with pure signature operation
 	///
-	/// [msg] holds the message to be signed
-	pub fn sign(&mut self, msg: &[u8]) -> Result<(), SignatureError> {
+	/// The the secret key must be already loaded. Upon success, the
+	/// signature is present and can be retrieved.
+	///
+	/// # Arguments
+	///
+	/// * `msg` message to be signed
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SignatureError on error
+	pub fn sign(
+		&mut self,
+		msg: &[u8]
+	) -> Result<(), SignatureError> {
 		if self.sk_set == false {
 			return Err(SignatureError::UninitializedContext);
 		}
@@ -254,11 +329,22 @@ impl lcr_sphincs {
 		Ok(())
 	}
 
-	/// Deterministically sign message with pure signature operation
+	/// Deterministically sign message
 	///
-	/// [msg] holds the message to be signed
-	pub fn sign_deterministic(&mut self, msg: &[u8]) ->
-		Result<(), SignatureError> {
+	/// The the secret key must be already loaded. Upon success, the
+	/// signature is present and can be retrieved.
+	///
+	/// # Arguments
+	///
+	/// * `msg` message to be signed
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SignatureError on error
+	pub fn sign_deterministic(
+		&mut self,
+		msg: &[u8]
+	) -> Result<(), SignatureError> {
 		if self.sk_set == false {
 			return Err(SignatureError::UninitializedContext);
 		}
@@ -277,10 +363,21 @@ impl lcr_sphincs {
 		Ok(())
 	}
 
-	/// Verify message with pure signature operation
+	/// Verify message
 	///
-	/// [msg] holds the message to be verified
-	pub fn verify(&mut self, msg: &[u8]) -> Result<(), SignatureError> {
+	/// The the publich key must be already loaded.
+	///
+	/// # Arguments
+	///
+	/// * `msg` message to be verified
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or SignatureError on error
+	pub fn verify(
+		&mut self,
+		msg: &[u8]
+	) -> Result<(), SignatureError> {
 		if self.pk_set == false || self.sig_set == false {
 			return Err(SignatureError::UninitializedContext);
 		}
@@ -301,9 +398,15 @@ impl lcr_sphincs {
 	}
 
 	/// Method for safe immutable access to signature buffer
-	pub fn get_sig(&mut self) -> (&[u8], Result<(), SignatureError>) {
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() with the signature on success or SignatureError on error
+	pub fn get_sig(
+		&mut self
+	) -> Result<&[u8], SignatureError> {
 		if self.sig_set == false {
-			return (&[], Err(SignatureError::UninitializedContext));
+			return Err(SignatureError::UninitializedContext);
 		}
 
 		let mut ptr: *mut u8 = ptr::null_mut();
@@ -314,18 +417,24 @@ impl lcr_sphincs {
 						       &mut self.sig)
 		};
 		if result < 0 {
-			return (&[], Err(SignatureError::ProcessingError));
+			return Err(SignatureError::ProcessingError);
 		}
 
 		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-		(&slice, Ok(()))
+		Ok(&slice)
 	}
 
-	/// Method for safe immutable access to secret key buffer
-	pub fn get_sk(&mut self) -> (&[u8], Result<(), SignatureError>) {
+	/// Method for safe immutable access to ML-DSA secret key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() with the secret key on success or SignatureError on error
+	pub fn get_sk(
+		&mut self
+	) -> Result<&[u8], SignatureError> {
 		if self.sk_set == false {
-			return (&[], Err(SignatureError::UninitializedContext));
+			return Err(SignatureError::UninitializedContext);
 		}
 
 		let mut ptr: *mut u8 = ptr::null_mut();
@@ -336,18 +445,24 @@ impl lcr_sphincs {
 						      &mut self.sk)
 		};
 		if result < 0 {
-			return (&[], Err(SignatureError::ProcessingError));
+			return Err(SignatureError::ProcessingError);
 		}
 
 		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-		(&slice, Ok(()))
+		Ok(&slice)
 	}
 
-	/// Method for safe immutable access to public key buffer
-	pub fn get_pk(&mut self) -> (&[u8], Result<(), SignatureError>) {
+	/// Method for safe immutable access to ML-DSA public key
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() with the public key on success or SignatureError on error
+	pub fn get_pk(
+		&mut self
+	) -> Result<&[u8], SignatureError> {
 		if self.pk_set == false {
-			return (&[], Err(SignatureError::UninitializedContext));
+			return Err(SignatureError::UninitializedContext);
 		}
 
 		let mut ptr: *mut u8 = ptr::null_mut();
@@ -358,12 +473,12 @@ impl lcr_sphincs {
 						      &mut self.pk)
 		};
 		if result < 0 {
-			return (&[], Err(SignatureError::ProcessingError));
+			return Err(SignatureError::ProcessingError);
 		}
 
 		let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-		(&slice, Ok(()))
+		Ok(&slice)
 	}
 }
 

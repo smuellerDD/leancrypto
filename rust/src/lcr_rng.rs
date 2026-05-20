@@ -77,9 +77,17 @@ impl lcr_rng {
 	/// needed, if the caller wants a deterministic RNG whose seeding
 	/// is controlled entirely by the caller.
 	///
-	/// [rng_type] Type of the RNG
-	pub fn set_type(&mut self, rng_type: lcr_rng_type) ->
-		Result<(), RngError> {
+	/// # Arguments
+	///
+	/// * `rng_type` Type of the RNG
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or RngError on error
+	pub fn set_type(
+		&mut self,
+		rng_type: lcr_rng_type
+	) -> Result<(), RngError> {
 		/* Free previously allocated RNG context to avoid leak */
 		if !self.rng_ctx.is_null() &&
 		    self.rng != lcr_rng_type::lcr_seeded_rng {
@@ -130,12 +138,21 @@ impl lcr_rng {
 
 	/// Seed or reseed the RNG
 	///
-	/// [seed] Buffer holding the seed data
-	/// [personalization_string] Optional buffer holding the
-	/// personalization_string (when reseeding is requested, then this
-	/// parameter is used as "additional info" string)
-	pub fn seed(&mut self, seed: &[u8], personalization_string: &[u8]) ->
-		Result<(), RngError> {
+	/// # Arguments
+	///
+	/// * `seed` Buffer holding the seed data
+	/// * `personalization_string` Optional buffer holding the
+	///    personalization_string (when reseeding is requested, then this
+	///    parameter is used as "additional info" string)
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or RngError on error
+	pub fn seed(
+		&mut self,
+		seed: &[u8],
+		personalization_string: &[u8]
+	) -> Result<(), RngError> {
 		if self.rng_ctx.is_null() {
 			return Err(RngError::UninitializedContext);
 		}
@@ -158,10 +175,19 @@ impl lcr_rng {
 
 	/// Generate random numbers
 	///
-	/// [additional_info] holds the additional information (may be null)
-	/// [rng] Allocated buffer that is filled completely with random data
-	pub fn generate(&mut self, additional_info: &[u8], rng: &mut [u8]) ->
-		Result<(), RngError> {
+	/// # Arguments
+	///
+	/// * `additional_info` holds the additional information (may be null)
+	/// * `rng` Allocated buffer that is filled completely with random data
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() on success or RngError on error
+	pub fn generate(
+		&mut self,
+		additional_info: &[u8],
+		rng: &mut [u8]
+	) -> Result<(), RngError> {
 		if self.rng_ctx.is_null() {
 			return Err(RngError::UninitializedContext);
 		}

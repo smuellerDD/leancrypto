@@ -2187,11 +2187,11 @@ fn lc_rust_sphincs_shake_128f_kat() {
 
 	let result = sphincs.sk_load(&sk);
 	assert_eq!(result, Ok(()));
-	assert_eq!(sphincs.get_sk().0, &sk[..]);
+	assert_eq!(sphincs.get_sk().expect("get_sk"), &sk[..]);
 
 	let result = sphincs.pk_load(&pk);
 	assert_eq!(result, Ok(()));
-	assert_eq!(sphincs.get_pk().0, &pk[..]);
+	assert_eq!(sphincs.get_pk().expect("get_pk"), &pk[..]);
 
 	let result = sphincs.pk_set_keytype_fast();
 	assert_eq!(result, Ok(()));
@@ -2200,15 +2200,15 @@ fn lc_rust_sphincs_shake_128f_kat() {
 
 	let result = sphincs.sign_deterministic(&msg);
 	assert_eq!(result, Ok(()));
-	assert_eq!(sphincs.get_sig().0, &sig[..]);
+	assert_eq!(sphincs.get_sig().expect("get_sig"), &sig[..]);
 
 	let result = sphincs.verify(&msg);
 	assert_eq!(result, Ok(()));
 
 	let result = sphincs.keypair(lcr_sphincs_type::lcr_sphincs_shake_128f);
 	assert_eq!(result, Ok(()));
-	assert_ne!(sphincs.get_sk().0, &sk[..]);
-	assert_ne!(sphincs.get_pk().0, &pk[..]);
+	assert_ne!(sphincs.get_sk().expect("get_sk"), &sk[..]);
+	assert_ne!(sphincs.get_pk().expect("get_pk"), &pk[..]);
 }
 
 fn lc_rust_sphincs_shake_one(sphincs_type: lcr_sphincs_type, fast: bool) {
@@ -2230,21 +2230,21 @@ fn lc_rust_sphincs_shake_one(sphincs_type: lcr_sphincs_type, fast: bool) {
 	let result = sphincs.verify(&msg);
 	assert_eq!(result, Ok(()));
 
-	let (pk_slice, result) = sphincs.get_pk();
-	assert_eq!(result, Ok(()));
+	let pk_slice = sphincs.get_pk().expect("get_pk");
 	let pk = pk_slice.to_vec();
-	let (sk_slice, result) = sphincs.get_sk();
-	assert_eq!(result, Ok(()));
+	let sk_slice = sphincs.get_sk().expect("get_sk");
 	let sk = sk_slice.to_vec();
 
 	let mut sphincs2 = lcr_sphincs::new();
 	let result = sphincs2.sk_load(&sk);
 	assert_eq!(result, Ok(()));
-	assert_eq!(sphincs.get_sk().0, sphincs2.get_sk().0);
+	assert_eq!(sphincs.get_sk().expect("get_sk"),
+		   sphincs2.get_sk().expect("get_sk"));
 
 	let result = sphincs2.pk_load(&pk);
 	assert_eq!(result, Ok(()));
-	assert_eq!(sphincs.get_pk().0, sphincs2.get_pk().0);
+	assert_eq!(sphincs.get_pk().expect("get_pk"),
+		   sphincs2.get_pk().expect("get_pk"));
 
 	if fast {
 		let result = sphincs2.pk_set_keytype_fast();
@@ -2260,7 +2260,8 @@ fn lc_rust_sphincs_shake_one(sphincs_type: lcr_sphincs_type, fast: bool) {
 
 	let result = sphincs2.sign_deterministic(&msg);
 	assert_eq!(result, Ok(()));
-	assert_eq!(sphincs.get_sig().0, sphincs2.get_sig().0);
+	assert_eq!(sphincs.get_sig().expect("get_sig"),
+		   sphincs2.get_sig().expect("get_sig"));
 	//println!("sig {:x?}",  sphincs2.sig().to_vec().chunks(10).next());
 
 	let result = sphincs2.verify(&msg);
