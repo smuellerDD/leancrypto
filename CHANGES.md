@@ -21,6 +21,8 @@ Changes 1.8.0-prerelease
 
 * Add first drop of rustls-leancrypto provider - this code is not production-ready, but it works with OpenSSL via localhost as well as AWS-provider procedurally
 
+* Add lc_kyber_x25519_[enc|dec] API
+
 Changes 1.7.2
 * Fix RDSEED counter
 

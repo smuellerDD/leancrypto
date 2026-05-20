@@ -123,7 +123,9 @@ extern "C" {
 #define lc_kyber_x25519_keypair KYBER_F(x25519_keypair)
 #define lc_kyber_x25519_pk_from_sk KYBER_F(x25519_pk_from_sk)
 #define lc_kyber_x25519_enc_kdf KYBER_F(x25519_enc_kdf)
+#define lc_kyber_x25519_enc KYBER_F(x25519_enc)
 #define lc_kyber_x25519_dec_kdf KYBER_F(x25519_dec_kdf)
+#define lc_kyber_x25519_dec KYBER_F(x25519_dec)
 
 #define lc_kyber_x448_keypair KYBER_F(x448_keypair)
 #define lc_kyber_x448_pk_from_sk KYBER_F(x448_pk_from_sk)

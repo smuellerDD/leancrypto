@@ -1347,6 +1347,22 @@ int lc_kyber_x25519_enc_kdf(struct lc_kyber_x25519_ct *ct, uint8_t *ss,
 
 /**
  * @ingroup HybridKyber
+ * @brief Key encapsulation
+ *
+ * Generates cipher text and shared secret for given public key.
+ *
+ * @param [out] ct pointer to output cipher text to used for decapsulation
+ * @param [out] ss pointer to output shared secret that will be also produced
+ *		   during decapsulation
+ * @param [in] pk pointer to input public key
+ *
+ * Returns 0 (success) or < 0 on error
+ */
+int lc_kyber_x25519_enc(struct lc_kyber_x25519_ct *ct,
+			struct lc_kyber_x25519_ss *ss,
+			const struct lc_kyber_x25519_pk *pk);
+/**
+ * @ingroup HybridKyber
  * @brief Key decapsulation with KDF applied to shared secret
  *
  * Generates cipher text and shared secret for given private key. The shared
@@ -1369,6 +1385,25 @@ int lc_kyber_x25519_enc_kdf(struct lc_kyber_x25519_ct *ct, uint8_t *ss,
 int lc_kyber_x25519_dec_kdf(uint8_t *ss, size_t ss_len,
 			    const struct lc_kyber_x25519_ct *ct,
 			    const struct lc_kyber_x25519_sk *sk);
+
+/**
+ * @ingroup HybridKyber
+ * @brief Key decapsulation
+ *
+ * Generates cipher text and shared secret for given private key.
+ *
+ * @param [out] ss pointer to output shared secret that is the same as produced
+ *		   during encapsulation
+ * @param [in] ct pointer to input cipher text generated during encapsulation
+ * @param [in] sk pointer to input private key
+ *
+ * @return 0
+ *
+ * On failure, ss will contain a pseudo-random value.
+ */
+int lc_kyber_x25519_dec(struct lc_kyber_x25519_ss *ss,
+			const struct lc_kyber_x25519_ct *ct,
+			const struct lc_kyber_x25519_sk *sk);
 
 /****************************** Kyber X25510 KEX ******************************/
 
