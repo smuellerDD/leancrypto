@@ -73,6 +73,13 @@ out:
 	return ret;
 }
 
+LC_INTERFACE_FUNCTION(int, lc_kyber_x448_enc, struct lc_kyber_x448_ct *ct,
+		      struct lc_kyber_x448_ss *ss,
+		      const struct lc_kyber_x448_pk *pk)
+{
+	return lc_kyber_x448_enc_internal(ct, ss, pk, lc_seeded_rng);
+}
+
 int lc_kyber_x448_enc_kdf_internal(struct lc_kyber_x448_ct *ct, uint8_t *ss,
 				   size_t ss_len,
 				   const struct lc_kyber_x448_pk *pk,
@@ -109,6 +116,13 @@ int lc_kyber_x448_dec_internal(struct lc_kyber_x448_ss *ss,
 
 out:
 	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_kyber_x448_dec, struct lc_kyber_x448_ss *ss,
+		      const struct lc_kyber_x448_ct *ct,
+		      const struct lc_kyber_x448_sk *sk)
+{
+	return lc_kyber_x448_dec_internal(ss, ct, sk);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_kyber_x448_dec_kdf, uint8_t *ss, size_t ss_len,

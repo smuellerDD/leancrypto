@@ -1419,6 +1419,10 @@ int @kyber_name@_x448_pk_from_sk(struct @kyber_name@_x448_pk *pk,
 int @kyber_name@_x448_enc_kdf(struct @kyber_name@_x448_ct *ct, uint8_t *ss,
 			    size_t ss_len, const struct @kyber_name@_x448_pk *pk);
 
+int @kyber_name@_x448_enc(struct @kyber_name@_x448_ct *ct,
+			    struct @kyber_name@_x448_ss *ss,
+			    const struct @kyber_name@_x448_pk *pk);
+
 /**
  * @brief lc_kyber_x448_dec_kdf - Key decapsulation with KDF applied to shared
  *			       	    secret
@@ -1441,6 +1445,10 @@ int @kyber_name@_x448_enc_kdf(struct @kyber_name@_x448_ct *ct, uint8_t *ss,
  * On failure, ss will contain a pseudo-random value.
  */
 int @kyber_name@_x448_dec_kdf(uint8_t *ss, size_t ss_len,
+			    const struct @kyber_name@_x448_ct *ct,
+			    const struct @kyber_name@_x448_sk *sk);
+
+int @kyber_name@_x448_dec(struct @kyber_name@_x448_ss *ss,
 			    const struct @kyber_name@_x448_ct *ct,
 			    const struct @kyber_name@_x448_sk *sk);
 

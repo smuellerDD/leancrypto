@@ -130,7 +130,9 @@ extern "C" {
 #define lc_kyber_x448_keypair KYBER_F(x448_keypair)
 #define lc_kyber_x448_pk_from_sk KYBER_F(x448_pk_from_sk)
 #define lc_kyber_x448_enc_kdf KYBER_F(x448_enc_kdf)
+#define lc_kyber_x448_enc KYBER_F(x448_enc)
 #define lc_kyber_x448_dec_kdf KYBER_F(x448_dec_kdf)
+#define lc_kyber_x448_dec KYBER_F(x448_dec)
 
 #define lc_kyber_keypair KYBER_F(keypair)
 #define lc_kyber_pk_from_sk KYBER_F(pk_from_sk)
