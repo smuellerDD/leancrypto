@@ -1,8 +1,29 @@
-//! This module defines self-tests. Running tests in this module (i.e., calling [`self_tests()`](self::self_tests()))
-//! at runtime can help with [FIPS 140-3] compliance.
-//!
-//! [FIPS 140-3]: (https://csrc.nist.gov/csrc/media/Projects/cryptographic-module-validation-program/documents/fips%20140-3/FIPS%20140-3%20IG.pdf)
+/*
+ * Copyright (C) 2026, Stephan Mueller <smueller@chronox.de>
+ *
+ * License: see LICENSE file in root directory
+ *
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, ALL OF
+ * WHICH ARE HEREBY DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+ * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ */
 
+/*
+ * Tests are derived from https://github.com/fortanix/rustls-mbedtls-provider/blob/master/rustls-mbedcrypto-provider/src/self_tests.rs
+ */
+
+//! This module defines self-tests. Running tests in this module (i.e., calling
+//! [`self_tests()`](self::self_tests()))
+//! at runtime can help with [FIPS 140-3] compliance.
 use rustls::crypto::{
 	tls13::{expand, Hkdf, HkdfUsingHmac},
 };

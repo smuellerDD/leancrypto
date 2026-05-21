@@ -1,4 +1,4 @@
-//! Key exchange groups using OpenSSL
+//! Key exchange groups using leancrypto
 use rustls::crypto::SupportedKxGroup;
 
 //#[cfg(not(feature = "fips"))]
