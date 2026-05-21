@@ -150,7 +150,8 @@ impl quic::HeaderProtectionKey for HeaderProtectionKey {
 		// Implement https://datatracker.ietf.org/doc/html/rfc9001#section-5.4.1
 		let mask = self.mask(sample)?;
 
-		let (first_mask, packet_number_mask) = mask.split_first().expect("mask is 5 bytes long");
+		let (first_mask, packet_number_mask) =
+			mask.split_first().expect("mask is 5 bytes long");
 		if packet_number_mask.len() < packet_number.len() {
 			return Err(Error::General("packet number exceeds 4 bytes".into()));
 		}
@@ -211,16 +212,22 @@ impl quic::HeaderProtectionKey for HeaderProtectionKey {
 impl HeaderProtectionAlgorithm {
 	fn leancrypto_cipher(self) -> lcr_sym_type {
 		match self {
-			HeaderProtectionAlgorithm::Aes128 => lcr_sym_type::lcr_aes_cbc,
-			HeaderProtectionAlgorithm::Aes256 => lcr_sym_type::lcr_aes_cbc,
+			HeaderProtectionAlgorithm::Aes128 =>
+				lcr_sym_type::lcr_aes_cbc,
+			HeaderProtectionAlgorithm::Aes256 =>
+				lcr_sym_type::lcr_aes_cbc,
 			//#[cfg(all(chacha, not(feature = "fips")))]
-			HeaderProtectionAlgorithm::ChaCha20 => lcr_sym_type::lcr_chacha20,
+			HeaderProtectionAlgorithm::ChaCha20 =>
+				lcr_sym_type::lcr_chacha20,
 		}
 	}
 }
 
 impl HeaderProtectionKey {
-	fn mask(&self, sample: &[u8]) -> Result<[u8; 5], Error> {
+	fn mask(
+		&self,
+		sample: &[u8]
+	) -> Result<[u8; 5], Error> {
 		let mut mask = [0; 5];
 		let sym_type: lcr_sym_type = self.algo.leancrypto_cipher();
 		let mut ct: [u8; 16] = [0; 16];
@@ -237,7 +244,8 @@ impl HeaderProtectionKey {
 				sym.encrypt(&[0; 5], &mut ct[..5])
 					.map_err(|e| Error::General(format!("leancrypto error: {e}")))?;
 			}
-			HeaderProtectionAlgorithm::Aes128 | HeaderProtectionAlgorithm::Aes256 => {
+			HeaderProtectionAlgorithm::Aes128 |
+			HeaderProtectionAlgorithm::Aes256 => {
 				// https://datatracker.ietf.org/doc/html/rfc9001#section-5.4.3
 				// Set NULL-buffer as IV -> as we have one block this yields ECB
 				sym.setiv(&ct)
