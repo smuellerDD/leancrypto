@@ -2,6 +2,8 @@
 
 ## [0.3.0] - 2026-04-14
 
+This version requires leancrypto >= 1.8.0.
+
 ### Added
 
 * X25519 interface - this is only intended to support rustls
@@ -17,6 +19,8 @@
 ### Changed
 
 * API breakage: rename all getter functions to get_* (e.g. sk() -> get_sk())
+
+* API breakage: kyber_x25519 and kyber_x448 encapsulate and decapsulate changed - they now fill the raw shared secret buffer that must be obtained with a separate call
 
 ## [0.2.2] - 2025-10-18
 

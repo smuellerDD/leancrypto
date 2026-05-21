@@ -42,9 +42,15 @@ impl KxGroup {
 	fn start_internal(&self) -> Result<KeyExchange, Error> {
 		let mut kyber = lcr_kyber::new();
 
+		/*
+		 * Generate the ephemeral ML-KEM and X25519 key pairs.
+		 */
 		kyber.keypair(self.algorithm_name).
 			map_err(|e| Error::General(format!("lc:MLKEM-X25519: key pair generation error: {e}")))?;
 
+		/*
+		 * Extract the public key
+		 */
 		let pk_slice = match kyber.get_pk() {
 			Ok(ret) => ret,
 			Err(e) => {
@@ -79,18 +85,30 @@ impl SupportedKxGroup for KxGroup {
 		None
 	}
 
+	/*
+	 * Start the key establishment operation - initiator side
+	 */
 	fn start_and_complete(
 		&self,
 		peer_pub_key: &[u8],
 	) -> Result<rustls::crypto::CompletedKeyExchange, Error> {
 		let mut kyber = lcr_kyber::new();
 
+		/*
+		 * Load the local public key data
+		 */
 		kyber.pk_load(peer_pub_key).
 			map_err(|e| Error::General(format!("lc:MLKEM-X25519: loading local pub key error: {e}")))?;
 
+		/*
+		 * Generate the actual key establishment data sent to the peer.
+		 */
 		kyber.encapsulate().
 			map_err(|e| Error::General(format!("lc:MLKEM-X25519: encapsulation error: {e}")))?;
 
+		/*
+		 * Get the generated shared secret data.
+		 */
 		let ct_slice = match kyber.get_ct() {
 			Ok(ret) => ret,
 			Err(e) => {
@@ -119,18 +137,32 @@ impl SupportedKxGroup for KxGroup {
 }
 
 impl ActiveKeyExchange for KeyExchange {
+
+	/*
+	 * Complete the key establishment operation - receiver side
+	 */
 	fn complete(
 		self: Box<Self>,
 		peer_pub_key: &[u8]
 	) -> Result<SharedSecret, Error> {
 		let mut kyber = self.priv_key;
 
+		/*
+		 * Load the received remote key agreement data into context.
+		 */
 		kyber.ct_load(peer_pub_key).
 			map_err(|e| Error::General(format!("lc:MLKEM-X25519: loading ciphertext error: {e}")))?;
 
+		/*
+		 * Perform the decapsulation of the received data to obtain the
+		 * shared secret.
+		 */
 		kyber.decapsulate().
 			map_err(|e| Error::General(format!("lc:MLKEM-X25519: decapsulation error: {e}")))?;
 
+		/*
+		 * Extract the just calculated shared secret.
+		 */
 		let ss_slice = match kyber.get_ss() {
 			Ok(ret) => ret,
 			Err(e) => {

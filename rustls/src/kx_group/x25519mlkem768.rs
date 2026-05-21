@@ -30,9 +30,15 @@ impl KxGroupX25519 {
 	fn start_internal(&self) -> Result<KeyExchangeX25519, Error> {
 		let mut kyber_x25519 = lcr_kyber_x25519::new();
 
+		/*
+		 * Generate the ephemeral ML-KEM and X25519 key pairs.
+		 */
 		kyber_x25519.keypair(self.algorithm_name).
 			map_err(|e| Error::General(format!("lc:MLKEM-X25519: key pair generation error: {e}")))?;
 
+		/*
+		 * Extract the public keys and concatenate them.
+		 */
 		let (pk_slice, pk_x25519_slice) = match kyber_x25519.get_pk() {
 			Ok((ret1, ret2)) => (ret1, ret2),
 			Err(e) => {
@@ -68,19 +74,35 @@ impl SupportedKxGroup for KxGroupX25519 {
 		None
 	}
 
+	/*
+	 * Start the key establishment operation - initiator side
+	 */
 	fn start_and_complete(
 		&self,
 		peer_pub_key: &[u8],
 	) -> Result<rustls::crypto::CompletedKeyExchange, Error> {
 		let mut kyber_x25519 = lcr_kyber_x25519::new();
 
+		/*
+		 * Load the local public key data which is the concatenation of
+		 * the ML-KEM public key and the X25519 public key.
+		 */
 		kyber_x25519.pk_load(&peer_pub_key[..peer_pub_key.len() - 32],
 				     &peer_pub_key[peer_pub_key.len() - 32..]).
 			map_err(|e| Error::General(format!("lc:MLKEM-X25519: loading local pub key error: {e}")))?;
 
+		/*
+		 * Perform the actual encapsulation operation for both,
+		 * the ML-KEM and X25519.
+		 */
 		kyber_x25519.encapsulate().
 			map_err(|e| Error::General(format!("lc:MLKEM-X25519: encapsulation error: {e}")))?;
 
+		/*
+		 * Generate the actual key establishment data sent to the peer
+		 * is a concatenation of the ML-KEM ciphertext and the X25519
+		 * ephemeral public key.
+		 */
 		let (ct_slice, ct_x25519_slice) = match kyber_x25519.get_ct() {
 			Ok((ret1, ret2)) => (ret1, ret2),
 			Err(e) => {
@@ -91,6 +113,10 @@ impl SupportedKxGroup for KxGroupX25519 {
 		ct.extend_from_slice(ct_slice);
 		ct.extend_from_slice(ct_x25519_slice);
 
+		/*
+		 * Get the generated shared secret data as a concatenation of
+		 * the ML-KEM shared secret and the X25519 shared secret.
+		 */
 		let (ss_slice, ss_x25519_slice) = match kyber_x25519.get_ss() {
 			Ok((ret1, ret2)) => (ret1, ret2),
 			Err(e) => {
@@ -114,19 +140,36 @@ impl SupportedKxGroup for KxGroupX25519 {
 }
 
 impl ActiveKeyExchange for KeyExchangeX25519 {
+
+	/*
+	 * Complete the key establishment operation - receiver side
+	 */
 	fn complete(
 		self: Box<Self>,
 		peer_pub_key: &[u8]
 	) -> Result<SharedSecret, Error> {
 		let mut kyber_x25519 = self.priv_key;
 
+		/*
+		 * Receive the remote key agreement data which is a
+		 * concatenation of the ML-KEM ciphertext and the X25519
+		 * ephemeral public key and load it into our context.
+		 */
 		kyber_x25519.ct_load(&peer_pub_key[..peer_pub_key.len() - 32],
 				     &peer_pub_key[peer_pub_key.len() - 32..]).
 			map_err(|e| Error::General(format!("lc:MLKEM-X25519: loading ciphertext error: {e}")))?;
 
+		/*
+		 * Perform the decapsulation of the received data to obtain the
+		 * shared secret.
+		 */
 		kyber_x25519.decapsulate().
 			map_err(|e| Error::General(format!("lc:MLKEM-X25519: decapsulation error: {e}")))?;
 
+		/*
+		 * Extract the just calculated shared secrets and concatenate
+		 * both: first the ML-KEM followed by the X25519 shared secret.
+		 */
 		let (ss_slice, ss_x25519_slice) = match kyber_x25519.get_ss() {
 			Ok((ret1, ret2)) => (ret1, ret2),
 			Err(e) => {
