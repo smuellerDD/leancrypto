@@ -411,7 +411,6 @@ impl lcr_kyber_x25519 {
 				&mut self.ss)
 		};
 		if result < 0 {
-println!("ret {}", result);
 			return Err(KemError::ProcessingError);
 		}
 
@@ -430,25 +429,31 @@ println!("ret {}", result);
 /// regardless of when it goes out of scope
 impl Drop for lcr_kyber_x25519 {
 	fn drop(&mut self) {
-		let sk: leancrypto::lc_kyber_x25519_sk = unsafe {
-			std::mem::zeroed()
-		};
+		if self.sk_set {
+			let sk: leancrypto::lc_kyber_x25519_sk = unsafe {
+				std::mem::zeroed()
+			};
 
-		unsafe { std::ptr::write_volatile(&mut self.sk, sk) };
-		atomic::compiler_fence(atomic::Ordering::SeqCst);
+			unsafe { std::ptr::write_volatile(&mut self.sk, sk) };
+			atomic::compiler_fence(atomic::Ordering::SeqCst);
+		}
 
-		let ct: leancrypto::lc_kyber_x25519_ct = unsafe {
-			std::mem::zeroed()
-		};
+		if self.ct_set {
+			let ct: leancrypto::lc_kyber_x25519_ct = unsafe {
+				std::mem::zeroed()
+			};
 
-		unsafe { std::ptr::write_volatile(&mut self.ct, ct) };
-		atomic::compiler_fence(atomic::Ordering::SeqCst);
+			unsafe { std::ptr::write_volatile(&mut self.ct, ct) };
+			atomic::compiler_fence(atomic::Ordering::SeqCst);
+		}
 
-		let ss: leancrypto::lc_kyber_x25519_ss = unsafe {
-			std::mem::zeroed()
-		};
+		if self.ss_set {
+			let ss: leancrypto::lc_kyber_x25519_ss = unsafe {
+				std::mem::zeroed()
+			};
 
-		unsafe { std::ptr::write_volatile(&mut self.ss, ss) };
-		atomic::compiler_fence(atomic::Ordering::SeqCst);
+			unsafe { std::ptr::write_volatile(&mut self.ss, ss) };
+			atomic::compiler_fence(atomic::Ordering::SeqCst);
+		}
 	}
 }

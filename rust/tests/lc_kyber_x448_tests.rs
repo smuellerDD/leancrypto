@@ -22,21 +22,19 @@ use leancrypto_sys::lcr_kyber_x448::lcr_kyber_x448_type;
 
 fn lc_rust_kyber_x448_one(kyber_x448_type: lcr_kyber_x448_type) {
 	let mut kyber_x448 = lcr_kyber_x448::new();
-	let mut ss1: [u8; 32] = [0u8; 32];
-	let mut ss2: [u8; 32] = [0u8; 32];
 
 	let result = kyber_x448.keypair(kyber_x448_type);
 	assert_eq!(result, Ok(()));
 
-	let result = kyber_x448.encapsulate(&mut ss1);
+	let result = kyber_x448.encapsulate();
 	assert_eq!(result, Ok(()));
 
 	let (ct_kyber_slice, ct_x448_slice) =
 		kyber_x448.get_ct().expect("get_ct");
 	let ct_kyber = ct_kyber_slice.to_vec();
 	let ct_x448 = ct_x448_slice.to_vec();
-	let (sk_kyber_slice, sk_x448_slice) = kyber_x448.get_sk().expect("get_sk");
-	assert_eq!(result, Ok(()));
+	let (sk_kyber_slice, sk_x448_slice) =
+		kyber_x448.get_sk().expect("get_sk");
 	let sk_kyber = sk_kyber_slice.to_vec();
 	let sk_x448 = sk_x448_slice.to_vec();
 
@@ -55,9 +53,12 @@ fn lc_rust_kyber_x448_one(kyber_x448_type: lcr_kyber_x448_type) {
 	assert_eq!(kyber_x448.get_ct().expect("get_ct").1,
 		   kyber_x4482.get_ct().expect("get_ct").1);
 
-	let result = kyber_x4482.decapsulate(&mut ss2);
+	let result = kyber_x4482.decapsulate();
 	assert_eq!(result, Ok(()));
-	assert_eq!(ss1, ss2);
+	assert_eq!(kyber_x448.get_ss().expect("get_ss").0,
+		   kyber_x4482.get_ss().expect("get_ss").0);
+	assert_eq!(kyber_x448.get_ss().expect("get_ss").1,
+		   kyber_x4482.get_ss().expect("get_ss").1);
 	//println!("ct {:x?}",  kyber_x4482.ct().to_vec().chunks(10).next());
 }
 

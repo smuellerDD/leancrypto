@@ -17,9 +17,9 @@
 //! In descending order of preference:
 //!
 //! * X25519MLKEM768
-//! * X25519
-//! * MLKEM768
 //! * MLKEM1024
+//! * MLKEM768
+//! * X25519 (only provided to ease transition to PQC)
 //!
 //! ## Usage
 //!

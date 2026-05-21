@@ -3125,6 +3125,49 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_enc_kdf, struct lc_kyber_x448_ct *ct,
 	}
 }
 
+LC_INTERFACE_FUNCTION(int, lc_kyber_x448_enc,
+		      struct lc_kyber_x448_ct *ct,
+		      struct lc_kyber_x448_ss *ss,
+		      const struct lc_kyber_x448_pk *pk)
+{
+	if (!ct || !pk)
+		return -EINVAL;
+
+	switch (pk->kyber_type) {
+	case LC_KYBER_1024:
+#ifdef LC_KYBER_1024_ENABLED
+		ct->kyber_type = LC_KYBER_1024;
+		ss->kyber_type = LC_KYBER_1024;
+		return lc_kyber_1024_x448_enc(&ct->key.ct_1024,
+					      &ss->key.ss_1024,
+					      &pk->key.pk_1024);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_KYBER_768:
+#ifdef LC_KYBER_768_ENABLED
+		ct->kyber_type = LC_KYBER_768;
+		ss->kyber_type = LC_KYBER_768;
+		return lc_kyber_768_x448_enc(&ct->key.ct_768, &ss->key.ss_768,
+					     &pk->key.pk_768);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_KYBER_512:
+#ifdef LC_KYBER_512_ENABLED
+		ct->kyber_type = LC_KYBER_512;
+		ss->kyber_type = LC_KYBER_512;
+		return lc_kyber_512_x448_enc(&ct->key.ct_512, &ss->key.ss_512,
+					     &pk->key.pk_512);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_KYBER_UNKNOWN:
+	default:
+		return -EOPNOTSUPP;
+	}
+}
+
 LC_INTERFACE_FUNCTION(int, lc_kyber_x448_dec_kdf, uint8_t *ss, size_t ss_len,
 		      const struct lc_kyber_x448_ct *ct,
 		      const struct lc_kyber_x448_sk *sk)
@@ -3151,6 +3194,45 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_dec_kdf, uint8_t *ss, size_t ss_len,
 #ifdef LC_KYBER_512_ENABLED
 		return lc_kyber_512_x448_dec_kdf(ss, ss_len, &ct->key.ct_512,
 						 &sk->key.sk_512);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_KYBER_UNKNOWN:
+	default:
+		return -EOPNOTSUPP;
+	}
+}
+
+LC_INTERFACE_FUNCTION(int, lc_kyber_x448_dec, struct lc_kyber_x448_ss *ss,
+		      const struct lc_kyber_x448_ct *ct,
+		      const struct lc_kyber_x448_sk *sk)
+{
+	if (!ct || !sk || ct->kyber_type != sk->kyber_type)
+		return -EINVAL;
+
+	switch (sk->kyber_type) {
+	case LC_KYBER_1024:
+#ifdef LC_KYBER_1024_ENABLED
+		ss->kyber_type = LC_KYBER_1024;
+		return lc_kyber_1024_x448_dec(&ss->key.ss_1024,
+					      &ct->key.ct_1024,
+					      &sk->key.sk_1024);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_KYBER_768:
+#ifdef LC_KYBER_768_ENABLED
+		ss->kyber_type = LC_KYBER_768;
+		return lc_kyber_768_x448_dec(&ss->key.ss_768, &ct->key.ct_768,
+					     &sk->key.sk_768);
+#else
+		return -EOPNOTSUPP;
+#endif
+	case LC_KYBER_512:
+#ifdef LC_KYBER_512_ENABLED
+		ss->kyber_type = LC_KYBER_512;
+		return lc_kyber_512_x448_dec(&ss->key.ss_512, &ct->key.ct_512,
+					     &sk->key.sk_512);
 #else
 		return -EOPNOTSUPP;
 #endif

@@ -42,9 +42,13 @@ pub struct lcr_kyber_x448 {
 	/// Kyber cipher text
 	ct: leancrypto::lc_kyber_x448_ct,
 
+	/// Kyber shared secret
+	ss: leancrypto::lc_kyber_x448_ss,
+
 	pk_set: bool,
 	sk_set: bool,
 	ct_set: bool,
+	ss_set: bool,
 }
 
 #[allow(dead_code)]
@@ -55,9 +59,11 @@ impl lcr_kyber_x448 {
 			pk: unsafe { std::mem::zeroed() },
 			sk: unsafe { std::mem::zeroed() },
 			ct: unsafe { std::mem::zeroed() },
+			ss: unsafe { std::mem::zeroed() },
 			pk_set: false,
 			sk_set: false,
 			ct_set: false,
+			ss_set: false,
 		}
 	}
 
@@ -215,28 +221,25 @@ impl lcr_kyber_x448 {
 	/// The ciphertext and the secret key must be already loaded. Upon
 	/// success, the shared secret is present and can be retrieved.
 	///
-	/// # Arguments
-	///
-	/// `ss` Buffer to be filled with shared secret
-	///
 	/// # Returns
 	///
 	/// * Returns Ok() on success or KemError on error
 	pub fn decapsulate(
-		&mut self,
-		ss: &mut [u8]
+		&mut self
 	) -> Result<(), KemError> {
 		if self.sk_set == false || self.ct_set == false {
 			return Err(KemError::UninitializedContext);
 		}
 
 		let result = unsafe {
-			leancrypto::lc_kyber_x448_dec_kdf(
-				ss.as_mut_ptr(), ss.len(), &self.ct, &self.sk)
+			leancrypto::lc_kyber_x448_dec(
+				&mut self.ss, &self.ct, &self.sk)
 		};
 		if result < 0 {
 			return Err(KemError::ProcessingError);
 		}
+
+		self.ss_set = true;
 
 		Ok(())
 	}
@@ -246,31 +249,26 @@ impl lcr_kyber_x448 {
 	/// The publick key must be already loaded. Upon success, the shared
 	/// secret and the ciphertext are present and can be retrieved.
 	///
-	/// # Arguments
-	///
-	/// `ss` Buffer to be filled with shared secret
-	///
 	/// # Returns
 	///
 	/// * Returns Ok() on success or KemError on error
 	pub fn encapsulate(
-		&mut self,
-		ss: &mut [u8]
+		&mut self
 	) -> Result<(), KemError> {
 		if self.pk_set == false {
 			return Err(KemError::UninitializedContext);
 		}
 
 		let result = unsafe {
-			leancrypto::lc_kyber_x448_enc_kdf(
-				&mut self.ct, ss.as_mut_ptr(), ss.len(),
-				&self.pk)
+			leancrypto::lc_kyber_x448_enc(
+				&mut self.ct, &mut self.ss, &self.pk)
 		};
 		if result < 0 {
 			return Err(KemError::ProcessingError);
 		}
 
 		self.ct_set = true;
+		self.ss_set = true;
 
 		Ok(())
 	}
@@ -385,24 +383,75 @@ impl lcr_kyber_x448 {
 
 		Ok((&slice_kyber, &slice_x448))
 	}
+
+	/// Method for safe immutable access to hybrid ML-KEM shared secret
+	/// buffer
+	///
+	/// # Returns
+	///
+	/// * Returns Ok() with the ciphertext on success or KemError on error
+	pub fn get_ss(
+		&mut self
+	) -> Result<(&[u8], &[u8]), KemError> {
+		if self.ss_set == false {
+			return Err(KemError::UninitializedContext);
+		}
+
+		let mut kyber_ptr: *mut u8 = ptr::null_mut();
+		let mut kyber_len: usize = 0;
+		let mut x448_ptr: *mut u8 = ptr::null_mut();
+		let mut x448_len: usize = 0;
+
+		let result = unsafe {
+			leancrypto::lc_kyber_x448_ss_ptr(
+				&mut kyber_ptr, &mut kyber_len,
+				&mut x448_ptr, &mut x448_len,
+				&mut self.ss)
+		};
+		if result < 0 {
+			return Err(KemError::ProcessingError);
+		}
+
+		let slice_kyber = unsafe {
+			std::slice::from_raw_parts(kyber_ptr, kyber_len)
+		};
+		let slice_x448 = unsafe {
+			std::slice::from_raw_parts(x448_ptr, x448_len)
+		};
+
+		Ok((&slice_kyber, &slice_x448))
+	}
 }
 
 /// This ensures the sensitive buffers are always zeroized
 /// regardless of when it goes out of scope
 impl Drop for lcr_kyber_x448 {
 	fn drop(&mut self) {
-		let sk: leancrypto::lc_kyber_x448_sk = unsafe {
-			std::mem::zeroed()
-		};
+		if self.sk_set {
+			let sk: leancrypto::lc_kyber_x448_sk = unsafe {
+				std::mem::zeroed()
+			};
 
-		unsafe { std::ptr::write_volatile(&mut self.sk, sk) };
-		atomic::compiler_fence(atomic::Ordering::SeqCst);
+			unsafe { std::ptr::write_volatile(&mut self.sk, sk) };
+			atomic::compiler_fence(atomic::Ordering::SeqCst);
+		}
 
-		let ct: leancrypto::lc_kyber_x448_ct = unsafe {
-			std::mem::zeroed()
-		};
+		if self.ct_set {
+			let ct: leancrypto::lc_kyber_x448_ct = unsafe {
+				std::mem::zeroed()
+			};
 
-		unsafe { std::ptr::write_volatile(&mut self.ct, ct) };
-		atomic::compiler_fence(atomic::Ordering::SeqCst);
+			unsafe { std::ptr::write_volatile(&mut self.ct, ct) };
+			atomic::compiler_fence(atomic::Ordering::SeqCst);
+		}
+
+		if self.ss_set {
+			let ss: leancrypto::lc_kyber_x448_ss = unsafe {
+				std::mem::zeroed()
+			};
+
+			unsafe { std::ptr::write_volatile(&mut self.ss, ss) };
+			atomic::compiler_fence(atomic::Ordering::SeqCst);
+		}
 	}
 }
