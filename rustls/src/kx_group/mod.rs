@@ -7,7 +7,10 @@ mod x25519;
 pub use x25519::X25519;
 
 mod kem;
-pub use kem::{MLKEM768, MLKEM1024, X25519MLKEM768};
+pub use kem::{MLKEM768, MLKEM1024};
+
+mod hybrid_kem;
+pub use hybrid_kem::{X25519MLKEM768};
 
 /// Key exchanges enabled by default by this provider:
 /// * [X25519MLKEM768]
