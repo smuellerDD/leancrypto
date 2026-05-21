@@ -26,14 +26,6 @@ pub const MLKEM1024: &dyn SupportedKxGroup = &KxGroup {
 	algorithm_name: lcr_kyber_type::lcr_kyber_1024,
 };
 
-/// This is the [X25519MLKEM768] key exchange.
-///
-/// [X25519MLKEM768]: <https://datatracker.ietf.org/doc/draft-kwiatkowski-tls-ecdhe-mlkem/>
-pub const X25519MLKEM768: &dyn SupportedKxGroup = &KxGroupX25519 {
-	named_group: NamedGroup::X25519MLKEM768,
-	algorithm_name: lcr_kyber_x25519_type::lcr_kyber_768,
-};
-
 /// A key exchange group based on a key encapsulation mechanism.
 #[derive(Debug, Copy, Clone)]
 struct KxGroup {
@@ -159,6 +151,16 @@ impl ActiveKeyExchange for KeyExchange {
 		self.group.named_group
 	}
 }
+
+/******************************************************************************/
+
+/// This is the [X25519MLKEM768] key exchange.
+///
+/// [X25519MLKEM768]: <https://datatracker.ietf.org/doc/draft-kwiatkowski-tls-ecdhe-mlkem/>
+pub const X25519MLKEM768: &dyn SupportedKxGroup = &KxGroupX25519 {
+	named_group: NamedGroup::X25519MLKEM768,
+	algorithm_name: lcr_kyber_x25519_type::lcr_kyber_768,
+};
 
 /// A key exchange group based on a key encapsulation mechanism.
 #[derive(Debug, Copy, Clone)]
