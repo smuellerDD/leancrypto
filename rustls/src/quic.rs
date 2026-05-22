@@ -50,7 +50,7 @@ struct PacketKey {
 pub(crate) enum HeaderProtectionAlgorithm {
 	Aes128,
 	Aes256,
-	//#[cfg(not(feature = "fips"))]
+	#[cfg(not(feature = "fips"))]
 	ChaCha20,
 }
 
@@ -216,7 +216,7 @@ impl HeaderProtectionAlgorithm {
 				lcr_sym_type::lcr_aes_cbc,
 			HeaderProtectionAlgorithm::Aes256 =>
 				lcr_sym_type::lcr_aes_cbc,
-			//#[cfg(all(chacha, not(feature = "fips")))]
+			#[cfg(not(feature = "fips"))]
 			HeaderProtectionAlgorithm::ChaCha20 =>
 				lcr_sym_type::lcr_chacha20,
 		}
@@ -236,7 +236,7 @@ impl HeaderProtectionKey {
 		sym.setkey(self.key.as_ref())
 			.map_err(|e| Error::General(format!("leancrypto error: {e}")))?;
 		match self.algo {
-			//#[cfg(all(chacha, not(feature = "fips")))]
+			#[cfg(not(feature = "fips"))]
 			HeaderProtectionAlgorithm::ChaCha20 => {
 				// https://datatracker.ietf.org/doc/html/rfc9001#section-5.4.4
 				sym.setiv(&sample)
@@ -328,7 +328,7 @@ mod test {
 		assert_eq!(server_packet[..], expected_server_packet[..]);
 	}
 
-	//#[cfg(all(chacha, not(feature = "fips")))]
+	#[cfg(not(feature = "fips"))]
 	#[test]
 	fn test_short_packet_length() {
 		use rustls::crypto::cipher::AeadKey;

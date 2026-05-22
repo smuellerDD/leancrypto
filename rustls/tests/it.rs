@@ -83,18 +83,21 @@ fn test_with_provider(
 }
 
 #[rstest]
+#[cfg(all(not(feature = "fips"), feature="nonpqc"))]
 #[case::tls13_aes_128_gcm_sha256_x25519(
 	rustls_leancrypto::cipher_suite::TLS13_AES_128_GCM_SHA256,
 	rustls_leancrypto::kx_group::X25519,
 	server::Alg::ED25519,
 	CipherSuite::TLS13_AES_128_GCM_SHA256
 )]
+#[cfg(feature="nonpqc")]
 #[case::tls13_aes_128_gcm_sha256_mlkem1024(
 	rustls_leancrypto::cipher_suite::TLS13_AES_128_GCM_SHA256,
 	rustls_leancrypto::kx_group::MLKEM1024,
 	server::Alg::ED25519,
 	CipherSuite::TLS13_AES_128_GCM_SHA256
 )]
+#[cfg(feature="nonpqc")]
 #[case::tls13_aes_128_gcm_sha256(
 	rustls_leancrypto::cipher_suite::TLS13_AES_128_GCM_SHA256,
 	rustls_leancrypto::kx_group::MLKEM768,
@@ -102,6 +105,7 @@ fn test_with_provider(
 	CipherSuite::TLS13_AES_128_GCM_SHA256
 )]
 
+#[cfg(all(not(feature = "fips"), feature="nonpqc"))]
 #[case::tls13_aes_256_gcm_sha384_x25519_mlkem768(
 	rustls_leancrypto::cipher_suite::TLS13_AES_256_GCM_SHA384,
 	rustls_leancrypto::kx_group::X25519,
@@ -109,6 +113,7 @@ fn test_with_provider(
 	server::Alg::ED25519,
 	CipherSuite::TLS13_AES_256_GCM_SHA384
 )]
+#[cfg(feature="nonpqc")]
 #[case::tls13_aes_256_gcm_sha384_mlkem1024(
 	rustls_leancrypto::cipher_suite::TLS13_AES_256_GCM_SHA384,
 	rustls_leancrypto::kx_group::MLKEM1024,
@@ -116,6 +121,7 @@ fn test_with_provider(
 	server::Alg::ED25519,
 	CipherSuite::TLS13_AES_256_GCM_SHA384
 )]
+#[cfg(feature="nonpqc")]
 #[case::tls13_aes_256_gcm_sha384_mlkem768(
 	rustls_leancrypto::cipher_suite::TLS13_AES_256_GCM_SHA384,
 	rustls_leancrypto::kx_group::MLKEM768,
@@ -124,18 +130,21 @@ fn test_with_provider(
 	CipherSuite::TLS13_AES_256_GCM_SHA384
 )]
 
+#[cfg(all(not(feature = "fips"), feature="nonpqc"))]
 #[case::tls13_chacha20_poly1305_sha256_x25519(
 	rustls_leancrypto::cipher_suite::TLS13_CHACHA20_POLY1305_SHA256,
 	rustls_leancrypto::kx_group::X25519,
 	server::Alg::ED25519,
 	CipherSuite::TLS13_CHACHA20_POLY1305_SHA256
 )]
+#[cfg(feature="nonpqc")]
 #[case::tls13_chacha20_poly1305_sha256_mlkem1024(
 	rustls_leancrypto::cipher_suite::TLS13_CHACHA20_POLY1305_SHA256,
 	rustls_leancrypto::kx_group::MLKEM1024,
 	server::Alg::ED25519,
 	CipherSuite::TLS13_CHACHA20_POLY1305_SHA256
 )]
+#[cfg(feature="nonpqc")]
 #[case::tls13_chacha20_poly1305_sha256_mlkem768(
 	rustls_leancrypto::cipher_suite::TLS13_CHACHA20_POLY1305_SHA256,
 	rustls_leancrypto::kx_group::MLKEM768,
@@ -143,6 +152,7 @@ fn test_with_provider(
 	CipherSuite::TLS13_CHACHA20_POLY1305_SHA256
 )]
 
+#[cfg(feature="nonpqc")]
 #[case::tls13_chacha20_poly1305_sha256_x25519mlkem768(
 	rustls_leancrypto::cipher_suite::TLS13_CHACHA20_POLY1305_SHA256,
 	rustls_leancrypto::kx_group::X25519MLKEM768,
@@ -163,6 +173,7 @@ fn test_client_and_server(
 }
 
 #[test]
+#[cfg(all(not(feature = "fips"), feature="nonpqc"))]
 fn test_classical_completion() {
 	// Run against a server that only supports the classical component
 	let provider = custom_provider(
@@ -185,6 +196,7 @@ fn test_classical_completion() {
 
 /// Test that the default provider returns the highest priority cipher suite
 #[test]
+#[cfg(feature="nonpqc")]
 fn test_default_client() {
 	let (port, certificate) = start_server(server::Alg::ED25519, None);
 	let actual_suite = test_with_provider(default_provider(), port,
@@ -193,6 +205,7 @@ fn test_default_client() {
 }
 
 #[test]
+#[cfg(feature="nonpqc")]
 fn test_ed25119_sign_and_verify() {
 	let ours = rustls_leancrypto::default_provider();
 	let theirs = rustls::crypto::aws_lc_rs::default_provider();

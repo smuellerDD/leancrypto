@@ -97,6 +97,7 @@ struct TestPki {
 impl Alg {
 	fn to_rcgen_algorithm(self) -> &'static SignatureAlgorithm {
 		match self {
+			#[cfg(feature="nonpqc")]
 			Alg::ED25519 => &rcgen::PKCS_ED25519,
 			//Alg::ML_DSA_87 => &rcgen::PKCS_ML_DSA_87,
 		}

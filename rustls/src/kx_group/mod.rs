@@ -1,9 +1,9 @@
 //! Key exchange groups using leancrypto
 use rustls::crypto::SupportedKxGroup;
 
-//#[cfg(not(feature = "fips"))]
+#[cfg(all(not(feature = "fips"), feature="nonpqc"))]
 mod x25519;
-//#[cfg(not(feature = "fips"))]
+#[cfg(all(not(feature = "fips"), feature="nonpqc"))]
 pub use x25519::X25519;
 
 mod mlkem;
@@ -24,6 +24,6 @@ pub static DEFAULT_KX_GROUPS: &[&dyn SupportedKxGroup] = &[
 	X25519MLKEM768,
 	MLKEM1024,
 	MLKEM768,
-	//#[cfg(not(feature = "fips"))]
+	#[cfg(all(not(feature = "fips"), feature="nonpqc"))]
 	X25519,
 ];

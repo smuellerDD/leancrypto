@@ -17,6 +17,13 @@ leancrypto-sys = { version = "0.3.0", path = "../rust" }
 rustls = { version = "0.23.20", default-features = false }
 zeroize = "1.8.1"
 
+[features]
+default = ["nonpqc"]
+# Enable only FIPS-approved algorithms
+fips = []
+# Enable non-PQC algorithms (X25519 and ED25519)
+nonpqc = []
+
 [dev-dependencies]
 hex = "0.4.3"
 rcgen = { version = "0.13.2", workspace = "true" , default-features = false, features = [

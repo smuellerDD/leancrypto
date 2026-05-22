@@ -59,7 +59,7 @@ pub mod self_tests;
 
 pub mod cipher_suite {
 	//! Supported cipher suites.
-	//#[cfg(all(chacha, not(feature = "fips")))]
+	#[cfg(not(feature = "fips"))]
 	pub use super::tls13::TLS13_CHACHA20_POLY1305_SHA256;
 	pub use super::tls13::{TLS13_AES_128_GCM_SHA256, TLS13_AES_256_GCM_SHA384};
 }
@@ -154,7 +154,7 @@ pub fn custom_provider(
 pub static ALL_CIPHER_SUITES: &[SupportedCipherSuite] = &[
 	tls13::TLS13_AES_256_GCM_SHA384,
 	tls13::TLS13_AES_128_GCM_SHA256,
-	//#[cfg(all(chacha, not(feature = "fips")))]
+	#[cfg(not(feature = "fips"))]
 	tls13::TLS13_CHACHA20_POLY1305_SHA256,
 ];
 
@@ -200,6 +200,7 @@ pub mod fips {
 	#[cfg(fips_module)]
 	pub(crate) fn enabled() -> bool {
 		//leancrypto::fips::enabled()
+		//TODO
 		false
 	}
 

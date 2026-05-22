@@ -36,11 +36,11 @@ use rustls::{
 };
 
 /// The TLS1.3 ciphersuite `TLS_CHACHA20_POLY1305_SHA256`
-//#[cfg(all(chacha, not(feature = "fips")))]
+#[cfg(not(feature = "fips"))]
 pub static TLS13_CHACHA20_POLY1305_SHA256: SupportedCipherSuite =
 	SupportedCipherSuite::Tls13(TLS13_CHACHA20_POLY1305_SHA256_INTERNAL);
 
-//#[cfg(not(feature = "fips"))]
+#[cfg(not(feature = "fips"))]
 pub static TLS13_CHACHA20_POLY1305_SHA256_INTERNAL: &Tls13CipherSuite =
 	&Tls13CipherSuite {
 		common: CipherSuiteCommon {

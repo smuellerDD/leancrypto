@@ -42,6 +42,7 @@ pub static SUPPORTED_SIG_ALGS: WebPkiSupportedAlgorithms = WebPkiSupportedAlgori
 		(SignatureScheme::ML_DSA_87, &[ML_DSA_87]),
 		(SignatureScheme::ML_DSA_65, &[ML_DSA_65]),
 		(SignatureScheme::ML_DSA_44, &[ML_DSA_44]),
+		#[cfg(feature="nonpqc")]
 		(SignatureScheme::ED25519, &[ED25519]),
 	],
 };
@@ -68,6 +69,7 @@ pub(crate) static ML_DSA_44: &dyn SignatureVerificationAlgorithm = &LeancryptoAl
 };
 
 /// ED25519
+#[cfg(feature="nonpqc")]
 pub(crate) static ED25519: &dyn SignatureVerificationAlgorithm = &LeancryptoAlgorithm {
 	display_name: "ED25519",
 	public_key_alg_id: alg_id::ED25519,
@@ -117,6 +119,7 @@ impl SignatureVerificationAlgorithm for LeancryptoAlgorithm {
 				dilithium.verify(&message)
 					.map_err(|_| InvalidSignature)?;
 			},
+			#[cfg(feature="nonpqc")]
 			alg_id::ED25519 => {
 				let mut ed25519 = lcr_ed25519::new();
 				ed25519.enable().map_err(|_| InvalidSignature)?;
@@ -163,6 +166,7 @@ mod tests {
 
 	#[test]
 	fn test_leancrypto_algorithm_debug() {
+		#[cfg(feature="nonpqc")]
 		assert_eq!(
 			format!("{:?}", ED25519),
 			"rustls_leancrypto Signature Verification Algorithm: ED25519"

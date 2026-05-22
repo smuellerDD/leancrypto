@@ -88,6 +88,7 @@ impl SigningKey for PKey {
 		// 		key: Arc::clone(&self.0),
 		// 		scheme: SignatureScheme::ML_DSA_44,
 		// 	}))
+		#[cfg(feature="nonpqc")]
 		/*} else*/ if offered.contains(&SignatureScheme::ED25519) {
 			Some(Box::new(Signer {
 				key: Arc::clone(&self.0),
@@ -108,6 +109,7 @@ impl SigningKey for PKey {
 		// lcr_x509_key_type::lcr_dilithium_44 => SignatureAlgorithm::ML_DSA_44,
 		// lcr_x509_key_type::lcr_dilithium_65 => SignatureAlgorithm::ML_DSA_65,
 		// lcr_x509_key_type::lcr_dilithium_87 => SignatureAlgorithm::ML_DSA_87,
+		#[cfg(feature="nonpqc")]
 		lcr_x509_key_type::lcr_ed25519 => SignatureAlgorithm::ED25519,
 		_ => SignatureAlgorithm::Unknown(val),
 		}

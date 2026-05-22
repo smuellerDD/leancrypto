@@ -26,7 +26,7 @@ use rustls::crypto::cipher::NONCE_LEN;
 pub(crate) enum Algorithm {
 	Aes128Gcm,
 	Aes256Gcm,
-	//#[cfg(all(chacha, not(feature = "fips")))]
+	#[cfg(not(feature = "fips"))]
 	ChaCha20Poly1305,
 }
 
@@ -38,7 +38,7 @@ impl Algorithm {
 		match self {
 			Self::Aes128Gcm => lcr_aead_type::lcr_aes_gcm,
 			Self::Aes256Gcm => lcr_aead_type::lcr_aes_gcm,
-			//#[cfg(all(chacha, not(feature = "fips")))]
+			#[cfg(not(feature = "fips"))]
 			Self::ChaCha20Poly1305 => lcr_aead_type::lcr_chacha20_poly1305,
 		}
 	}
@@ -47,7 +47,7 @@ impl Algorithm {
 		match self {
 			Self::Aes128Gcm => 16,
 			Self::Aes256Gcm => 32,
-			//#[cfg(all(chacha, not(feature = "fips")))]
+			#[cfg(not(feature = "fips"))]
 			Self::ChaCha20Poly1305 => 32,
 		}
 	}
@@ -109,7 +109,7 @@ mod test {
 			super::Algorithm::Aes128Gcm | super::Algorithm::Aes256Gcm => {
 				wycheproof::aead::TestName::AesGcm
 			}
-			//#[cfg(all(chacha, not(feature = "fips")))]
+			#[cfg(not(feature = "fips"))]
 			super::Algorithm::ChaCha20Poly1305 => wycheproof::aead::TestName::ChaCha20Poly1305,
 		};
 		let test_set = wycheproof::aead::TestSet::load(test_name).unwrap();
@@ -192,7 +192,7 @@ mod test {
 		test_aead(super::Algorithm::Aes256Gcm);
 	}
 
-	//#[cfg(all(chacha, not(feature = "fips")))]
+	#[cfg(not(feature = "fips"))]
 	#[test]
 	fn test_chacha() {
 		test_aead(super::Algorithm::ChaCha20Poly1305);

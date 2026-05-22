@@ -36,24 +36,28 @@ pub mod server;
  * following script: <leancrypto_source_root>/asn1/tests/testcerts
  */
 #[rstest]
+#[cfg(feature="nonpqc")]
 #[case::tls13_aes_256_gcm_sha384(
 	rustls_leancrypto::cipher_suite::TLS13_AES_256_GCM_SHA384,
 	rustls_leancrypto::kx_group::X25519,
 	CipherSuite::TLS13_AES_256_GCM_SHA384,
 	"9999"
 )]
+#[cfg(feature="nonpqc")]
 #[case::tls13_aes_128_gcm_sha256(
 	rustls_leancrypto::cipher_suite::TLS13_AES_128_GCM_SHA256,
 	rustls_leancrypto::kx_group::MLKEM1024,
 	CipherSuite::TLS13_AES_128_GCM_SHA256,
 	"9998"
 )]
+#[cfg(feature="nonpqc")]
 #[case::tls13_chacha20_poly1305_sha256_mlkem768(
 	rustls_leancrypto::cipher_suite::TLS13_CHACHA20_POLY1305_SHA256,
 	rustls_leancrypto::kx_group::MLKEM768,
 	CipherSuite::TLS13_CHACHA20_POLY1305_SHA256,
 	"9997"
 )]
+#[cfg(feature="nonpqc")]
 #[case::tls13_chacha20_poly1305_sha256_x25519mlkem768(
 	rustls_leancrypto::cipher_suite::TLS13_CHACHA20_POLY1305_SHA256,
 	rustls_leancrypto::kx_group::X25519MLKEM768,
@@ -78,6 +82,7 @@ fn test_to_internet(
 	thread::sleep(ten_millis);
 
 	// Add certificate chain
+	// TODO disable with #[cfg(all(not(feature = "fips"), feature="nonpqc"))]
 	let mut root_store = rustls::RootCertStore::empty();
 	let ca = fs::read("../asn1/tests/testcerts/ed448_cacert.der")
 		.expect("Cannot read file");

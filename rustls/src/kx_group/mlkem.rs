@@ -43,10 +43,10 @@ impl KxGroup {
 		let mut kyber = lcr_kyber::new();
 
 		/*
-		 * Generate the ephemeral ML-KEM and X25519 key pairs.
+		 * Generate the ephemeral ML-KEM key pairs.
 		 */
 		kyber.keypair(self.algorithm_name).
-			map_err(|e| Error::General(format!("lc:MLKEM-X25519: key pair generation error: {e}")))?;
+			map_err(|e| Error::General(format!("lc:MLKEM: key pair generation error: {e}")))?;
 
 		/*
 		 * Extract the public key
@@ -54,7 +54,7 @@ impl KxGroup {
 		let pk_slice = match kyber.get_pk() {
 			Ok(ret) => ret,
 			Err(e) => {
-				return Err(Error::General(format!("lc:MLKEM-X25519: public key extraction error: {e}")))
+				return Err(Error::General(format!("lc:MLKEM: public key extraction error: {e}")))
 			}
 		};
 		let public_key = pk_slice.to_vec();
@@ -98,13 +98,13 @@ impl SupportedKxGroup for KxGroup {
 		 * Load the local public key data
 		 */
 		kyber.pk_load(peer_pub_key).
-			map_err(|e| Error::General(format!("lc:MLKEM-X25519: loading local pub key error: {e}")))?;
+			map_err(|e| Error::General(format!("lc:MLKEM: loading local pub key error: {e}")))?;
 
 		/*
 		 * Generate the actual key establishment data sent to the peer.
 		 */
 		kyber.encapsulate().
-			map_err(|e| Error::General(format!("lc:MLKEM-X25519: encapsulation error: {e}")))?;
+			map_err(|e| Error::General(format!("lc:MLKEM: encapsulation error: {e}")))?;
 
 		/*
 		 * Get the generated shared secret data.
@@ -112,7 +112,7 @@ impl SupportedKxGroup for KxGroup {
 		let ct_slice = match kyber.get_ct() {
 			Ok(ret) => ret,
 			Err(e) => {
-				return Err(Error::General(format!("lc:MLKEM-X25519: ciphertext extraction error: {e}")))
+				return Err(Error::General(format!("lc:MLKEM: ciphertext extraction error: {e}")))
 			}
 		};
 		let ct = ct_slice.to_vec();
@@ -120,7 +120,7 @@ impl SupportedKxGroup for KxGroup {
 		let ss_slice = match kyber.get_ss() {
 			Ok(ret) => ret,
 			Err(e) => {
-				return Err(Error::General(format!("lc:MLKEM-X25519 shared secret extraction error: {e}")))
+				return Err(Error::General(format!("lc:MLKEM shared secret extraction error: {e}")))
 			}
 		};
 
@@ -151,14 +151,14 @@ impl ActiveKeyExchange for KeyExchange {
 		 * Load the received remote key agreement data into context.
 		 */
 		kyber.ct_load(peer_pub_key).
-			map_err(|e| Error::General(format!("lc:MLKEM-X25519: loading ciphertext error: {e}")))?;
+			map_err(|e| Error::General(format!("lc:MLKEM: loading ciphertext error: {e}")))?;
 
 		/*
 		 * Perform the decapsulation of the received data to obtain the
 		 * shared secret.
 		 */
 		kyber.decapsulate().
-			map_err(|e| Error::General(format!("lc:MLKEM-X25519: decapsulation error: {e}")))?;
+			map_err(|e| Error::General(format!("lc:MLKEM: decapsulation error: {e}")))?;
 
 		/*
 		 * Extract the just calculated shared secret.
@@ -166,7 +166,7 @@ impl ActiveKeyExchange for KeyExchange {
 		let ss_slice = match kyber.get_ss() {
 			Ok(ret) => ret,
 			Err(e) => {
-				return Err(Error::General(format!("lc:MLKEM-X25519: shared secret extraction error: {e}")))
+				return Err(Error::General(format!("lc:MLKEM: shared secret extraction error: {e}")))
 			}
 		};
 
