@@ -17,9 +17,7 @@
  * DAMAGE.
  */
 
-use leancrypto_sys::lcr_hmac::lcr_hmac;
-use leancrypto_sys::lcr_hmac::lcr_hmac_key;
-use leancrypto_sys::lcr_hmac::lcr_hmac_type;
+use leancrypto_sys::lcr_hmac::{ lcr_hmac, lcr_hmac_key, lcr_hmac_type };
 use rustls::crypto;
 use rustls::crypto::hmac::{Key, Tag};
 use rustls::{Error};

@@ -21,8 +21,7 @@
  * Code developed by using fragments from OpenSSL rustls and AWS rustls provider
  */
 use crate::aead;
-use leancrypto_sys::lcr_sym::lcr_sym;
-use leancrypto_sys::lcr_sym::lcr_sym_type;
+use leancrypto_sys::lcr_sym::{ lcr_sym, lcr_sym_type };
 use rustls::{
 	Error,
 	crypto::cipher::{AeadKey, Iv, Nonce},

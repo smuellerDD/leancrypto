@@ -19,10 +19,10 @@
 
 use core::fmt;
 use rustls::pki_types::alg_id;
-use leancrypto_sys::lcr_ed25519::lcr_ed25519;
-use leancrypto_sys::lcr_dilithium::lcr_dilithium;
-//use leancrypto_sys::lcr_x509::lcr_x509;
-//use leancrypto_sys::lcr_x509::lcr_x509_key;
+use leancrypto_sys::{ 
+	lcr_ed25519::lcr_ed25519,
+	lcr_dilithium::lcr_dilithium
+};
 
 use rustls::{
 	SignatureScheme,
@@ -132,25 +132,6 @@ impl SignatureVerificationAlgorithm for LeancryptoAlgorithm {
 			},
 			_ => todo!()
 		};
-
-		// let mut x509_key = lcr_x509_key::new();
-  //
-		// match x509_key.cert_load(public_key) {
-		// 	Ok(()) => println!("leancrypto signature decoding succesful"),
-		// 	Err(e) => {
-		// 		eprintln!("leancrypto signature decoding failed {e}");
-		// 		return Err(InvalidSignature)
-		// 	}
-		// }
-  //
-		// let mut x509 = lcr_x509::new();
-		// match x509.verify(&x509_key, signature, message) {
-		// 	Ok(()) => println!("leancrypto signature verification succesful"),
-		// 	Err(e) => {
-		// 		eprintln!("leancrypto signature verification failed {e}");
-		// 		return Err(InvalidSignature)
-		// 	}
-		// }
 
 		Ok(())
 	}

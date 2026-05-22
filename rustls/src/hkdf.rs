@@ -18,10 +18,11 @@
  */
 
 use crate::hmac::Hmac;
-use leancrypto_sys::lcr_hash::lcr_hash;
-use leancrypto_sys::lcr_hash::lcr_hash_type;
-use leancrypto_sys::lcr_hmac::lcr_hmac_type;
-use leancrypto_sys::lcr_hkdf::lcr_hkdf;
+use leancrypto_sys::{
+	lcr_hash::{ lcr_hash, lcr_hash_type },
+	lcr_hmac::lcr_hmac_type,
+	lcr_hkdf::lcr_hkdf
+};
 use leancrypto_sys::lcr_hash::lcr_hash_type as HashAlgorithm;
 
 use rustls::crypto::hmac::{Hmac as _, Tag};

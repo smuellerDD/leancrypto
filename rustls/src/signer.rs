@@ -17,9 +17,7 @@
  * DAMAGE.
  */
 
-use leancrypto_sys::lcr_x509::lcr_x509;
-use leancrypto_sys::lcr_x509::lcr_x509_key;
-use leancrypto_sys::lcr_x509::lcr_x509_key_type;
+use leancrypto_sys::lcr_x509::{ lcr_x509, lcr_x509_key, lcr_x509_key_type };
 
 use rustls::pki_types::PrivateKeyDer;
 use rustls::sign::SigningKey;

@@ -17,8 +17,7 @@
  * DAMAGE.
  */
 
-use leancrypto_sys::lcr_hash::lcr_hash;
-use leancrypto_sys::lcr_hash::lcr_hash_type;
+use leancrypto_sys::lcr_hash::{ lcr_hash, lcr_hash_type };
 use rustls::crypto::{self};
 use rustls::crypto::hash::HashAlgorithm;
 use rustls::{Error};

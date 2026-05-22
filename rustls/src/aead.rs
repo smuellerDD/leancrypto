@@ -17,8 +17,7 @@
  * DAMAGE.
  */
 
-use leancrypto_sys::lcr_aead::lcr_aead;
-use leancrypto_sys::lcr_aead::lcr_aead_type;
+use leancrypto_sys::lcr_aead:: { lcr_aead, lcr_aead_type };
 use rustls::Error;
 use rustls::crypto::cipher::NONCE_LEN;
 
