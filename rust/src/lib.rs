@@ -78,6 +78,9 @@ pub mod lcr_x25519;
 /// Leancrypto wrapper for lc_hkdf
 pub mod lcr_hkdf;
 
+/// Leancrypto wrapper for lc_pbkdf2
+pub mod lcr_pbkdf2;
+
 /// Leancrypto wrapper for lc_ed25519
 pub mod lcr_ed25519;
 

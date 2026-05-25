@@ -19,7 +19,7 @@
 
 use std::ptr;
 use crate::ffi::leancrypto;
-use crate::error::HkdfError;
+use crate::error::KdfError;
 use crate::lcr_hash::lcr_hash_type;
 
 /// Leancrypto wrapper for lc_hkdf
@@ -80,7 +80,7 @@ impl lcr_hkdf {
 	/// Initialize the context if not already initialized
 	fn init(
 		&mut self
-	) -> Result<(), HkdfError> {
+	) -> Result<(), KdfError> {
 		let mut result = 0;
 
 		if self.hkdf_ctx.is_null() {
@@ -93,7 +93,7 @@ impl lcr_hkdf {
 		}
 
 		if result < 0 {
-			return Err(HkdfError::ProcessingError);
+			return Err(KdfError::ProcessingError);
 		}
 
 		Ok(())
@@ -108,12 +108,12 @@ impl lcr_hkdf {
 	///
 	/// # Returns
 	///
-	/// * Returns Ok() on success or HkdfError on error
+	/// * Returns Ok() on success or KdfError on error
 	pub fn extract(
 		&mut self,
 		ikm: &[u8],
 		salt: &[u8]
-	) -> Result<(), HkdfError> {
+	) -> Result<(), KdfError> {
 
 		self.init()?;
 
@@ -124,7 +124,7 @@ impl lcr_hkdf {
 				salt.as_ptr(), salt.len())
 			};
 		if result < 0 {
-			return Err(HkdfError::ProcessingError);
+			return Err(KdfError::ProcessingError);
 		}
 		Ok(())
 	}
@@ -140,13 +140,13 @@ impl lcr_hkdf {
 	///
 	/// # Returns
 	///
-	/// * Returns Ok() on success or HkdfError on error
+	/// * Returns Ok() on success or KdfError on error
 	pub fn extract_prk(
 		&mut self,
 		ikm: &[u8],
 		salt: &[u8],
 		prk: &mut [u8]
-	) -> Result<(), HkdfError> {
+	) -> Result<(), KdfError> {
 
 		self.init()?;
 
@@ -158,7 +158,7 @@ impl lcr_hkdf {
 				prk.len())
 			};
 		if result < 0 {
-			return Err(HkdfError::ProcessingError);
+			return Err(KdfError::ProcessingError);
 		}
 
 		Ok(())
@@ -173,14 +173,14 @@ impl lcr_hkdf {
 	///
 	/// # Returns
 	///
-	/// * Returns Ok() on success or HkdfError on error
+	/// * Returns Ok() on success or KdfError on error
 	pub fn expand(
 		&mut self,
 		info: &[u8],
 		dst: &mut [u8]
-	) -> Result<(), HkdfError> {
+	) -> Result<(), KdfError> {
 		if self.hkdf_ctx.is_null() {
-			return Err(HkdfError::UninitializedContext);
+			return Err(KdfError::UninitializedContext);
 		}
 
 		let result = unsafe {
@@ -189,7 +189,7 @@ impl lcr_hkdf {
 				dst.as_mut_ptr(), dst.len())
 			};
 		if result < 0 {
-			return Err(HkdfError::ProcessingError);
+			return Err(KdfError::ProcessingError);
 		}
 		Ok(())
 	}
@@ -204,13 +204,13 @@ impl lcr_hkdf {
 	///
 	/// # Returns
 	///
-	/// * Returns Ok() on success or HkdfError on error
+	/// * Returns Ok() on success or KdfError on error
 	pub fn expand_prk(
 		&mut self,
 		info: &[u8],
 		prk: &[u8],
 		dst: &mut [u8]
-	) -> Result<(), HkdfError> {
+	) -> Result<(), KdfError> {
 
 		self.init()?;
 
@@ -219,7 +219,7 @@ impl lcr_hkdf {
 				      prk.as_ptr(), prk.len(), dst.as_mut_ptr(),
 				      dst.len()) };
 		if result < 0 {
-			return Err(HkdfError::ProcessingError);
+			return Err(KdfError::ProcessingError);
 		}
 		Ok(())
 	}

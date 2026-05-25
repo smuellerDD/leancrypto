@@ -192,22 +192,22 @@ impl std::fmt::Display for X25519Error {
 
 #[derive(Debug)]
 #[derive(PartialEq)]
-pub enum HkdfError {
+pub enum KdfError {
 	AllocationError,
 	UninitializedContext,
 	ProcessingError,
 }
 
-impl std::error::Error for HkdfError {}
+impl std::error::Error for KdfError {}
 
-impl std::fmt::Display for HkdfError {
+impl std::fmt::Display for KdfError {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		match self {
-			HkdfError::AllocationError =>
+			KdfError::AllocationError =>
 				write!(f, "failed to allocate HKDF context"),
-			HkdfError::UninitializedContext =>
+			KdfError::UninitializedContext =>
 				write!(f, "HKDF context is not initialized"),
-			HkdfError::ProcessingError =>
+			KdfError::ProcessingError =>
 				write!(f, "HKDF processing error occurred"),
 		}
 	}
