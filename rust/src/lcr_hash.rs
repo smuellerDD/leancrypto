@@ -38,6 +38,63 @@ pub enum lcr_hash_type {
 	lcr_cshake_256,
 }
 
+/// Mapping of lcr_hash_type to leancrypto message digest
+/// implementation type
+///
+/// # Returns
+///
+/// * Returns leancrypto message digest implementation type
+pub fn lcr_hash_type_mapping(
+	hash: lcr_hash_type
+) -> *const leancrypto::lc_hash {
+	unsafe {
+		match hash {
+			lcr_hash_type::lcr_sha2_256 =>
+				leancrypto::lc_sha256,
+			lcr_hash_type::lcr_sha2_384 =>
+				leancrypto::lc_sha384,
+			lcr_hash_type::lcr_sha2_512 =>
+				leancrypto::lc_sha512,
+			lcr_hash_type::lcr_sha3_256 =>
+				leancrypto::lc_sha3_256,
+			lcr_hash_type::lcr_sha3_384 =>
+				leancrypto::lc_sha3_384,
+			lcr_hash_type::lcr_sha3_512 =>
+				leancrypto::lc_sha3_512,
+			lcr_hash_type::lcr_ascon_256 =>
+				leancrypto::lc_ascon_256,
+			lcr_hash_type::lcr_shake_128 =>
+				leancrypto::lc_shake128,
+			lcr_hash_type::lcr_shake_256 =>
+				leancrypto::lc_shake256,
+			lcr_hash_type::lcr_cshake_128 =>
+				leancrypto::lc_cshake128,
+			lcr_hash_type::lcr_cshake_256 =>
+				leancrypto::lc_cshake256,
+		}
+	}
+}
+
+/// Mapping of lcr_hash_type to digest size
+///
+/// # Returns
+///
+/// * Returns digest size
+fn lcr_hash_digestsize_mapping(
+	hash: lcr_hash_type
+) -> usize {
+	match hash {
+		lcr_hash_type::lcr_sha2_256 => 32,
+		lcr_hash_type::lcr_sha2_384 => 48,
+		lcr_hash_type::lcr_sha2_512 => 64,
+		lcr_hash_type::lcr_sha3_256 => 32,
+		lcr_hash_type::lcr_sha3_384 => 48,
+		lcr_hash_type::lcr_sha3_512 => 64,
+		lcr_hash_type::lcr_ascon_256 => 32,
+		_ => 0,
+	}
+}
+
 /// Leancrypto wrapper for lc_hash
 pub struct lcr_hash {
 	/// Context for init/update/final
@@ -59,63 +116,6 @@ impl lcr_hash {
 		}
 	}
 
-	/// Mapping of lcr_hash_type to leancrypto message digest
-	/// implementation type
-	///
-	/// # Returns
-	///
-	/// * Returns leancrypto message digest implementation type
-	fn lcr_type_mapping(
-		&self
-	) -> *const leancrypto::lc_hash {
-		unsafe {
-			match self.hash {
-				lcr_hash_type::lcr_sha2_256 =>
-					leancrypto::lc_sha256,
-				lcr_hash_type::lcr_sha2_384 =>
-					leancrypto::lc_sha384,
-				lcr_hash_type::lcr_sha2_512 =>
-					leancrypto::lc_sha512,
-				lcr_hash_type::lcr_sha3_256 =>
-					leancrypto::lc_sha3_256,
-				lcr_hash_type::lcr_sha3_384 =>
-					leancrypto::lc_sha3_384,
-				lcr_hash_type::lcr_sha3_512 =>
-					leancrypto::lc_sha3_512,
-				lcr_hash_type::lcr_ascon_256 =>
-					leancrypto::lc_ascon_256,
-				lcr_hash_type::lcr_shake_128 =>
-					leancrypto::lc_shake128,
-				lcr_hash_type::lcr_shake_256 =>
-					leancrypto::lc_shake256,
-				lcr_hash_type::lcr_cshake_128 =>
-					leancrypto::lc_cshake128,
-				lcr_hash_type::lcr_cshake_256 =>
-					leancrypto::lc_cshake256,
-			}
-		}
-	}
-
-	/// Mapping of lcr_hash_type to digest size
-	///
-	/// # Returns
-	///
-	/// * Returns digest size
-	fn lcr_digestsize_mapping(
-		&mut self
-	) -> usize {
-		match self.hash {
-			lcr_hash_type::lcr_sha2_256 => 32,
-			lcr_hash_type::lcr_sha2_384 => 48,
-			lcr_hash_type::lcr_sha2_512 => 64,
-			lcr_hash_type::lcr_sha3_256 => 32,
-			lcr_hash_type::lcr_sha3_384 => 48,
-			lcr_hash_type::lcr_sha3_512 => 64,
-			lcr_hash_type::lcr_ascon_256 => 32,
-			_ => 0,
-		}
-	}
-
 	/// Initialize the context if not already initialized
 	fn ctx_initialize(
 		&mut self
@@ -123,7 +123,7 @@ impl lcr_hash {
 		if !self.hash_ctx_init {
 			let result = unsafe {
 				leancrypto::lc_hash_set_ctx(
-					self.lcr_type_mapping(),
+					lcr_hash_type_mapping(self.hash),
 					&mut self.hash_ctx)
 			};
 			if result < 0 {
@@ -151,12 +151,12 @@ impl lcr_hash {
 		digest: &mut [u8]
 	) -> Result<(), HashError> {
 
-		if digest.len() < Self::lcr_digestsize_mapping(self) {
+		if digest.len() < lcr_hash_digestsize_mapping(self.hash) {
 			return Err(HashError::ProcessingError)
 		}
 
 		let result = unsafe {
-			leancrypto::lc_hash(self.lcr_type_mapping(),
+			leancrypto::lc_hash(lcr_hash_type_mapping(self.hash),
 					    msg.as_ptr(), msg.len(),
 					    digest.as_mut_ptr())
 		};
@@ -183,7 +183,7 @@ impl lcr_hash {
 		digest: &mut [u8]
 	) -> Result<(), HashError> {
 		let result = unsafe {
-			leancrypto::lc_xof(self.lcr_type_mapping(),
+			leancrypto::lc_xof(lcr_hash_type_mapping(self.hash),
 					   msg.as_ptr(), msg.len(),
 					   digest.as_mut_ptr(), digest.len())
 		};
@@ -354,7 +354,7 @@ impl Clone for lcr_hash {
 		// Adjust the memory pointer
 		let _res = unsafe {
 			leancrypto::lc_hash_set_ctx(
-				self.lcr_type_mapping(),
+				lcr_hash_type_mapping(self.hash),
 				&mut state)
 		};
 

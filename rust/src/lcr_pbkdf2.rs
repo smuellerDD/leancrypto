@@ -19,7 +19,7 @@
 
 use crate::ffi::leancrypto;
 use crate::error::KdfError;
-use crate::lcr_hash::lcr_hash_type;
+use crate::lcr_hash::{ lcr_hash_type_mapping, lcr_hash_type };
 
 /// Leancrypto wrapper for lc_pbkdf2
 pub struct lcr_pbkdf2 {
@@ -32,43 +32,6 @@ impl lcr_pbkdf2 {
 	pub fn new(hash_type: lcr_hash_type) -> Self {
 		lcr_pbkdf2 {
 			hash: hash_type
-		}
-	}
-
-	/// Mapping of lcr_hash_type to leancrypto message digest
-	/// implementation type
-	///
-	/// # Returns
-	///
-	/// * Returns leancrypto message digest implementation type
-	fn lcr_type_mapping(
-		&mut self
-	) -> *const leancrypto::lc_hash {
-		unsafe {
-			match self.hash {
-				lcr_hash_type::lcr_sha2_256 =>
-					leancrypto::lc_sha256,
-				lcr_hash_type::lcr_sha2_384 =>
-					leancrypto::lc_sha384,
-				lcr_hash_type::lcr_sha2_512 =>
-					leancrypto::lc_sha512,
-				lcr_hash_type::lcr_sha3_256 =>
-					leancrypto::lc_sha3_256,
-				lcr_hash_type::lcr_sha3_384 =>
-					leancrypto::lc_sha3_384,
-				lcr_hash_type::lcr_sha3_512 =>
-					leancrypto::lc_sha3_512,
-				lcr_hash_type::lcr_ascon_256 =>
-					leancrypto::lc_ascon_256,
-				lcr_hash_type::lcr_shake_128 =>
-					leancrypto::lc_shake128,
-				lcr_hash_type::lcr_shake_256 =>
-					leancrypto::lc_shake256,
-				lcr_hash_type::lcr_cshake_128 =>
-					leancrypto::lc_cshake128,
-				lcr_hash_type::lcr_cshake_256 =>
-					leancrypto::lc_cshake256,
-			}
 		}
 	}
 
@@ -93,7 +56,7 @@ impl lcr_pbkdf2 {
 	) -> Result<(), KdfError> {
 
 		let result = unsafe {
-			leancrypto::lc_pbkdf2(self.lcr_type_mapping(),
+			leancrypto::lc_pbkdf2(lcr_hash_type_mapping(self.hash),
 					      pw.as_ptr(), pw.len(),
 					      salt.as_ptr(), salt.len(), count,
 					      key.as_mut_ptr(), key.len())
