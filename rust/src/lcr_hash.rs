@@ -71,13 +71,27 @@ pub fn lcr_hash_type_mapping(
 /// * Returns digest size
 fn lcr_hash_digestsize_mapping(hash: lcr_hash_type) -> usize {
     match hash {
-        lcr_hash_type::lcr_sha2_256 => 32,
-        lcr_hash_type::lcr_sha2_384 => 48,
-        lcr_hash_type::lcr_sha2_512 => 64,
-        lcr_hash_type::lcr_sha3_256 => 32,
-        lcr_hash_type::lcr_sha3_384 => 48,
-        lcr_hash_type::lcr_sha3_512 => 64,
-        lcr_hash_type::lcr_ascon_256 => 32,
+        lcr_hash_type::lcr_sha2_256 => {
+            leancrypto::LC_SHA256_SIZE_DIGEST as usize
+        }
+        lcr_hash_type::lcr_sha2_384 => {
+            leancrypto::LC_SHA384_SIZE_DIGEST as usize
+        }
+        lcr_hash_type::lcr_sha2_512 => {
+            leancrypto::LC_SHA512_SIZE_DIGEST as usize
+        }
+        lcr_hash_type::lcr_sha3_256 => {
+            leancrypto::LC_SHA3_256_SIZE_DIGEST as usize
+        }
+        lcr_hash_type::lcr_sha3_384 => {
+            leancrypto::LC_SHA3_384_SIZE_DIGEST as usize
+        }
+        lcr_hash_type::lcr_sha3_512 => {
+            leancrypto::LC_SHA3_512_SIZE_DIGEST as usize
+        }
+        lcr_hash_type::lcr_ascon_256 => {
+            leancrypto::LC_ASCON_HASH_DIGESTSIZE as usize
+        }
         _ => 0,
     }
 }
