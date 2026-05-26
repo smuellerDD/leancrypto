@@ -21,58 +21,68 @@ use leancrypto_sys::lcr_kyber_x448::lcr_kyber_x448;
 use leancrypto_sys::lcr_kyber_x448::lcr_kyber_x448_type;
 
 fn lc_rust_kyber_x448_one(kyber_x448_type: lcr_kyber_x448_type) {
-	let mut kyber_x448 = lcr_kyber_x448::new();
+    let mut kyber_x448 = lcr_kyber_x448::new();
 
-	let result = kyber_x448.keypair(kyber_x448_type);
-	assert_eq!(result, Ok(()));
+    let result = kyber_x448.keypair(kyber_x448_type);
+    assert_eq!(result, Ok(()));
 
-	let result = kyber_x448.encapsulate();
-	assert_eq!(result, Ok(()));
+    let result = kyber_x448.encapsulate();
+    assert_eq!(result, Ok(()));
 
-	let (ct_kyber_slice, ct_x448_slice) =
-		kyber_x448.get_ct().expect("get_ct");
-	let ct_kyber = ct_kyber_slice.to_vec();
-	let ct_x448 = ct_x448_slice.to_vec();
-	let (sk_kyber_slice, sk_x448_slice) =
-		kyber_x448.get_sk().expect("get_sk");
-	let sk_kyber = sk_kyber_slice.to_vec();
-	let sk_x448 = sk_x448_slice.to_vec();
+    let (ct_kyber_slice, ct_x448_slice) = kyber_x448.get_ct().expect("get_ct");
+    let ct_kyber = ct_kyber_slice.to_vec();
+    let ct_x448 = ct_x448_slice.to_vec();
+    let (sk_kyber_slice, sk_x448_slice) = kyber_x448.get_sk().expect("get_sk");
+    let sk_kyber = sk_kyber_slice.to_vec();
+    let sk_x448 = sk_x448_slice.to_vec();
 
-	let mut kyber_x4482 = lcr_kyber_x448::new();
-	let result = kyber_x4482.sk_load(&sk_kyber, &sk_x448);
-	assert_eq!(result, Ok(()));
-	assert_eq!(kyber_x448.get_sk().expect("get_sk").0,
-		   kyber_x4482.get_sk().expect("get_sk").0);
-	assert_eq!(kyber_x448.get_sk().expect("get_sk").1,
-		   kyber_x4482.get_sk().expect("get_sk").1);
+    let mut kyber_x4482 = lcr_kyber_x448::new();
+    let result = kyber_x4482.sk_load(&sk_kyber, &sk_x448);
+    assert_eq!(result, Ok(()));
+    assert_eq!(
+        kyber_x448.get_sk().expect("get_sk").0,
+        kyber_x4482.get_sk().expect("get_sk").0
+    );
+    assert_eq!(
+        kyber_x448.get_sk().expect("get_sk").1,
+        kyber_x4482.get_sk().expect("get_sk").1
+    );
 
-	let result = kyber_x4482.ct_load(&ct_kyber, &ct_x448);
-	assert_eq!(result, Ok(()));
-	assert_eq!(kyber_x448.get_ct().expect("get_ct").0,
-		   kyber_x4482.get_ct().expect("get_ct").0);
-	assert_eq!(kyber_x448.get_ct().expect("get_ct").1,
-		   kyber_x4482.get_ct().expect("get_ct").1);
+    let result = kyber_x4482.ct_load(&ct_kyber, &ct_x448);
+    assert_eq!(result, Ok(()));
+    assert_eq!(
+        kyber_x448.get_ct().expect("get_ct").0,
+        kyber_x4482.get_ct().expect("get_ct").0
+    );
+    assert_eq!(
+        kyber_x448.get_ct().expect("get_ct").1,
+        kyber_x4482.get_ct().expect("get_ct").1
+    );
 
-	let result = kyber_x4482.decapsulate();
-	assert_eq!(result, Ok(()));
-	assert_eq!(kyber_x448.get_ss().expect("get_ss").0,
-		   kyber_x4482.get_ss().expect("get_ss").0);
-	assert_eq!(kyber_x448.get_ss().expect("get_ss").1,
-		   kyber_x4482.get_ss().expect("get_ss").1);
-	//println!("ct {:x?}",  kyber_x4482.ct().to_vec().chunks(10).next());
+    let result = kyber_x4482.decapsulate();
+    assert_eq!(result, Ok(()));
+    assert_eq!(
+        kyber_x448.get_ss().expect("get_ss").0,
+        kyber_x4482.get_ss().expect("get_ss").0
+    );
+    assert_eq!(
+        kyber_x448.get_ss().expect("get_ss").1,
+        kyber_x4482.get_ss().expect("get_ss").1
+    );
+    //println!("ct {:x?}",  kyber_x4482.ct().to_vec().chunks(10).next());
 }
 
 #[test]
 fn lc_rust_kyber_x448_512() {
-	lc_rust_kyber_x448_one(lcr_kyber_x448_type::lcr_kyber_512);
+    lc_rust_kyber_x448_one(lcr_kyber_x448_type::lcr_kyber_512);
 }
 
 #[test]
 fn lc_rust_kyber_x448_768() {
-	lc_rust_kyber_x448_one(lcr_kyber_x448_type::lcr_kyber_768);
+    lc_rust_kyber_x448_one(lcr_kyber_x448_type::lcr_kyber_768);
 }
 
 #[test]
 fn lc_rust_kyber_x448_1024() {
-	lc_rust_kyber_x448_one(lcr_kyber_x448_type::lcr_kyber_1024);
+    lc_rust_kyber_x448_one(lcr_kyber_x448_type::lcr_kyber_1024);
 }

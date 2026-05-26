@@ -1,0 +1,5 @@
+#indent_style = "Block"
+edition = "2024"
+fn_params_layout = "Vertical"
+max_width = 80
+

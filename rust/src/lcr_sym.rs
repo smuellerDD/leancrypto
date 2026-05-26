@@ -17,281 +17,299 @@
  * DAMAGE.
  */
 
-use std::ptr;
-use crate::ffi::leancrypto;
 use crate::error::SymError;
+use crate::ffi::leancrypto;
+use std::ptr;
 
 #[derive(PartialEq)]
 pub enum lcr_sym_type {
-	lcr_aes_cbc,
-	lcr_aes_ctr,
-	lcr_aes_kw,
-	lcr_chacha20,
-	lcr_aes_xts,
+    lcr_aes_cbc,
+    lcr_aes_ctr,
+    lcr_aes_kw,
+    lcr_chacha20,
+    lcr_aes_xts,
 }
 
 /// Leancrypto wrapper for lc_sym
 pub struct lcr_sym {
-	/// Context for init/update/final
-	sym_ctx: *mut leancrypto::lc_sym_ctx,
+    /// Context for init/update/final
+    sym_ctx: *mut leancrypto::lc_sym_ctx,
 
-	/// Leancrypto AEAD reference
-	sym: lcr_sym_type
+    /// Leancrypto AEAD reference
+    sym: lcr_sym_type,
 }
 
 #[allow(dead_code)]
 impl lcr_sym {
-	pub fn new(sym_type: lcr_sym_type) -> Self {
-		lcr_sym {
-			sym_ctx: ptr::null_mut(),
-			sym: sym_type
-		}
-	}
+    pub fn new(sym_type: lcr_sym_type) -> Self {
+        lcr_sym {
+            sym_ctx: ptr::null_mut(),
+            sym: sym_type,
+        }
+    }
 
-	/// Allocate algorithm context
-	fn lcr_sym_alloc(&mut self) -> i32 {
-		match self.sym {
-			lcr_sym_type::lcr_aes_cbc => unsafe {
-				leancrypto::lc_sym_alloc(
-					leancrypto::lc_aes_cbc,
-					&mut self.sym_ctx)
-			},
-			lcr_sym_type::lcr_aes_ctr => unsafe {
-				leancrypto::lc_sym_alloc(
-					leancrypto::lc_aes_ctr,
-					&mut self.sym_ctx)
-			},
-			lcr_sym_type::lcr_aes_kw => unsafe {
-				leancrypto::lc_sym_alloc(
-					leancrypto::lc_aes_kw,
-					&mut self.sym_ctx)
-			},
-			lcr_sym_type::lcr_chacha20 => unsafe {
-				leancrypto::lc_sym_alloc(
-					leancrypto::lc_chacha20,
-					&mut self.sym_ctx)
-			},
-			lcr_sym_type::lcr_aes_xts => unsafe {
-				leancrypto::lc_sym_alloc(
-					leancrypto::lc_aes_xts,
-					&mut self.sym_ctx)
-			},
-		}
-	}
+    /// Allocate algorithm context
+    fn lcr_sym_alloc(&mut self) -> i32 {
+        match self.sym {
+            lcr_sym_type::lcr_aes_cbc => unsafe {
+                leancrypto::lc_sym_alloc(
+                    leancrypto::lc_aes_cbc,
+                    &mut self.sym_ctx,
+                )
+            },
+            lcr_sym_type::lcr_aes_ctr => unsafe {
+                leancrypto::lc_sym_alloc(
+                    leancrypto::lc_aes_ctr,
+                    &mut self.sym_ctx,
+                )
+            },
+            lcr_sym_type::lcr_aes_kw => unsafe {
+                leancrypto::lc_sym_alloc(
+                    leancrypto::lc_aes_kw,
+                    &mut self.sym_ctx,
+                )
+            },
+            lcr_sym_type::lcr_chacha20 => unsafe {
+                leancrypto::lc_sym_alloc(
+                    leancrypto::lc_chacha20,
+                    &mut self.sym_ctx,
+                )
+            },
+            lcr_sym_type::lcr_aes_xts => unsafe {
+                leancrypto::lc_sym_alloc(
+                    leancrypto::lc_aes_xts,
+                    &mut self.sym_ctx,
+                )
+            },
+        }
+    }
 
-	/// Set key and symmetric context
-	///
-	/// # Arguments
-	///
-	/// * `key` key
-	///
-	/// # Returns
-	///
-	/// * Returns Ok() on success or SymError on error
-	pub fn setkey(
-		&mut self,
-		key: &[u8]
-	) -> Result<(), SymError> {
-		let mut result;
+    /// Set key and symmetric context
+    ///
+    /// # Arguments
+    ///
+    /// * `key` key
+    ///
+    /// # Returns
+    ///
+    /// * Returns Ok() on success or SymError on error
+    pub fn setkey(
+        &mut self,
+        key: &[u8],
+    ) -> Result<(), SymError> {
+        let mut result;
 
-		if self.sym_ctx.is_null() {
-			let result = self.lcr_sym_alloc();
+        if self.sym_ctx.is_null() {
+            let result = self.lcr_sym_alloc();
 
-			if result < 0 {
-				return Err(SymError::UninitializedContext)
-			}
-		}
+            if result < 0 {
+                return Err(SymError::UninitializedContext);
+            }
+        }
 
-		result = unsafe { leancrypto::lc_sym_init(self.sym_ctx) };
-		if result < 0 {
-			return Err(SymError::ProcessingError)
-		}
+        result = unsafe { leancrypto::lc_sym_init(self.sym_ctx) };
+        if result < 0 {
+            return Err(SymError::ProcessingError);
+        }
 
-		result = unsafe {
-			leancrypto::lc_sym_setkey(self.sym_ctx,
-						  key.as_ptr(), key.len())
-		};
+        result = unsafe {
+            leancrypto::lc_sym_setkey(self.sym_ctx, key.as_ptr(), key.len())
+        };
 
-		if result < 0 {
-			return Err(SymError::ProcessingError)
-		}
+        if result < 0 {
+            return Err(SymError::ProcessingError);
+        }
 
-		Ok(())
-	}
+        Ok(())
+    }
 
-	/// Set key and IV for symmetric context
-	///
-	/// # Arguments
-	///
-	/// * `iv` IV
-	///
-	/// # Returns
-	///
-	/// * Returns Ok() on success or SymError on error
-	pub fn setiv(
-		&mut self,
-		iv: &[u8]
-	) -> Result<(), SymError> {
-		if self.sym_ctx.is_null() {
-			let result = self.lcr_sym_alloc();
+    /// Set key and IV for symmetric context
+    ///
+    /// # Arguments
+    ///
+    /// * `iv` IV
+    ///
+    /// # Returns
+    ///
+    /// * Returns Ok() on success or SymError on error
+    pub fn setiv(
+        &mut self,
+        iv: &[u8],
+    ) -> Result<(), SymError> {
+        if self.sym_ctx.is_null() {
+            let result = self.lcr_sym_alloc();
 
-			if result < 0 {
-				return Err(SymError::UninitializedContext)
-			}
-		}
+            if result < 0 {
+                return Err(SymError::UninitializedContext);
+            }
+        }
 
-		let result = unsafe {
-			leancrypto::lc_sym_setiv(self.sym_ctx, iv.as_ptr(),
-						 iv.len())
-		};
-		if result < 0 {
-			return Err(SymError::ProcessingError)
-		}
+        let result = unsafe {
+            leancrypto::lc_sym_setiv(self.sym_ctx, iv.as_ptr(), iv.len())
+        };
+        if result < 0 {
+            return Err(SymError::ProcessingError);
+        }
 
-		Ok(())
-	}
+        Ok(())
+    }
 
-	/// Symmetric encrypt
-	///
-	/// # Arguments
-	///
-	/// * `plaintext` plaintext to be encrypted
-	/// * `ciphertext` buffer to be filled with ciphertext (can be the same
-	///		   the plaintext buffer)
-	///
-	/// # Returns
-	///
-	/// * Returns Ok() on success or SymError on error
-	pub fn encrypt(
-		&mut self,
-		plaintext: &[u8],
-		ciphertext: &mut [u8]
-	) -> Result<(), SymError> {
-		if self.sym_ctx.is_null() {
-			return Err(SymError::UninitializedContext)
-		}
-		if plaintext.len() != ciphertext.len() {
-			return Err(SymError::ProcessingError)
-		}
+    /// Symmetric encrypt
+    ///
+    /// # Arguments
+    ///
+    /// * `plaintext` plaintext to be encrypted
+    /// * `ciphertext` buffer to be filled with ciphertext (can be the same
+    ///		   the plaintext buffer)
+    ///
+    /// # Returns
+    ///
+    /// * Returns Ok() on success or SymError on error
+    pub fn encrypt(
+        &mut self,
+        plaintext: &[u8],
+        ciphertext: &mut [u8],
+    ) -> Result<(), SymError> {
+        if self.sym_ctx.is_null() {
+            return Err(SymError::UninitializedContext);
+        }
+        if plaintext.len() != ciphertext.len() {
+            return Err(SymError::ProcessingError);
+        }
 
-		unsafe {
-			leancrypto::lc_sym_encrypt(
-				self.sym_ctx, plaintext.as_ptr(),
-				ciphertext.as_mut_ptr(), ciphertext.len())
-		}
+        unsafe {
+            leancrypto::lc_sym_encrypt(
+                self.sym_ctx,
+                plaintext.as_ptr(),
+                ciphertext.as_mut_ptr(),
+                ciphertext.len(),
+            )
+        }
 
-		Ok(())
-	}
+        Ok(())
+    }
 
-	/// AES KW encrypt
-	///
-	/// # Arguments
-	///
-	/// * `plaintext` plaintext to be encrypted
-	/// * `ciphertext` buffer to be filled with ciphertext (can be the same
-	///		   the plaintext buffer)
-	///
-	/// # Returns
-	///
-	/// * Returns Ok() on success or SymError on error
-	pub fn kw_encrypt(
-		&mut self,
-		plaintext: &[u8],
-		ciphertext: &mut [u8]
-	) -> Result<(), SymError> {
-		if self.sym_ctx.is_null() {
-			return Err(SymError::UninitializedContext)
-		}
-		if plaintext.len() + 8 != ciphertext.len() {
-			return Err(SymError::ProcessingError)
-		}
+    /// AES KW encrypt
+    ///
+    /// # Arguments
+    ///
+    /// * `plaintext` plaintext to be encrypted
+    /// * `ciphertext` buffer to be filled with ciphertext (can be the same
+    ///		   the plaintext buffer)
+    ///
+    /// # Returns
+    ///
+    /// * Returns Ok() on success or SymError on error
+    pub fn kw_encrypt(
+        &mut self,
+        plaintext: &[u8],
+        ciphertext: &mut [u8],
+    ) -> Result<(), SymError> {
+        if self.sym_ctx.is_null() {
+            return Err(SymError::UninitializedContext);
+        }
+        if plaintext.len() + 8 != ciphertext.len() {
+            return Err(SymError::ProcessingError);
+        }
 
-		unsafe {
-			leancrypto::lc_aes_kw_encrypt(
-				self.sym_ctx, plaintext.as_ptr(),
-				ciphertext.as_mut_ptr(), plaintext.len())
-		};
+        unsafe {
+            leancrypto::lc_aes_kw_encrypt(
+                self.sym_ctx,
+                plaintext.as_ptr(),
+                ciphertext.as_mut_ptr(),
+                plaintext.len(),
+            )
+        };
 
-		Ok(())
-	}
+        Ok(())
+    }
 
-	/// Symmetric decrypt
-	///
-	/// # Arguments
-	///
-	/// * `ciphertext` ciphertext to be encrypted
-	/// * `plaintext` buffer to be filled with plaintext (can be the same
-	///		  the ciphertext buffer)
-	///
-	/// # Returns
-	///
-	/// * Returns Ok() on success or SymError on error
-	pub fn decrypt(&mut self,
-		       ciphertext: &[u8],
-		       plaintext: &mut [u8]) ->
-		Result<(), SymError> {
-		if self.sym_ctx.is_null() {
-			return Err(SymError::UninitializedContext)
-		}
-		if plaintext.len() != ciphertext.len() {
-			return Err(SymError::ProcessingError)
-		}
+    /// Symmetric decrypt
+    ///
+    /// # Arguments
+    ///
+    /// * `ciphertext` ciphertext to be encrypted
+    /// * `plaintext` buffer to be filled with plaintext (can be the same
+    ///		  the ciphertext buffer)
+    ///
+    /// # Returns
+    ///
+    /// * Returns Ok() on success or SymError on error
+    pub fn decrypt(
+        &mut self,
+        ciphertext: &[u8],
+        plaintext: &mut [u8],
+    ) -> Result<(), SymError> {
+        if self.sym_ctx.is_null() {
+            return Err(SymError::UninitializedContext);
+        }
+        if plaintext.len() != ciphertext.len() {
+            return Err(SymError::ProcessingError);
+        }
 
-		unsafe {
-			leancrypto::lc_sym_decrypt(
-				self.sym_ctx, ciphertext.as_ptr(),
-				plaintext.as_mut_ptr(), plaintext.len())
-		};
+        unsafe {
+            leancrypto::lc_sym_decrypt(
+                self.sym_ctx,
+                ciphertext.as_ptr(),
+                plaintext.as_mut_ptr(),
+                plaintext.len(),
+            )
+        };
 
-		Ok(())
-	}
+        Ok(())
+    }
 
-	/// AES KW decrypt
-	///
-	/// # Arguments
-	///
-	/// * `ciphertext` ciphertext to be encrypted
-	/// * `plaintext` buffer to be filled with plaintext (can be the same
-	///		  the ciphertext buffer)
-	///
-	/// # Returns
-	///
-	/// * Returns Ok() on success or SymError on error
-	pub fn kw_decrypt(
-		&mut self,
-		ciphertext: &[u8],
-		plaintext: &mut [u8]
-	) -> Result<(), SymError> {
-		if self.sym_ctx.is_null() {
-			return Err(SymError::UninitializedContext)
-		}
-		if plaintext.len() + 8 != ciphertext.len() {
-			return Err(SymError::ProcessingError)
-		}
+    /// AES KW decrypt
+    ///
+    /// # Arguments
+    ///
+    /// * `ciphertext` ciphertext to be encrypted
+    /// * `plaintext` buffer to be filled with plaintext (can be the same
+    ///		  the ciphertext buffer)
+    ///
+    /// # Returns
+    ///
+    /// * Returns Ok() on success or SymError on error
+    pub fn kw_decrypt(
+        &mut self,
+        ciphertext: &[u8],
+        plaintext: &mut [u8],
+    ) -> Result<(), SymError> {
+        if self.sym_ctx.is_null() {
+            return Err(SymError::UninitializedContext);
+        }
+        if plaintext.len() + 8 != ciphertext.len() {
+            return Err(SymError::ProcessingError);
+        }
 
-		let result = unsafe {
-			leancrypto::lc_aes_kw_decrypt(
-				self.sym_ctx, ciphertext.as_ptr(),
-				plaintext.as_mut_ptr(), ciphertext.len())
-		};
+        let result = unsafe {
+            leancrypto::lc_aes_kw_decrypt(
+                self.sym_ctx,
+                ciphertext.as_ptr(),
+                plaintext.as_mut_ptr(),
+                ciphertext.len(),
+            )
+        };
 
-		if result == -1*(leancrypto::EBADMSG as i32) {
-			return Err(SymError::AuthenticationError)
-		}
-		if result < 0 {
-			return Err(SymError::ProcessingError)
-		}
+        if result == -1 * (leancrypto::EBADMSG as i32) {
+            return Err(SymError::AuthenticationError);
+        }
+        if result < 0 {
+            return Err(SymError::ProcessingError);
+        }
 
-		Ok(())
-	}
+        Ok(())
+    }
 }
 
 /// This ensures the buffer is always freed
 /// regardless of when it goes out of scope
 impl Drop for lcr_sym {
-	fn drop(&mut self) {
-		if !self.sym_ctx.is_null() {
-			unsafe { leancrypto::lc_sym_zero_free(self.sym_ctx); }
-		}
-	}
+    fn drop(&mut self) {
+        if !self.sym_ctx.is_null() {
+            unsafe {
+                leancrypto::lc_sym_zero_free(self.sym_ctx);
+            }
+        }
+    }
 }

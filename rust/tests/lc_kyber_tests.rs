@@ -21,48 +21,54 @@ use leancrypto_sys::lcr_kyber::lcr_kyber;
 use leancrypto_sys::lcr_kyber::lcr_kyber_type;
 
 fn lc_rust_kyber_one(kyber_type: lcr_kyber_type) {
-	let mut kyber = lcr_kyber::new();
+    let mut kyber = lcr_kyber::new();
 
-	let result = kyber.keypair(kyber_type);
-	assert_eq!(result, Ok(()));
+    let result = kyber.keypair(kyber_type);
+    assert_eq!(result, Ok(()));
 
-	let result = kyber.encapsulate();
-	assert_eq!(result, Ok(()));
+    let result = kyber.encapsulate();
+    assert_eq!(result, Ok(()));
 
-	let ct_slice = kyber.get_ct().expect("get_ct");
-	let ct = ct_slice.to_vec();
-	let sk_slice = kyber.get_sk().expect("get_sk");
-	let sk = sk_slice.to_vec();
+    let ct_slice = kyber.get_ct().expect("get_ct");
+    let ct = ct_slice.to_vec();
+    let sk_slice = kyber.get_sk().expect("get_sk");
+    let sk = sk_slice.to_vec();
 
-	let mut kyber2 = lcr_kyber::new();
-	let result = kyber2.sk_load(&sk);
-	assert_eq!(result, Ok(()));
-	assert_eq!(kyber.get_sk().expect("get_sk"),
-		   kyber2.get_sk().expect("get_sk"));
+    let mut kyber2 = lcr_kyber::new();
+    let result = kyber2.sk_load(&sk);
+    assert_eq!(result, Ok(()));
+    assert_eq!(
+        kyber.get_sk().expect("get_sk"),
+        kyber2.get_sk().expect("get_sk")
+    );
 
-	let result = kyber2.ct_load(&ct);
-	assert_eq!(result, Ok(()));
-	assert_eq!(kyber.get_ct().expect("get_ct"),
-		   kyber2.get_ct().expect("get_ct"));
+    let result = kyber2.ct_load(&ct);
+    assert_eq!(result, Ok(()));
+    assert_eq!(
+        kyber.get_ct().expect("get_ct"),
+        kyber2.get_ct().expect("get_ct")
+    );
 
-	let result = kyber2.decapsulate();
-	assert_eq!(result, Ok(()));
-	assert_eq!(kyber.get_ss().expect("get_ss"),
-		   kyber2.get_ss().expect("get_ss"));
-	//println!("ct {:x?}",  kyber2.ct().to_vec().chunks(10).next());
+    let result = kyber2.decapsulate();
+    assert_eq!(result, Ok(()));
+    assert_eq!(
+        kyber.get_ss().expect("get_ss"),
+        kyber2.get_ss().expect("get_ss")
+    );
+    //println!("ct {:x?}",  kyber2.ct().to_vec().chunks(10).next());
 }
 
 #[test]
 fn lc_rust_kyber_512() {
-	lc_rust_kyber_one(lcr_kyber_type::lcr_kyber_512);
+    lc_rust_kyber_one(lcr_kyber_type::lcr_kyber_512);
 }
 
 #[test]
 fn lc_rust_kyber_768() {
-	lc_rust_kyber_one(lcr_kyber_type::lcr_kyber_768);
+    lc_rust_kyber_one(lcr_kyber_type::lcr_kyber_768);
 }
 
 #[test]
 fn lc_rust_kyber_1024() {
-	lc_rust_kyber_one(lcr_kyber_type::lcr_kyber_1024);
+    lc_rust_kyber_one(lcr_kyber_type::lcr_kyber_1024);
 }

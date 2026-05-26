@@ -27,5 +27,5 @@
 #[allow(dead_code)]
 
 pub mod leancrypto {
-	include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+    include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 }

@@ -21,215 +21,215 @@ use leancrypto_sys::lcr_x509::lcr_x509_key;
 use leancrypto_sys::lcr_x509::lcr_x509_key_type;
 
 fn pkcs8_key_pair_one(key_type: lcr_x509_key_type) {
-	/* Generate PKCS8 blob */
-	let mut key = lcr_x509_key::new();
-	let result = key.enable();
-	assert_eq!(result, Ok(()));
-	let result = key.key_pair_generation(key_type);
-	assert_eq!(result, Ok(()));
-	let der_key_result = key.pkcs8_encode();
+    /* Generate PKCS8 blob */
+    let mut key = lcr_x509_key::new();
+    let result = key.enable();
+    assert_eq!(result, Ok(()));
+    let result = key.key_pair_generation(key_type);
+    assert_eq!(result, Ok(()));
+    let der_key_result = key.pkcs8_encode();
 
-	let der_key = match der_key_result {
-		Ok(der_blob) => der_blob,
-		Err(error) => panic!("Problem generating PKCS8 blob: {error:?}"),
-	};
+    let der_key = match der_key_result {
+        Ok(der_blob) => der_blob,
+        Err(error) => panic!("Problem generating PKCS8 blob: {error:?}"),
+    };
 
-	println!("PKCS8 blob len {}", der_key.len());
+    println!("PKCS8 blob len {}", der_key.len());
 
-	/* Import PKCS8 blob into new PKCS8 component */
-	let mut pkcs8_2 = lcr_x509_key::new();
-	let result = pkcs8_2.pkcs8_sk_load(der_key);
-	assert_eq!(result, Ok(()));
+    /* Import PKCS8 blob into new PKCS8 component */
+    let mut pkcs8_2 = lcr_x509_key::new();
+    let result = pkcs8_2.pkcs8_sk_load(der_key);
+    assert_eq!(result, Ok(()));
 }
 
 #[test]
 fn pkcs8_key_pair_ed25519() {
-	pkcs8_key_pair_one(lcr_x509_key_type::lcr_ed25519);
+    pkcs8_key_pair_one(lcr_x509_key_type::lcr_ed25519);
 }
 
 #[test]
 fn pkcs8_key_pair_ed448() {
-	pkcs8_key_pair_one(lcr_x509_key_type::lcr_ed448);
+    pkcs8_key_pair_one(lcr_x509_key_type::lcr_ed448);
 }
 
 #[test]
 fn pkcs8_key_pair_mldsa44() {
-	pkcs8_key_pair_one(lcr_x509_key_type::lcr_dilithium_44);
+    pkcs8_key_pair_one(lcr_x509_key_type::lcr_dilithium_44);
 }
 
 #[test]
 fn pkcs8_key_pair_mldsa65() {
-	pkcs8_key_pair_one(lcr_x509_key_type::lcr_dilithium_65);
+    pkcs8_key_pair_one(lcr_x509_key_type::lcr_dilithium_65);
 }
 
 #[test]
 fn pkcs8_key_pair_mldsa87() {
-	pkcs8_key_pair_one(lcr_x509_key_type::lcr_dilithium_87);
+    pkcs8_key_pair_one(lcr_x509_key_type::lcr_dilithium_87);
 }
 
 #[test]
 fn pkcs8_key_pair_mldsa87_ed448() {
-	pkcs8_key_pair_one(lcr_x509_key_type::lcr_dilithium_87_ed448);
+    pkcs8_key_pair_one(lcr_x509_key_type::lcr_dilithium_87_ed448);
 }
 
 #[test]
 fn pkcs8_key_pair_mldsa65_ed25519() {
-	pkcs8_key_pair_one(lcr_x509_key_type::lcr_dilithium_65_ed25519);
+    pkcs8_key_pair_one(lcr_x509_key_type::lcr_dilithium_65_ed25519);
 }
 
 #[test]
 fn pkcs8_key_pair_mldsa44_ed25519() {
-	pkcs8_key_pair_one(lcr_x509_key_type::lcr_dilithium_44_ed25519);
+    pkcs8_key_pair_one(lcr_x509_key_type::lcr_dilithium_44_ed25519);
 }
 
 #[test]
 fn pkcs8_key_pair_sphincs_shake_256s() {
-	pkcs8_key_pair_one(lcr_x509_key_type::lcr_sphincs_shake_256s);
+    pkcs8_key_pair_one(lcr_x509_key_type::lcr_sphincs_shake_256s);
 }
 
 #[test]
 fn pkcs8_key_pair_sphincs_shake_256f() {
-	pkcs8_key_pair_one(lcr_x509_key_type::lcr_sphincs_shake_256f);
+    pkcs8_key_pair_one(lcr_x509_key_type::lcr_sphincs_shake_256f);
 }
 
 #[test]
 fn pkcs8_key_pair_sphincs_shake_192s() {
-	pkcs8_key_pair_one(lcr_x509_key_type::lcr_sphincs_shake_192s);
+    pkcs8_key_pair_one(lcr_x509_key_type::lcr_sphincs_shake_192s);
 }
 
 #[test]
 fn pkcs8_key_pair_sphincs_shake_192f() {
-	pkcs8_key_pair_one(lcr_x509_key_type::lcr_sphincs_shake_192f);
+    pkcs8_key_pair_one(lcr_x509_key_type::lcr_sphincs_shake_192f);
 }
 
 #[test]
 fn pkcs8_key_pair_sphincs_shake_128s() {
-	pkcs8_key_pair_one(lcr_x509_key_type::lcr_sphincs_shake_128s);
+    pkcs8_key_pair_one(lcr_x509_key_type::lcr_sphincs_shake_128s);
 }
 
 #[test]
 fn pkcs8_key_pair_sphincs_shake_128f() {
-	pkcs8_key_pair_one(lcr_x509_key_type::lcr_sphincs_shake_128f);
+    pkcs8_key_pair_one(lcr_x509_key_type::lcr_sphincs_shake_128f);
 }
 
 fn x509_cert_one(key_type: lcr_x509_key_type) {
-	let mut key = lcr_x509_key::new();
-	let result = key.key_pair_generation(key_type);
-	assert_eq!(result, Ok(()));
-	let result = key.enable();
-	assert_eq!(result, Ok(()));
+    let mut key = lcr_x509_key::new();
+    let result = key.key_pair_generation(key_type);
+    assert_eq!(result, Ok(()));
+    let result = key.enable();
+    assert_eq!(result, Ok(()));
 
-	/*
-	 * Set the different properties of the certifificate
-	 */
-	let result = key.cert_set_keyusage("digitalSignature");
-	assert_eq!(result, Ok(()));
-	let result = key.cert_set_keyusage("keyCertSign");
-	assert_eq!(result, Ok(()));
-	let result = key.cert_set_keyusage("critical");
-	assert_eq!(result, Ok(()));
-	let result = key.cert_set_ca_pathlen(9);
-	assert_eq!(result, Ok(()));
-	let result = key.cert_set_valid_from(1729527728);
-	assert_eq!(result, Ok(()));
-	let result = key.cert_set_valid_to(2044210606);
-	assert_eq!(result, Ok(()));
-	let result = key.cert_set_subject_cn("leancrypto test CA");
-	assert_eq!(result, Ok(()));
-	let result = key.cert_set_subject_ou("leancrypto test OU");
-	assert_eq!(result, Ok(()));
-	let result = key.cert_set_subject_o("leancrypto");
-	assert_eq!(result, Ok(()));
-	let result = key.cert_set_subject_st("Saxony");
-	assert_eq!(result, Ok(()));
-	let result = key.cert_set_subject_c("DE");
-	assert_eq!(result, Ok(()));
-	let result = key.cert_set_ca();
-	assert_eq!(result, Ok(()));
-	let result = key.cert_check_issuer_ca();
-	assert_eq!(result, Ok(()));
+    /*
+     * Set the different properties of the certifificate
+     */
+    let result = key.cert_set_keyusage("digitalSignature");
+    assert_eq!(result, Ok(()));
+    let result = key.cert_set_keyusage("keyCertSign");
+    assert_eq!(result, Ok(()));
+    let result = key.cert_set_keyusage("critical");
+    assert_eq!(result, Ok(()));
+    let result = key.cert_set_ca_pathlen(9);
+    assert_eq!(result, Ok(()));
+    let result = key.cert_set_valid_from(1729527728);
+    assert_eq!(result, Ok(()));
+    let result = key.cert_set_valid_to(2044210606);
+    assert_eq!(result, Ok(()));
+    let result = key.cert_set_subject_cn("leancrypto test CA");
+    assert_eq!(result, Ok(()));
+    let result = key.cert_set_subject_ou("leancrypto test OU");
+    assert_eq!(result, Ok(()));
+    let result = key.cert_set_subject_o("leancrypto");
+    assert_eq!(result, Ok(()));
+    let result = key.cert_set_subject_st("Saxony");
+    assert_eq!(result, Ok(()));
+    let result = key.cert_set_subject_c("DE");
+    assert_eq!(result, Ok(()));
+    let result = key.cert_set_ca();
+    assert_eq!(result, Ok(()));
+    let result = key.cert_check_issuer_ca();
+    assert_eq!(result, Ok(()));
 
-	let cert_der_result = key.cert_encode();
+    let cert_der_result = key.cert_encode();
 
-	let cert_der = match cert_der_result {
-		Ok(der_blob) => der_blob,
-		Err(error) => panic!("Problem generating PKCS8 blob: {error:?}"),
-	};
+    let cert_der = match cert_der_result {
+        Ok(der_blob) => der_blob,
+        Err(error) => panic!("Problem generating PKCS8 blob: {error:?}"),
+    };
 
-	println!("X.509 certificate blob len {}", cert_der.len());
+    println!("X.509 certificate blob len {}", cert_der.len());
 
-	/* Import DER blob into new X.509 component */
-	let mut key2 = lcr_x509_key::new();
-	let result = key2.cert_decode(cert_der);
-	assert_eq!(result, Ok(()));
+    /* Import DER blob into new X.509 component */
+    let mut key2 = lcr_x509_key::new();
+    let result = key2.cert_decode(cert_der);
+    assert_eq!(result, Ok(()));
 }
 
 #[test]
 fn x509_key_pair_ed25519() {
-	x509_cert_one(lcr_x509_key_type::lcr_ed25519);
+    x509_cert_one(lcr_x509_key_type::lcr_ed25519);
 }
 
 #[test]
 fn x509_key_pair_ed448() {
-	x509_cert_one(lcr_x509_key_type::lcr_ed448);
+    x509_cert_one(lcr_x509_key_type::lcr_ed448);
 }
 
 #[test]
 fn x509_key_pair_mldsa44() {
-	x509_cert_one(lcr_x509_key_type::lcr_dilithium_44);
+    x509_cert_one(lcr_x509_key_type::lcr_dilithium_44);
 }
 
 #[test]
 fn x509_key_pair_mldsa65() {
-	x509_cert_one(lcr_x509_key_type::lcr_dilithium_65);
+    x509_cert_one(lcr_x509_key_type::lcr_dilithium_65);
 }
 
 #[test]
 fn x509_key_pair_mldsa87() {
-	x509_cert_one(lcr_x509_key_type::lcr_dilithium_87);
+    x509_cert_one(lcr_x509_key_type::lcr_dilithium_87);
 }
 
 #[test]
 fn x509_key_pair_mldsa87_ed448() {
-	x509_cert_one(lcr_x509_key_type::lcr_dilithium_87_ed448);
+    x509_cert_one(lcr_x509_key_type::lcr_dilithium_87_ed448);
 }
 
 #[test]
 fn x509_key_pair_mldsa65_ed25519() {
-	x509_cert_one(lcr_x509_key_type::lcr_dilithium_65_ed25519);
+    x509_cert_one(lcr_x509_key_type::lcr_dilithium_65_ed25519);
 }
 
 #[test]
 fn x509_key_pair_mldsa44_ed25519() {
-	x509_cert_one(lcr_x509_key_type::lcr_dilithium_44_ed25519);
+    x509_cert_one(lcr_x509_key_type::lcr_dilithium_44_ed25519);
 }
 
 #[test]
 fn x509_key_pair_sphincs_shake_256s() {
-	x509_cert_one(lcr_x509_key_type::lcr_sphincs_shake_256s);
+    x509_cert_one(lcr_x509_key_type::lcr_sphincs_shake_256s);
 }
 
 #[test]
 fn x509_key_pair_sphincs_shake_256f() {
-	x509_cert_one(lcr_x509_key_type::lcr_sphincs_shake_256f);
+    x509_cert_one(lcr_x509_key_type::lcr_sphincs_shake_256f);
 }
 
 #[test]
 fn x509_key_pair_sphincs_shake_192s() {
-	x509_cert_one(lcr_x509_key_type::lcr_sphincs_shake_192s);
+    x509_cert_one(lcr_x509_key_type::lcr_sphincs_shake_192s);
 }
 
 #[test]
 fn x509_key_pair_sphincs_shake_192f() {
-	x509_cert_one(lcr_x509_key_type::lcr_sphincs_shake_192f);
+    x509_cert_one(lcr_x509_key_type::lcr_sphincs_shake_192f);
 }
 
 #[test]
 fn x509_key_pair_sphincs_shake_128s() {
-	x509_cert_one(lcr_x509_key_type::lcr_sphincs_shake_128s);
+    x509_cert_one(lcr_x509_key_type::lcr_sphincs_shake_128s);
 }
 
 #[test]
 fn x509_key_pair_sphincs_shake_128f() {
-	x509_cert_one(lcr_x509_key_type::lcr_sphincs_shake_128f);
+    x509_cert_one(lcr_x509_key_type::lcr_sphincs_shake_128f);
 }

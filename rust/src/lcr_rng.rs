@@ -17,206 +17,209 @@
  * DAMAGE.
  */
 
-use crate::ffi::leancrypto;
 use crate::error::RngError;
+use crate::ffi::leancrypto;
 
 #[derive(PartialEq)]
 pub enum lcr_rng_type {
-	lcr_seeded_rng,
-	lcr_xdrbg256,
-	lcr_xdrbg128,
-	lcr_hash_drbg,
-	lcr_hmac_drbg,
+    lcr_seeded_rng,
+    lcr_xdrbg256,
+    lcr_xdrbg128,
+    lcr_hash_drbg,
+    lcr_hmac_drbg,
 }
 
 /// Leancrypto wrapper for lc_rng
 pub struct lcr_rng {
-	/// RNG context
-	rng_ctx: *mut leancrypto::lc_rng_ctx,
+    /// RNG context
+    rng_ctx: *mut leancrypto::lc_rng_ctx,
 
-	/// Leancrypto rng reference
-	rng: lcr_rng_type,
+    /// Leancrypto rng reference
+    rng: lcr_rng_type,
 
-	seeded: bool,
+    seeded: bool,
 }
 
 /// Generate random number from a seeded DRNG
 pub fn lcr_rng_generate_seeded(
-	additional_info: &[u8],
-	rng: &mut [u8]
+    additional_info: &[u8],
+    rng: &mut [u8],
 ) -> Result<(), RngError> {
-	let result = unsafe {
-		leancrypto::lc_rng_generate(
-			leancrypto::lc_seeded_rng, additional_info.as_ptr(),
-			additional_info.len(), rng.as_mut_ptr(),
-			rng.len())
-	};
+    let result = unsafe {
+        leancrypto::lc_rng_generate(
+            leancrypto::lc_seeded_rng,
+            additional_info.as_ptr(),
+            additional_info.len(),
+            rng.as_mut_ptr(),
+            rng.len(),
+        )
+    };
 
-	if result < 0 {
-		return Err(RngError::ProcessingError);
-	}
+    if result < 0 {
+        return Err(RngError::ProcessingError);
+    }
 
-	Ok(())
+    Ok(())
 }
 
 #[allow(dead_code)]
 impl lcr_rng {
-	/// Instantiate the RNG: by default, the seeded RNG is immediately
-	/// available.
-	pub fn new() -> Self {
-		lcr_rng {
-			rng_ctx: unsafe { leancrypto::lc_seeded_rng },
-			rng: lcr_rng_type::lcr_seeded_rng,
-			seeded: true,
-		}
-	}
+    /// Instantiate the RNG: by default, the seeded RNG is immediately
+    /// available.
+    pub fn new() -> Self {
+        lcr_rng {
+            rng_ctx: unsafe { leancrypto::lc_seeded_rng },
+            rng: lcr_rng_type::lcr_seeded_rng,
+            seeded: true,
+        }
+    }
 
-	/// Set the RNG type
-	///
-	/// By default, teh seeded RNG is set. Therefore, this call is only
-	/// needed, if the caller wants a deterministic RNG whose seeding
-	/// is controlled entirely by the caller.
-	///
-	/// # Arguments
-	///
-	/// * `rng_type` Type of the RNG
-	///
-	/// # Returns
-	///
-	/// * Returns Ok() on success or RngError on error
-	pub fn set_type(
-		&mut self,
-		rng_type: lcr_rng_type
-	) -> Result<(), RngError> {
-		/* Free previously allocated RNG context to avoid leak */
-		if !self.rng_ctx.is_null() &&
-		    self.rng != lcr_rng_type::lcr_seeded_rng {
-			unsafe { leancrypto::lc_rng_zero_free(self.rng_ctx); }
-			self.rng_ctx = std::ptr::null_mut();
-		}
-		self.rng = rng_type;
-		match self.rng {
-			lcr_rng_type::lcr_seeded_rng => {
-				self.rng_ctx = unsafe {
-					leancrypto::lc_seeded_rng
-				};
-				self.seeded = true
-			},
-			lcr_rng_type::lcr_xdrbg256 => {
-				unsafe {
-					leancrypto::lc_xdrbg256_drng_alloc(&mut self.rng_ctx)
-				};
-				self.seeded = false
-			},
-			lcr_rng_type::lcr_xdrbg128 => {
-				unsafe {
-					leancrypto::lc_xdrbg128_drng_alloc(&mut self.rng_ctx)
-				};
-				self.seeded = false
-			},
-			lcr_rng_type::lcr_hash_drbg => {
-				unsafe {
-					leancrypto::lc_drbg_hash_alloc(&mut self.rng_ctx)
-				};
-				self.seeded = false
-			},
-			lcr_rng_type::lcr_hmac_drbg => {
-				unsafe {
-					leancrypto::lc_drbg_hmac_alloc(&mut self.rng_ctx)
-				};
-				self.seeded = false
-			},
+    /// Set the RNG type
+    ///
+    /// By default, teh seeded RNG is set. Therefore, this call is only
+    /// needed, if the caller wants a deterministic RNG whose seeding
+    /// is controlled entirely by the caller.
+    ///
+    /// # Arguments
+    ///
+    /// * `rng_type` Type of the RNG
+    ///
+    /// # Returns
+    ///
+    /// * Returns Ok() on success or RngError on error
+    pub fn set_type(
+        &mut self,
+        rng_type: lcr_rng_type,
+    ) -> Result<(), RngError> {
+        /* Free previously allocated RNG context to avoid leak */
+        if !self.rng_ctx.is_null() && self.rng != lcr_rng_type::lcr_seeded_rng {
+            unsafe {
+                leancrypto::lc_rng_zero_free(self.rng_ctx);
+            }
+            self.rng_ctx = std::ptr::null_mut();
+        }
+        self.rng = rng_type;
+        match self.rng {
+            lcr_rng_type::lcr_seeded_rng => {
+                self.rng_ctx = unsafe { leancrypto::lc_seeded_rng };
+                self.seeded = true
+            }
+            lcr_rng_type::lcr_xdrbg256 => {
+                unsafe {
+                    leancrypto::lc_xdrbg256_drng_alloc(&mut self.rng_ctx)
+                };
+                self.seeded = false
+            }
+            lcr_rng_type::lcr_xdrbg128 => {
+                unsafe {
+                    leancrypto::lc_xdrbg128_drng_alloc(&mut self.rng_ctx)
+                };
+                self.seeded = false
+            }
+            lcr_rng_type::lcr_hash_drbg => {
+                unsafe { leancrypto::lc_drbg_hash_alloc(&mut self.rng_ctx) };
+                self.seeded = false
+            }
+            lcr_rng_type::lcr_hmac_drbg => {
+                unsafe { leancrypto::lc_drbg_hmac_alloc(&mut self.rng_ctx) };
+                self.seeded = false
+            } // _ => {
+              // 	self.seeded = false;
+              // 	return Err(RngError::AllocationError)
+              // }
+        }
 
-			// _ => {
-			// 	self.seeded = false;
-			// 	return Err(RngError::AllocationError)
-			// }
-		}
+        Ok(())
+    }
 
-		Ok(())
-	}
+    /// Seed or reseed the RNG
+    ///
+    /// # Arguments
+    ///
+    /// * `seed` Buffer holding the seed data
+    /// * `personalization_string` Optional buffer holding the
+    ///    personalization_string (when reseeding is requested, then this
+    ///    parameter is used as "additional info" string)
+    ///
+    /// # Returns
+    ///
+    /// * Returns Ok() on success or RngError on error
+    pub fn seed(
+        &mut self,
+        seed: &[u8],
+        personalization_string: &[u8],
+    ) -> Result<(), RngError> {
+        if self.rng_ctx.is_null() {
+            return Err(RngError::UninitializedContext);
+        }
 
-	/// Seed or reseed the RNG
-	///
-	/// # Arguments
-	///
-	/// * `seed` Buffer holding the seed data
-	/// * `personalization_string` Optional buffer holding the
-	///    personalization_string (when reseeding is requested, then this
-	///    parameter is used as "additional info" string)
-	///
-	/// # Returns
-	///
-	/// * Returns Ok() on success or RngError on error
-	pub fn seed(
-		&mut self,
-		seed: &[u8],
-		personalization_string: &[u8]
-	) -> Result<(), RngError> {
-		if self.rng_ctx.is_null() {
-			return Err(RngError::UninitializedContext);
-		}
+        let result = unsafe {
+            leancrypto::lc_rng_seed(
+                self.rng_ctx,
+                seed.as_ptr(),
+                seed.len(),
+                personalization_string.as_ptr(),
+                personalization_string.len(),
+            )
+        };
 
-		let result = unsafe {
-			leancrypto::lc_rng_seed(
-				self.rng_ctx, seed.as_ptr(), seed.len(),
-				personalization_string.as_ptr(),
-				personalization_string.len())
-		};
+        if result < 0 {
+            return Err(RngError::ProcessingError);
+        }
 
-		if result < 0 {
-			return Err(RngError::ProcessingError);
-		}
+        self.seeded = true;
 
-		self.seeded = true;
+        Ok(())
+    }
 
-		Ok(())
-	}
+    /// Generate random numbers
+    ///
+    /// # Arguments
+    ///
+    /// * `additional_info` holds the additional information (may be null)
+    /// * `rng` Allocated buffer that is filled completely with random data
+    ///
+    /// # Returns
+    ///
+    /// * Returns Ok() on success or RngError on error
+    pub fn generate(
+        &mut self,
+        additional_info: &[u8],
+        rng: &mut [u8],
+    ) -> Result<(), RngError> {
+        if self.rng_ctx.is_null() {
+            return Err(RngError::UninitializedContext);
+        }
+        if !self.seeded {
+            return Err(RngError::NotSeeded);
+        }
 
-	/// Generate random numbers
-	///
-	/// # Arguments
-	///
-	/// * `additional_info` holds the additional information (may be null)
-	/// * `rng` Allocated buffer that is filled completely with random data
-	///
-	/// # Returns
-	///
-	/// * Returns Ok() on success or RngError on error
-	pub fn generate(
-		&mut self,
-		additional_info: &[u8],
-		rng: &mut [u8]
-	) -> Result<(), RngError> {
-		if self.rng_ctx.is_null() {
-			return Err(RngError::UninitializedContext);
-		}
-		if !self.seeded {
-			return Err(RngError::NotSeeded);
-		}
+        let result = unsafe {
+            leancrypto::lc_rng_generate(
+                self.rng_ctx,
+                additional_info.as_ptr(),
+                additional_info.len(),
+                rng.as_mut_ptr(),
+                rng.len(),
+            )
+        };
 
-		let result = unsafe {
-			leancrypto::lc_rng_generate(
-				self.rng_ctx, additional_info.as_ptr(),
-				additional_info.len(), rng.as_mut_ptr(),
-				rng.len())
-		};
+        if result < 0 {
+            return Err(RngError::ProcessingError);
+        }
 
-		if result < 0 {
-			return Err(RngError::ProcessingError);
-		}
-
-		Ok(())
-	}
+        Ok(())
+    }
 }
 
 /// This ensures the RNG context is always freed
 /// regardless of when it goes out of scope
 impl Drop for lcr_rng {
-	fn drop(&mut self) {
-		if !self.rng_ctx.is_null() &&
-		    self.rng != lcr_rng_type::lcr_seeded_rng {
-			unsafe { leancrypto::lc_rng_zero_free(self.rng_ctx); }
-		}
-	}
+    fn drop(&mut self) {
+        if !self.rng_ctx.is_null() && self.rng != lcr_rng_type::lcr_seeded_rng {
+            unsafe {
+                leancrypto::lc_rng_zero_free(self.rng_ctx);
+            }
+        }
+    }
 }

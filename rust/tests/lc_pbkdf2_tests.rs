@@ -17,30 +17,32 @@
  * DAMAGE.
  */
 
-use leancrypto_sys::lcr_pbkdf2::lcr_pbkdf2;
 use leancrypto_sys::lcr_hash::lcr_hash_type;
+use leancrypto_sys::lcr_pbkdf2::lcr_pbkdf2;
 
 #[test]
 fn lc_rust_pbkdf2_tester() {
-	let pw: [u8; 8] = [ 0x70, 0x61, 0x73, 0x73,  0x77, 0x6f, 0x72, 0x64 ];
-	let salt: [u8; 4] = [ 0x73, 0x61, 0x6c, 0x74 ];
-	let count: u32 = 4096;
-	let exp_256: [u8; 20] = [ 0xc5, 0xe4, 0x78, 0xd5, 0x92, 0x88, 0xc8,
-				  0x41, 0xaa, 0x53, 0x0d, 0xb6, 0x84, 0x5c,
-				  0x4c, 0x8d, 0x96, 0x28, 0x93, 0xa0 ];
-	let exp_512: [u8; 20] = [ 0xd1, 0x97, 0xb1, 0xb3, 0x3d, 0xb0, 0x14,
-				  0x3e, 0x01, 0x8b, 0x12, 0xf3, 0xd1, 0xd1,
-				  0x47, 0x9e, 0x6c, 0xde, 0xbd, 0xcc ];
+    let pw: [u8; 8] = [0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64];
+    let salt: [u8; 4] = [0x73, 0x61, 0x6c, 0x74];
+    let count: u32 = 4096;
+    let exp_256: [u8; 20] = [
+        0xc5, 0xe4, 0x78, 0xd5, 0x92, 0x88, 0xc8, 0x41, 0xaa, 0x53, 0x0d, 0xb6,
+        0x84, 0x5c, 0x4c, 0x8d, 0x96, 0x28, 0x93, 0xa0,
+    ];
+    let exp_512: [u8; 20] = [
+        0xd1, 0x97, 0xb1, 0xb3, 0x3d, 0xb0, 0x14, 0x3e, 0x01, 0x8b, 0x12, 0xf3,
+        0xd1, 0xd1, 0x47, 0x9e, 0x6c, 0xde, 0xbd, 0xcc,
+    ];
 
-	let mut pbkdf2 = lcr_pbkdf2::new(lcr_hash_type::lcr_sha2_256);
-	let mut act = vec![0u8; exp_256.len()];
-	let result = pbkdf2.derive(&pw, &salt, count, &mut act);
-	assert_eq!(result, Ok(()));
-	assert_eq!(act, &exp_256[..]);
+    let mut pbkdf2 = lcr_pbkdf2::new(lcr_hash_type::lcr_sha2_256);
+    let mut act = vec![0u8; exp_256.len()];
+    let result = pbkdf2.derive(&pw, &salt, count, &mut act);
+    assert_eq!(result, Ok(()));
+    assert_eq!(act, &exp_256[..]);
 
-	let mut pbkdf2 = lcr_pbkdf2::new(lcr_hash_type::lcr_sha2_512);
-	let mut act = vec![0u8; exp_512.len()];
-	let result = pbkdf2.derive(&pw, &salt, count, &mut act);
-	assert_eq!(result, Ok(()));
-	assert_eq!(act, &exp_512[..]);
+    let mut pbkdf2 = lcr_pbkdf2::new(lcr_hash_type::lcr_sha2_512);
+    let mut act = vec![0u8; exp_512.len()];
+    let result = pbkdf2.derive(&pw, &salt, count, &mut act);
+    assert_eq!(result, Ok(()));
+    assert_eq!(act, &exp_512[..]);
 }

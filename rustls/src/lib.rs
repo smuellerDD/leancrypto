@@ -58,10 +58,12 @@ mod verify;
 pub mod self_tests;
 
 pub mod cipher_suite {
-	//! Supported cipher suites.
-	#[cfg(not(feature = "fips"))]
-	pub use super::tls13::TLS13_CHACHA20_POLY1305_SHA256;
-	pub use super::tls13::{TLS13_AES_128_GCM_SHA256, TLS13_AES_256_GCM_SHA384};
+    //! Supported cipher suites.
+    #[cfg(not(feature = "fips"))]
+    pub use super::tls13::TLS13_CHACHA20_POLY1305_SHA256;
+    pub use super::tls13::{
+        TLS13_AES_128_GCM_SHA256, TLS13_AES_256_GCM_SHA384,
+    };
 }
 
 pub use signer::KeyProvider;
@@ -89,13 +91,13 @@ pub use verify::SUPPORTED_SIG_ALGS;
 ///
 /// ```
 pub fn default_provider() -> CryptoProvider {
-	CryptoProvider {
-		cipher_suites: ALL_CIPHER_SUITES.to_vec(),
-		kx_groups: kx_group::DEFAULT_KX_GROUPS.to_vec(),
-		signature_verification_algorithms: SUPPORTED_SIG_ALGS,
-		secure_random: &SecureRandom,
-		key_provider: &KeyProvider,
-	}
+    CryptoProvider {
+        cipher_suites: ALL_CIPHER_SUITES.to_vec(),
+        kx_groups: kx_group::DEFAULT_KX_GROUPS.to_vec(),
+        signature_verification_algorithms: SUPPORTED_SIG_ALGS,
+        secure_random: &SecureRandom,
+        key_provider: &KeyProvider,
+    }
 }
 
 /// Create a [CryptoProvider] with specific cipher suites and key exchange groups
@@ -133,15 +135,15 @@ pub fn default_provider() -> CryptoProvider {
 ///
 /// ```
 pub fn custom_provider(
-	cipher_suites: Vec<SupportedCipherSuite>,
-	kx_groups: Vec<&'static dyn SupportedKxGroup>,
+    cipher_suites: Vec<SupportedCipherSuite>,
+    kx_groups: Vec<&'static dyn SupportedKxGroup>,
 ) -> CryptoProvider {
-	CryptoProvider {
-		cipher_suites,
-		kx_groups,
-		signature_verification_algorithms: SUPPORTED_SIG_ALGS,
-		secure_random: &SecureRandom,
-		key_provider: &KeyProvider,
+    CryptoProvider {
+        cipher_suites,
+        kx_groups,
+        signature_verification_algorithms: SUPPORTED_SIG_ALGS,
+        secure_random: &SecureRandom,
+        key_provider: &KeyProvider,
     }
 }
 
@@ -152,10 +154,10 @@ pub fn custom_provider(
 ///
 /// If the non-default `fips` feature is enabled then the ChaCha20-Poly1305 cipher suites will not be included.
 pub static ALL_CIPHER_SUITES: &[SupportedCipherSuite] = &[
-	tls13::TLS13_AES_256_GCM_SHA384,
-	tls13::TLS13_AES_128_GCM_SHA256,
-	#[cfg(not(feature = "fips"))]
-	tls13::TLS13_CHACHA20_POLY1305_SHA256,
+    tls13::TLS13_AES_256_GCM_SHA384,
+    tls13::TLS13_AES_128_GCM_SHA256,
+    #[cfg(not(feature = "fips"))]
+    tls13::TLS13_CHACHA20_POLY1305_SHA256,
 ];
 
 /// A struct that implements [rustls::crypto::SecureRandom].
@@ -163,72 +165,75 @@ pub static ALL_CIPHER_SUITES: &[SupportedCipherSuite] = &[
 pub struct SecureRandom;
 
 impl rustls::crypto::SecureRandom for SecureRandom {
-	fn fill(&self, buf: &mut [u8]) -> Result<(), GetRandomFailed> {
-		let result = lcr_rng_generate_seeded(&[], buf);
-		match result {
-			Err(_) => Err(GetRandomFailed),
-			Ok(_) => Ok(())
-		}
-	}
+    fn fill(
+        &self,
+        buf: &mut [u8],
+    ) -> Result<(), GetRandomFailed> {
+        let result = lcr_rng_generate_seeded(&[], buf);
+        match result {
+            Err(_) => Err(GetRandomFailed),
+            Ok(_) => Ok(()),
+        }
+    }
 
-	fn fips(&self) -> bool {
-		fips::enabled()
-	}
+    fn fips(&self) -> bool {
+        fips::enabled()
+    }
 }
 
 pub mod fips {
-	//! # FIPS support
-	//!
-	//! To use rustls with leancrypto in FIPS mode, perform the following actions.
-	//!
-	//! ## 1. Enable the `fips` feature
-	//!
-	//! This removes non-FIPS-approved cipher suites and key exchanges.
-	//!
-	//! ## 2. Specify `require_ems` when constructing [rustls::ClientConfig] or [rustls::ServerConfig]
-	//!
-	//! See [rustls documentation](https://docs.rs/rustls/latest/rustls/client/struct.ClientConfig.html#structfield.require_ems) for rationale.
-	//!
-	//! ## 3. Enable FIPS mode for leancrypto
-	//!
-	//! See [enable()].
-	//!
-	//! ## 4. Validate the FIPS status of your ClientConfig or ServerConfig at runtime
-	//! See [rustls documenation on FIPS](https://docs.rs/rustls/latest/rustls/manual/_06_fips/index.html#3-validate-the-fips-status-of-your-clientconfigserverconfig-at-run-time).
+    //! # FIPS support
+    //!
+    //! To use rustls with leancrypto in FIPS mode, perform the following actions.
+    //!
+    //! ## 1. Enable the `fips` feature
+    //!
+    //! This removes non-FIPS-approved cipher suites and key exchanges.
+    //!
+    //! ## 2. Specify `require_ems` when constructing [rustls::ClientConfig] or [rustls::ServerConfig]
+    //!
+    //! See [rustls documentation](https://docs.rs/rustls/latest/rustls/client/struct.ClientConfig.html#structfield.require_ems) for rationale.
+    //!
+    //! ## 3. Enable FIPS mode for leancrypto
+    //!
+    //! See [enable()].
+    //!
+    //! ## 4. Validate the FIPS status of your ClientConfig or ServerConfig at runtime
+    //! See [rustls documenation on FIPS](https://docs.rs/rustls/latest/rustls/manual/_06_fips/index.html#3-validate-the-fips-status-of-your-clientconfigserverconfig-at-run-time).
 
-	/// Returns `true` if leancrypto is running in FIPS mode.
-	#[cfg(fips_module)]
-	pub(crate) fn enabled() -> bool {
-		//leancrypto::fips::enabled()
-		//TODO
-		false
-	}
+    /// Returns `true` if leancrypto is running in FIPS mode.
+    #[cfg(fips_module)]
+    pub(crate) fn enabled() -> bool {
+        //leancrypto::fips::enabled()
+        //TODO
+        false
+    }
 
-	#[cfg(not(fips_module))]
-	pub(crate) fn enabled() -> bool {
-		false
-	}
+    #[cfg(not(fips_module))]
+    pub(crate) fn enabled() -> bool {
+        false
+    }
 
-	/// Enable FIPS mode for leancrypto.
-	///
-	/// This should be called on application startup before the provider is used.
-	///
-	/// Panics if FIPS cannot be enabled
-	#[cfg(fips_module)]
-	pub fn enable() {
-		println!("Failed to enable FIPS mode.");
-	}
+    /// Enable FIPS mode for leancrypto.
+    ///
+    /// This should be called on application startup before the provider is used.
+    ///
+    /// Panics if FIPS cannot be enabled
+    #[cfg(fips_module)]
+    pub fn enable() {
+        println!("Failed to enable FIPS mode.");
+    }
 
-	/// Enable FIPS mode for leancrypto.
-	///
-	/// This should be called on application startup before the provider is used.
-	///
-	/// On leancrypto 1.1.1 this calls [FIPS_mode_set](https://wiki.leancrypto.org/index.php/FIPS_mode_set()).
-	/// On leancrypto 3 this loads a FIPS provider, which must be available.
-	///
-	/// Panics if FIPS cannot be enabled
-	#[cfg(not(fips_module))]
-	pub fn enable() {
-		println!("Failed to enable FIPS mode.");
-	}
+    /// Enable FIPS mode for leancrypto.
+    ///
+    /// This should be called on application startup before the provider is used.
+    ///
+    /// On leancrypto 1.1.1 this calls [FIPS_mode_set](https://wiki.leancrypto.org/index.php/FIPS_mode_set()).
+    /// On leancrypto 3 this loads a FIPS provider, which must be available.
+    ///
+    /// Panics if FIPS cannot be enabled
+    #[cfg(not(fips_module))]
+    pub fn enable() {
+        println!("Failed to enable FIPS mode.");
+    }
 }

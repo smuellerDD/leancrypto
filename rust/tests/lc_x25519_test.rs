@@ -20,61 +20,60 @@
 use leancrypto_sys::lcr_x25519::lcr_x25519;
 
 fn lc_rust_x25519_one() {
-	let mut x25519_local = lcr_x25519::new();
-	let mut x25519_remote = lcr_x25519::new();
+    let mut x25519_local = lcr_x25519::new();
+    let mut x25519_remote = lcr_x25519::new();
 
-	let result = x25519_local.enable();
-	assert_eq!(result, Ok(()));
+    let result = x25519_local.enable();
+    assert_eq!(result, Ok(()));
 
+    /* Generate local key pair */
+    let result = x25519_local.keypair();
+    assert_eq!(result, Ok(()));
 
-	/* Generate local key pair */
-	let result = x25519_local.keypair();
-	assert_eq!(result, Ok(()));
+    /* Export local public key */
+    let pk_local_slice = x25519_local.get_pk().expect("get_pk");
+    let pk_local = pk_local_slice.to_vec();
 
-	/* Export local public key */
-	let pk_local_slice = x25519_local.get_pk().expect("get_pk");
-	let pk_local = pk_local_slice.to_vec();
+    /* Generate remote key pair */
+    let result = x25519_remote.keypair();
+    assert_eq!(result, Ok(()));
 
-	/* Generate remote key pair */
-	let result = x25519_remote.keypair();
-	assert_eq!(result, Ok(()));
+    /* Export remote public key */
+    let pk_remote_slice = x25519_remote.get_pk().expect("get_pk");
+    let pk_remote = pk_remote_slice.to_vec();
 
-	/* Export remote public key */
-	let pk_remote_slice = x25519_remote.get_pk().expect("get_pk");
-	let pk_remote = pk_remote_slice.to_vec();
+    /* Load remote PK into local context */
+    let result = x25519_local.pk_remote_load(&pk_remote);
+    assert_eq!(result, Ok(()));
 
-	/* Load remote PK into local context */
-	let result = x25519_local.pk_remote_load(&pk_remote);
-	assert_eq!(result, Ok(()));
+    /* Load local PK into remote context */
+    let result = x25519_remote.pk_remote_load(&pk_local);
+    assert_eq!(result, Ok(()));
 
-	/* Load local PK into remote context */
-	let result = x25519_remote.pk_remote_load(&pk_local);
-	assert_eq!(result, Ok(()));
+    /* Generate local shared secret */
+    let result = x25519_local.shared_secret();
+    assert_eq!(result, Ok(()));
 
-	/* Generate local shared secret */
-	let result = x25519_local.shared_secret();
-	assert_eq!(result, Ok(()));
+    /* Export local shared secret */
+    let ss_local_slice = x25519_local.get_ss().expect("get_ss");
+    let ss_local = ss_local_slice.to_vec();
 
-	/* Export local shared secret */
-	let ss_local_slice = x25519_local.get_ss().expect("get_ss");
-	let ss_local = ss_local_slice.to_vec();
+    /* Generate remote shared secret */
+    let result = x25519_remote.shared_secret();
+    assert_eq!(result, Ok(()));
 
-	/* Generate remote shared secret */
-	let result = x25519_remote.shared_secret();
-	assert_eq!(result, Ok(()));
+    /* Export remote shared secret */
+    let ss_remote_slice = x25519_remote.get_ss().expect("get_ss");
+    assert_eq!(result, Ok(()));
+    let ss_remote = ss_remote_slice.to_vec();
 
-	/* Export remote shared secret */
-	let ss_remote_slice = x25519_remote.get_ss().expect("get_ss");
-	assert_eq!(result, Ok(()));
-	let ss_remote = ss_remote_slice.to_vec();
-
-	/* Check that local and remote shared secrets match */
-	assert_eq!(ss_local, ss_remote);
-	//println!("ss local {:x?}",  ss_local);
-	//println!("ss remote {:x?}",  ss_remote);
+    /* Check that local and remote shared secrets match */
+    assert_eq!(ss_local, ss_remote);
+    //println!("ss local {:x?}",  ss_local);
+    //println!("ss remote {:x?}",  ss_remote);
 }
 
 #[test]
 fn lc_rust_x25519() {
-	lc_rust_x25519_one();
+    lc_rust_x25519_one();
 }

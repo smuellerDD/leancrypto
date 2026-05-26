@@ -17,53 +17,56 @@
  * DAMAGE.
  */
 
-use crate::ffi::leancrypto;
 use crate::error::KdfError;
-use crate::lcr_hash::{ lcr_hash_type_mapping, lcr_hash_type };
+use crate::ffi::leancrypto;
+use crate::lcr_hash::{lcr_hash_type, lcr_hash_type_mapping};
 
 /// Leancrypto wrapper for lc_pbkdf2
 pub struct lcr_pbkdf2 {
-	/// Leancrypto hash reference
-	hash: lcr_hash_type
+    /// Leancrypto hash reference
+    hash: lcr_hash_type,
 }
 
 #[allow(dead_code)]
 impl lcr_pbkdf2 {
-	pub fn new(hash_type: lcr_hash_type) -> Self {
-		lcr_pbkdf2 {
-			hash: hash_type
-		}
-	}
+    pub fn new(hash_type: lcr_hash_type) -> Self {
+        lcr_pbkdf2 { hash: hash_type }
+    }
 
-	/// PBKDF2 derive
-	///
-	/// # Arguments
-	///
-	/// * `pw` buffer with password
-	/// * `salt` buffer with salt
-	/// * `count` iteration count
-	/// * `key` key buffer to be filled with derived key material
-	///
-	/// # Returns
-	///
-	/// * Returns Ok() on success or KdfError on error
-	pub fn derive(
-		&mut self,
-		pw: &[u8],
-		salt: &[u8],
-		count: u32,
-		key: &mut [u8]
-	) -> Result<(), KdfError> {
-
-		let result = unsafe {
-			leancrypto::lc_pbkdf2(lcr_hash_type_mapping(self.hash),
-					      pw.as_ptr(), pw.len(),
-					      salt.as_ptr(), salt.len(), count,
-					      key.as_mut_ptr(), key.len())
-		};
-		if result < 0 {
-			return Err(KdfError::ProcessingError);
-		}
-		Ok(())
-	}
+    /// PBKDF2 derive
+    ///
+    /// # Arguments
+    ///
+    /// * `pw` buffer with password
+    /// * `salt` buffer with salt
+    /// * `count` iteration count
+    /// * `key` key buffer to be filled with derived key material
+    ///
+    /// # Returns
+    ///
+    /// * Returns Ok() on success or KdfError on error
+    pub fn derive(
+        &mut self,
+        pw: &[u8],
+        salt: &[u8],
+        count: u32,
+        key: &mut [u8],
+    ) -> Result<(), KdfError> {
+        let result = unsafe {
+            leancrypto::lc_pbkdf2(
+                lcr_hash_type_mapping(self.hash),
+                pw.as_ptr(),
+                pw.len(),
+                salt.as_ptr(),
+                salt.len(),
+                count,
+                key.as_mut_ptr(),
+                key.len(),
+            )
+        };
+        if result < 0 {
+            return Err(KdfError::ProcessingError);
+        }
+        Ok(())
+    }
 }
