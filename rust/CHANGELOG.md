@@ -18,6 +18,8 @@ This version requires leancrypto >= 1.8.0.
 
 * PBKDF2 interface
 
+* KBKDF interface
+
 ### Changed
 
 * API breakage: rename all getter functions to get_* (e.g. sk() -> get_sk())
