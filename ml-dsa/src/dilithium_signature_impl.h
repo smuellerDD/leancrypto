@@ -833,8 +833,10 @@ static int lc_dilithium_verify_internal_ahat(const struct lc_dilithium_sig *sig,
 		poly_caddq(&w1->vec[i]);
 	}
 
-	if (unpack_sig_h(&ws->buf.h, sig))
-		return -EINVAL;
+	if (unpack_sig_h(&ws->buf.h, sig)) {
+		ret = -EINVAL;
+		goto out;
+	}
 
 	h = &ws->buf.h;
 	for (i = 0; i < LC_DILITHIUM_K; ++i) {
@@ -844,8 +846,10 @@ static int lc_dilithium_verify_internal_ahat(const struct lc_dilithium_sig *sig,
 	}
 
 	if (ctx->external_mu) {
-		if (ctx->external_mu_len != LC_DILITHIUM_CRHBYTES)
-			return -EINVAL;
+		if (ctx->external_mu_len != LC_DILITHIUM_CRHBYTES) {
+			ret = -EINVAL;
+			goto out;
+		}
 
 		/* Call random oracle and verify challenge */
 		CKINT(lc_hash_init(hash_ctx));
