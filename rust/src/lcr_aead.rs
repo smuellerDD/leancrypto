@@ -166,6 +166,10 @@ impl lcr_aead {
         if ciphertext.len() == 0 {
             ctptr = ptr::null_mut();
         }
+        let mut aadptr = aad.as_ptr();
+        if aad.len() == 0 {
+            aadptr = ptr::null_mut();
+        }
 
         let result = unsafe {
             leancrypto::lc_aead_encrypt(
@@ -173,7 +177,7 @@ impl lcr_aead {
                 ptptr,
                 ctptr,
                 ciphertext.len(),
-                aad.as_ptr(),
+                aadptr,
                 aad.len(),
                 tag.as_mut_ptr(),
                 tag.len(),
@@ -320,14 +324,22 @@ impl lcr_aead {
         if ciphertext.len() == 0 {
             ctptr = ptr::null();
         }
+        let mut ptptr = plaintext.as_mut_ptr();
+        if ciphertext.len() == 0 {
+            ptptr = ptr::null_mut();
+        }
+        let mut aadptr = aad.as_ptr();
+        if aad.len() == 0 {
+            aadptr = ptr::null();
+        }
 
         let result = unsafe {
             leancrypto::lc_aead_decrypt(
                 self.aead_ctx,
                 ctptr,
-                plaintext.as_mut_ptr(),
+                ptptr,
                 plaintext.len(),
-                aad.as_ptr(),
+                aadptr,
                 aad.len(),
                 tag.as_ptr(),
                 tag.len(),
