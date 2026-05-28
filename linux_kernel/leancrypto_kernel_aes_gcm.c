@@ -131,11 +131,16 @@ static int lc_aes_gcm_dec_final(struct aead_request *areq)
 	struct crypto_aead *aead = crypto_aead_reqtfm(areq);
 	struct lc_aead_ctx *ctx = crypto_aead_ctx(aead);
 	unsigned int authsize = crypto_aead_authsize(aead);
-	unsigned int cryptlen = areq->cryptlen - authsize;
+	unsigned int cryptlen;
 	/* Maximum tag size */
 	u8 tag[16];
 
 	WARN_ON(sizeof(tag) < authsize);
+
+	if (areq->cryptlen < authsize)
+		return -EBADMSG;
+
+	cryptlen = areq->cryptlen - authsize;
 
 	scatterwalk_map_and_copy(tag, areq->src, areq->assoclen + cryptlen,
 				 authsize, 0);
