@@ -303,14 +303,15 @@ static void sha512_final_internal(
 	 * in bits, transform it.
 	 */
 	if (partial > (LC_SHA512_SIZE_BLOCK - (2 * sizeof(uint64_t)))) {
-		memset(ctx->partial + partial, 0,
-		       LC_SHA512_SIZE_BLOCK - partial);
+		lc_memset_secure(ctx->partial + partial, 0,
+				 LC_SHA512_SIZE_BLOCK - partial);
 		partial = 0;
 		sha512_transform_block(ctx, ctx->partial, 1);
 	}
 
 	/* Fill the unused part of the partial buffer with zeros */
-	memset(ctx->partial + partial, 0, LC_SHA512_SIZE_BLOCK - partial);
+	lc_memset_secure(ctx->partial + partial, 0,
+			 LC_SHA512_SIZE_BLOCK - partial);
 
 	/* Add the message length in bits at the end of the partial buffer */
 	ctx->msg_len <<= 3;
