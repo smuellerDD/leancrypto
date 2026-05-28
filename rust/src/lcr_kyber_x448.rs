@@ -302,7 +302,10 @@ impl lcr_kyber_x448 {
                 &mut self.ct,
             )
         };
-        if result < 0 {
+        if result < 0
+            || kyber_ptr == ptr::null_mut()
+            || x448_ptr == ptr::null_mut()
+        {
             return Err(KemError::ProcessingError);
         }
 
@@ -338,7 +341,10 @@ impl lcr_kyber_x448 {
                 &mut self.sk,
             )
         };
-        if result < 0 {
+        if result < 0
+            || kyber_ptr == ptr::null_mut()
+            || x448_ptr == ptr::null_mut()
+        {
             return Err(KemError::ProcessingError);
         }
 
@@ -374,7 +380,10 @@ impl lcr_kyber_x448 {
                 &mut self.pk,
             )
         };
-        if result < 0 {
+        if result < 0
+            || kyber_ptr == ptr::null_mut()
+            || x448_ptr == ptr::null_mut()
+        {
             return Err(KemError::ProcessingError);
         }
 
@@ -411,7 +420,10 @@ impl lcr_kyber_x448 {
                 &mut self.ss,
             )
         };
-        if result < 0 {
+        if result < 0
+            || kyber_ptr == ptr::null_mut()
+            || x448_ptr == ptr::null_mut()
+        {
             return Err(KemError::ProcessingError);
         }
 

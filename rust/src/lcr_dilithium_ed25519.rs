@@ -360,7 +360,10 @@ impl lcr_dilithium_ed25519 {
                 &mut self.sig,
             )
         };
-        if result < 0 {
+        if result < 0
+            || dilithium_ptr == ptr::null_mut()
+            || ed25519_ptr == ptr::null_mut()
+        {
             return Err(SignatureError::ProcessingError);
         }
 
@@ -396,7 +399,10 @@ impl lcr_dilithium_ed25519 {
                 &mut self.sk,
             )
         };
-        if result < 0 {
+        if result < 0
+            || dilithium_ptr == ptr::null_mut()
+            || ed25519_ptr == ptr::null_mut()
+        {
             return Err(SignatureError::ProcessingError);
         }
 
@@ -432,7 +438,10 @@ impl lcr_dilithium_ed25519 {
                 &mut self.pk,
             )
         };
-        if result < 0 {
+        if result < 0
+            || dilithium_ptr == ptr::null_mut()
+            || ed25519_ptr == ptr::null_mut()
+        {
             return Err(SignatureError::ProcessingError);
         }
 

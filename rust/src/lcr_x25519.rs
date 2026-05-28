@@ -268,7 +268,7 @@ impl lcr_x25519 {
                 &mut self.pk_remote,
             )
         };
-        if result < 0 {
+        if result < 0 || ptr == ptr::null_mut() {
             return Err(X25519Error::ProcessingError);
         }
 
@@ -318,7 +318,7 @@ impl lcr_x25519 {
         let result = unsafe {
             leancrypto::lc_x25519_pk_ptr(&mut ptr, &mut len, &mut self.pk)
         };
-        if result < 0 {
+        if result < 0 || ptr == ptr::null_mut() {
             return Err(X25519Error::ProcessingError);
         }
 
@@ -343,7 +343,7 @@ impl lcr_x25519 {
         let result = unsafe {
             leancrypto::lc_x25519_ss_ptr(&mut ptr, &mut len, &mut self.ss)
         };
-        if result < 0 {
+        if result < 0 || ptr == ptr::null_mut() {
             return Err(X25519Error::ProcessingError);
         }
 

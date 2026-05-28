@@ -425,7 +425,7 @@ impl lcr_sphincs {
         let result = unsafe {
             leancrypto::lc_sphincs_sig_ptr(&mut ptr, &mut len, &mut self.sig)
         };
-        if result < 0 {
+        if result < 0 || ptr == ptr::null_mut() {
             return Err(SignatureError::ProcessingError);
         }
 
@@ -450,7 +450,7 @@ impl lcr_sphincs {
         let result = unsafe {
             leancrypto::lc_sphincs_sk_ptr(&mut ptr, &mut len, &mut self.sk)
         };
-        if result < 0 {
+        if result < 0 || ptr == ptr::null_mut() {
             return Err(SignatureError::ProcessingError);
         }
 
@@ -475,7 +475,7 @@ impl lcr_sphincs {
         let result = unsafe {
             leancrypto::lc_sphincs_pk_ptr(&mut ptr, &mut len, &mut self.pk)
         };
-        if result < 0 {
+        if result < 0 || ptr == ptr::null_mut() {
             return Err(SignatureError::ProcessingError);
         }
 

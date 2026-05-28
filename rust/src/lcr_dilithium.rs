@@ -335,7 +335,7 @@ impl lcr_dilithium {
         let result = unsafe {
             leancrypto::lc_dilithium_sig_ptr(&mut ptr, &mut len, &mut self.sig)
         };
-        if result < 0 {
+        if result < 0 || ptr == ptr::null_mut() {
             return Err(SignatureError::ProcessingError);
         }
 
@@ -360,7 +360,7 @@ impl lcr_dilithium {
         let result = unsafe {
             leancrypto::lc_dilithium_sk_ptr(&mut ptr, &mut len, &mut self.sk)
         };
-        if result < 0 {
+        if result < 0 || ptr == ptr::null_mut() {
             return Err(SignatureError::ProcessingError);
         }
 
@@ -385,7 +385,7 @@ impl lcr_dilithium {
         let result = unsafe {
             leancrypto::lc_dilithium_pk_ptr(&mut ptr, &mut len, &mut self.pk)
         };
-        if result < 0 {
+        if result < 0 || ptr == ptr::null_mut() {
             return Err(SignatureError::ProcessingError);
         }
 
