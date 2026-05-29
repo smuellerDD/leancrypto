@@ -31,6 +31,7 @@
 #include "ed25519_ref10.h"
 #include "lc_memset_secure.h"
 #include "sidechannel_resistance.h"
+#include "timecop.h"
 #include "x25519_scalarmult.h"
 #include "x25519_scalarmult_c.h"
 
@@ -165,6 +166,7 @@ int crypto_scalarmult_curve25519_c(uint8_t *q, const uint8_t *n,
 	 * on the secret key.
 	 */
 	cmov_int(&ret, -EFAULT, !!fe25519_iszero(x2));
+	unpoison(&ret, sizeof(ret));
 	fe25519_tobytes(q, x2);
 
 	lc_memset_secure(t, 0, sizeof t);
