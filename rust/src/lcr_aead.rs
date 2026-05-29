@@ -325,7 +325,7 @@ impl lcr_aead {
             ctptr = ptr::null();
         }
         let mut ptptr = plaintext.as_mut_ptr();
-        if ciphertext.len() == 0 {
+        if plaintext.len() == 0 {
             ptptr = ptr::null_mut();
         }
         let mut aadptr = aad.as_ptr();
