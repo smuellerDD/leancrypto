@@ -166,6 +166,8 @@ int x448_scalarmult_c(uint8_t out[LC_X448_PUBLICKEYBYTES],
 	gf_serialize(out, x1, 1);
 
 	/*
+	 * Check if shared secret is all zeros and report an error if so.
+	 *
 	 * Side channel countermeasure: the result of the gf_eq depends on
 	 * the secret key.
 	 */

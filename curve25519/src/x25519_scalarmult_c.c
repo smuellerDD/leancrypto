@@ -30,6 +30,7 @@
 #include "build_bug_on.h"
 #include "ed25519_ref10.h"
 #include "lc_memset_secure.h"
+#include "sidechannel_resistance.h"
 #include "x25519_scalarmult.h"
 #include "x25519_scalarmult_c.h"
 
@@ -104,12 +105,10 @@ int crypto_scalarmult_curve25519_c(uint8_t *q, const uint8_t *n,
 				   const uint8_t *p)
 {
 	unsigned char t[32];
-	unsigned int i;
 	fe25519 x1, x2, x3, z2, z3;
 	fe25519 a, b, aa, bb, e, da, cb;
-	int pos;
-	unsigned int swap;
-	unsigned int bit;
+	unsigned int i, swap, bit;
+	int pos, ret = 0;
 
 	if (has_small_order(p)) {
 		return -1;
@@ -158,11 +157,31 @@ int crypto_scalarmult_curve25519_c(uint8_t *q, const uint8_t *n,
 
 	fe25519_invert(z2, z2);
 	fe25519_mul(x2, x2, z2);
+
+	/*
+	 * Check if shared secret is all zeros and report an error if so.
+	 *
+	 * Side channel countermeasure: the result of the fe25519_iszero depends
+	 * on the secret key.
+	 */
+	cmov_int(&ret, -EFAULT, !!fe25519_iszero(x2));
 	fe25519_tobytes(q, x2);
 
 	lc_memset_secure(t, 0, sizeof t);
+	lc_memset_secure(x1, 0, sizeof(x1));
+	lc_memset_secure(x2, 0, sizeof(x2));
+	lc_memset_secure(z2, 0, sizeof(z2));
+	lc_memset_secure(x3, 0, sizeof(x3));
+	lc_memset_secure(z3, 0, sizeof(z3));
+	lc_memset_secure(a, 0, sizeof(a));
+	lc_memset_secure(b, 0, sizeof(b));
+	lc_memset_secure(aa, 0, sizeof(aa));
+	lc_memset_secure(bb, 0, sizeof(bb));
+	lc_memset_secure(e, 0, sizeof(e));
+	lc_memset_secure(da, 0, sizeof(da));
+	lc_memset_secure(cb, 0, sizeof(cb));
 
-	return 0;
+	return ret;
 }
 
 static void edwards_to_montgomery(fe25519 montgomeryX, const fe25519 edwardsY,
