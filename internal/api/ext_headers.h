@@ -248,6 +248,10 @@ static inline int lc_get_time(time64_t *time_since_epoch, time64_t *n_sec)
 #define INT_MAX 2147483647
 #endif
 
+#ifndef ULONG_MAX
+#define ULONG_MAX (__LONG_MAX__ * 2UL + 1UL)
+#endif
+
 #define stdout NULL
 
 #define printf(...) Print(L##__VA_ARGS__)
