@@ -111,6 +111,15 @@ SYM_FUNC_START(_aesni_encrypt2)
 	aesenc	%xmm1,%xmm3
 	aesenclast	%xmm0,%xmm2
 	aesenclast	%xmm0,%xmm3
+
+	/*
+	 * This function does not implement the zeroization of the XMM registers
+	 * utilized by this function. As this function is (a) marked as
+	 * .hidden and (b) only used as service function within this is asm
+	 * file, it is not externally callable and the zeroization of the
+	 * XMM registers are performed by the callees of this function.
+	 */
+
 	RET
 SYM_FUNC_END(_aesni_encrypt2)
 
@@ -140,6 +149,9 @@ SYM_FUNC_START(_aesni_decrypt2)
 	aesdec	%xmm1,%xmm3
 	aesdeclast	%xmm0,%xmm2
 	aesdeclast	%xmm0,%xmm3
+
+	/* Zeroization of XMM registers: see rationale in _aesni_encrypt2 */
+
 	RET
 SYM_FUNC_END(_aesni_decrypt2)
 
@@ -174,6 +186,9 @@ SYM_FUNC_START(_aesni_encrypt3)
 	aesenclast	%xmm0,%xmm2
 	aesenclast	%xmm0,%xmm3
 	aesenclast	%xmm0,%xmm4
+
+	/* Zeroization of XMM registers: see rationale in _aesni_encrypt2 */
+
 	RET
 SYM_FUNC_END(_aesni_encrypt3)
 
@@ -208,6 +223,9 @@ SYM_FUNC_START(_aesni_decrypt3)
 	aesdeclast	%xmm0,%xmm2
 	aesdeclast	%xmm0,%xmm3
 	aesdeclast	%xmm0,%xmm4
+
+	/* Zeroization of XMM registers: see rationale in _aesni_encrypt2 */
+
 	RET
 SYM_FUNC_END(_aesni_decrypt3)
 
@@ -248,6 +266,9 @@ SYM_FUNC_START(_aesni_encrypt4)
 	aesenclast	%xmm0,%xmm3
 	aesenclast	%xmm0,%xmm4
 	aesenclast	%xmm0,%xmm5
+
+	/* Zeroization of XMM registers: see rationale in _aesni_encrypt2 */
+
 	RET
 SYM_FUNC_END(_aesni_encrypt4)
 
@@ -288,6 +309,9 @@ SYM_FUNC_START(_aesni_decrypt4)
 	aesdeclast	%xmm0,%xmm3
 	aesdeclast	%xmm0,%xmm4
 	aesdeclast	%xmm0,%xmm5
+
+	/* Zeroization of XMM registers: see rationale in _aesni_encrypt2 */
+
 	RET
 SYM_FUNC_END(_aesni_decrypt4)
 
@@ -342,6 +366,9 @@ SYM_FUNC_START(_aesni_encrypt6)
 	aesenclast	%xmm0,%xmm5
 	aesenclast	%xmm0,%xmm6
 	aesenclast	%xmm0,%xmm7
+
+	/* Zeroization of XMM registers: see rationale in _aesni_encrypt2 */
+
 	RET
 SYM_FUNC_END(_aesni_encrypt6)
 
@@ -396,6 +423,9 @@ SYM_FUNC_START(_aesni_decrypt6)
 	aesdeclast	%xmm0,%xmm5
 	aesdeclast	%xmm0,%xmm6
 	aesdeclast	%xmm0,%xmm7
+
+	/* Zeroization of XMM registers: see rationale in _aesni_encrypt2 */
+
 	RET
 SYM_FUNC_END(_aesni_decrypt6)
 
@@ -460,6 +490,9 @@ SYM_FUNC_START(_aesni_encrypt8)
 	aesenclast	%xmm0,%xmm7
 	aesenclast	%xmm0,%xmm8
 	aesenclast	%xmm0,%xmm9
+
+	/* Zeroization of XMM registers: see rationale in _aesni_encrypt2 */
+
 	RET
 SYM_FUNC_END(_aesni_encrypt8)
 
@@ -524,6 +557,9 @@ SYM_FUNC_START(_aesni_decrypt8)
 	aesdeclast	%xmm0,%xmm7
 	aesdeclast	%xmm0,%xmm8
 	aesdeclast	%xmm0,%xmm9
+
+	/* Zeroization of XMM registers: see rationale in _aesni_encrypt2 */
+
 	RET
 SYM_FUNC_END(_aesni_decrypt8)
 
