@@ -20,6 +20,7 @@
 use crate::error::KdfError;
 use crate::ffi::leancrypto;
 use crate::lcr_hash::{lcr_hash_type, lcr_hash_type_mapping};
+use std::ptr;
 
 /// Leancrypto wrapper for lc_pbkdf2
 pub struct lcr_pbkdf2 {
@@ -52,12 +53,24 @@ impl lcr_pbkdf2 {
         count: u32,
         key: &mut [u8],
     ) -> Result<(), KdfError> {
+        /*
+         * &[].as_ptr() returns 0x1 and not a NULL pointer
+         */
+        let mut pwptr = pw.as_ptr();
+        if pw.len() == 0 {
+            pwptr = ptr::null();
+        }
+        let mut saltptr = salt.as_ptr();
+        if salt.len() == 0 {
+            saltptr = ptr::null();
+        }
+
         let result = unsafe {
             leancrypto::lc_pbkdf2(
                 lcr_hash_type_mapping(self.hash),
-                pw.as_ptr(),
+                pwptr,
                 pw.len(),
-                salt.as_ptr(),
+                saltptr,
                 salt.len(),
                 count,
                 key.as_mut_ptr(),
