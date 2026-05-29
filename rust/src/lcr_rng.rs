@@ -20,7 +20,7 @@
 use crate::error::RngError;
 use crate::ffi::leancrypto;
 
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 pub enum lcr_rng_type {
     lcr_seeded_rng,
     lcr_xdrbg256,
@@ -30,6 +30,7 @@ pub enum lcr_rng_type {
 }
 
 /// Leancrypto wrapper for lc_rng
+#[derive(Debug)]
 pub struct lcr_rng {
     /// RNG context
     rng_ctx: *mut leancrypto::lc_rng_ctx,
@@ -52,6 +53,28 @@ pub fn lcr_rng_generate_seeded(
             additional_info.len(),
             rng.as_mut_ptr(),
             rng.len(),
+        )
+    };
+
+    if result < 0 {
+        return Err(RngError::ProcessingError);
+    }
+
+    Ok(())
+}
+
+/// Reseed seeded random number generator
+pub fn lcr_rng_reseed_seeded(
+    entropy: &[u8],
+    additional_info: &[u8],
+) -> Result<(), RngError> {
+    let result = unsafe {
+        leancrypto::lc_rng_seed(
+            leancrypto::lc_seeded_rng,
+            entropy.as_ptr(),
+            entropy.len(),
+            additional_info.as_ptr(),
+            additional_info.len(),
         )
     };
 
