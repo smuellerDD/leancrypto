@@ -33,7 +33,7 @@ static void sha256_update_arm_neon(void *_state, const uint8_t *in,
 	struct lc_sha256_state *ctx = _state;
 
 	LC_NEON_ENABLE;
-	lc_sha256_update(ctx, in, inlen, sha256_block_neon);
+	lc_sha256_update(ctx, in, inlen, lc_sha256_block_neon);
 	LC_NEON_DISABLE;
 }
 
@@ -42,7 +42,7 @@ static void sha256_final_arm_neon(void *_state, uint8_t *digest)
 	struct lc_sha256_state *ctx = _state;
 
 	LC_NEON_ENABLE;
-	lc_sha256_final(ctx, digest, sha256_block_neon);
+	lc_sha256_final(ctx, digest, lc_sha256_block_neon);
 	LC_NEON_DISABLE;
 }
 

@@ -1034,8 +1034,8 @@ sha256_block_data_order:
 .align	2
 .align	2
 
-SYM_FUNC_START(sha256_block_armv8ce)
-SYM_FUNC_ENTER(sha256_block_armv8ce)
+SYM_FUNC_START(lc_sha256_block_armv8ce)
+SYM_FUNC_ENTER(lc_sha256_block_armv8ce)
 .align	6
 .Lv8_entry:
 	stp	x29,x30,[sp,#-2*__SIZEOF_POINTER__]!
@@ -1171,10 +1171,10 @@ SYM_FUNC_ENTER(sha256_block_armv8ce)
 
 	ldr	x29,[sp],#2*__SIZEOF_POINTER__
 	RET
-SYM_FUNC_END(sha256_block_armv8ce)
+SYM_FUNC_END(lc_sha256_block_armv8ce)
 
-SYM_FUNC_START(sha256_block_neon)
-SYM_FUNC_ENTER(sha256_block_neon)
+SYM_FUNC_START(lc_sha256_block_neon)
+SYM_FUNC_ENTER(lc_sha256_block_neon)
 .align	4
 .Lneon_entry:
 	stp	x29, x30, [sp, #-2*__SIZEOF_POINTER__]!
@@ -2015,6 +2015,6 @@ SYM_FUNC_ENTER(sha256_block_neon)
 	ldr	x29,[x29]
 	add	sp,sp,#16*4+2*__SIZEOF_POINTER__
 	RET
-SYM_FUNC_END(sha256_block_neon)
+SYM_FUNC_END(lc_sha256_block_neon)
 
 LC_ASM_END

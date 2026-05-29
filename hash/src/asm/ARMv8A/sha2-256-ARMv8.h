@@ -27,9 +27,10 @@
 extern "C" {
 #endif
 
-void sha256_block_neon(struct lc_sha256_state *c, const uint8_t *p, size_t num);
-void sha256_block_armv8ce(struct lc_sha256_state *c, const uint8_t *p,
+void lc_sha256_block_neon(struct lc_sha256_state *c, const uint8_t *p,
 			  size_t num);
+void lc_sha256_block_armv8ce(struct lc_sha256_state *c, const uint8_t *p,
+			     size_t num);
 #ifdef __cplusplus
 }
 #endif
