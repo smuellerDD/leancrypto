@@ -817,5 +817,5 @@ LC_PURE LC_INTERFACE_FUNCTION(unsigned int, lc_ed25519_pk_size, void)
 
 LC_PURE LC_INTERFACE_FUNCTION(unsigned int, lc_ed25519_sk_size, void)
 {
-	return LC_ED25519_PUBLICKEYBYTES;
+	return LC_ED25519_RAW_SECRETKEYBYTES;
 }
