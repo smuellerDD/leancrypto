@@ -305,7 +305,7 @@ impl lcr_bike {
         let result = unsafe {
             leancrypto::lc_bike_ct_ptr(&mut ptr, &mut len, &mut self.ct)
         };
-        if result < 0 {
+        if result < 0 || ptr == ptr::null_mut() {
             return Err(KemError::ProcessingError);
         }
 
@@ -330,7 +330,7 @@ impl lcr_bike {
         let result = unsafe {
             leancrypto::lc_bike_sk_ptr(&mut ptr, &mut len, &mut self.sk)
         };
-        if result < 0 {
+        if result < 0 || ptr == ptr::null_mut() {
             return Err(KemError::ProcessingError);
         }
 
@@ -355,7 +355,7 @@ impl lcr_bike {
         let result = unsafe {
             leancrypto::lc_bike_pk_ptr(&mut ptr, &mut len, &mut self.pk)
         };
-        if result < 0 {
+        if result < 0 || ptr == ptr::null_mut() {
             return Err(KemError::ProcessingError);
         }
 
@@ -380,7 +380,7 @@ impl lcr_bike {
         let result = unsafe {
             leancrypto::lc_bike_ss_ptr(&mut ptr, &mut len, &mut self.ss)
         };
-        if result < 0 {
+        if result < 0 || ptr == ptr::null_mut() {
             return Err(KemError::ProcessingError);
         }
 
