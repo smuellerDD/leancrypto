@@ -40,7 +40,7 @@
  * unexpected optimizations that would affect the ref10 code.
  * See https://eprint.iacr.org/2017/806.pdf for reference.
  */
-static int has_small_order(const unsigned char s[32])
+int has_small_order(const unsigned char s[32])
 {
 	LC_FIPS_RODATA_SECTION
 	static const unsigned char blocklist[][32] __align(16) = {

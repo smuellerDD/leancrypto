@@ -40,6 +40,10 @@
 #include "fe51.h"
 #include "ladder.h"
 #include "lc_memset_secure.h"
+#include "lc_x25519.h"
+#include "sidechannel_resistance.h"
+#include "timecop.h"
+#include "../ed25519_ref10.h"
 #include "../x25519_scalarmult.h"
 #include "../x25519_scalarmult_c.h"
 
@@ -54,6 +58,10 @@ int crypto_scalarmult_curve25519_avx2(unsigned char *q, const unsigned char *n,
 	fe var[3];
 	fe51 x_51;
 	fe51 z_51;
+	int ret = 0;
+
+	if (has_small_order(p))
+		return -1;
 
 	memcpy(t, n, sizeof(t));
 	t[0] &= 248;
@@ -84,9 +92,21 @@ int crypto_scalarmult_curve25519_avx2(unsigned char *q, const unsigned char *n,
 
 	LC_FPU_DISABLE;
 
-	lc_memset_secure(t, 0, sizeof(t));
+	/*
+	 * Check if shared secret is all zeros and report an error if so.
+	 *
+	 * Side channel countermeasure: the result of the fe25519_iszero depends
+	 * on the secret key.
+	 */
+	cmov_int(&ret, -EFAULT, !!sodium_is_zero(q, LC_X25519_SSBYTES));
+	unpoison(&ret, sizeof(ret));
 
-	return 0;
+	lc_memset_secure(t, 0, sizeof(t));
+	lc_memset_secure(var, 0, sizeof(var));
+	lc_memset_secure(&x_51, 0, sizeof(x_51));
+	lc_memset_secure(&z_51, 0, sizeof(z_51));
+
+	return ret;
 }
 
 int crypto_scalarmult_curve25519(unsigned char *q, const unsigned char *n,

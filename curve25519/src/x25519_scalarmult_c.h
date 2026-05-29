@@ -26,6 +26,7 @@
 extern "C" {
 #endif
 
+int has_small_order(const unsigned char s[32]);
 int crypto_scalarmult_curve25519_c(uint8_t *q, const uint8_t *n,
 				   const uint8_t *p);
 
