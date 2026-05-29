@@ -172,7 +172,12 @@ int lc_sprint_oid(const uint8_t *data, size_t datasize, char *buffer,
 				if (data >= end)
 					goto bad;
 				n = *data++;
+
+				/* Prevent incorrect wrapping */
+				if (num > (ULONG_MAX >> 7))
+					goto bad;
 				num <<= 7;
+
 				num |= n & 0x7f;
 			} while (n & 0x80);
 		}
