@@ -371,21 +371,20 @@ static int lc_kmac256_drng_fke_init_ctx(struct lc_kmac256_drng_state *state,
 					size_t addtl_input_len)
 {
 	/* Initialize the KMAC with K(N) and the cust. string. */
-	int ret =
-		lc_kmac_init(kmac_ctx, state->key, LC_KMAC256_DRNG_KEYSIZE,
-			     (uint8_t *)LC_KMAC_DRNG_CTX_CUSTOMIZATION_STRING,
-			     sizeof(LC_KMAC_DRNG_CTX_CUSTOMIZATION_STRING) - 1);
+	int ret;
 
-	if (ret)
-		return ret;
+	CKINT(lc_kmac_init(kmac_ctx, state->key, LC_KMAC256_DRNG_KEYSIZE,
+			   (uint8_t *)LC_KMAC_DRNG_CTX_CUSTOMIZATION_STRING,
+			   sizeof(LC_KMAC_DRNG_CTX_CUSTOMIZATION_STRING) - 1));
 
 	/* Insert the additional data into the KMAC state. */
 	lc_kmac256_drng_encode(kmac_ctx, 2, addtl_input, addtl_input_len);
 
 	/* Generate the K(N + 1) to store in the state and overwrite K(N). */
-	lc_kmac_final_xof(kmac_ctx, state->key, LC_KMAC256_DRNG_KEYSIZE);
+	CKINT(lc_kmac_final_xof(kmac_ctx, state->key, LC_KMAC256_DRNG_KEYSIZE));
 
-	return 0;
+out:
+	return ret;
 }
 
 /*
@@ -426,7 +425,7 @@ static int lc_kmac256_drng_generate(void *_state, const uint8_t *addtl_input,
 						   addtl_input_len));
 
 		/* Generate the requested amount of output bits */
-		lc_kmac_final_xof(kmac_ctx, out, todo);
+		CKINT(lc_kmac_final_xof(kmac_ctx, out, todo));
 		out += todo;
 		outlen -= todo;
 	}
@@ -485,7 +484,7 @@ static int lc_kmac256_drng_seed_nocheck(void *_state, const uint8_t *seed,
 	lc_kmac256_drng_encode(kmac_ctx, initially_seeded, persbuf, perslen);
 
 	/* Generate the K(N + 1) to store in the state and overwrite K(N). */
-	lc_kmac_final_xof(kmac_ctx, state->key, LC_KMAC256_DRNG_KEYSIZE);
+	CKINT(lc_kmac_final_xof(kmac_ctx, state->key, LC_KMAC256_DRNG_KEYSIZE));
 
 out:
 	/* Clear the KMAC state which is not needed any more. */

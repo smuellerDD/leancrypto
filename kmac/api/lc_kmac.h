@@ -149,9 +149,11 @@ int lc_kmac_final(struct lc_kmac_ctx *kmac_ctx, uint8_t *mac, size_t maclen);
  *			perform KMAC calculation with.
  * @param [out] mac Buffer to hold the message digest
  * @param [in] maclen Size of the requested MAC
+ *
+ * @return 0 on success; < 0 on error
  */
-void lc_kmac_final_xof(struct lc_kmac_ctx *kmac_ctx, uint8_t *mac,
-		       size_t maclen);
+int lc_kmac_final_xof(struct lc_kmac_ctx *kmac_ctx, uint8_t *mac,
+		      size_t maclen);
 
 /**
  * @ingroup KMAC

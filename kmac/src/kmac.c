@@ -244,7 +244,7 @@ LC_INTERFACE_FUNCTION(int, lc_kmac_final, struct lc_kmac_ctx *kmac_ctx,
 	if (maclen >= LC_KMAC_MIN_MAC_SIZE)
 		return lc_kmac_final_internal(kmac_ctx, mac, maclen);
 
-	return 0;
+	return -EBADMSG;
 }
 
 static int lc_kmac_final_xof_internal(struct lc_kmac_ctx *kmac_ctx,
@@ -272,11 +272,13 @@ out:
 	return ret;
 }
 
-LC_INTERFACE_FUNCTION(void, lc_kmac_final_xof, struct lc_kmac_ctx *kmac_ctx,
+LC_INTERFACE_FUNCTION(int, lc_kmac_final_xof, struct lc_kmac_ctx *kmac_ctx,
 		      uint8_t *mac, size_t maclen)
 {
 	if (maclen >= LC_KMAC_MIN_MAC_SIZE)
-		lc_kmac_final_xof_internal(kmac_ctx, mac, maclen);
+		return lc_kmac_final_xof_internal(kmac_ctx, mac, maclen);
+
+	return -EBADMSG;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_kmac_alloc, const struct lc_hash *hash,
@@ -337,16 +339,16 @@ LC_INTERFACE_FUNCTION(int, lc_kmac, const struct lc_hash *hash,
 		      uint8_t *mac, size_t maclen)
 {
 	LC_KMAC_CTX_ON_STACK(kmac_ctx, hash);
-	int ret = lc_kmac_init(kmac_ctx, key, keylen, s, slen);
+	int ret;
 
-	if (ret)
-		return ret;
+	CKINT(lc_kmac_init(kmac_ctx, key, keylen, s, slen));
 	lc_kmac_update(kmac_ctx, in, inlen);
-	lc_kmac_final(kmac_ctx, mac, maclen);
+	CKINT(lc_kmac_final(kmac_ctx, mac, maclen));
 
 	lc_kmac_zero(kmac_ctx);
 
-	return 0;
+out:
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_kmac_xof, const struct lc_hash *hash,
@@ -355,16 +357,16 @@ LC_INTERFACE_FUNCTION(int, lc_kmac_xof, const struct lc_hash *hash,
 		      uint8_t *mac, size_t maclen)
 {
 	LC_KMAC_CTX_ON_STACK(kmac_ctx, hash);
-	int ret = lc_kmac_init(kmac_ctx, key, keylen, s, slen);
+	int ret;
 
-	if (ret)
-		return ret;
+	CKINT(lc_kmac_init(kmac_ctx, key, keylen, s, slen));
 	lc_kmac_update(kmac_ctx, in, inlen);
-	lc_kmac_final_xof(kmac_ctx, mac, maclen);
+	CKINT(lc_kmac_final_xof(kmac_ctx, mac, maclen));
 
 	lc_kmac_zero(kmac_ctx);
 
-	return 0;
+out:
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(size_t, lc_kmac_macsize, struct lc_kmac_ctx *kmac_ctx)

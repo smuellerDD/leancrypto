@@ -434,7 +434,7 @@ static int lc_kc_setkey_nocheck(void *state, const uint8_t *key, size_t keylen,
 	 * Generate key for KMAC authentication - we simply use two different
 	 * keys for the KMAC keystream generator and the KMAC authenticator.
 	 */
-	lc_kmac_final_xof(kmac, kc->keystream, LC_KC_KEYSTREAM_BLOCK);
+	CKINT(lc_kmac_final_xof(kmac, kc->keystream, LC_KC_KEYSTREAM_BLOCK));
 	CKINT(lc_kmac_init(auth_ctx, kc->keystream,
 			   LC_KC_AUTHENTICATION_KEY_SIZE, NULL, 0));
 
@@ -467,6 +467,9 @@ static void lc_kc_crypt(void *state, const uint8_t *in, uint8_t *out,
 
 		/* Generate a new keystream block */
 		if (kc->keystream_ptr >= LC_KC_KEYSTREAM_BLOCK) {
+			/*
+			 * Return code check irrelevant - output size sufficient
+			 */
 			lc_kmac_final_xof(kmac, kc->keystream,
 					  LC_KC_KEYSTREAM_BLOCK);
 

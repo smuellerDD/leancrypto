@@ -233,6 +233,7 @@ static int lc_kh_decrypt_authenticate(void *state, const uint8_t *tag,
 				      size_t taglen)
 {
 	struct lc_kh_cryptor *kh = state;
+	struct lc_kmac_ctx *auth_ctx = &kh->auth_ctx;
 	uint8_t calctag[128] __align(sizeof(uint64_t));
 	int ret;
 
@@ -242,11 +243,12 @@ static int lc_kh_decrypt_authenticate(void *state, const uint8_t *tag,
 	 * Calculate the authentication tag for the processed. We do not need
 	 * to check the return code as we use the maximum tag size.
 	 */
-	lc_kh_encrypt_tag(kh, calctag, taglen);
+	CKINT(lc_kmac_final_xof(auth_ctx, calctag, taglen));
 
 	ret = (lc_memcmp_secure(calctag, taglen, tag, taglen) ? -EBADMSG : 0);
 	lc_memset_secure(calctag, 0, taglen);
 
+out:
 	return ret;
 }
 
