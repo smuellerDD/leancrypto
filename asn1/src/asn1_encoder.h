@@ -32,26 +32,26 @@ extern "C" {
 #define LC_ASN1_RET_SET_ZERO_CONTENT 2
 
 #define asn1_oid_len(oid) (sizeof(oid) / sizeof(uint32_t))
-int asn1_encode_integer(uint8_t *data, size_t *datalen, int64_t integer,
-			uint8_t **retptr);
-int asn1_encode_oid(uint8_t *data, size_t *datalen, uint32_t oid[],
-		    size_t oid_len, uint8_t **retptr);
-int asn1_encode_binary_oid(uint8_t *data, size_t *datalen,
-			   const uint8_t *oid_data, size_t oid_data_len,
+int lc_asn1_encode_integer(uint8_t *data, size_t *datalen, int64_t integer,
 			   uint8_t **retptr);
-int asn1_encode_tag(uint8_t *data, size_t *datalen, uint32_t tag,
-		    const uint8_t *string, size_t len, uint8_t **retptr);
-int asn1_encode_octet_string(uint8_t *data, size_t *datalen,
-			     const uint8_t *string, size_t len,
-			     uint8_t **retptr);
-int asn1_encode_sequence(uint8_t *data, size_t *datalen, const uint8_t *seq,
-			 size_t len, uint8_t **retptr);
-int asn1_encode_boolean(uint8_t *data, size_t *datalen, int val,
-			uint8_t **retptr);
+int lc_asn1_encode_oid(uint8_t *data, size_t *datalen, uint32_t oid[],
+		       size_t oid_len, uint8_t **retptr);
+int lc_asn1_encode_binary_oid(uint8_t *data, size_t *datalen,
+			      const uint8_t *oid_data, size_t oid_data_len,
+			      uint8_t **retptr);
+int lc_asn1_encode_tag(uint8_t *data, size_t *datalen, uint32_t tag,
+		       const uint8_t *string, size_t len, uint8_t **retptr);
+int lc_asn1_encode_octet_string(uint8_t *data, size_t *datalen,
+				const uint8_t *string, size_t len,
+				uint8_t **retptr);
+int lc_asn1_encode_sequence(uint8_t *data, size_t *datalen, const uint8_t *seq,
+			    size_t len, uint8_t **retptr);
+int lc_asn1_encode_boolean(uint8_t *data, size_t *datalen, int val,
+			   uint8_t **retptr);
 
-int asn1_encode_length(uint8_t **data, size_t *data_len, size_t len);
+int lc_asn1_encode_length(uint8_t **data, size_t *data_len, size_t len);
 
-int asn1_encode_length_size(size_t len, size_t *len_len);
+int lc_asn1_encode_length_size(size_t len, size_t *len_len);
 
 #ifdef __cplusplus
 }

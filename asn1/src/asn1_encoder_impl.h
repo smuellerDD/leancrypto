@@ -135,7 +135,7 @@ extern "C" {
 	dstbuffer++;                                                           \
 	available_datalength--;                                                \
                                                                                \
-	CKINT(asn1_encode_length(&dstbuffer, &available_datalength, len));     \
+	CKINT(lc_asn1_encode_length(&dstbuffer, &available_datalength, len));  \
                                                                                \
 	if (available_datalength < len) {                                      \
 		printf_debug(                                                  \

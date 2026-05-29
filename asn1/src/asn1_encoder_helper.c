@@ -33,7 +33,7 @@
 #include "ret_checkers.h"
 
 /**
- * asn1_encode_integer() - encode positive integer to ASN.1
+ * lc_asn1_encode_integer() - encode positive integer to ASN.1
  * @data:	pointer to the pointer to the data
  * @end_data:	end of data pointer, points one beyond last usable byte in @data
  * @integer:	integer to be encoded
@@ -43,8 +43,8 @@
  * positive integers, but it should be simple enough to add the
  * negative case if a use comes along.
  */
-int asn1_encode_integer(uint8_t *data, size_t *datalen, int64_t integer,
-			uint8_t **retptr)
+int lc_asn1_encode_integer(uint8_t *data, size_t *datalen, int64_t integer,
+			   uint8_t **retptr)
 {
 	size_t i;
 	uint8_t *d = &data[2];
@@ -157,7 +157,7 @@ out:
 }
 
 /**
- * asn1_encode_oid() - encode an oid to ASN.1
+ * lc_asn1_encode_oid() - encode an oid to ASN.1
  * @data:	position to begin encoding at
  * @end_data:	end of data pointer, points one beyond last usable byte in @data
  * @oid:	array of oids
@@ -166,8 +166,8 @@ out:
  *
  * this encodes an OID up to ASN.1 when presented as an array of OID values
  */
-int asn1_encode_oid(uint8_t *data, size_t *datalen, uint32_t oid[],
-		    size_t oid_len, uint8_t **retptr)
+int lc_asn1_encode_oid(uint8_t *data, size_t *datalen, uint32_t oid[],
+		       size_t oid_len, uint8_t **retptr)
 {
 	size_t i;
 	unsigned char *d = data;
@@ -210,7 +210,7 @@ out:
 }
 
 /**
- * asn1_encode_binary_oid() - encode a binary OID to ASN.1
+ * lc_asn1_encode_binary_oid() - encode a binary OID to ASN.1
  * @data:	position to begin encoding at
  * @end_data:	end of data pointer, points one beyond last usable byte in @data
  * @oid:	array of oids
@@ -219,9 +219,9 @@ out:
  *
  * this encodes an OID up to ASN.1 when presented as an array of OID values
  */
-int asn1_encode_binary_oid(uint8_t *data, size_t *datalen,
-			   const uint8_t *oid_data, size_t oid_data_len,
-			   uint8_t **retptr)
+int lc_asn1_encode_binary_oid(uint8_t *data, size_t *datalen,
+			      const uint8_t *oid_data, size_t oid_data_len,
+			      uint8_t **retptr)
 {
 	unsigned char *d = data;
 	int ret = 0;
@@ -258,7 +258,7 @@ out:
 }
 
 /**
- * asn1_encode_length() - encode a length to follow an ASN.1 tag
+ * lc_asn1_encode_length() - encode a length to follow an ASN.1 tag
  * @data: pointer to encode at
  * @data_len: pointer to remaining length (adjusted by routine)
  * @len: length to encode
@@ -269,7 +269,7 @@ out:
  * encoder primitives to accept negative lengths as singalling the
  * sequence will be re-encoded when the length is known.
  */
-int asn1_encode_length(uint8_t **data, size_t *data_len, size_t len)
+int lc_asn1_encode_length(uint8_t **data, size_t *data_len, size_t len)
 {
 	if (*data_len < 1)
 		return -EINVAL;
@@ -317,7 +317,7 @@ int asn1_encode_length(uint8_t **data, size_t *data_len, size_t len)
 	return 0;
 }
 
-int asn1_encode_length_size(size_t len, size_t *len_len)
+int lc_asn1_encode_length_size(size_t len, size_t *len_len)
 {
 	if (len <= 0x7f) {
 		*len_len = 1;
@@ -344,7 +344,7 @@ int asn1_encode_length_size(size_t len, size_t *len_len)
 }
 
 /**
- * asn1_encode_tag() - add a tag for optional or explicit value
+ * lc_asn1_encode_tag() - add a tag for optional or explicit value
  * @data:	pointer to place tag at
  * @end_data:	end of data pointer, points one beyond last usable byte in @data
  * @tag:	tag to be placed
@@ -370,8 +370,8 @@ int asn1_encode_length_size(size_t len, size_t *len_len)
  * expects to be called with @data pointing to where the first encode
  * returned it and still NULL for @string but the real length in @len.
  */
-int asn1_encode_tag(uint8_t *data, size_t *datalen, uint32_t tag,
-		    const uint8_t *string, size_t len, uint8_t **retptr)
+int lc_asn1_encode_tag(uint8_t *data, size_t *datalen, uint32_t tag,
+		       const uint8_t *string, size_t len, uint8_t **retptr)
 {
 	int ret;
 
@@ -405,7 +405,7 @@ int asn1_encode_tag(uint8_t *data, size_t *datalen, uint32_t tag,
 
 	*(data++) = (uint8_t)_tagn(CONT, CONS, tag);
 	*datalen -= 1;
-	CKINT(asn1_encode_length(&data, datalen, len));
+	CKINT(lc_asn1_encode_length(&data, datalen, len));
 
 	if (!string)
 		goto out;
@@ -425,7 +425,7 @@ out:
 }
 
 /**
- * asn1_encode_octet_string() - encode an ASN.1 OCTET STRING
+ * lc_asn1_encode_octet_string() - encode an ASN.1 OCTET STRING
  * @data:	pointer to encode at
  * @end_data:	end of data pointer, points one beyond last usable byte in @data
  * @string:	string to be encoded
@@ -434,9 +434,9 @@ out:
  *
  * Note ASN.1 octet strings may contain zeros, so the length is obligatory.
  */
-int asn1_encode_octet_string(uint8_t *data, size_t *datalen,
-			     const uint8_t *string, size_t len,
-			     uint8_t **retptr)
+int lc_asn1_encode_octet_string(uint8_t *data, size_t *datalen,
+				const uint8_t *string, size_t len,
+				uint8_t **retptr)
 {
 	int ret;
 
@@ -451,7 +451,7 @@ int asn1_encode_octet_string(uint8_t *data, size_t *datalen,
 	*(data++) = _tag(UNIV, PRIM, OTS);
 	*datalen -= 1;
 
-	CKINT(asn1_encode_length(&data, datalen, len));
+	CKINT(lc_asn1_encode_length(&data, datalen, len));
 
 	if (*datalen < len) {
 		ret = -EINVAL;
@@ -468,7 +468,7 @@ out:
 }
 
 /**
- * asn1_encode_sequence() - wrap a byte stream in an ASN.1 SEQUENCE
+ * lc_asn1_encode_sequence() - wrap a byte stream in an ASN.1 SEQUENCE
  * @param [in] data pointer to encode at
  * @param [in] datalen length of data pointer
  * @param [in] seq data to be encoded as a sequence
@@ -481,8 +481,8 @@ out:
  * pointers, the repeat expects to be called with @data pointing to
  * where the first encode placed it.
  */
-int asn1_encode_sequence(uint8_t *data, size_t *datalen, const uint8_t *seq,
-			 size_t len, uint8_t **retptr)
+int lc_asn1_encode_sequence(uint8_t *data, size_t *datalen, const uint8_t *seq,
+			    size_t len, uint8_t **retptr)
 {
 	int ret;
 
@@ -511,7 +511,7 @@ int asn1_encode_sequence(uint8_t *data, size_t *datalen, const uint8_t *seq,
 	*(data++) = _tag(UNIV, CONS, SEQ);
 	*datalen -= 1;
 
-	CKINT(asn1_encode_length(&data, datalen, len));
+	CKINT(lc_asn1_encode_length(&data, datalen, len));
 
 	if (!seq)
 		goto out;
@@ -531,14 +531,14 @@ out:
 }
 
 /**
- * asn1_encode_boolean() - encode a boolean value to ASN.1
+ * lc_asn1_encode_boolean() - encode a boolean value to ASN.1
  * @param [in] data pointer to encode at
  * @param [in] datalen length of data pointer
  * @param [in] val the boolean true/false value
  * @param [out] retptr Pointer to the data buffer new data can be placed into
  */
-int asn1_encode_boolean(uint8_t *data, size_t *datalen, int val,
-			uint8_t **retptr)
+int lc_asn1_encode_boolean(uint8_t *data, size_t *datalen, int val,
+			   uint8_t **retptr)
 {
 	int ret;
 
@@ -553,7 +553,7 @@ int asn1_encode_boolean(uint8_t *data, size_t *datalen, int val,
 	*(data++) = _tag(UNIV, PRIM, BOOL);
 	*datalen -= 1;
 
-	CKINT(asn1_encode_length(&data, datalen, 1));
+	CKINT(lc_asn1_encode_length(&data, datalen, 1));
 
 	if (val)
 		*(data++) = ASN1_TRUE;
