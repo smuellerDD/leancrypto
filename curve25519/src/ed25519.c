@@ -776,7 +776,10 @@ LC_INTERFACE_FUNCTION(int, lc_ed25519_sk_load, struct lc_ed25519_sk *sk,
 
 	if (src_key_len == sizeof(sk->sk)) {
 		memcpy(sk->sk, src_key, src_key_len);
-		return lc_ed25519_pct_fips((struct lc_ed25519_pk *)sk, sk);
+
+		/* Check that the public/private key are a pair */
+		return _lc_ed25519_pct_fips(
+			(struct lc_ed25519_pk *)(sk->sk + 32), sk);
 	} else if (src_key_len == LC_ED25519_RAW_SECRETKEYBYTES) {
 		memcpy(sk->sk, src_key, src_key_len);
 		return lc_ed25519_derive_pk(NULL, sk);

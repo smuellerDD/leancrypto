@@ -236,7 +236,7 @@ out:
 static int ed25519_pwc_tester(void)
 {
 	struct lc_ed25519_pk pk;
-	struct lc_ed25519_sk sk;
+	struct lc_ed25519_sk sk, sk2;
 	struct lc_ed25519_sig sig;
 	int ret;
 	const uint8_t msg[] = { 0x01, 0x02, 0x03 };
@@ -245,6 +245,8 @@ static int ed25519_pwc_tester(void)
 	CKINT(lc_ed25519_keypair(&pk, &sk, selftest_rng));
 	CKINT(lc_ed25519_sign(&sig, msg, sizeof(msg), &sk, selftest_rng));
 	CKINT(lc_ed25519_verify(&sig, msg, sizeof(msg), &pk));
+
+	CKINT(lc_ed25519_sk_load(&sk2, sk.sk, sizeof(sk.sk)));
 
 out:
 	return ret ? 1 : 0;
