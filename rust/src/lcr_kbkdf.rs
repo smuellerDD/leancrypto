@@ -80,3 +80,70 @@ impl lcr_kbkdf_ctr {
         Ok(())
     }
 }
+
+/// Leancrypto wrapper for lc_kbkdf
+pub struct lcr_kbkdf_fb {
+    /// Leancrypto hash reference
+    hash: lcr_hash_type,
+}
+
+#[allow(dead_code)]
+impl lcr_kbkdf_fb {
+    pub fn new(hash_type: lcr_hash_type) -> Self {
+        lcr_kbkdf_fb { hash: hash_type }
+    }
+
+    /// SP800-108 FB-KDF derive
+    ///
+    /// # Arguments
+    ///
+    /// * `key` buffer with password
+    /// * `iv` buffer with IV
+    /// * `label` buffer with arbitrary formatted label
+    /// * `dst` destination buffer to be filled with derived key material
+    ///
+    /// # Returns
+    ///
+    /// * Returns Ok() on success or KdfError on error
+    pub fn derive(
+        &mut self,
+        key: &[u8],
+        iv: &[u8],
+        label: &[u8],
+        dst: &mut [u8],
+    ) -> Result<(), KdfError> {
+        /*
+         * &[].as_ptr() returns 0x1 and not a NULL pointer
+         */
+        let mut keyptr = key.as_ptr();
+        if key.len() == 0 {
+            keyptr = ptr::null();
+        }
+        let mut ivptr = iv.as_ptr();
+        if iv.len() == 0 {
+            ivptr = ptr::null();
+        }
+        let mut labelptr = label.as_ptr();
+        if label.len() == 0 {
+            labelptr = ptr::null();
+        }
+
+        let result = unsafe {
+            leancrypto::lc_kdf_fb(
+                lcr_hash_type_mapping(self.hash),
+                keyptr,
+                key.len(),
+                ivptr,
+                iv.len(),
+                labelptr,
+                label.len(),
+                dst.as_mut_ptr(),
+                dst.len(),
+            )
+        };
+        if result < 0 {
+            return Err(KdfError::ProcessingError);
+        }
+        Ok(())
+    }
+}
