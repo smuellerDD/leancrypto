@@ -18,12 +18,15 @@
  */
 
 use crate::ffi::leancrypto;
+use std::os::raw::c_char;
 
 pub fn status() -> String {
-    let mut s = Vec::<u8>::with_capacity(2300);
+    let capacity = 2300;
+    let mut s = Vec::<u8>::with_capacity(capacity);
+    let ptr = s.as_mut_ptr() as *mut c_char;
     unsafe {
-        leancrypto::lc_status(s.as_mut_ptr(), 2300);
-        s.set_len(2300)
+        leancrypto::lc_status(ptr, capacity);
+        s.set_len(capacity)
     };
     let string = String::from_utf8(s.clone()).unwrap();
     string
