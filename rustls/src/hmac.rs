@@ -19,7 +19,7 @@
 
 use leancrypto_sys::{
     lcr_hash::lcr_hash_type,
-    lcr_hmac::{lcr_hmac, lcr_hmac_key },
+    lcr_hmac::{lcr_hmac, lcr_hmac_key},
 };
 use rustls::Error;
 use rustls::crypto;

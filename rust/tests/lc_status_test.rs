@@ -21,6 +21,6 @@ use leancrypto_sys::lcr_status;
 
 #[test]
 fn lc_status_test() {
-     let s = lcr_status::status();
-     println!("Leancrypto status:\n{}", s)
+    let s = lcr_status::status();
+    println!("Leancrypto status:\n{}", s)
 }

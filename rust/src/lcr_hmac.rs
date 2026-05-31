@@ -19,9 +19,11 @@
 
 use crate::error::HashError;
 use crate::ffi::leancrypto;
+use crate::lcr_hash::{
+    lcr_hash_digestsize_mapping, lcr_hash_type, lcr_hash_type_mapping,
+};
 use std::ptr;
 use std::sync::atomic;
-use crate::lcr_hash::{lcr_hash_digestsize_mapping, lcr_hash_type, lcr_hash_type_mapping};
 
 pub struct lcr_hmac_key {
     /// Immutable context of key
