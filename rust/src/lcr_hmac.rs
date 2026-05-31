@@ -21,66 +21,19 @@ use crate::error::HashError;
 use crate::ffi::leancrypto;
 use std::ptr;
 use std::sync::atomic;
-
-#[derive(Copy, Clone)]
-pub enum lcr_hmac_type {
-    lcr_sha2_256,
-    lcr_sha2_384,
-    lcr_sha2_512,
-    lcr_sha3_224,
-    lcr_sha3_256,
-    lcr_sha3_384,
-    lcr_sha3_512,
-}
-
-/// Mapping of lcr_hmac_type to leancrypto message digest
-/// implementation type
-///
-/// # Returns
-///
-/// * Returns leancrypto message digest implementation type
-fn lcr_type_mapping(hmac: lcr_hmac_type) -> *const leancrypto::lc_hash {
-    unsafe {
-        match hmac {
-            lcr_hmac_type::lcr_sha2_256 => leancrypto::lc_sha256,
-            lcr_hmac_type::lcr_sha2_384 => leancrypto::lc_sha384,
-            lcr_hmac_type::lcr_sha2_512 => leancrypto::lc_sha512,
-            lcr_hmac_type::lcr_sha3_224 => leancrypto::lc_sha3_224,
-            lcr_hmac_type::lcr_sha3_256 => leancrypto::lc_sha3_256,
-            lcr_hmac_type::lcr_sha3_384 => leancrypto::lc_sha3_384,
-            lcr_hmac_type::lcr_sha3_512 => leancrypto::lc_sha3_512,
-        }
-    }
-}
-
-/// Mapping of lcr_hmac_type to digest size
-///
-/// # Returns
-///
-/// * Returns digest size
-fn lcr_digestsize_mapping(hmac: lcr_hmac_type) -> usize {
-    match hmac {
-        lcr_hmac_type::lcr_sha2_256 => 32,
-        lcr_hmac_type::lcr_sha2_384 => 48,
-        lcr_hmac_type::lcr_sha2_512 => 64,
-        lcr_hmac_type::lcr_sha3_224 => 28,
-        lcr_hmac_type::lcr_sha3_256 => 32,
-        lcr_hmac_type::lcr_sha3_384 => 48,
-        lcr_hmac_type::lcr_sha3_512 => 64,
-    }
-}
+use crate::lcr_hash::{lcr_hash_digestsize_mapping, lcr_hash_type, lcr_hash_type_mapping};
 
 pub struct lcr_hmac_key {
     /// Immutable context of key
     hmac_key: leancrypto::lc_hmac_key,
 
-    /// Leancrypto hmac reference
-    hmac: lcr_hmac_type,
+    /// Leancrypto hash reference
+    hmac: lcr_hash_type,
 }
 
 #[allow(dead_code)]
 impl lcr_hmac_key {
-    pub fn new(hmac_type: lcr_hmac_type) -> Self {
+    pub fn new(hmac_type: lcr_hash_type) -> Self {
         lcr_hmac_key {
             hmac_key: unsafe { std::mem::zeroed() },
             hmac: hmac_type,
@@ -103,7 +56,7 @@ impl lcr_hmac_key {
         let result = unsafe {
             leancrypto::lc_hmac_setkey(
                 &mut self.hmac_key,
-                lcr_type_mapping(self.hmac),
+                lcr_hash_type_mapping(self.hmac),
                 key.as_ptr(),
                 key.len(),
             )
@@ -143,12 +96,12 @@ pub struct lcr_hmac {
     hmac_ctx: *mut leancrypto::lc_hmac_ctx,
 
     /// Leancrypto hmac reference
-    hmac: lcr_hmac_type,
+    hmac: lcr_hash_type,
 }
 
 #[allow(dead_code)]
 impl lcr_hmac {
-    pub fn new(hmac_type: lcr_hmac_type) -> Self {
+    pub fn new(hmac_type: lcr_hash_type) -> Self {
         lcr_hmac {
             hmac_ctx: ptr::null_mut(),
             hmac: hmac_type,
@@ -172,13 +125,13 @@ impl lcr_hmac {
         msg: &[u8],
         mac: &mut [u8],
     ) -> Result<(), HashError> {
-        if mac.len() < lcr_digestsize_mapping(self.hmac) {
+        if mac.len() < lcr_hash_digestsize_mapping(self.hmac) {
             return Err(HashError::ProcessingError);
         }
 
         unsafe {
             leancrypto::lc_hmac(
-                lcr_type_mapping(self.hmac),
+                lcr_hash_type_mapping(self.hmac),
                 key.as_ptr(),
                 key.len(),
                 msg.as_ptr(),
@@ -209,7 +162,7 @@ impl lcr_hmac {
             /* Allocate the hmac context */
             result = unsafe {
                 leancrypto::lc_hmac_alloc(
-                    lcr_type_mapping(self.hmac),
+                    lcr_hash_type_mapping(self.hmac),
                     &mut self.hmac_ctx,
                 )
             };
@@ -248,7 +201,7 @@ impl lcr_hmac {
             /* Allocate the hmac context */
             result = unsafe {
                 leancrypto::lc_hmac_alloc(
-                    lcr_type_mapping(self.hmac),
+                    lcr_hash_type_mapping(self.hmac),
                     &mut self.hmac_ctx,
                 )
             };
@@ -312,7 +265,7 @@ impl lcr_hmac {
             return Err(HashError::UninitializedContext);
         }
 
-        if mac.len() < lcr_digestsize_mapping(self.hmac) {
+        if mac.len() < lcr_hash_digestsize_mapping(self.hmac) {
             return Err(HashError::ProcessingError);
         }
 
@@ -332,7 +285,7 @@ impl lcr_hmac {
     ///
     /// * Returns digest size
     pub fn digestsize(&mut self) -> usize {
-        lcr_digestsize_mapping(self.hmac)
+        lcr_hash_digestsize_mapping(self.hmac)
     }
 }
 

@@ -17,11 +17,11 @@
  * DAMAGE.
  */
 
+use leancrypto_sys::lcr_hash::lcr_hash_type;
 use leancrypto_sys::lcr_hmac::lcr_hmac;
-use leancrypto_sys::lcr_hmac::lcr_hmac_type;
 
 fn lc_rust_hmac_one(
-    hmac_type: lcr_hmac_type,
+    hmac_type: lcr_hash_type,
     key: &[u8],
     msg: &[u8],
     exp: &[u8],
@@ -62,7 +62,7 @@ fn lc_rust_hmac_256() {
         0x02, 0x6c, 0x87, 0x8b, 0xae, 0x41, 0xb4, 0xcd,
     ];
 
-    lc_rust_hmac_one(lcr_hmac_type::lcr_sha2_256, &key, &msg, &exp)
+    lc_rust_hmac_one(lcr_hash_type::lcr_sha2_256, &key, &msg, &exp)
 }
 
 #[test]
@@ -160,11 +160,11 @@ fn lc_rust_hmac_512() {
         0x0e, 0xf7, 0x3b, 0x7b,
     ];
 
-    lc_rust_hmac_one(lcr_hmac_type::lcr_sha2_512, &key, &msg, &exp)
+    lc_rust_hmac_one(lcr_hash_type::lcr_sha2_512, &key, &msg, &exp)
 }
 
 #[test]
-fn lc_rust_hmac_2_224() {
+fn lc_rust_hmac_3_224() {
     let msg: [u8; 16] = [
         0x35, 0x8E, 0x06, 0xBA, 0x03, 0x21, 0x83, 0xFC, 0x18, 0x20, 0x58, 0xBD,
         0xB7, 0xBB, 0x13, 0x40,
@@ -179,5 +179,5 @@ fn lc_rust_hmac_2_224() {
         0x53, 0x95, 0xde, 0xa2,
     ];
 
-    lc_rust_hmac_one(lcr_hmac_type::lcr_sha3_224, &key, &msg, &exp)
+    lc_rust_hmac_one(lcr_hash_type::lcr_sha3_224, &key, &msg, &exp)
 }

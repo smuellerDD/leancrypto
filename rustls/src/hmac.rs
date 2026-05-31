@@ -17,23 +17,26 @@
  * DAMAGE.
  */
 
-use leancrypto_sys::lcr_hmac::{lcr_hmac, lcr_hmac_key, lcr_hmac_type};
+use leancrypto_sys::{
+    lcr_hash::lcr_hash_type,
+    lcr_hmac::{lcr_hmac, lcr_hmac_key },
+};
 use rustls::Error;
 use rustls::crypto;
 use rustls::crypto::hmac::{Key, Tag};
 
 #[allow(dead_code)]
-pub(crate) static HMAC_SHA256: Hmac = Hmac(lcr_hmac_type::lcr_sha2_256);
+pub(crate) static HMAC_SHA256: Hmac = Hmac(lcr_hash_type::lcr_sha2_256);
 #[allow(dead_code)]
-pub(crate) static HMAC_SHA384: Hmac = Hmac(lcr_hmac_type::lcr_sha2_384);
+pub(crate) static HMAC_SHA384: Hmac = Hmac(lcr_hash_type::lcr_sha2_384);
 #[allow(dead_code)] // Only used for TLS 1.2 prf test, and aws-lc-rs HPKE suites.
-pub(crate) static HMAC_SHA512: Hmac = Hmac(lcr_hmac_type::lcr_sha2_512);
+pub(crate) static HMAC_SHA512: Hmac = Hmac(lcr_hash_type::lcr_sha2_512);
 
-pub(crate) struct Hmac(pub lcr_hmac_type);
+pub(crate) struct Hmac(pub lcr_hash_type);
 
 struct HmacKey {
     key: lcr_hmac_key,
-    hash: lcr_hmac_type,
+    hash: lcr_hash_type,
 }
 
 impl rustls::crypto::hmac::Hmac for Hmac {

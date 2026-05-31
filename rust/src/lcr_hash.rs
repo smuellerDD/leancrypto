@@ -28,6 +28,7 @@ pub enum lcr_hash_type {
     lcr_sha2_256,
     lcr_sha2_384,
     lcr_sha2_512,
+    lcr_sha3_224,
     lcr_sha3_256,
     lcr_sha3_384,
     lcr_sha3_512,
@@ -52,6 +53,7 @@ pub fn lcr_hash_type_mapping(
             lcr_hash_type::lcr_sha2_256 => leancrypto::lc_sha256,
             lcr_hash_type::lcr_sha2_384 => leancrypto::lc_sha384,
             lcr_hash_type::lcr_sha2_512 => leancrypto::lc_sha512,
+            lcr_hash_type::lcr_sha3_224 => leancrypto::lc_sha3_224,
             lcr_hash_type::lcr_sha3_256 => leancrypto::lc_sha3_256,
             lcr_hash_type::lcr_sha3_384 => leancrypto::lc_sha3_384,
             lcr_hash_type::lcr_sha3_512 => leancrypto::lc_sha3_512,
@@ -79,6 +81,9 @@ pub fn lcr_hash_digestsize_mapping(hash: lcr_hash_type) -> usize {
         }
         lcr_hash_type::lcr_sha2_512 => {
             leancrypto::LC_SHA512_SIZE_DIGEST as usize
+        }
+        lcr_hash_type::lcr_sha3_224 => {
+            leancrypto::LC_SHA3_224_SIZE_DIGEST as usize
         }
         lcr_hash_type::lcr_sha3_256 => {
             leancrypto::LC_SHA3_256_SIZE_DIGEST as usize

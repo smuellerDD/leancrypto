@@ -21,8 +21,7 @@ use crate::hmac::Hmac;
 use leancrypto_sys::lcr_hash::lcr_hash_type as HashAlgorithm;
 use leancrypto_sys::{
     lcr_hash::{lcr_hash, lcr_hash_type},
-    lcr_hkdf::lcr_hkdf,
-    lcr_hmac::lcr_hmac_type,
+    lcr_hkdf::lcr_hkdf
 };
 
 use rustls::crypto::hmac::{Hmac as _, Tag};
@@ -100,12 +99,12 @@ impl RustlsHkdf for Hkdf {
         message: &[u8],
     ) -> Tag {
         let hmac_type = match self.0 {
-            lcr_hash_type::lcr_sha2_256 => lcr_hmac_type::lcr_sha2_256,
-            lcr_hash_type::lcr_sha2_384 => lcr_hmac_type::lcr_sha2_384,
-            lcr_hash_type::lcr_sha2_512 => lcr_hmac_type::lcr_sha2_512,
-            lcr_hash_type::lcr_sha3_256 => lcr_hmac_type::lcr_sha3_256,
-            lcr_hash_type::lcr_sha3_384 => lcr_hmac_type::lcr_sha3_384,
-            lcr_hash_type::lcr_sha3_512 => lcr_hmac_type::lcr_sha3_512,
+            lcr_hash_type::lcr_sha2_256 => lcr_hash_type::lcr_sha2_256,
+            lcr_hash_type::lcr_sha2_384 => lcr_hash_type::lcr_sha2_384,
+            lcr_hash_type::lcr_sha2_512 => lcr_hash_type::lcr_sha2_512,
+            lcr_hash_type::lcr_sha3_256 => lcr_hash_type::lcr_sha3_256,
+            lcr_hash_type::lcr_sha3_384 => lcr_hash_type::lcr_sha3_384,
+            lcr_hash_type::lcr_sha3_512 => lcr_hash_type::lcr_sha3_512,
             _ => todo!(),
         };
         Hmac(hmac_type).with_key(key.as_ref()).sign(&[message])

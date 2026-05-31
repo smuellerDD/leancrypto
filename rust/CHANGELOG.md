@@ -28,6 +28,8 @@ This version requires leancrypto >= 1.8.0.
 
 * API breakage: kyber_x25519 and kyber_x448 encapsulate and decapsulate changed - they now fill the raw shared secret buffer that must be obtained with a separate call
 
+* API breakage: Remove lcr_hmac_type - use lcr_hash_type instead
+
 ## [0.2.2] - 2025-10-18
 
 ### Added
