@@ -20,7 +20,7 @@
 use crate::ffi::leancrypto;
 
 pub fn status() -> String {
-    let mut s = Vec::with_capacity(2300);
+    let mut s = Vec::<u8>::with_capacity(2300);
     unsafe {
         leancrypto::lc_status(s.as_mut_ptr(), 2300);
         s.set_len(2300)
