@@ -69,7 +69,7 @@ pub fn lcr_hash_type_mapping(
 /// # Returns
 ///
 /// * Returns digest size
-fn lcr_hash_digestsize_mapping(hash: lcr_hash_type) -> usize {
+pub fn lcr_hash_digestsize_mapping(hash: lcr_hash_type) -> usize {
     match hash {
         lcr_hash_type::lcr_sha2_256 => {
             leancrypto::LC_SHA256_SIZE_DIGEST as usize
