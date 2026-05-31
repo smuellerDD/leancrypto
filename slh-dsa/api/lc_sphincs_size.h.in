@@ -611,8 +611,8 @@ struct lc_sphincs_ctx {
 	(name)->slh_dsa_internal = 0;                                          \
 	(name)->userctxlen = 0;                                                \
 	(name)->userctx = NULL
-#endif
 /// \endcond
+#endif
 
 /**
  * @brief Allocate stack memory for the Sphincs stream context or additional
