@@ -89,3 +89,6 @@ pub mod lcr_ed25519;
 
 /// Leancrypto wrapper for X.509 API
 pub mod lcr_x509;
+
+/// Leancrypto wrapper for status API
+pub mod lcr_status;
