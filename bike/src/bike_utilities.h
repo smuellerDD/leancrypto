@@ -165,7 +165,7 @@ static inline uint32_t secure_cmp32(const uint32_t v1, const uint32_t v2)
 			     "mov %%edx, %0; \n"
 			     : "=r"(res)
 			     : "r"(v1), "r"(v2)
-			     : "rdx");
+			     : "edx");
 	return res;
 #else
 	/*
