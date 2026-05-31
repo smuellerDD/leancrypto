@@ -1895,8 +1895,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x25519_enc_kdf,
 	}
 }
 
-LC_INTERFACE_FUNCTION(int, lc_kyber_x25519_enc,
-		      struct lc_kyber_x25519_ct *ct,
+LC_INTERFACE_FUNCTION(int, lc_kyber_x25519_enc, struct lc_kyber_x25519_ct *ct,
 		      struct lc_kyber_x25519_ss *ss,
 		      const struct lc_kyber_x25519_pk *pk)
 {
@@ -1908,9 +1907,8 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x25519_enc,
 #ifdef LC_KYBER_1024_ENABLED
 		ct->kyber_type = LC_KYBER_1024;
 		ss->kyber_type = LC_KYBER_1024;
-		return lc_kyber_1024_x25519_enc(&ct->key.ct_1024,
-						&ss->key.ss_1024,
-						&pk->key.pk_1024);
+		return lc_kyber_1024_x25519_enc(
+			&ct->key.ct_1024, &ss->key.ss_1024, &pk->key.pk_1024);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -1984,9 +1982,8 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x25519_dec, struct lc_kyber_x25519_ss *ss,
 	case LC_KYBER_1024:
 #ifdef LC_KYBER_1024_ENABLED
 		ss->kyber_type = LC_KYBER_1024;
-		return lc_kyber_1024_x25519_dec(&ss->key.ss_1024,
-						&ct->key.ct_1024,
-						&sk->key.sk_1024);
+		return lc_kyber_1024_x25519_dec(
+			&ss->key.ss_1024, &ct->key.ct_1024, &sk->key.sk_1024);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -3125,8 +3122,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_enc_kdf, struct lc_kyber_x448_ct *ct,
 	}
 }
 
-LC_INTERFACE_FUNCTION(int, lc_kyber_x448_enc,
-		      struct lc_kyber_x448_ct *ct,
+LC_INTERFACE_FUNCTION(int, lc_kyber_x448_enc, struct lc_kyber_x448_ct *ct,
 		      struct lc_kyber_x448_ss *ss,
 		      const struct lc_kyber_x448_pk *pk)
 {
@@ -3138,9 +3134,8 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_enc,
 #ifdef LC_KYBER_1024_ENABLED
 		ct->kyber_type = LC_KYBER_1024;
 		ss->kyber_type = LC_KYBER_1024;
-		return lc_kyber_1024_x448_enc(&ct->key.ct_1024,
-					      &ss->key.ss_1024,
-					      &pk->key.pk_1024);
+		return lc_kyber_1024_x448_enc(
+			&ct->key.ct_1024, &ss->key.ss_1024, &pk->key.pk_1024);
 #else
 		return -EOPNOTSUPP;
 #endif
@@ -3214,9 +3209,8 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_dec, struct lc_kyber_x448_ss *ss,
 	case LC_KYBER_1024:
 #ifdef LC_KYBER_1024_ENABLED
 		ss->kyber_type = LC_KYBER_1024;
-		return lc_kyber_1024_x448_dec(&ss->key.ss_1024,
-					      &ct->key.ct_1024,
-					      &sk->key.sk_1024);
+		return lc_kyber_1024_x448_dec(
+			&ss->key.ss_1024, &ct->key.ct_1024, &sk->key.sk_1024);
 #else
 		return -EOPNOTSUPP;
 #endif

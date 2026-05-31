@@ -226,8 +226,8 @@ static void print_x509_name_component(char *buf, size_t bufmaxlen,
 
 	buflen = strlen(buf);
 
-	snprintf(buf + buflen, bufmaxlen - buflen, "%s%s%s",
-		 *comma ? ", " : "", prefix, string);
+	snprintf(buf + buflen, bufmaxlen - buflen, "%s%s%s", *comma ? ", " : "",
+		 prefix, string);
 
 	*comma = 1;
 }

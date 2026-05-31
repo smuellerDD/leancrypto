@@ -917,48 +917,48 @@ LC_INTERFACE_FUNCTION(int, lc_sphincs_pk_from_sk, struct lc_sphincs_pk *pk,
 	case LC_SPHINCS_SHAKE_256s:
 #ifdef LC_SPHINCS_SHAKE_256s_ENABLED
 		pk->sphincs_type = sk->sphincs_type;
-		return lc_sphincs_shake_256s_pk_from_sk(
-			&pk->key.pk_shake_256s, &sk->key.sk_shake_256s);
+		return lc_sphincs_shake_256s_pk_from_sk(&pk->key.pk_shake_256s,
+							&sk->key.sk_shake_256s);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_SPHINCS_SHAKE_256f:
 #ifdef LC_SPHINCS_SHAKE_256f_ENABLED
 		pk->sphincs_type = sk->sphincs_type;
-		return lc_sphincs_shake_256f_pk_from_sk(
-			&pk->key.pk_shake_256f, &sk->key.sk_shake_256f);
+		return lc_sphincs_shake_256f_pk_from_sk(&pk->key.pk_shake_256f,
+							&sk->key.sk_shake_256f);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_SPHINCS_SHAKE_192s:
 #ifdef LC_SPHINCS_SHAKE_192s_ENABLED
 		pk->sphincs_type = sk->sphincs_type;
-		return lc_sphincs_shake_192s_pk_from_sk(
-			&pk->key.pk_shake_192s, &sk->key.sk_shake_192s);
+		return lc_sphincs_shake_192s_pk_from_sk(&pk->key.pk_shake_192s,
+							&sk->key.sk_shake_192s);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_SPHINCS_SHAKE_192f:
 #ifdef LC_SPHINCS_SHAKE_192f_ENABLED
 		pk->sphincs_type = sk->sphincs_type;
-		return lc_sphincs_shake_192f_pk_from_sk(
-			&pk->key.pk_shake_192f, &sk->key.sk_shake_192f);
+		return lc_sphincs_shake_192f_pk_from_sk(&pk->key.pk_shake_192f,
+							&sk->key.sk_shake_192f);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_SPHINCS_SHAKE_128s:
 #ifdef LC_SPHINCS_SHAKE_128s_ENABLED
 		pk->sphincs_type = sk->sphincs_type;
-		return lc_sphincs_shake_128s_pk_from_sk(
-			&pk->key.pk_shake_128s, &sk->key.sk_shake_128s);
+		return lc_sphincs_shake_128s_pk_from_sk(&pk->key.pk_shake_128s,
+							&sk->key.sk_shake_128s);
 #else
 		return -EOPNOTSUPP;
 #endif
 	case LC_SPHINCS_SHAKE_128f:
 #ifdef LC_SPHINCS_SHAKE_128f_ENABLED
 		pk->sphincs_type = sk->sphincs_type;
-		return lc_sphincs_shake_128f_pk_from_sk(
-			&pk->key.pk_shake_128f, &sk->key.sk_shake_128f);
+		return lc_sphincs_shake_128f_pk_from_sk(&pk->key.pk_shake_128f,
+							&sk->key.sk_shake_128f);
 #else
 		return -EOPNOTSUPP;
 #endif

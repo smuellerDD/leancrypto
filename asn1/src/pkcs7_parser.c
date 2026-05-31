@@ -761,9 +761,9 @@ int lc_pkcs7_note_signed_info(void *context, size_t hdrlen, unsigned char tag,
 				ctx->raw_issuer_size));
 		}
 	} else {
-		CKINT(lc_asymmetric_key_generate_id(
-			&sinfo->sig.auth_ids[0], ctx->raw_skid,
-			ctx->raw_skid_size));
+		CKINT(lc_asymmetric_key_generate_id(&sinfo->sig.auth_ids[0],
+						    ctx->raw_skid,
+						    ctx->raw_skid_size));
 	}
 
 	bin2print_debug(sinfo->sig.auth_ids[0].data, sinfo->sig.auth_ids[0].len,

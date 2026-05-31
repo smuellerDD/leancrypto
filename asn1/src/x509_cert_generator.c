@@ -1401,18 +1401,18 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_encode,
 		*avail_datalen += x509->san_ip_len;
 		*avail_datalen += x509->san_email_len;
 		*avail_datalen += x509_cert_directory_name_len(
-					&x509->san_directory_name_segments);
-		*avail_datalen += x509_cert_directory_name_len(
-					&x509->subject_segments);
-		*avail_datalen += x509_cert_directory_name_len(
-					&x509->issuer_segments);
+			&x509->san_directory_name_segments);
+		*avail_datalen +=
+			x509_cert_directory_name_len(&x509->subject_segments);
+		*avail_datalen +=
+			x509_cert_directory_name_len(&x509->issuer_segments);
 		*avail_datalen += x509->raw_skid_size ?
-				  x509->raw_skid_size :
-				  LC_X509_SKID_DEFAULT_HASHSIZE;
+					  x509->raw_skid_size :
+					  LC_X509_SKID_DEFAULT_HASHSIZE;
 		*avail_datalen += x509->raw_akid_size;
 		*avail_datalen += x509->raw_serial_size ?
-				  x509->raw_serial_size :
-				  LC_X509_SERIAL_MAX_SIZE;
+					  x509->raw_serial_size :
+					  LC_X509_SERIAL_MAX_SIZE;
 		return 0;
 	}
 
@@ -1629,8 +1629,8 @@ LC_INTERFACE_FUNCTION(int, lc_x509_keypair_load,
 }
 
 LC_INTERFACE_FUNCTION(int, lc_x509_keypair_pk,
-		      const struct lc_x509_key_data *key,
-		      uint8_t *dst_data, size_t *avail_datalen)
+		      const struct lc_x509_key_data *key, uint8_t *dst_data,
+		      size_t *avail_datalen)
 {
 	int ret;
 

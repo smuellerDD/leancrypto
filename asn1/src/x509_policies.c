@@ -76,7 +76,7 @@ LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_is_ca,
 		      const struct lc_x509_certificate *cert)
 {
 	const struct lc_public_key *pub;
-	int ret  = 0;
+	int ret = 0;
 
 	if (!cert)
 		return -EINVAL;
@@ -384,8 +384,8 @@ LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_time_valid_now,
 	return lc_x509_policy_time_valid(cert, time_since_epoch);
 }
 
-static lc_x509_pol_ret_t lc_x509_policy_consistency(
-	const struct lc_x509_certificate *cert)
+static lc_x509_pol_ret_t
+lc_x509_policy_consistency(const struct lc_x509_certificate *cert)
 {
 	const struct lc_public_key *pub = &cert->pub;
 
@@ -404,23 +404,28 @@ static lc_x509_pol_ret_t lc_x509_policy_consistency(
 		 * decipherOnly
 		 */
 		if (lc_x509_policy_match_key_usage(
-			cert, LC_KEY_USAGE_KEY_ENCIPHERMENT) == LC_X509_POL_TRUE) {
+			    cert, LC_KEY_USAGE_KEY_ENCIPHERMENT) ==
+		    LC_X509_POL_TRUE) {
 			return LC_X509_POL_FALSE;
 		}
 		if (lc_x509_policy_match_key_usage(
-			cert, LC_KEY_USAGE_DATA_ENCIPHERMENT) == LC_X509_POL_TRUE) {
+			    cert, LC_KEY_USAGE_DATA_ENCIPHERMENT) ==
+		    LC_X509_POL_TRUE) {
 			return LC_X509_POL_FALSE;
 		}
 		if (lc_x509_policy_match_key_usage(
-			cert, LC_KEY_USAGE_KEY_AGREEMENT) == LC_X509_POL_TRUE) {
+			    cert, LC_KEY_USAGE_KEY_AGREEMENT) ==
+		    LC_X509_POL_TRUE) {
 			return LC_X509_POL_FALSE;
 		}
 		if (lc_x509_policy_match_key_usage(
-			cert, LC_KEY_USAGE_ENCIPHER_ONLY) == LC_X509_POL_TRUE) {
+			    cert, LC_KEY_USAGE_ENCIPHER_ONLY) ==
+		    LC_X509_POL_TRUE) {
 			return LC_X509_POL_FALSE;
 		}
 		if (lc_x509_policy_match_key_usage(
-			cert, LC_KEY_USAGE_DECIPHER_ONLY) == LC_X509_POL_TRUE) {
+			    cert, LC_KEY_USAGE_DECIPHER_ONLY) ==
+		    LC_X509_POL_TRUE) {
 			return LC_X509_POL_FALSE;
 		}
 		break;

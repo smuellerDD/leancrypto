@@ -76,9 +76,8 @@ int lc_x509_csr_version(void *context, size_t hdrlen, unsigned char tag,
  * API functions
  ******************************************************************************/
 
-LC_INTERFACE_FUNCTION(int, lc_x509_csr_decode,
-		      struct lc_x509_certificate *x509, const uint8_t *data,
-		      size_t datalen)
+LC_INTERFACE_FUNCTION(int, lc_x509_csr_decode, struct lc_x509_certificate *x509,
+		      const uint8_t *data, size_t datalen)
 {
 	struct x509_parse_context ctx = { 0 };
 	struct lc_x509_key_data *gendata;

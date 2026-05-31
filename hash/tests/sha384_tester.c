@@ -81,7 +81,8 @@ static int _sha384_tester(const struct lc_hash *sha384, const char *name)
 	ret += lc_compare(act, exp_384, LC_SHA384_SIZE_DIGEST, "SHA-384 stack");
 	lc_hash_final(&ctx2, act);
 	lc_hash_zero(&ctx2);
-	ret += lc_compare(act, exp_384, LC_SHA384_SIZE_DIGEST, "SHA-384 duplicated context");
+	ret += lc_compare(act, exp_384, LC_SHA384_SIZE_DIGEST,
+			  "SHA-384 duplicated context");
 
 	return ret;
 }

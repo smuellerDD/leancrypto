@@ -132,8 +132,9 @@ LC_INTERFACE_FUNCTION(int, lc_hmac_init, struct lc_hmac_ctx *hmac_ctx,
 	return lc_hmac_init_nocheck(hmac_ctx, key, keylen);
 }
 
-static int lc_hmac_init_with_hmac_key_nocheck(
-	struct lc_hmac_ctx *hmac_ctx, const struct lc_hmac_key *hmac_key)
+static int
+lc_hmac_init_with_hmac_key_nocheck(struct lc_hmac_ctx *hmac_ctx,
+				   const struct lc_hmac_key *hmac_key)
 {
 	int ret = 0;
 

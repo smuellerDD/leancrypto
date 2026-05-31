@@ -181,8 +181,9 @@ int curve448_scalar_decode(curve448_scalar_t s,
 	return (~word_is_zero((uint32_t)accum)) ? 0 : -EFAULT;
 }
 
-static void curve448_scalar_decode_nocheck(
-	curve448_scalar_t s, const unsigned char ser[C448_SCALAR_BYTES])
+static void
+curve448_scalar_decode_nocheck(curve448_scalar_t s,
+			       const unsigned char ser[C448_SCALAR_BYTES])
 {
 	scalar_decode_short(s, ser, C448_SCALAR_BYTES);
 	curve448_scalar_mul(s, s, curve448_scalar_one); /* ham-handed reduce */

@@ -760,7 +760,7 @@ LC_INTERFACE_FUNCTION(int, lc_ed25519_pk_ptr, uint8_t **ed25519_key,
 LC_INTERFACE_FUNCTION(int, lc_ed25519_sig_ptr, uint8_t **ed25519_sig,
 		      size_t *ed25519_sig_len, struct lc_ed25519_sig *sig)
 {
-	if (!sig|| !ed25519_sig || !ed25519_sig_len)
+	if (!sig || !ed25519_sig || !ed25519_sig_len)
 		return -EINVAL;
 
 	*ed25519_sig = sig->sig;

@@ -566,10 +566,10 @@ int asym_keypair_gen_dilithium(struct lc_x509_certificate *cert,
 
 	if (cert) {
 		CKINT(asym_set_dilithium_keypair(&cert->sig_gen_data,
-						keys->pk.dilithium_pk,
-						keys->sk.dilithium_sk));
+						 keys->pk.dilithium_pk,
+						 keys->sk.dilithium_sk));
 		CKINT(asym_set_dilithium_keypair(&cert->pub_gen_data,
-						keys->pk.dilithium_pk, NULL));
+						 keys->pk.dilithium_pk, NULL));
 	}
 
 out:

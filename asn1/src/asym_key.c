@@ -362,8 +362,7 @@ int lc_public_key_extract(struct x509_generate_context *ctx, uint8_t *dst_data,
 #ifdef LC_X509_GENERATOR
 	const struct lc_x509_certificate *cert = ctx->cert;
 	const struct lc_x509_key_data *key = &cert->pub_gen_data;
-	int ret =  lc_public_key_extract_from_keys(key, dst_data,
-						   available_len);
+	int ret = lc_public_key_extract_from_keys(key, dst_data, available_len);
 
 	if (ret == -ENOENT) {
 		size_t pklen = 0;
@@ -671,8 +670,8 @@ int lc_public_key_size(size_t *keylen, enum lc_sig_types sig_type)
 
 	case LC_SIG_DILITHIUM_44_ED25519:
 #if defined(LC_DILITHIUM_ED25519) && defined(LC_DILITHIUM_44_ENABLED)
-		CKINT(public_key_size_dilithium_ed25519(
-			LC_DILITHIUM_44, keylen));
+		CKINT(public_key_size_dilithium_ed25519(LC_DILITHIUM_44,
+							keylen));
 #else
 		*keylen = 0;
 		ret = -ENOPKG;
@@ -681,8 +680,8 @@ int lc_public_key_size(size_t *keylen, enum lc_sig_types sig_type)
 		break;
 	case LC_SIG_DILITHIUM_65_ED25519:
 #if defined(LC_DILITHIUM_ED25519) && defined(LC_DILITHIUM_65_ENABLED)
-		CKINT(public_key_size_dilithium_ed25519(
-			LC_DILITHIUM_65, keylen));
+		CKINT(public_key_size_dilithium_ed25519(LC_DILITHIUM_65,
+							keylen));
 #else
 		*keylen = 0;
 		ret = -ENOPKG;
@@ -691,8 +690,8 @@ int lc_public_key_size(size_t *keylen, enum lc_sig_types sig_type)
 		break;
 	case LC_SIG_DILITHIUM_87_ED25519:
 #if defined(LC_DILITHIUM_ED25519) && defined(LC_DILITHIUM_87_ENABLED)
-		CKINT(public_key_size_dilithium_ed25519(
-			LC_DILITHIUM_87, keylen));
+		CKINT(public_key_size_dilithium_ed25519(LC_DILITHIUM_87,
+							keylen));
 #else
 		*keylen = 0;
 		ret = -ENOPKG;
@@ -701,8 +700,7 @@ int lc_public_key_size(size_t *keylen, enum lc_sig_types sig_type)
 		break;
 	case LC_SIG_DILITHIUM_44_ED448:
 #if defined(LC_DILITHIUM_ED448) && defined(LC_DILITHIUM_44_ENABLED)
-		CKINT(public_key_size_dilithium_ed448(LC_DILITHIUM_44,
-								keylen));
+		CKINT(public_key_size_dilithium_ed448(LC_DILITHIUM_44, keylen));
 #else
 		*keylen = 0;
 		ret = -ENOPKG;
@@ -711,8 +709,7 @@ int lc_public_key_size(size_t *keylen, enum lc_sig_types sig_type)
 		break;
 	case LC_SIG_DILITHIUM_65_ED448:
 #if defined(LC_DILITHIUM_ED448) && defined(LC_DILITHIUM_65_ENABLED)
-		CKINT(public_key_size_dilithium_ed448(LC_DILITHIUM_65,
-								keylen));
+		CKINT(public_key_size_dilithium_ed448(LC_DILITHIUM_65, keylen));
 #else
 		*keylen = 0;
 		ret = -ENOPKG;
@@ -721,8 +718,7 @@ int lc_public_key_size(size_t *keylen, enum lc_sig_types sig_type)
 		break;
 	case LC_SIG_DILITHIUM_87_ED448:
 #if defined(LC_DILITHIUM_ED448) && defined(LC_DILITHIUM_87_ENABLED)
-		CKINT(public_key_size_dilithium_ed448(LC_DILITHIUM_87,
-								keylen));
+		CKINT(public_key_size_dilithium_ed448(LC_DILITHIUM_87, keylen));
 #else
 		*keylen = 0;
 		ret = -ENOPKG;
@@ -858,8 +854,8 @@ int lc_private_key_size(size_t *keylen, enum lc_sig_types sig_type)
 
 	case LC_SIG_DILITHIUM_44_ED25519:
 #if defined(LC_DILITHIUM_ED25519) && defined(LC_DILITHIUM_44_ENABLED)
-		CKINT(public_key_size_dilithium_ed25519(
-			LC_DILITHIUM_44, keylen));
+		CKINT(public_key_size_dilithium_ed25519(LC_DILITHIUM_44,
+							keylen));
 #else
 		*keylen = 0;
 		ret = -ENOPKG;
@@ -868,8 +864,8 @@ int lc_private_key_size(size_t *keylen, enum lc_sig_types sig_type)
 		break;
 	case LC_SIG_DILITHIUM_65_ED25519:
 #if defined(LC_DILITHIUM_ED25519) && defined(LC_DILITHIUM_65_ENABLED)
-		CKINT(public_key_size_dilithium_ed25519(
-			LC_DILITHIUM_65, keylen));
+		CKINT(public_key_size_dilithium_ed25519(LC_DILITHIUM_65,
+							keylen));
 #else
 		*keylen = 0;
 		ret = -ENOPKG;
@@ -878,8 +874,8 @@ int lc_private_key_size(size_t *keylen, enum lc_sig_types sig_type)
 		break;
 	case LC_SIG_DILITHIUM_87_ED25519:
 #if defined(LC_DILITHIUM_ED25519) && defined(LC_DILITHIUM_87_ENABLED)
-		CKINT(public_key_size_dilithium_ed25519(
-			LC_DILITHIUM_87, keylen));
+		CKINT(public_key_size_dilithium_ed25519(LC_DILITHIUM_87,
+							keylen));
 #else
 		*keylen = 0;
 		ret = -ENOPKG;
@@ -888,8 +884,7 @@ int lc_private_key_size(size_t *keylen, enum lc_sig_types sig_type)
 		break;
 	case LC_SIG_DILITHIUM_44_ED448:
 #if defined(LC_DILITHIUM_ED448) && defined(LC_DILITHIUM_44_ENABLED)
-		CKINT(public_key_size_dilithium_ed448(LC_DILITHIUM_44,
-								keylen));
+		CKINT(public_key_size_dilithium_ed448(LC_DILITHIUM_44, keylen));
 #else
 		*keylen = 0;
 		ret = -ENOPKG;
@@ -898,8 +893,7 @@ int lc_private_key_size(size_t *keylen, enum lc_sig_types sig_type)
 		break;
 	case LC_SIG_DILITHIUM_65_ED448:
 #if defined(LC_DILITHIUM_ED448) && defined(LC_DILITHIUM_65_ENABLED)
-		CKINT(public_key_size_dilithium_ed448(LC_DILITHIUM_65,
-								keylen));
+		CKINT(public_key_size_dilithium_ed448(LC_DILITHIUM_65, keylen));
 #else
 		*keylen = 0;
 		ret = -ENOPKG;
@@ -908,8 +902,7 @@ int lc_private_key_size(size_t *keylen, enum lc_sig_types sig_type)
 		break;
 	case LC_SIG_DILITHIUM_87_ED448:
 #if defined(LC_DILITHIUM_ED448) && defined(LC_DILITHIUM_87_ENABLED)
-		CKINT(public_key_size_dilithium_ed448(LC_DILITHIUM_87,
-								keylen));
+		CKINT(public_key_size_dilithium_ed448(LC_DILITHIUM_87, keylen));
 #else
 		*keylen = 0;
 		ret = -ENOPKG;
@@ -1612,7 +1605,7 @@ int lc_asym_set_signer(struct lc_x509_certificate *signed_x509,
 #ifdef LC_DILITHIUM_ED25519
 		CKINT_LOG(
 			lc_ed25519_pk_load(signer_key_data->pk.ed25519_pk,
-					     pk_ptr, pk_len),
+					   pk_ptr, pk_len),
 			"Loading X.509 signer public key from certificate failed: %d\n",
 			ret);
 		CKINT_LOG(asym_set_ed25519_keypair(
@@ -1633,10 +1626,9 @@ int lc_asym_set_signer(struct lc_x509_certificate *signed_x509,
 					 pk_len),
 			"Loading X.509 signer public key from certificate failed: %d\n",
 			ret);
-		CKINT_LOG(asym_set_ed448_keypair(
-				  &signed_x509->sig_gen_data,
-				  signer_key_data->pk.ed448_pk,
-				  signer_key_data->sk.ed448_sk),
+		CKINT_LOG(asym_set_ed448_keypair(&signed_x509->sig_gen_data,
+						 signer_key_data->pk.ed448_pk,
+						 signer_key_data->sk.ed448_sk),
 			  "Setting X.509 key pair for signing failed: %d\n",
 			  ret);
 #else

@@ -352,8 +352,8 @@ static int lc_seeded_rng_must_reseed(struct lc_seeded_rng_ctx *rng,
 }
 
 /* Caller must have the rng ctx locked */
-static int lc_check_reseed(struct lc_seeded_rng_ctx *rng,
-			   time64_t *curr_time, int init)
+static int lc_check_reseed(struct lc_seeded_rng_ctx *rng, time64_t *curr_time,
+			   int init)
 {
 	pid_t newpid = 0;
 
@@ -369,7 +369,6 @@ static int lc_check_reseed(struct lc_seeded_rng_ctx *rng,
 static int lc_get_seeded_rng(struct lc_seeded_rng_ctx **rng_ret,
 			     time64_t *curr_time)
 {
-
 	int ret = 0, init = 0;
 
 	mutex_w_lock(&seeded_rng.lock);

@@ -67,8 +67,7 @@ static void lc_x25519_keypair_selftest(void)
 			    "X25519 base scalar multiplication\n");
 }
 
-int lc_x25519_keypair_internal(struct lc_x25519_pk *pk,
-			       struct lc_x25519_sk *sk,
+int lc_x25519_keypair_internal(struct lc_x25519_pk *pk, struct lc_x25519_sk *sk,
 			       struct lc_rng_ctx *rng_ctx)
 {
 	int ret;

@@ -48,8 +48,8 @@ out:
 #endif
 }
 
-int private_key_decode_ed448(struct lc_x509_key_data *keys,
-			     const uint8_t *data, size_t datalen)
+int private_key_decode_ed448(struct lc_x509_key_data *keys, const uint8_t *data,
+			     size_t datalen)
 {
 	int ret;
 
@@ -60,8 +60,8 @@ out:
 	return ret;
 }
 
-int public_key_decode_ed448(struct lc_ed448_pk *ed448_pk,
-			    const uint8_t *data, size_t datalen)
+int public_key_decode_ed448(struct lc_ed448_pk *ed448_pk, const uint8_t *data,
+			    size_t datalen)
 {
 	int ret;
 
@@ -76,10 +76,9 @@ out:
 	return ret;
 }
 
-static int
-public_key_ed448_get_data(const uint8_t **data_ptr,
-			  size_t *data_len, int *authattrs_tag,
-			  const struct lc_public_key_signature *sig)
+static int public_key_ed448_get_data(const uint8_t **data_ptr, size_t *data_len,
+				     int *authattrs_tag,
+				     const struct lc_public_key_signature *sig)
 {
 	/*
 	 * Select the data to be signed
@@ -121,8 +120,8 @@ int public_key_verify_signature_ed448(const struct lc_public_key *pkey,
 	if (pkey->key_is_private)
 		return -EKEYREJECTED;
 
-	CKINT(public_key_ed448_get_data(&data_ptr, &data_len,
-					&authattrs_tag, sig));
+	CKINT(public_key_ed448_get_data(&data_ptr, &data_len, &authattrs_tag,
+					sig));
 
 	if (sig->s_size != LC_ED448_SIGBYTES)
 		return -EBADMSG;
@@ -167,7 +166,7 @@ int public_key_generate_signature_ed448(
 
 	/* Sign the signature using Composite-ML-DSA */
 	CKINT(lc_ed448_sign(&ws->ed448_sig, data_ptr, data_len, ed448_sk,
-			      lc_seeded_rng));
+			    lc_seeded_rng));
 
 	CKINT(lc_ed448_sig_ptr(&ed448_ptr, &ed448_siglen, &ws->ed448_sig));
 
@@ -227,13 +226,12 @@ int asym_keypair_gen_ed448(struct lc_x509_certificate *cert,
 	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	CKINT(lc_ed448_keypair(&ws->pk_ed448, &ws->sk_ed448,
-				 lc_seeded_rng));
+	CKINT(lc_ed448_keypair(&ws->pk_ed448, &ws->sk_ed448, lc_seeded_rng));
 
 	CKINT(lc_ed448_sk_load(keys->sk.ed448_sk, ws->sk_ed448.sk,
-				 LC_ED448_SECRETKEYBYTES));
+			       LC_ED448_SECRETKEYBYTES));
 	CKINT(lc_ed448_pk_load(keys->pk.ed448_pk, ws->pk_ed448.pk,
-				 LC_ED448_PUBLICKEYBYTES));
+			       LC_ED448_PUBLICKEYBYTES));
 
 	if (cert) {
 		CKINT(asym_set_ed448_keypair(&cert->sig_gen_data,

@@ -194,10 +194,10 @@ static int lc_pkcs7_verify_pathlen(struct lc_x509_certificate *leaf,
 	 */
 	if (signer->pub.ca_pathlen &&
 	    (leaf->consumed_pathlen > signer->pub.ca_pathlen)) {
-		printf_debug("- certificate path length too large (current length: %u, allowed length %u)\n",
-			leaf->consumed_pathlen,
-			signer->pub.ca_pathlen);
-			return -EKEYREJECTED;
+		printf_debug(
+			"- certificate path length too large (current length: %u, allowed length %u)\n",
+			leaf->consumed_pathlen, signer->pub.ca_pathlen);
+		return -EKEYREJECTED;
 	}
 	return 0;
 }

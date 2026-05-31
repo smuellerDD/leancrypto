@@ -26,7 +26,6 @@
 	(void)tag;                                                             \
 	return -EOPNOTSUPP;
 
-
 int lc_x509_note_csr_info_enc(void *context, uint8_t *data,
 			      size_t *avail_datalen, uint8_t *tag)
 {

@@ -1004,9 +1004,9 @@ int lc_x509_akid_note_serial(void *context, size_t hdrlen, unsigned char tag,
 	} else {
 		if (!ctx->akid_raw_issuer)
 			return 0;
-		CKINT(lc_asymmetric_key_generate_id(
-			auth_id, ctx->akid_raw_issuer,
-			ctx->akid_raw_issuer_size));
+		CKINT(lc_asymmetric_key_generate_id(auth_id,
+						    ctx->akid_raw_issuer,
+						    ctx->akid_raw_issuer_size));
 	}
 
 	bin2print_debug(auth_id->data, auth_id->len, stdout, "authkeyid");
@@ -1103,8 +1103,8 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_decode,
 	CKINT(lc_x509_get_sig_params(x509));
 
 	/* Generate cert issuer + serial number key ID */
-	CKINT(lc_asymmetric_key_generate_id(
-		&x509->id, x509->raw_serial, x509->raw_serial_size));
+	CKINT(lc_asymmetric_key_generate_id(&x509->id, x509->raw_serial,
+					    x509->raw_serial_size));
 
 	/* Detect self-signed certificates */
 	CKINT(lc_x509_check_for_self_signed(x509));
@@ -1228,15 +1228,12 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_verify,
 	auth0 = &sig->auth_ids[0];
 	auth1 = &sig->auth_ids[1];
 	if (auth0->len) {
-		bin2print_debug(auth0->data, auth0->len, stdout,
-				"- want");
+		bin2print_debug(auth0->data, auth0->len, stdout, "- want");
 		CKINT(lc_asymmetric_key_id_same(&signer_cert->id, auth0));
 	} else if (auth1->len) {
-		bin2print_debug(auth1->data, auth1->len, stdout,
-				"- want");
+		bin2print_debug(auth1->data, auth1->len, stdout, "- want");
 		CKINT(lc_asymmetric_key_id_same(&signer_cert->skid, auth1));
 	} else {
-
 		/*
 		 * Check that the authentication key ID of the signed
 		 * certificate matches the SKID of the signer.

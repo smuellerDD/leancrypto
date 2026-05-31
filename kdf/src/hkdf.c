@@ -269,9 +269,8 @@ LC_INTERFACE_FUNCTION(int, lc_hkdf_expand, struct lc_hkdf_ctx *hkdf_ctx,
 }
 
 LC_INTERFACE_FUNCTION(int, lc_hkdf_expand_prk, struct lc_hkdf_ctx *hkdf_ctx,
-		      const uint8_t *info, size_t infolen,
-		      const uint8_t *prk, size_t prk_len, uint8_t *dst,
-		      size_t dlen)
+		      const uint8_t *info, size_t infolen, const uint8_t *prk,
+		      size_t prk_len, uint8_t *dst, size_t dlen)
 {
 	int ret = 0;
 

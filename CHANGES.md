@@ -23,6 +23,8 @@ Changes 1.8.0-prerelease
 
 * Add lc_kyber_[x25519|448]_[enc|dec] API
 
+* BIKE: fix bug on 32-bit Intel systems
+
 Changes 1.7.2
 * Fix RDSEED counter
 

@@ -315,8 +315,7 @@ out:
 	return ret;
 }
 
-int lc_ed448_keypair_internal(struct lc_ed448_pk *pk,
-			      struct lc_ed448_sk *sk,
+int lc_ed448_keypair_internal(struct lc_ed448_pk *pk, struct lc_ed448_sk *sk,
 			      struct lc_rng_ctx *rng_ctx)
 {
 	lc_ed448_keypair_selftest();
@@ -752,10 +751,10 @@ curveed448_verify(const uint8_t signature[LC_ED448_SIGBYTES],
 	}
 
 	CKINT(curve448_point_decode_like_eddsa_and_mul_by_ratio(pk_point,
-							        pubkey));
+								pubkey));
 
 	CKINT(curve448_point_decode_like_eddsa_and_mul_by_ratio(r_point,
-							        signature));
+								signature));
 
 	/* Compute the challenge */
 	CKINT(curveed448_hash_init_with_dom(shake256_ctx, prehashed, 0, NULL,
@@ -909,7 +908,7 @@ LC_INTERFACE_FUNCTION(int, lc_ed448_pk_ptr, uint8_t **ed448_key,
 LC_INTERFACE_FUNCTION(int, lc_ed448_sig_ptr, uint8_t **ed448_sig,
 		      size_t *ed448_sig_len, struct lc_ed448_sig *sig)
 {
-	if (!sig|| !ed448_sig || !ed448_sig_len)
+	if (!sig || !ed448_sig || !ed448_sig_len)
 		return -EINVAL;
 
 	*ed448_sig = sig->sig;

@@ -53,8 +53,7 @@ struct keygen_workspace_avx2 {
 		BUF_ALIGNED_UINT8_M256I(REJ_UNIFORM_ETA_BUFLEN)
 		poly_uniform_eta_4x_buf[4];
 	} tmp;
-	uint8_t seedbuf[2 * LC_DILITHIUM_SEEDBYTES +
-			LC_DILITHIUM_CRHBYTES];
+	uint8_t seedbuf[2 * LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_CRHBYTES];
 	polyvecl rowbuf[2], s1;
 	polyveck s2;
 	poly t1, t0;
@@ -115,9 +114,10 @@ polyvec_matrix_expand_row(polyvecl **row, polyvecl buf[2],
 	}
 }
 
-static void lc_dilithium_pk_sk_from_rho_s1_s2_avx2(
-	uint8_t *pubkey, uint8_t *seckey, const uint8_t *rho,
-	struct keygen_workspace_avx2 *ws)
+static void
+lc_dilithium_pk_sk_from_rho_s1_s2_avx2(uint8_t *pubkey, uint8_t *seckey,
+				       const uint8_t *rho,
+				       struct keygen_workspace_avx2 *ws)
 {
 	polyvecl *row;
 	unsigned int i;
@@ -147,9 +147,9 @@ static void lc_dilithium_pk_sk_from_rho_s1_s2_avx2(
 		polyt1_pack_avx(pubkey + i * LC_DILITHIUM_POLYT1_PACKEDBYTES,
 				&ws->t1);
 		if (seckey) {
-			polyt0_pack_avx(seckey +
-					i * LC_DILITHIUM_POLYT0_PACKEDBYTES,
-					&ws->t0);
+			polyt0_pack_avx(
+				seckey + i * LC_DILITHIUM_POLYT0_PACKEDBYTES,
+				&ws->t0);
 		}
 	}
 }
@@ -283,7 +283,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_avx2,
 	pubkey = pk->pk + LC_DILITHIUM_SEEDBYTES;
 	seckey = sk->sk + 2 * LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_TRBYTES +
 		 (LC_DILITHIUM_L + LC_DILITHIUM_K) *
-		 LC_DILITHIUM_POLYETA_PACKEDBYTES;
+			 LC_DILITHIUM_POLYETA_PACKEDBYTES;
 	lc_dilithium_pk_sk_from_rho_s1_s2_avx2(pubkey, seckey, rho, ws);
 
 	/* Compute H(rho, t1) and store in secret key */

@@ -809,8 +809,7 @@ static int x509_enc_set_key(struct x509_generator_opts *opts)
 
 		/* Access the X.509 certificate file */
 		CKINT_LOG(get_data(opts->x509_csr_file, &opts->x509_csr_data,
-				   &opts->x509_csr_data_len,
-				   lc_pem_flag_csr),
+				   &opts->x509_csr_data_len, lc_pem_flag_csr),
 			  "X.509 CSR mmap failure\n");
 
 		/* Parse the X.509 CSR */
@@ -965,8 +964,7 @@ static int x509_convert(struct x509_generator_opts *opts)
 
 	if (opts->x509_signer_file) {
 		CKINT_LOG(get_data(opts->x509_signer_file, &opts->signer_data,
-				   &opts->signer_data_len,
-				   x509_pem_type(opts)),
+				   &opts->signer_data_len, x509_pem_type(opts)),
 			  "mmap failure\n");
 
 		if (!opts->outfile) {
@@ -1062,7 +1060,8 @@ static void x509_generator_usage(void)
 		"\t   --pem-output\t\t\tKey / certificate files are created\n");
 	fprintf(stderr, "\t\t\t\t\tin PEM format (input data PEM format\n");
 	fprintf(stderr, "\t\t\t\t\tis autodetected)\n");
-	fprintf(stderr, "\t   --csr\t\t\tCreate X.509 CSR instead of a certificate\n");
+	fprintf(stderr,
+		"\t   --csr\t\t\tCreate X.509 CSR instead of a certificate\n");
 
 	fprintf(stderr, "\n\tOptions for conversion DER / PEM:\n");
 	fprintf(stderr, "\n\t   --convert\t\t\tConvert cerificate:\n");
@@ -1162,7 +1161,8 @@ static void x509_generator_usage(void)
 
 	fprintf(stderr, "\t   --data-file <FILE>\t\tFile with data to sign\n");
 
-	fprintf(stderr, "\n\t    --enable-non-pqc-algoritms\tEnable non-POQC algorithm\n");
+	fprintf(stderr,
+		"\n\t    --enable-non-pqc-algoritms\tEnable non-POQC algorithm\n");
 
 	fprintf(stderr, "\n\t-h --help\t\t\tPrint this help text\n");
 	fprintf(stderr,

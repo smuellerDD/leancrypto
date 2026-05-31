@@ -150,7 +150,6 @@ static void lc_free_internal(void *ptr)
 #endif
 }
 
-
 LC_INTERFACE_FUNCTION(void, lc_free, void *ptr)
 {
 	lc_free_internal(ptr);

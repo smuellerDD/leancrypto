@@ -126,7 +126,8 @@ int lc_cshake_init_nocheck(struct lc_hash_ctx *ctx, const uint8_t *n,
 	CKNULL(ctx, -EINVAL);
 
 	hash = ctx->hash;
-	CKNULL(hash, -EINVAL);;
+	CKNULL(hash, -EINVAL);
+	;
 
 	CKINT(lc_cshake_init_impl(ctx, n, nlen, s, slen, hash->init_nocheck));
 

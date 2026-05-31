@@ -77,8 +77,8 @@ out:
 }
 
 static int
-public_key_ed25519_get_data(const uint8_t **data_ptr,
-			    size_t *data_len, int *authattrs_tag,
+public_key_ed25519_get_data(const uint8_t **data_ptr, size_t *data_len,
+			    int *authattrs_tag,
 			    const struct lc_public_key_signature *sig)
 {
 	/*
@@ -122,8 +122,8 @@ int public_key_verify_signature_ed25519(
 	if (pkey->key_is_private)
 		return -EKEYREJECTED;
 
-	CKINT(public_key_ed25519_get_data(&data_ptr, &data_len,
-					  &authattrs_tag, sig));
+	CKINT(public_key_ed25519_get_data(&data_ptr, &data_len, &authattrs_tag,
+					  sig));
 
 	if (sig->s_size != LC_ED25519_SIGBYTES)
 		return -EBADMSG;

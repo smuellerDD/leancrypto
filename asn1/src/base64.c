@@ -149,15 +149,13 @@ int lc_base64_decode_len(const char *idata, size_t ilen, size_t *olen,
 				return -EINVAL;
 			*blank_chars = 1;
 		} else {
-			if (ilen > 1 &&
-			    (idata[ilen - 1] == 0x0d) &&
-			     (idata[ilen - 2 ] == 0x0a)) {
+			if (ilen > 1 && (idata[ilen - 1] == 0x0d) &&
+			    (idata[ilen - 2] == 0x0a)) {
 				if ((ilen - 2) % 4 != 0)
 					return -EINVAL;
 				*blank_chars = 2;
-			} else if (ilen > 0 &&
-			           ((idata[ilen - 1] == 0x0a) ||
-				    (idata[ilen - 1] == 0x0d))) {
+			} else if (ilen > 0 && ((idata[ilen - 1] == 0x0a) ||
+						(idata[ilen - 1] == 0x0d))) {
 				if ((ilen - 1) % 4 != 0)
 					return -EINVAL;
 				*blank_chars = 1;

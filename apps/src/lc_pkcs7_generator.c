@@ -119,7 +119,8 @@ static void pkcs7_generator_usage(void)
 	fprintf(stderr, "\t   --check-data <DATA>\tmatch data\n");
 	fprintf(stderr, "\t   --check-kid <KID>\tmatch KID\n");
 
-	fprintf(stderr, "\n\t    --enable-non-pqc-algoritms\tEnable non-POQC algorithm\n");
+	fprintf(stderr,
+		"\n\t    --enable-non-pqc-algoritms\tEnable non-POQC algorithm\n");
 
 	fprintf(stderr, "\n\t-h  --help\t\t\tPrint this help text\n");
 }

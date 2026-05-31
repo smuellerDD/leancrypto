@@ -622,16 +622,19 @@ int apply_checks_pkcs7(const struct lc_pkcs7_message *pkcs7_msg,
 
 		while (x509) {
 			struct lc_x509_certificate_name
-			search_name = { .cn = {
-						.value = parsed_opts->issuer_cn,
-						.size = strlen(
-							parsed_opts->issuer_cn),
-					} };
+				search_name = { .cn = {
+							.value =
+								parsed_opts
+									->issuer_cn,
+							.size = strlen(
+								parsed_opts
+									->issuer_cn),
+						} };
 
 			if (lc_x509_policy_cert_subject_match(
-				x509, &search_name,
-				lc_x509_policy_cert_subject_match_issuer_only) ==
-				LC_X509_POL_TRUE) {
+				    x509, &search_name,
+				    lc_x509_policy_cert_subject_match_issuer_only) ==
+			    LC_X509_POL_TRUE) {
 				found = 1;
 				break;
 			}
@@ -652,16 +655,19 @@ int apply_checks_pkcs7(const struct lc_pkcs7_message *pkcs7_msg,
 
 		while (x509) {
 			struct lc_x509_certificate_name
-			search_name = { .cn = {
-						.value = parsed_opts->subject_cn,
-						.size = strlen(
-							parsed_opts->subject_cn),
-					} };
+				search_name = { .cn = {
+							.value =
+								parsed_opts
+									->subject_cn,
+							.size = strlen(
+								parsed_opts
+									->subject_cn),
+						} };
 
 			if (lc_x509_policy_cert_subject_match(
-				x509, &search_name,
-				lc_x509_policy_cert_subject_match_dn_only) ==
-				LC_X509_POL_TRUE) {
+				    x509, &search_name,
+				    lc_x509_policy_cert_subject_match_dn_only) ==
+			    LC_X509_POL_TRUE) {
 				found = 1;
 				break;
 			}
