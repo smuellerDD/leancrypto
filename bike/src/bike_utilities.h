@@ -77,7 +77,7 @@ static inline uint32_t secure_l32_mask(const uint32_t v1, const uint32_t v2)
 
 			     : "=r"(res)
 			     : "r"(v2), "r"(v1)
-			     : "rdx");
+			     : "edx");
 
 	return res;
 #else
@@ -109,7 +109,7 @@ static inline uint32_t secure_l32(const uint32_t v1, const uint32_t v2)
 			     "mov %%edx, %0; \n"
 			     : "=r"(res)
 			     : "r"(v2), "r"(v1)
-			     : "rdx");
+			     : "edx");
 	return res;
 #else
 	/*
