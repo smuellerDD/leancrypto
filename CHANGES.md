@@ -29,6 +29,8 @@ Changes 1.8.0-prerelease
 
 * Harden various functions, add defense in depth checks suggested by LLMs
 
+* Bug fix: ML-KEM KDF helper ingested only ML-KEM part and skipped X25519
+
 Changes 1.7.2
 * Fix RDSEED counter
 

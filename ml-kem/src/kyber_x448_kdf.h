@@ -72,7 +72,7 @@ static inline int kyber_x448_ss_kdf(uint8_t *ss, size_t ss_len,
 	 * changes, change this KDF invocation.
 	 */
 	return lc_kmac(lc_cshake256, (uint8_t *)calc_ss,
-		       sizeof(struct lc_kyber_ss), kyber_ss_label,
+		       sizeof(struct lc_kyber_x448_ss), kyber_ss_label,
 		       sizeof(kyber_ss_label) - 1, (uint8_t *)ct,
 		       sizeof(struct lc_kyber_x448_ct), ss, ss_len);
 }
