@@ -79,9 +79,10 @@ LC_INTERFACE_FUNCTION(int, lc_uuid_random, char uuid_str[37])
 {
 #ifdef LC_DRNG_PRESENT
 	uint8_t uuid[16];
+	int ret;
 
-	lc_rng_generate(lc_seeded_rng, (uint8_t *)"random UUID", 11, uuid,
-			sizeof(uuid));
+	CKINT(lc_rng_generate(lc_seeded_rng, (uint8_t *)"random UUID", 11, uuid,
+			      sizeof(uuid)));
 
 	/* UUID version is set to 4 denominating a random generation */
 	uuid[6] = (uint8_t)((uuid[6] & 0x0F) | 0x40);
@@ -89,7 +90,8 @@ LC_INTERFACE_FUNCTION(int, lc_uuid_random, char uuid_str[37])
 
 	lc_uuid_bin2hex(uuid, uuid_str);
 
-	return 0;
+out:
+	return ret;
 #else
 	(void)uuid_str;
 	return -EOPNOTSUPP;
@@ -112,7 +114,7 @@ LC_INTERFACE_FUNCTION(int, lc_uuid_time, char uuid_str[37], uint64_t node)
 		u.uuid64[0] = u.uuid64[0] + (uint64_t)n_sec;
 		u.uuid64[0] = be_bswap64(u.uuid64[0]);
 
-		/* UUID version is set to 4 denominating a random generation */
+		/* UUID version is set to 1 denominating a random generation */
 		u.uuid8[6] = (u.uuid8[6] & 0x0F) | 0x10;
 		u.uuid8[8] = (u.uuid8[8] & 0x3F) | 0x80;
 
