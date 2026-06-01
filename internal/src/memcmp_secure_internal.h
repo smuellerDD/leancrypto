@@ -52,7 +52,7 @@ static inline int memcmp_secure_8(const void *s1, const void *s2, size_t n)
 	 * Apply a memoy barrier to ensure that the compiler cannot reason about
 	 * terminating the loop above prematurely (e.g. when ret is 0xff).
 	 */
-	value_barrier_u8(ret);
+	ret = value_barrier_u8(ret);
 
 	return !!ret;
 }
@@ -75,7 +75,7 @@ static inline int memcmp_secure_32_aligned(const void *s1, const void *s2,
 		ret |= (*s1_word++ ^ *s2_word++);
 
 	/* See memcmp_secure_8 for a reason */
-	value_barrier_u32(ret);
+	ret = value_barrier_u32(ret);
 
 	ret |= (uint32_t)memcmp_secure_8((const uint8_t *)s1_word,
 					 (const uint8_t *)s2_word, n);
@@ -104,7 +104,7 @@ static inline int memcmp_secure_32(const void *s1, const void *s2, size_t n)
 	}
 
 	/* See memcmp_secure_8 for a reason */
-	value_barrier_u32(ret);
+	ret = value_barrier_u32(ret);
 
 	ret |= (uint32_t)memcmp_secure_8(s1p, s2p, n);
 
@@ -130,7 +130,7 @@ static inline int memcmp_secure_64_aligned(const void *s1, const void *s2,
 		ret |= (*s2_dword++ ^ *s1_dword++);
 
 	/* See memcmp_secure_8 for a reason */
-	value_barrier_u64(ret);
+	ret = value_barrier_u64(ret);
 
 	ret |= (uint64_t)memcmp_secure_32_aligned((const uint8_t *)s1_dword,
 						  (const uint8_t *)s2_dword, n);
@@ -170,7 +170,7 @@ static inline int memcmp_secure_64(const void *s1, const void *s2, size_t n)
 	}
 
 	/* See memcmp_secure_8 for a reason */
-	value_barrier_u64(ret);
+	ret = value_barrier_u64(ret);
 
 	ret |= (uint64_t)memcmp_secure_32(s1p, s2p, n);
 
