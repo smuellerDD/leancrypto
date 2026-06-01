@@ -105,12 +105,13 @@ LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 
 	/* Read the maximum leaf */
 	cpuid_eax(0, eax, ebx, ecx, edx);
-	if (eax >= 1)
-		cpuid_eax_ecx(1, 0, eax, ebx, ecx, edx);
 
 	/* Only make call if the leaf is present */
 	if (eax < 7)
 		return feat;
+
+	if (eax >= 1)
+		cpuid_eax_ecx(1, 0, eax, ebx, ecx, edx);
 
 	/* read advanced features eax = 7, ecx = 1 */
 	cpuid_eax_ecx(7, 1, eax, ebx, ecx, edx);
