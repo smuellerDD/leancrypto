@@ -47,7 +47,7 @@
  * ASN.1 parser support functions
  ******************************************************************************/
 
-static __always_inline int lc_test_and_set_bit(unsigned long nr,
+static __always_inline int lc_test_and_set_val(unsigned long nr,
 					       volatile unsigned long *addr)
 {
 	unsigned long *p = ((unsigned long *)addr);
@@ -527,7 +527,7 @@ int lc_pkcs7_sig_note_authenticated_attr(void *context, size_t hdrlen,
 #pragma GCC diagnostic ignored "-Wswitch-enum"
 	switch (ctx->last_oid) {
 	case OID_contentType:
-		if (lc_test_and_set_bit(sinfo_has_content_type, &sinfo->aa_set))
+		if (lc_test_and_set_val(sinfo_has_content_type, &sinfo->aa_set))
 			goto repeated;
 		content_type = lc_look_up_OID(value, vlen);
 		if (content_type != ctx->msg->data_type &&
@@ -541,7 +541,7 @@ int lc_pkcs7_sig_note_authenticated_attr(void *context, size_t hdrlen,
 		return 0;
 
 	case OID_signingTime:
-		if (lc_test_and_set_bit(sinfo_has_signing_time, &sinfo->aa_set))
+		if (lc_test_and_set_val(sinfo_has_signing_time, &sinfo->aa_set))
 			goto repeated;
 		/* Should we check that the signing time is consistent
 		 * with the signer's X.509 cert?
@@ -550,7 +550,7 @@ int lc_pkcs7_sig_note_authenticated_attr(void *context, size_t hdrlen,
 					   value, vlen);
 
 	case OID_messageDigest:
-		if (lc_test_and_set_bit(sinfo_has_message_digest,
+		if (lc_test_and_set_val(sinfo_has_message_digest,
 					&sinfo->aa_set))
 			goto repeated;
 		if (tag != ASN1_OTS)
@@ -560,7 +560,7 @@ int lc_pkcs7_sig_note_authenticated_attr(void *context, size_t hdrlen,
 		return 0;
 
 	case OID_smimeCapabilites:
-		if (lc_test_and_set_bit(sinfo_has_smime_caps, &sinfo->aa_set))
+		if (lc_test_and_set_val(sinfo_has_smime_caps, &sinfo->aa_set))
 			goto repeated;
 		if (ctx->msg->data_type != OID_msIndirectData) {
 			printf_debug(
@@ -577,11 +577,11 @@ int lc_pkcs7_sig_note_authenticated_attr(void *context, size_t hdrlen,
 		 * are also used as extendedKeyUsage types in X.509 certs.
 		 */
 	case OID_msSpOpusInfo:
-		if (lc_test_and_set_bit(sinfo_has_ms_opus_info, &sinfo->aa_set))
+		if (lc_test_and_set_val(sinfo_has_ms_opus_info, &sinfo->aa_set))
 			goto repeated;
 		goto authenticode_check;
 	case OID_msStatementType:
-		if (lc_test_and_set_bit(sinfo_has_ms_statement_type,
+		if (lc_test_and_set_val(sinfo_has_ms_statement_type,
 					&sinfo->aa_set))
 			goto repeated;
 	authenticode_check:
