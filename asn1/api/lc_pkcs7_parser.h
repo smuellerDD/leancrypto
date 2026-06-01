@@ -392,6 +392,10 @@ int lc_pkcs7_get_digest(struct lc_pkcs7_message *pkcs7,
  * intermediate certificate requires the presence of the certificate chain
  * leading to the associated root CA.
  *
+ * \note The \p x509 certificate memory is owned by the caller and must be
+ * guaranteed to be present by the caller until \p lc_pkcs7_trust_store_clear is
+ * called.
+ *
  * @param [in] trust_store Trust store to add the certificate to
  * @param [in] x509 Certificate to be added to trust store
  *
@@ -404,6 +408,11 @@ int lc_pkcs7_trust_store_add(struct lc_pkcs7_trust_store *trust_store,
 /**
  * @ingroup PKCS7
  * @brief Release and clear the trust store
+ *
+ * \note The function clears and releases the memory of the trust store, but
+ * it does not release the certificates that were added with
+ * \p lc_pkcs7_trust_store_add as they belong to the caller. The caller must
+ * ensure they are properly disposed of after this call.
  *
  * @param [in] trust_store Trust store be released
  */
