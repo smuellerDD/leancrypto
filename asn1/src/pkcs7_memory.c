@@ -24,7 +24,6 @@
 void lc_pkcs7_sinfo_free(struct lc_pkcs7_message *pkcs7)
 {
 	struct lc_pkcs7_signed_info *sinfo;
-	uint8_t idx = 0;
 
 	while (pkcs7->list_head_sinfo) {
 		sinfo = pkcs7->list_head_sinfo;
