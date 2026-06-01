@@ -65,7 +65,7 @@ LC_INTERFACE_FUNCTION(int, lc_uuid_hex2bin, const char *uuid_str,
 		return -EINVAL;
 
 	lc_hex2bin(uuid_str + 19, 4, uuid + 8, 2);
-	if (uuid_str[18] != 0x2d)
+	if (uuid_str[23] != 0x2d)
 		return -EINVAL;
 
 	lc_hex2bin(uuid_str + 24, 12, uuid + 10, 6);
