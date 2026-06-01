@@ -478,6 +478,11 @@ static int lc_seeded_rng_generate(void *_state, const uint8_t *addtl_input,
 out:
 	if (rng)
 		mutex_w_unlock(&rng->lock);
+
+	/* In error case, zeroize buffer not written to */
+	if (ret)
+		lc_memset_secure(out, 0, outlen);
+
 	return ret;
 }
 
