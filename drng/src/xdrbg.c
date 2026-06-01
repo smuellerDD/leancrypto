@@ -260,10 +260,10 @@ int lc_xdrbg_drng_seed_nocheck(void *_state, const uint8_t *seed,
 	/* Generate the V to store in the state and overwrite V'. */
 	lc_xdrbg_xof_final(xof_ctx, state->v, keysize);
 
+out:
 	/* Clear the XOF state which is not needed any more. */
 	lc_hash_zero(xof_ctx);
 
-out:
 	return ret;
 }
 
