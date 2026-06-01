@@ -177,6 +177,10 @@ int lc_xdrbg_drng_generate(void *_state, const uint8_t *alpha, size_t alphalen,
 	if (!state)
 		return -EINVAL;
 
+	/* Refuse to generate data from unseeded state */
+	if (!lc_xdrbg_initially_seeded(state))
+		return -EOPNOTSUPP;
+
 	LC_HASH_CTX_ON_STACK(xof_ctx, state->xof);
 
 	while (outlen) {
