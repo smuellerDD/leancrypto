@@ -42,13 +42,13 @@ int posix_memalign(void **ptr, size_t align, size_t size);
 int posix_memalign(void **ptr, size_t align, size_t size)
 {
 	if (check_align(align))
-		return -EINVAL;
+		return EINVAL;
 
 	int saved_errno = errno;
 	void *p = _aligned_malloc(size, align);
 	if (p == NULL) {
 		errno = saved_errno;
-		return -ENOMEM;
+		return ENOMEM;
 	}
 
 	*ptr = p;
@@ -74,7 +74,7 @@ static int alloc_aligned_secure_internal(void **memptr, size_t alignment,
 
 	ret = posix_memalign(&ptr, alignment, full_size);
 	if (ret)
-		return ret;
+		return -ret;
 
 	/* prevent paging out of the memory state to swap space */
 	if (secure) {
