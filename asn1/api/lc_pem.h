@@ -102,6 +102,11 @@ int lc_pem_encode(const uint8_t *idata, size_t ilen, char *odata, size_t olen,
  *  4. Only the PEM data types referenced by the \p flags field are supported.
  *  5. Currently no data before the actual PEM data is allowed.
  *
+ * \note The decoder is not constant time. This may be of interest for PKCS#8
+ * files in PEM format. However, as typically they are read only once where
+ * the decoder does not form an oracle that can be invoked multiple times, it is
+ * considered acceptable.
+ *
  * @param [in] idata Buffer holding the PEM encoded data
  * @param [in] ilen Length of the output data
  * @param [out] odata Buffer holding the PEM encoded data. The caller must

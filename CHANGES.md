@@ -25,6 +25,10 @@ Changes 1.8.0-prerelease
 
 * BIKE: fix bug on 32-bit Intel systems
 
+* Rust: add status API
+
+* Harden various functions, add defense in depth checks suggested by LLMs
+
 Changes 1.7.2
 * Fix RDSEED counter
 
