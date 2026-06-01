@@ -30,18 +30,15 @@ void lc_pkcs7_sinfo_free(struct lc_pkcs7_message *pkcs7)
 		sinfo = pkcs7->list_head_sinfo;
 		pkcs7->list_head_sinfo = sinfo->next;
 		lc_public_key_signature_clear(&sinfo->sig);
-		if (idx < pkcs7->consumed_preallocated_sinfo) {
-			idx++;
-		} else {
+		if (sinfo->allocated)
 			lc_free(sinfo);
-		}
 	}
 
 	if (pkcs7->curr_sinfo) {
 		sinfo = pkcs7->curr_sinfo;
 		lc_public_key_signature_clear(&sinfo->sig);
 
-		if (idx >= pkcs7->consumed_preallocated_sinfo)
+		if (sinfo->allocated)
 			lc_free(sinfo);
 	}
 }
@@ -79,6 +76,7 @@ int lc_pkcs7_sinfo_get(struct lc_pkcs7_signed_info **sinfo,
 			CKINT(lc_alloc_aligned(
 				(void **)&pkcs7->curr_sinfo, 8,
 				sizeof(struct lc_pkcs7_signed_info)));
+			pkcs7->curr_sinfo->allocated = 1;
 		}
 	}
 

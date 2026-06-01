@@ -92,6 +92,7 @@ struct lc_pkcs7_signed_info {
 	unsigned int unsupported_crypto
 		: 1; /* T if not usable due to missing crypto */
 	unsigned int blacklisted : 1;
+	unsigned int allocated : 1; /* Was sinfo allocated on heap? */
 };
 
 struct lc_pkcs7_message {
