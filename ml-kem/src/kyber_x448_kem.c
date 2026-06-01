@@ -90,7 +90,7 @@ int lc_kyber_x448_enc_kdf_internal(struct lc_kyber_x448_ct *ct, uint8_t *ss,
 
 	CKINT(lc_kyber_x448_enc_internal(ct, &ss_k_x, pk, rng_ctx));
 
-	kyber_x448_ss_kdf(ss, ss_len, ct, &ss_k_x);
+	CKINT(kyber_x448_ss_kdf(ss, ss_len, ct, &ss_k_x));
 
 out:
 	lc_memset_secure(&ss_k_x, 0, sizeof(ss_k_x));
@@ -134,7 +134,7 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_dec_kdf, uint8_t *ss, size_t ss_len,
 
 	CKINT(lc_kyber_x448_dec_internal(&ss_k_x, ct, sk));
 
-	kyber_x448_ss_kdf(ss, ss_len, ct, &ss_k_x);
+	CKINT(kyber_x448_ss_kdf(ss, ss_len, ct, &ss_k_x));
 
 out:
 	lc_memset_secure(&ss_k_x, 0, sizeof(ss_k_x));

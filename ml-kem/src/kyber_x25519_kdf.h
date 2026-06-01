@@ -24,6 +24,7 @@
 #include "lc_hash.h"
 #include "lc_kmac.h"
 #include "lc_sha3.h"
+#include "ret_checkers.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,10 +38,12 @@ extern "C" {
  *		      L = requested SS length, S = "Kyber X25519 KEM SS")
  *
  * This KDF is is consistent with SP800-108 rev 1.
+ *
+ * @return 0 on success; < 0 on error
  */
-static inline void kyber_x25519_ss_kdf(uint8_t *ss, size_t ss_len,
-				       const struct lc_kyber_x25519_ct *ct,
-				       const struct lc_kyber_x25519_ss *calc_ss)
+static inline int kyber_x25519_ss_kdf(uint8_t *ss, size_t ss_len,
+				      const struct lc_kyber_x25519_ct *ct,
+				      const struct lc_kyber_x25519_ss *calc_ss)
 {
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t kyber_ss_label[] = "Kyber X25519 KEM SS";
@@ -51,9 +54,10 @@ static inline void kyber_x25519_ss_kdf(uint8_t *ss, size_t ss_len,
 	 * Kyber CT || X25519 ephemeral PK in memory. If either structure
 	 * changes, change this KDF invocation.
 	 */
-	lc_kmac(lc_cshake256, (uint8_t *)calc_ss, sizeof(struct lc_kyber_ss),
-		kyber_ss_label, sizeof(kyber_ss_label) - 1, (uint8_t *)ct,
-		sizeof(struct lc_kyber_x25519_ct), ss, ss_len);
+	return lc_kmac(lc_cshake256, (uint8_t *)calc_ss,
+		       sizeof(struct lc_kyber_ss), kyber_ss_label,
+		       sizeof(kyber_ss_label) - 1, (uint8_t *)ct,
+		       sizeof(struct lc_kyber_x25519_ct), ss, ss_len);
 }
 
 /**
@@ -70,15 +74,18 @@ static inline void kyber_x25519_ss_kdf(uint8_t *ss, size_t ss_len,
  * @param [in] inlen3 length of input buffer 3
  * @param [out] out output buffer of size
  * @param [in] outlen output buffer length
+ *
+ * @return 0 on success; < 0 on error
  */
-static inline void kyber_x25519_kdf3(const struct lc_kyber_x25519_ss *ss0,
-				     const struct lc_kyber_x25519_ss *ss1,
-				     const uint8_t *in3, size_t inlen3,
-				     uint8_t *out, size_t outlen)
+static inline int kyber_x25519_kdf3(const struct lc_kyber_x25519_ss *ss0,
+				    const struct lc_kyber_x25519_ss *ss1,
+				    const uint8_t *in3, size_t inlen3,
+				    uint8_t *out, size_t outlen)
 {
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t kyber_x25519_ss_label[] =
 		"Kyber X25519 KEM 3-way SS";
+	int ret;
 	LC_KMAC_CTX_ON_STACK(kmac_ctx, lc_cshake256);
 
 	/*
@@ -86,16 +93,17 @@ static inline void kyber_x25519_kdf3(const struct lc_kyber_x25519_ss *ss0,
 	 * Kyber SS || X25519 SS in memory. If this structure changes,
 	 * change this KDF invocation.
 	 */
-	if (lc_kmac_init(
-		    kmac_ctx, (uint8_t *)ss0, sizeof(struct lc_kyber_x25519_ss),
-		    kyber_x25519_ss_label, sizeof(kyber_x25519_ss_label) - 1))
-		return;
+	CKINT(lc_kmac_init(
+		kmac_ctx, (uint8_t *)ss0, sizeof(struct lc_kyber_x25519_ss),
+		kyber_x25519_ss_label, sizeof(kyber_x25519_ss_label) - 1));
 	lc_kmac_update(kmac_ctx, (uint8_t *)ss1,
 		       sizeof(struct lc_kyber_x25519_ss));
 	lc_kmac_update(kmac_ctx, in3, inlen3);
-	lc_kmac_final(kmac_ctx, out, outlen);
+	CKINT(lc_kmac_final(kmac_ctx, out, outlen));
 
+out:
 	lc_kmac_zero(kmac_ctx);
+	return ret;
 }
 
 /**
@@ -114,16 +122,19 @@ static inline void kyber_x25519_kdf3(const struct lc_kyber_x25519_ss *ss0,
  * @param [in] inlen4 length of input buffer 4
  * @param [out] out output buffer of size
  * @param [in] outlen output buffer length
+ *
+ * @return 0 on success; < 0 on error
  */
-static inline void kyber_x25519_kdf4(const struct lc_kyber_x25519_ss *ss0,
-				     const struct lc_kyber_x25519_ss *ss1,
-				     const struct lc_kyber_x25519_ss *ss2,
-				     const uint8_t *in4, size_t inlen4,
-				     uint8_t *out, size_t outlen)
+static inline int kyber_x25519_kdf4(const struct lc_kyber_x25519_ss *ss0,
+				    const struct lc_kyber_x25519_ss *ss1,
+				    const struct lc_kyber_x25519_ss *ss2,
+				    const uint8_t *in4, size_t inlen4,
+				    uint8_t *out, size_t outlen)
 {
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t kyber_x25519_ss_label[] =
 		"Kyber X25519 KEM 4-way SS";
+	int ret;
 	LC_KMAC_CTX_ON_STACK(kmac_ctx, lc_cshake256);
 
 	/*
@@ -131,18 +142,19 @@ static inline void kyber_x25519_kdf4(const struct lc_kyber_x25519_ss *ss0,
 	 * Kyber SS || X25519 SS in memory. If this structure changes,
 	 * change this KDF invocation.
 	 */
-	if (lc_kmac_init(
-		    kmac_ctx, (uint8_t *)ss0, sizeof(struct lc_kyber_x25519_ss),
-		    kyber_x25519_ss_label, sizeof(kyber_x25519_ss_label) - 1))
-		return;
+	CKINT(lc_kmac_init(
+		kmac_ctx, (uint8_t *)ss0, sizeof(struct lc_kyber_x25519_ss),
+		kyber_x25519_ss_label, sizeof(kyber_x25519_ss_label) - 1));
 	lc_kmac_update(kmac_ctx, (uint8_t *)ss1,
 		       sizeof(struct lc_kyber_x25519_ss));
 	lc_kmac_update(kmac_ctx, (uint8_t *)ss2,
 		       sizeof(struct lc_kyber_x25519_ss));
 	lc_kmac_update(kmac_ctx, in4, inlen4);
-	lc_kmac_final(kmac_ctx, out, outlen);
+	CKINT(lc_kmac_final(kmac_ctx, out, outlen));
 
+out:
 	lc_kmac_zero(kmac_ctx);
+	return ret;
 }
 
 #ifdef __cplusplus

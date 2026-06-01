@@ -69,8 +69,8 @@ int lc_kex_x448_uake_responder_ss_internal(
 	CKINT(lc_kyber_x448_enc_internal(ct_e_r, &ss[0], pk_e_i, rng_ctx));
 	CKINT(lc_kyber_x448_dec_internal(&ss[1], ct_e_i, sk_r));
 
-	kyber_x448_kdf3(&ss[0], &ss[1], kdf_nonce, kdf_nonce_len, shared_secret,
-			shared_secret_len);
+	CKINT(kyber_x448_kdf3(&ss[0], &ss[1], kdf_nonce, kdf_nonce_len,
+			      shared_secret, shared_secret_len));
 
 out:
 	lc_memset_secure(ss, 0, sizeof(ss));
@@ -101,8 +101,8 @@ LC_INTERFACE_FUNCTION(int, lc_kex_x448_uake_initiator_ss,
 	int ret;
 
 	CKINT(lc_kyber_x448_dec_internal(&ss, ct_e_r, sk_e));
-	kyber_x448_kdf3(&ss, tk, kdf_nonce, kdf_nonce_len, shared_secret,
-			shared_secret_len);
+	CKINT(kyber_x448_kdf3(&ss, tk, kdf_nonce, kdf_nonce_len, shared_secret,
+			      shared_secret_len));
 
 out:
 	lc_memset_secure(&ss, 0, sizeof(ss));
@@ -151,8 +151,8 @@ int lc_kex_x448_ake_responder_ss_internal(
 	CKINT(lc_kyber_x448_enc_internal(ct_e_r_1, &ss[0], pk_e_i, rng_ctx));
 	CKINT(lc_kyber_x448_enc_internal(ct_e_r_2, &ss[1], pk_i, rng_ctx));
 	CKINT(lc_kyber_x448_dec_internal(&ss[2], ct_e_i, sk_r));
-	kyber_x448_kdf4(&ss[0], &ss[1], &ss[2], kdf_nonce, kdf_nonce_len,
-			shared_secret, shared_secret_len);
+	CKINT(kyber_x448_kdf4(&ss[0], &ss[1], &ss[2], kdf_nonce, kdf_nonce_len,
+			      shared_secret, shared_secret_len));
 
 out:
 	lc_memset_secure(ss, 0, sizeof(ss));
@@ -188,8 +188,8 @@ LC_INTERFACE_FUNCTION(int, lc_kex_x448_ake_initiator_ss, uint8_t *shared_secret,
 
 	CKINT(lc_kyber_x448_dec_internal(&ss[0], ct_e_r_1, sk_e));
 	CKINT(lc_kyber_x448_dec_internal(&ss[1], ct_e_r_2, sk_i));
-	kyber_x448_kdf4(&ss[0], &ss[1], tk, kdf_nonce, kdf_nonce_len,
-			shared_secret, shared_secret_len);
+	CKINT(kyber_x448_kdf4(&ss[0], &ss[1], tk, kdf_nonce, kdf_nonce_len,
+			      shared_secret, shared_secret_len));
 
 out:
 	lc_memset_secure(ss, 0, sizeof(ss));
