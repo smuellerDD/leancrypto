@@ -31,6 +31,7 @@ extern "C" {
 /// \cond DO_NOT_DOCUMENT
 struct lc_chacha20_drng_ctx {
 	struct lc_sym_ctx cc20;
+	unsigned int seeded : 1;
 };
 
 /* ChaCha20-based DRNG */

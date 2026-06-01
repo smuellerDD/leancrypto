@@ -627,6 +627,10 @@ static int lc_drbg_ctr_generate(void *_state, const uint8_t *addtl_input,
 	if (addtl_input_len > lc_drbg_max_addtl())
 		return -EINVAL;
 
+	/* Refuse to generate data from unseeded state */
+	if (!drbg_ctr->seeded)
+		return -EOPNOTSUPP;
+
 	if (addtl_input_len && addtl_input) {
 		lc_drbg_string_fill(&addtl_data, addtl_input, addtl_input_len);
 		addtl = &addtl_data;

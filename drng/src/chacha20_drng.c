@@ -80,6 +80,7 @@ static void cc20_drng_selftest(void)
 	LC_SELFTEST_RUN(LC_ALG_STATUS_CHACHA20_DRNG);
 
 	cc20_ctx = cc20_rng->rng_state;
+	cc20_ctx->seeded = 1;
 	sym_ctx = &cc20_ctx->cc20;
 	chacha20_state = sym_ctx->sym_state;
 
@@ -181,6 +182,8 @@ static int lc_cc20_drng_seed_nocheck(void *_state, const uint8_t *seed,
 		seedlen -= todo;
 	}
 
+	cc20_ctx->seeded = 1;
+
 out:
 	return ret;
 }
@@ -221,6 +224,10 @@ static int lc_cc20_drng_generate(void *_state, const uint8_t *additional,
 	int ret = 0;
 
 	CKNULL(cc20_ctx, -EINVAL);
+
+	/* Refuse to generate data from unseeded state */
+	if (!cc20_ctx->seeded)
+		return -EOPNOTSUPP;
 
 	if (additional) {
 		/* Additional information not supported */

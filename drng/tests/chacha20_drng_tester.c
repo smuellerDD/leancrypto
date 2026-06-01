@@ -120,6 +120,7 @@ static int chacha20_drng_selftest(struct lc_rng_ctx *cc20_rng)
 
 	/* Generate with zero state */
 	chacha20_state->counter[0] = 0;
+	cc20_ctx->seeded = 1;
 
 	CKINT(lc_rng_generate(cc20_rng, NULL, 0, outbuf,
 			      sizeof(expected_block)));

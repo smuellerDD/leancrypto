@@ -411,6 +411,10 @@ static int lc_kmac256_drng_generate(void *_state, const uint8_t *addtl_input,
 	if (!state)
 		return -EINVAL;
 
+	/* Refuse to generate data from unseeded state */
+	if (!state->initially_seeded)
+		return -EOPNOTSUPP;
+
 	/* The loop generates R from KMAC DRNG specification section 2.4. */
 	while (outlen) {
 		/*
