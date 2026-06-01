@@ -297,6 +297,14 @@ int _lc_kyber_dec(
 	kyber_print_buffer(ws->kr + LC_KYBER_SYMBYTES, LC_KYBER_SYMBYTES,
 			   "Decapsulation: r'");
 
+	/*
+	 * Note, the following code path for verification of the result applies
+	 * CKINT on errors that are not user-controllable. Therefore, the
+	 * ML-KEM requirement is still met that a decapsulation failure is
+	 * "indistinguishable from success and yields the implicit rejection
+	 * key" is still met.
+	 */
+
 	/* coins are in kr + KYBER_SYMBYTES */
 	CKINT(indcpa_enc_f(ws->cmp, ws->buf, pk, ws->kr + LC_KYBER_SYMBYTES));
 	kyber_print_buffer(ws->cmp, LC_KYBER_CIPHERTEXTBYTES,
