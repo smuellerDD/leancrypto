@@ -1459,7 +1459,8 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x25519_sk_load,
 		memcpy(_sk->sk.sk, kyber_src_key, kyber_src_key_len);
 		memcpy(_sk->sk_x25519.sk, x25519_src_key, x25519_src_key_len);
 		sk->kyber_type = LC_KYBER_1024;
-		return 0;
+
+		return lc_kyber_1024_iv_sk(&_sk->sk);
 #endif
 #ifdef LC_KYBER_768_ENABLED
 	} else if (kyber_src_key_len == lc_kyber_sk_size(LC_KYBER_768)) {
@@ -1468,7 +1469,8 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x25519_sk_load,
 		memcpy(_sk->sk.sk, kyber_src_key, kyber_src_key_len);
 		memcpy(_sk->sk_x25519.sk, x25519_src_key, x25519_src_key_len);
 		sk->kyber_type = LC_KYBER_768;
-		return 0;
+
+		return lc_kyber_768_iv_sk(&_sk->sk);
 #endif
 #ifdef LC_KYBER_512_ENABLED
 	} else if (kyber_src_key_len == lc_kyber_sk_size(LC_KYBER_512)) {
@@ -1477,7 +1479,8 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x25519_sk_load,
 		memcpy(_sk->sk.sk, kyber_src_key, kyber_src_key_len);
 		memcpy(_sk->sk_x25519.sk, x25519_src_key, x25519_src_key_len);
 		sk->kyber_type = LC_KYBER_512;
-		return 0;
+
+		return lc_kyber_512_iv_sk(&_sk->sk);
 #endif
 	} else {
 		return -EINVAL;
@@ -2697,7 +2700,8 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_sk_load, struct lc_kyber_x448_sk *sk,
 		memcpy(_sk->sk.sk, kyber_src_key, kyber_src_key_len);
 		memcpy(_sk->sk_x448.sk, x448_src_key, x448_src_key_len);
 		sk->kyber_type = LC_KYBER_1024;
-		return 0;
+
+		return lc_kyber_1024_iv_sk(&_sk->sk);
 #endif
 #ifdef LC_KYBER_768_ENABLED
 	} else if (kyber_src_key_len == lc_kyber_sk_size(LC_KYBER_768)) {
@@ -2706,7 +2710,8 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_sk_load, struct lc_kyber_x448_sk *sk,
 		memcpy(_sk->sk.sk, kyber_src_key, kyber_src_key_len);
 		memcpy(_sk->sk_x448.sk, x448_src_key, x448_src_key_len);
 		sk->kyber_type = LC_KYBER_768;
-		return 0;
+
+		return lc_kyber_768_iv_sk(&_sk->sk);
 #endif
 #ifdef LC_KYBER_512_ENABLED
 	} else if (kyber_src_key_len == lc_kyber_sk_size(LC_KYBER_512)) {
@@ -2715,7 +2720,8 @@ LC_INTERFACE_FUNCTION(int, lc_kyber_x448_sk_load, struct lc_kyber_x448_sk *sk,
 		memcpy(_sk->sk.sk, kyber_src_key, kyber_src_key_len);
 		memcpy(_sk->sk_x448.sk, x448_src_key, x448_src_key_len);
 		sk->kyber_type = LC_KYBER_512;
-		return 0;
+
+		return lc_kyber_512_iv_sk(&_sk->sk);
 #endif
 	} else {
 		return -EINVAL;
