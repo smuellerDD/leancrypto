@@ -42,17 +42,23 @@ void lc_hex2bin(const char *hex, const size_t hexlen, uint8_t *bin,
 		const size_t binlen)
 {
 	size_t i;
-	size_t chars = (binlen > (hexlen / 2)) ? (hexlen / 2) : binlen;
+	size_t chars, bl = binlen, hl = hexlen;
 
 	/*
 	 * handle odd-length of strings where the first digit is the least
 	 * significant nibble
 	 */
-	if (hexlen & 1) {
+	if (hl & 1) {
+		if (!bl)
+			return;
 		bin[0] = bin_char(hex[0]);
 		bin++;
 		hex++;
+		hl--;
+		bl--;
 	}
+
+	chars = (bl > (hl / 2)) ? (hl / 2) : bl;
 
 	for (i = 0; i < chars; i++) {
 		bin[i] = (uint8_t)(bin_char(hex[(i * 2)]) << 4);
