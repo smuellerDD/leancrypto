@@ -79,7 +79,7 @@ static void xdrbg256_drng_selftest(void)
 		0x60, 0x7b, 0x8f, 0xae, 0x58, 0xe1, 0x9c, 0x79, 0x20, 0x85,
 		0x66, 0xe3, 0x93, 0xd7, 0x7f
 	};
-	uint8_t act[sizeof(exp)] __align(sizeof(uint32_t));
+	uint8_t act[sizeof(exp)] __align(sizeof(uint32_t)) = { 0 };
 
 	LC_SELFTEST_RUN(lc_xdrbg256_drng->algorithm_type);
 
