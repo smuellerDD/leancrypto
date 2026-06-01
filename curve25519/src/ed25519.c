@@ -223,10 +223,6 @@ out:
 	return ret;
 }
 
-static int lc_ed25519_sign_internal(
-	struct lc_ed25519_sig *sig, int prehash, const uint8_t *msg,
-	size_t mlen, const struct lc_ed25519_sk *sk, struct lc_rng_ctx *rng_ctx,
-	struct lc_dilithium_ed25519_ctx *composite_ml_dsa_ctx);
 /* Test vector generated with libsodium using the ACVP parser tool */
 static void lc_ed25519_sign_tester(void)
 {
@@ -348,7 +344,7 @@ static inline void lc_ed25519_dom2(struct lc_hash_ctx *hash_ctx, int prehash)
 	lc_hash_update(hash_ctx, label, sizeof(label));
 }
 
-static int lc_ed25519_sign_internal(
+int lc_ed25519_sign_internal(
 	struct lc_ed25519_sig *sig, int prehash, const uint8_t *msg,
 	size_t mlen, const struct lc_ed25519_sk *sk, struct lc_rng_ctx *rng_ctx,
 	struct lc_dilithium_ed25519_ctx *composite_ml_dsa_ctx)
@@ -497,10 +493,6 @@ LC_INTERFACE_FUNCTION(int, lc_ed25519ph_sign, struct lc_ed25519_sig *sig,
 	return lc_ed25519_sign_internal(sig, 1, msg, mlen, sk, rng_ctx, NULL);
 }
 
-static int lc_ed25519_verify_internal(
-	const struct lc_ed25519_sig *sig, int prehash, const uint8_t *msg,
-	size_t mlen, const struct lc_ed25519_pk *pk,
-	struct lc_dilithium_ed25519_ctx *composite_ml_dsa_ctx);
 /* Test vector obtained from NIST ACVP demo server */
 static void lc_ed25519_verify_tester(void)
 {
@@ -575,7 +567,7 @@ static void lc_ed25519_verify_tester(void)
 			    "ED25519 Signature verification\n");
 }
 
-static int lc_ed25519_verify_internal(
+int lc_ed25519_verify_internal(
 	const struct lc_ed25519_sig *sig, int prehash, const uint8_t *msg,
 	size_t mlen, const struct lc_ed25519_pk *pk,
 	struct lc_dilithium_ed25519_ctx *composite_ml_dsa_ctx)

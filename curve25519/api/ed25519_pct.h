@@ -29,6 +29,15 @@
 extern "C" {
 #endif
 
+int lc_ed25519_sign_internal(
+	struct lc_ed25519_sig *sig, int prehash, const uint8_t *msg,
+	size_t mlen, const struct lc_ed25519_sk *sk, struct lc_rng_ctx *rng_ctx,
+	struct lc_dilithium_ed25519_ctx *composite_ml_dsa_ctx);
+int lc_ed25519_verify_internal(
+	const struct lc_ed25519_sig *sig, int prehash, const uint8_t *msg,
+	size_t mlen, const struct lc_ed25519_pk *pk,
+	struct lc_dilithium_ed25519_ctx *composite_ml_dsa_ctx);
+
 static inline int _lc_ed25519_pct_fips(const struct lc_ed25519_pk *pk,
 				       const struct lc_ed25519_sk *sk)
 {
@@ -39,16 +48,18 @@ static inline int _lc_ed25519_pct_fips(const struct lc_ed25519_pk *pk,
 	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	CKINT(lc_ed25519_sign(&ws->sig, ws->m, sizeof(ws->m), sk,
-			      lc_seeded_rng));
+	CKINT(lc_ed25519_sign_internal(&ws->sig, 0, ws->m, sizeof(ws->m), sk,
+				       lc_seeded_rng, NULL));
 	if (pk) {
-		CKINT(lc_ed25519_verify(&ws->sig, ws->m, sizeof(ws->m), pk));
+		CKINT(lc_ed25519_verify_internal(&ws->sig, 0, ws->m,
+						 sizeof(ws->m), pk, NULL));
 	} else {
 		struct lc_ed25519_pk *pk_sk;
 
 		/* The PK is the trailing part of the SK */
 		pk_sk = (struct lc_ed25519_pk *)(sk->sk + 32);
-		CKINT(lc_ed25519_verify(&ws->sig, ws->m, sizeof(ws->m), pk_sk));
+		CKINT(lc_ed25519_verify_internal(&ws->sig, 0, ws->m,
+						 sizeof(ws->m), pk_sk, NULL));
 	}
 
 out:

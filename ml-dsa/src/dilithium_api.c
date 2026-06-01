@@ -28,6 +28,7 @@
 #include "ext_headers_internal.h"
 #include "lc_dilithium.h"
 #include "dilithium_pct.h"
+#include "ed25519_pct.h"
 #include "visibility.h"
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_ctx_alloc,
@@ -1133,7 +1134,10 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sk_load,
 		 */
 		if (ed25519_src_key_len == LC_ED25519_RAW_SECRETKEYBYTES)
 			return (lc_ed25519_derive_pk(NULL, &_sk->sk_ed25519));
-		return 0;
+		/* Check that the public/private key are a pair */
+		return _lc_ed25519_pct_fips(
+			(struct lc_ed25519_pk *)(_sk->sk_ed25519.sk + 32),
+			&_sk->sk_ed25519);
 #endif
 #ifdef LC_DILITHIUM_65_ENABLED
 	} else if (dilithium_src_key_len ==
@@ -1151,7 +1155,10 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sk_load,
 		 */
 		if (ed25519_src_key_len == LC_ED25519_RAW_SECRETKEYBYTES)
 			return (lc_ed25519_derive_pk(NULL, &_sk->sk_ed25519));
-		return 0;
+		/* Check that the public/private key are a pair */
+		return _lc_ed25519_pct_fips(
+			(struct lc_ed25519_pk *)(_sk->sk_ed25519.sk + 32),
+			&_sk->sk_ed25519);
 #endif
 #ifdef LC_DILITHIUM_44_ENABLED
 	} else if (dilithium_src_key_len ==
@@ -1169,7 +1176,10 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sk_load,
 		 */
 		if (ed25519_src_key_len == LC_ED25519_RAW_SECRETKEYBYTES)
 			return (lc_ed25519_derive_pk(NULL, &_sk->sk_ed25519));
-		return 0;
+		/* Check that the public/private key are a pair */
+		return _lc_ed25519_pct_fips(
+			(struct lc_ed25519_pk *)(_sk->sk_ed25519.sk + 32),
+			&_sk->sk_ed25519);
 #endif
 	} else {
 		return -EINVAL;
