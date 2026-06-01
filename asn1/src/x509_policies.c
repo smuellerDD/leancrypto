@@ -32,18 +32,6 @@
 #include "ret_checkers.h"
 #include "visibility.h"
 
-#define CKINT_POL(x)                                                           \
-	{                                                                      \
-		ret_pol = x;                                                   \
-		if (ret_pol < 0) {                                             \
-			ret = ret_pol;                                         \
-			goto out;                                              \
-		} else if (ret_pol == LC_X509_POL_FALSE) {                     \
-			ret = -EKEYREJECTED;                                   \
-			goto out;                                              \
-		}                                                              \
-	}
-
 static lc_x509_pol_ret_t
 lc_509_policy_cert_contains_signature(const struct lc_x509_certificate *cert)
 {

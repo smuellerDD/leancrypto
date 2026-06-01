@@ -58,6 +58,11 @@ extern "C" {
 		}                                                              \
 	} while (0)
 
+/*
+ * Use this ret-checker for all int functions EXCEPT policy checkers (i.e.
+ * function returning lc_x509_pol_ret_t - they must be handled with
+ * CKINT_POL)!
+ */
 #define CKINT(x)                                                               \
 	do {                                                                   \
 		ret = (x);                                                     \
@@ -66,6 +71,22 @@ extern "C" {
 			goto out;                                              \
 		}                                                              \
 	} while (0)
+
+/*
+ * Use this ret-checker with policy checkers (i.e. functions returning
+ * lc_x509_pol_ret_t)
+ */
+#define CKINT_POL(x)                                                           \
+	{                                                                      \
+		ret_pol = x;                                                   \
+		if (ret_pol < 0) {                                             \
+			ret = ret_pol;                                         \
+			goto out;                                              \
+		} else if (ret_pol == LC_X509_POL_FALSE) {                     \
+			ret = -EKEYREJECTED;                                   \
+			goto out;                                              \
+		}                                                              \
+	}
 
 #define CKINT_LOG(x, ...)                                                      \
 	do {                                                                   \
