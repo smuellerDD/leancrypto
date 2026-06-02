@@ -226,6 +226,8 @@ LC_INTERFACE_FUNCTION(void, cc20_block, struct lc_sym_state *state,
 
 	/* Timecop: output is not sensitive regarding side-channels. */
 	unpoison(stream, LC_CC20_BLOCK_SIZE);
+
+	lc_memset_secure(ws, 0, sizeof(ws));
 }
 
 void cc20_crypt_remaining(struct lc_sym_state *ctx, const uint8_t **in,
