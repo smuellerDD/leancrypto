@@ -125,8 +125,8 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_trust_store_add,
 			goto out;
 		}
 
-		CKINT(lc_pkcs7_verify_sig_chain(trust_store->anchor_cert, NULL,
-						x509, NULL));
+		CKINT_HARDENED(lc_pkcs7_verify_sig_chain(
+			trust_store->anchor_cert, NULL, x509, NULL));
 	}
 
 	x509->next = NULL;

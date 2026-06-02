@@ -360,9 +360,11 @@ static int lc_chacha20_poly1305_decrypt_authenticate(void *state,
 	 * to check the return code as we use the maximum tag size.
 	 */
 	lc_chacha20_poly1305_encrypt_tag(cc20p1305, calctag, sizeof(calctag));
-	ret = (lc_memcmp_secure(calctag, taglen, tag, taglen) ? -EBADMSG : 0);
-	lc_memset_secure(calctag, 0, taglen);
+	CKRET_HARDENED(lc_memcmp_secure(calctag, taglen, tag, taglen),
+		       -EBADMSG);
 
+out:
+	lc_memset_secure(calctag, 0, taglen);
 	return ret;
 }
 

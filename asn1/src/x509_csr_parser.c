@@ -112,7 +112,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_csr_decode, struct lc_x509_certificate *x509,
 	CKINT(lc_x509_get_sig_params(x509));
 
 	/* Verify the entity's signature */
-	CKINT(lc_public_key_verify_signature(&x509->pub, &x509->sig));
+	CKINT_HARDENED(lc_public_key_verify_signature(&x509->pub, &x509->sig));
 
 	/* Calculate the digest of the pub key */
 	CKINT(lc_x509_cert_get_pubkey(x509, &pk_ptr, &pk_len, NULL));

@@ -101,14 +101,14 @@ int public_key_verify_signature_sphincs(
 		 */
 		aa[0] = lc_pkcs7_authattr_tag;
 		memcpy(aa + 1, sig->authattrs, sig->authattrs_size);
-		CKINT(lc_sphincs_verify_ctx(&ws->sphincs_sig, ctx, aa,
-					    sig->authattrs_size + 1,
-					    &ws->sphincs_pk));
+		CKINT_HARDENED(lc_sphincs_verify_ctx(&ws->sphincs_sig, ctx, aa,
+						     sig->authattrs_size + 1,
+						     &ws->sphincs_pk));
 	} else if (sig->digest_size) {
 		printf_debug(
 			"SLH-DSA signature verification of pre-hashed data\n");
 
-		CKINT(public_key_set_prehash_sphincs(sig, ctx));
+		CKINT_HARDENED(public_key_set_prehash_sphincs(sig, ctx));
 
 		/*
 		 * Verify the signature of a pre-hashed message
@@ -123,9 +123,10 @@ int public_key_verify_signature_sphincs(
 		/*
 		 * Verify the signature of raw data
 		 */
-		CKINT(lc_sphincs_verify_ctx(&ws->sphincs_sig, ctx,
-					    sig->raw_data, sig->raw_data_len,
-					    &ws->sphincs_pk));
+		CKINT_HARDENED(lc_sphincs_verify_ctx(&ws->sphincs_sig, ctx,
+						     sig->raw_data,
+						     sig->raw_data_len,
+						     &ws->sphincs_pk));
 	}
 
 out:

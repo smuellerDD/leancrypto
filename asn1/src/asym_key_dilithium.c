@@ -85,8 +85,9 @@ int public_key_verify_signature_dilithium(
 						 sizeof(lc_pkcs7_authattr_tag)));
 		CKINT(lc_dilithium_verify_update(ctx, sig->authattrs,
 						 sig->authattrs_size));
-		CKINT(lc_dilithium_verify_final(&ws->dilithium_sig, ctx,
-						&ws->dilithium_pk));
+		CKINT_HARDENED(lc_dilithium_verify_final(&ws->dilithium_sig,
+							 ctx,
+							 &ws->dilithium_pk));
 
 	} else if (sig->digest_size) {
 		printf_debug(
@@ -108,9 +109,10 @@ int public_key_verify_signature_dilithium(
 		/*
 		 * Verify the signature of raw data
 		 */
-		CKINT(lc_dilithium_verify_ctx(&ws->dilithium_sig, ctx,
-					      sig->raw_data, sig->raw_data_len,
-					      &ws->dilithium_pk));
+		CKINT_HARDENED(lc_dilithium_verify_ctx(&ws->dilithium_sig, ctx,
+						       sig->raw_data,
+						       sig->raw_data_len,
+						       &ws->dilithium_pk));
 	}
 
 out:

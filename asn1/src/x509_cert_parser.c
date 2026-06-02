@@ -54,18 +54,6 @@
 #include "x509_san_asn1.h"
 #include "x509_skid_asn1.h"
 
-#define CKINT_POL(x)                                                           \
-	{                                                                      \
-		ret_pol = x;                                                   \
-		if (ret_pol < 0) {                                             \
-			ret = ret_pol;                                         \
-			goto out;                                              \
-		} else if (ret_pol == LC_X509_POL_FALSE) {                     \
-			ret = -EKEYREJECTED;                                   \
-			goto out;                                              \
-		}                                                              \
-	}
-
 /******************************************************************************
  * ASN.1 parser support functions
  ******************************************************************************/
@@ -1185,7 +1173,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_signature_verify, const uint8_t *sig_data,
 
 	sig.pkey_algo = cert->pub.pkey_algo;
 
-	CKINT(lc_public_key_verify_signature(pub, &sig));
+	CKINT_HARDENED(lc_public_key_verify_signature(pub, &sig));
 
 out:
 	lc_memset_secure(&sig, 0, sizeof(sig));
@@ -1251,8 +1239,8 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_verify,
 	 * as its time is valid and it performs the signature verification
 	 * check along with the required key usage checks.
 	 */
-	CKINT(lc_x509_policy_verify_cert(&signer_cert->pub, signed_cert,
-					 flags));
+	CKINT_HARDENED(lc_x509_policy_verify_cert(&signer_cert->pub,
+						  signed_cert, flags));
 
 out:
 	return ret;

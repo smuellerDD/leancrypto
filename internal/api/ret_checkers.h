@@ -59,6 +59,106 @@ extern "C" {
 	} while (0)
 
 /*
+ * Checker hardened against fault injections. The following faults are
+ * countered:
+ *
+ * * Skipping of an instruction
+ * * Modification of the condition
+ *
+ * This is achieved as follows:
+ *
+ * 1. use volatile return code variable to prevent compiler to remove redundant
+ *    code.
+ * 2. Initialize the variable that will hold the return code with non-zero value
+ * 3. AND the condition onto the volatile variable - this step ensures that
+ *    the initialized variable is used and set to zero.
+ * 4. use positive and inverse check of the volatile return code
+ * 5. only proceed if positive and inverse checks succeed
+ *
+ * @param [in] cond: Condition to check - 0 is success, != 0 is failure
+ * @param [in] err: Return code if condition shows failure
+ *
+ * The following analysis has been conducted with -O3 and gcc 15.2.1
+ *
+ * //Analyze lc_ed25519_verify_internal
+ *
+ * // Use CKRET_HARDENED
+ *
+ *  // Load 0xffffffffffffffff into register x1
+ *  264:   92800001        mov     x1, #0xffffffffffffffff         // #-1
+ *  268:   aa1703e0        mov     x0, x23
+ *  // Store register w1 onto stack at offset #48
+ *  26c:   f9001be1        str     x1, [sp, #48]
+ *  // Invoke ge25519_has_small_order - the core function for validation
+ *  270:   94000000        bl      0 <ge25519_has_small_order>
+ *  // Compare return code with 0x1
+ *  274:   7100041f        cmp     w0, #0x1
+ *  // Load x1 from stack at offset #48 - contains 0xffffffffffffffff
+ *  278:   f9401be1        ldr     x1, [sp, #48]
+ *  // Set property of x0 register
+ *  27c:   9a9f17e0        cset    x0, eq  // eq = none
+ *  // AND return code from function with x1 and store in x0
+ *  280:   8a010000        and     x0, x0, x1
+ *  // Store register w0 onto stack at offset #48
+ *  284:   f9001be0        str     x0, [sp, #48]
+ *  // Load register w0 from stack at offset #48
+ *  288:   f9401be0        ldr     x0, [sp, #48]
+ *  // Jump to error exit handler if value is not zero
+ *  28c:   b5000a20        cbnz    x0, 3d0 <lc_ed25519_verify_internal+0x3d0>
+ *  // Store register w0 onto stack at offset #48
+ *  290:   f9401be0        ldr     x0, [sp, #48]
+ *  // Add 1 to x0
+ *  294:   91000400        add     x0, x0, #0x1
+ *  // Store register w0 onto stack at offset #48
+ *  298:   f9001be0        str     x0, [sp, #48]
+ *  // Compare x0 with 0x1
+ *  29c:   f100041f        cmp     x0, #0x1
+ *  // Jump to error exit handler if value is not 0x1
+ *  2a0:   54000981        b.ne    3d0 <lc_ed25519_verify_internal+0x3d0>  // b.any
+ *  // Start of exit handler without error
+ *  2a4:   4f00041f        movi    v31.4s, #0x0
+ *
+ * // check agaisnt unhardened operation
+ *  // Invoke ge25519_has_small_order - central check for signaturevalidity
+ *  3c4:   94000000        bl      0 <ge25519_has_small_order>
+ *  // Set return code
+ *  3c8:   12800928        mov     w8, #0xffffffb6                 // #-74
+ *  // Compare return code of ge25519_has_small_order against 0x1
+ *  3cc:   7100041f        cmp     w0, #0x1
+ *  // Store positive result of comparison against 0x1 in w20
+ *  3d0:   1a880294        csel    w20, w20, w8, eq        // eq = none
+ *  // Jump to exit handler starting at 0x208 if negative result
+ *  3d4:   17ffff8b        b       200 <lc_ed25519_verify_internal+0x200>
+ *  // Continue with regular operation
+ *  3d8:   90000002        adrp    x2, 0 <lc_ed25519_verify_internal>
+ *  3dc:   91000042        add     x2, x2, #0x0
+ *
+ * Clang 22.1.5 shows a similar assembly output
+ */
+#define CKRET_HARDENED(cond, err)                                              \
+	do {                                                                   \
+		volatile unsigned long __hardened_ret = (unsigned long)-1;     \
+		ret = err;                                                     \
+		__hardened_ret &= ((unsigned long)cond);                       \
+		if (__hardened_ret == 0) {                                     \
+			if (!(++__hardened_ret != 1)) {                        \
+				ret = 0;                                       \
+				break;                                         \
+			}                                                      \
+		}                                                              \
+		CKERROR_LOG                                                    \
+		goto out;                                                      \
+	} while (0)
+
+/*
+ * Hardened version of CKINT
+ */
+#define CKINT_HARDENED(cond)                                                   \
+	do {                                                                   \
+		ret = (cond);                                                  \
+		CKRET_HARDENED(ret, ret);                                      \
+	} while (0)
+/*
  * Use this ret-checker for all int functions EXCEPT policy checkers (i.e.
  * function returning lc_x509_pol_ret_t - they must be handled with
  * CKINT_POL)!

@@ -655,8 +655,7 @@ int lc_ed25519_verify_internal(
 	ge25519_p2_to_p3(&sb_ah, &sb_ah_p2);
 	ge25519_p3_sub(&check, &expected_r, &sb_ah);
 
-	if ((ge25519_has_small_order(&check) - 1) != 0)
-		ret = -EBADMSG;
+	CKRET_HARDENED((ge25519_has_small_order(&check) - 1) != 0, -EBADMSG);
 
 out:
 	lc_memset_secure(h, 0, sizeof(h));

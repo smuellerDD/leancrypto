@@ -46,7 +46,7 @@ extern "C" {
 			goto out;                                              \
 	}
 #else
-#define CKINT_SIGCHECK CKINT
+#define CKINT_SIGCHECK CKINT_HARDENED
 #endif
 
 void lc_public_key_clear(struct lc_public_key *key);

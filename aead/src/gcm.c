@@ -850,8 +850,10 @@ static int gcm_dec_final(void *state, const uint8_t *tag, size_t taglen)
 	gcm_enc_final(state, check_tag, taglen);
 
 	/* now we verify the authentication tag in 'constant time' */
-	ret = lc_memcmp_secure(tag, taglen, check_tag, taglen) ? -EBADMSG : 0;
+	CKRET_HARDENED(lc_memcmp_secure(tag, taglen, check_tag, taglen),
+		       -EBADMSG);
 
+out:
 	lc_memset_secure(check_tag, 0, sizeof(check_tag));
 	return ret;
 }

@@ -140,8 +140,8 @@ int public_key_verify_signature_ed25519(
 		ws->sign_ctx.msg_prefix_len = sizeof(lc_pkcs7_authattr_tag);
 	}
 
-	CKINT(lc_ed25519_verify_ctx(&ws->sig, data_ptr, data_len, &ws->pk,
-				    &ws->sign_ctx));
+	CKINT_HARDENED(lc_ed25519_verify_ctx(&ws->sig, data_ptr, data_len,
+					     &ws->pk, &ws->sign_ctx));
 
 out:
 	LC_RELEASE_MEM(ws);

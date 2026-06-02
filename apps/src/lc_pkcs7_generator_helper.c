@@ -410,7 +410,7 @@ static int pkcs7_load_trust(struct pkcs7_generator_opts *opts)
 				      x509->x509_data_len),
 		  "Loading of X.509 trust anchor certificate failed\n");
 
-	CKINT(lc_pkcs7_trust_store_add(&opts->trust_store, newcert));
+	CKINT_HARDENED(lc_pkcs7_trust_store_add(&opts->trust_store, newcert));
 
 	x509->x509 = newcert;
 	newcert = NULL;
@@ -479,8 +479,7 @@ int pkcs7_collect_trust(struct pkcs7_generator_opts *opts)
 
 	CKNULL(opts->trust_anchor, 0);
 
-	CKINT_LOG(pkcs7_load_trust(opts),
-		  "Loading trusted certificate failed\n");
+	CKINT_HARDENED(pkcs7_load_trust(opts));
 
 	opts->trust_anchor = NULL;
 

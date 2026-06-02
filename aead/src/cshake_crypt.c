@@ -610,7 +610,10 @@ static int lc_cc_decrypt_authenticate(void *state, const uint8_t *tag,
 	 */
 	lc_cc_encrypt_tag(cc, calctag_p, taglen);
 
-	ret = (lc_memcmp_secure(calctag_p, taglen, tag, taglen) ? -EBADMSG : 0);
+	CKRET_HARDENED(lc_memcmp_secure(calctag_p, taglen, tag, taglen),
+		       -EBADMSG);
+
+out:
 	lc_memset_secure(calctag_p, 0, taglen);
 	if (taglen > sizeof(calctag))
 		lc_free(calctag_p);

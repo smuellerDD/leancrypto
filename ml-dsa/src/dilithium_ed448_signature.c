@@ -290,9 +290,11 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed448_verify_final,
 	rete = lc_ed448_verify_ctx(&sig->sig_ed448, digest, sizeof(digest),
 				   &pk->pk_ed448, ctx);
 
+	CKINT_HARDENED(lc_dilithium_ed448_verify_check(retd, rete));
+
 out:
 	lc_memset_secure(digest, 0, sizeof(digest));
-	return ret ? ret : lc_dilithium_ed448_verify_check(retd, rete);
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_ed448_ctx_alloc,

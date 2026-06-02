@@ -323,8 +323,8 @@ int lc_pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 		if (!ret) {
 			CKINT(lc_pkcs7_verify_pathlen_truststore(start_cert,
 								 trusted));
-			CKINT(lc_x509_policy_verify_cert(&trusted->pub, x509,
-							 0));
+			CKINT_HARDENED(lc_x509_policy_verify_cert(&trusted->pub,
+								  x509, 0));
 			return 0;
 		}
 
@@ -386,8 +386,8 @@ int lc_pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 				 * separate new level of chain validation.
 				 */
 
-				CKINT(lc_x509_policy_verify_cert(&trusted->pub,
-								 x509, 0));
+				CKINT_HARDENED(lc_x509_policy_verify_cert(
+					&trusted->pub, x509, 0));
 				return 0;
 			}
 
@@ -396,7 +396,8 @@ int lc_pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 			 * provided root certificate to verify and accept it
 			 * as trust anchor.
 			 */
-			CKINT(lc_x509_policy_verify_cert(&p->pub, x509, 0));
+			CKINT_HARDENED(lc_x509_policy_verify_cert(&p->pub, x509,
+								  0));
 			return 0;
 		}
 
@@ -410,7 +411,7 @@ int lc_pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 			return -EKEYREJECTED;
 		}
 
-		CKINT(lc_x509_policy_verify_cert(&p->pub, x509, 0));
+		CKINT_HARDENED(lc_x509_policy_verify_cert(&p->pub, x509, 0));
 		x509->signer = p;
 
 		x509 = p;
@@ -493,8 +494,8 @@ static int pkcs7_verify_one(struct lc_pkcs7_message *pkcs7,
 	printf_debug("Verified signature %u\n", sinfo->index);
 
 	/* Verify the certificate chain */
-	CKINT(lc_pkcs7_verify_sig_chain(pkcs7->certs, trust_store,
-					sinfo->signer, sinfo));
+	CKINT_HARDENED(lc_pkcs7_verify_sig_chain(pkcs7->certs, trust_store,
+						 sinfo->signer, sinfo));
 
 out:
 	return ret;
@@ -558,6 +559,7 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_verify, struct lc_pkcs7_message *pkcs7,
 	}
 
 	for (sinfo = pkcs7->list_head_sinfo; sinfo; sinfo = sinfo->next) {
+		//TODO apply checks as in CKINT_HARDENED?
 		ret = pkcs7_verify_one(pkcs7, trust_store, sinfo, verify_rules);
 		switch (ret) {
 		case -ENOKEY:

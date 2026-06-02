@@ -245,10 +245,11 @@ static int lc_kh_decrypt_authenticate(void *state, const uint8_t *tag,
 	 */
 	CKINT(lc_kmac_final_xof(auth_ctx, calctag, taglen));
 
-	ret = (lc_memcmp_secure(calctag, taglen, tag, taglen) ? -EBADMSG : 0);
-	lc_memset_secure(calctag, 0, taglen);
+	CKRET_HARDENED(lc_memcmp_secure(calctag, taglen, tag, taglen),
+		       -EBADMSG);
 
 out:
+	lc_memset_secure(calctag, 0, taglen);
 	return ret;
 }
 

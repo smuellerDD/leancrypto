@@ -527,7 +527,7 @@ LC_INTERFACE_FUNCTION(int, lc_x509_policy_verify_cert,
 	int ret;
 
 	/* Apply general checks of the certificate */
-	CKINT(lc_x509_policy_verify_general(pkey, cert, flags));
+	CKINT_HARDENED(lc_x509_policy_verify_general(pkey, cert, flags));
 
 	/* Do we have a valid certificate? */
 	CKINT_POL(lc_x509_policy_cert_valid(cert));

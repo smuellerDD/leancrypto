@@ -31,6 +31,8 @@ Changes 1.8.0-prerelease
 
 * Bug fix: ML-KEM KDF helper ingested only ML-KEM part and skipped X25519
 
+* Add return code checker defending against fault injections
+
 Changes 1.7.2
 * Fix RDSEED counter
 

@@ -871,9 +871,10 @@ static int lc_dilithium_verify_internal_ahat(const struct lc_dilithium_sig *sig,
 	lc_hash_zero(hash_ctx);
 
 	/* Signature verification operation */
-	if (lc_memcmp_secure(c1, LC_DILITHIUM_CTILDE_BYTES, ws->buf.c2.coeffs,
-			     LC_DILITHIUM_CTILDE_BYTES))
-		ret = -EBADMSG;
+	CKRET_HARDENED(lc_memcmp_secure(c1, LC_DILITHIUM_CTILDE_BYTES,
+					ws->buf.c2.coeffs,
+					LC_DILITHIUM_CTILDE_BYTES),
+		       -EBADMSG);
 
 out:
 	LC_RELEASE_MEM(ws);

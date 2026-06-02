@@ -87,7 +87,7 @@ static int ed448_sigver_neg_tester(void)
 	};
 	static const uint8_t msg[] = { 0x02 };
 	int ret = lc_ed448_verify(&sig, msg, sizeof(msg), &pk);
-
+printf("ret %d\n", ret);
 	if (ret != -EINVAL && ret != -EBADMSG)
 		return 1;
 
@@ -169,9 +169,13 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 #endif
 
 	ret += ed448_pwc_tester();
+printf("1 %d\n", ret);
 	ret += ed448_sigver_pos_tester();
+printf("2 %d\n", ret);
 	ret += ed448_sigver_neg_tester();
+printf("3 %d\n", ret);
 	ret += ed448_siggen_tester();
+printf("4 %d\n", ret);
 
 	ret = test_validate_status(
 		ret, lc_ed448_alg_status(lc_alg_operation_ed448_keygen), 1);

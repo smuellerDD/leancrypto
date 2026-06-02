@@ -554,8 +554,8 @@ int lc_sphincs_verify_ctx_nocheck(const struct lc_sphincs_sig *sig,
 	}
 
 	/* Check if the root node equals the root node in the public key. */
-	if (lc_memcmp_secure(ws->root, sizeof(ws->root), pub_root, LC_SPX_N))
-		ret = -EBADMSG;
+	CKRET_HARDENED(lc_memcmp_secure(ws->root, sizeof(ws->root), pub_root,
+					LC_SPX_N), -EBADMSG);
 
 out:
 	LC_RELEASE_MEM(ws);

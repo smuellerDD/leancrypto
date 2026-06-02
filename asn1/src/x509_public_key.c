@@ -173,6 +173,7 @@ int lc_x509_check_for_self_signed(struct lc_x509_certificate *cert)
 		goto out;
 	}
 
+	//TODO: add logic from CKINT_HARDENED?
 	ret = lc_public_key_verify_signature(&cert->pub, &cert->sig);
 	if (ret < 0) {
 		if (ret == -ENOPKG) {
