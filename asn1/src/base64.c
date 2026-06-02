@@ -35,7 +35,7 @@ static const char encoding_table[] = {
  * for (i = 0; i < 64; i++)
  *	decoding_table[(unsigned char)encoding_table[i]] = (char)i;
  */
-static const char decoding_table[] = {
+static const unsigned char decoding_table[] = {
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
 	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
@@ -62,7 +62,7 @@ static const char decoding_table[] = {
 
 #ifdef LC_BASE64_URLSAFE
 /* Filename and URL safe */
-static const char encoding_table_safe[] = {
+static const unsigned char encoding_table_safe[] = {
 	'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
 	'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
 	'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
@@ -236,7 +236,7 @@ out:
 
 static int __base64_decode(const char *idata, size_t ilen, uint8_t *odata,
 			   size_t olen, enum lc_base64_flags flags,
-			   const char table[])
+			   const unsigned char table[])
 {
 	size_t dlen, i, j;
 	int ret;
