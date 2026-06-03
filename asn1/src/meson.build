@@ -205,7 +205,6 @@ if get_option('pkcs8_parser').enabled()
 
 	src += files([
 		'pkcs8_parser.c',
-
 		'pkcs8_asn1.c',
 	])
 endif
@@ -219,6 +218,10 @@ if get_option('pkcs8_generator').enabled()
 
 	src += files([
 		'pkcs8_generator.c',
+	])
+else
+	src += files([
+		'pkcs8_generator_null.c'
 	])
 endif
 

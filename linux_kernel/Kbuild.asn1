@@ -90,6 +90,11 @@ leancrypto-$(CONFIG_LEANCRYPTO_X509_CSR_PARSER)				       \
 leancrypto-$(CONFIG_LEANCRYPTO_X509_CSR_GENERATOR)			       \
 				+= ../asn1/src/x509_csr_generator.o
 
+ifndef CONFIG_LEANCRYPTO_X509_CSR_GENERATOR
+leancrypto-$(CONFIG_LEANCRYPTO_X509_CSR_PARSER)				       \
+				+= ../asn1/src/x509_csr_generator_null.o
+endif
+
 ################################################################################
 # PKCS7 Support
 
@@ -105,6 +110,11 @@ leancrypto-$(CONFIG_LEANCRYPTO_PKCS7_GENERATOR)				       \
 				+= ../asn1/src/pkcs7_generator.o	       \
 				   ../asn1/src/pkcs7_generator_set_data.o
 
+ifndef CONFIG_LEANCRYPTO_PKCS7_GENERATOR
+leancrypto-$(CONFIG_LEANCRYPTO_PKCS7_PARSER)				       \
+				+= ../asn1/src/pkcs7_generator_null.o
+endif
+
 ################################################################################
 # PKCS8 Support
 
@@ -114,3 +124,8 @@ leancrypto-$(CONFIG_LEANCRYPTO_PKCS8_PARSER)				       \
 
 leancrypto-$(CONFIG_LEANCRYPTO_PKCS8_GENERATOR)				       \
 				+= ../asn1/src/pkcs8_generator.o
+
+ifndef CONFIG_LEANCRYPTO_PKCS8_GENERATOR
+leancrypto-$(CONFIG_LEANCRYPTO_PKCS8_PARSER)				       \
+				+= ../asn1/src/pkcs8_generator_null.o
+endif
