@@ -1,19 +1,18 @@
 # for i in $(ls *.c | sort); do echo "'$i',"; done
 
 x509_common_support = 0
+asn1_decoder_support = 0
+asn1_encoder_support = 0
 
 if get_option('x509_parser').enabled()
 	x509_common_support = 1
+	asn1_decoder_support = 1
 
 	include_files += files([
 		'../api/lc_x509_parser.h',
-		'../api/lc_pem.h'
 	])
 
 	src += files([
-		'asn1_decoder.c',
-		'base64.c',
-		'pem.c',
 		'x509_cert_parser.c',
 		'x509_cert_parser_get_data.c',
 		'x509_policies.c',
@@ -34,15 +33,13 @@ endif
 
 if get_option('x509_generator').enabled()
 	x509_common_support = 1
+	asn1_encoder_support = 1
 
 	include_files += files([
 		'../api/lc_x509_generator.h'
 	])
 
 	src += files([
-		'asn1_encoder.c',
-		'asn1_encoder_helper.c',
-		'asn1_encoder_small.c',
 		'x509_cert_generator.c',
 		'x509_cert_generator_set_data.c'
 	])
@@ -56,6 +53,7 @@ endif
 
 if get_option('x509_csr_generator').enabled()
 	x509_common_support = 1
+	asn1_encoder_support = 1
 
 	include_files += files([
 		'../api/lc_x509_csr_generator.h'
@@ -82,7 +80,6 @@ if x509_common_support == 1
 	])
 
 	src += files([
-		'asn1_common.c',
 		'asym_key.c',
 		'asymmetric_type.c',
 		'gmtime.c',
@@ -161,6 +158,8 @@ if x509_common_support == 1
 endif
 
 if get_option('pkcs7_parser').enabled()
+	asn1_decoder_support = 1
+
 	include_files += files([
 		'../api/lc_pkcs7_common.h',
 		'../api/lc_pkcs7_parser.h',
@@ -178,6 +177,8 @@ if get_option('pkcs7_parser').enabled()
 endif
 
 if get_option('pkcs7_generator').enabled()
+	asn1_encoder_support = 1
+
 	include_files += files([
 		'../api/lc_pkcs7_generator.h',
 	])
@@ -195,6 +196,8 @@ else
 endif
 
 if get_option('pkcs8_parser').enabled()
+	asn1_decoder_support = 1
+
 	include_files += files([
 		'../api/lc_pkcs8_common.h',
 		'../api/lc_pkcs8_parser.h',
@@ -208,12 +211,35 @@ if get_option('pkcs8_parser').enabled()
 endif
 
 if get_option('pkcs8_generator').enabled()
+	asn1_encoder_support = 1
+
 	include_files += files([
 		'../api/lc_pkcs8_generator.h',
 	])
 
 	src += files([
 		'pkcs8_generator.c',
+	])
+endif
+
+if asn1_decoder_support == 1
+	include_files += files([
+		'../api/lc_pem.h'
+	])
+
+	src += files([
+		'asn1_common.c',
+		'asn1_decoder.c',
+		'base64.c',
+		'pem.c',
+	])
+endif
+
+if asn1_encoder_support == 1
+	src += files([
+		'asn1_encoder.c',
+		'asn1_encoder_helper.c',
+		'asn1_encoder_small.c',
 	])
 endif
 
