@@ -32,6 +32,10 @@ extern "C" {
 struct lc_chacha20_drng_ctx {
 	struct lc_sym_ctx cc20;
 	unsigned int seeded : 1;
+	/*
+	 * Necessary buffer size to ensure proper alignment of trailing
+	 * ChaCha20 state is taken care of by LC_CC20_DRNG_STATE_SIZE
+	 */
 };
 
 /* ChaCha20-based DRNG */
@@ -40,7 +44,10 @@ extern const struct lc_rng *lc_cc20_drng;
 #define LC_CC20_DRNG_SYM_STATE_SIZE (LC_CC20_STATE_SIZE)
 #define LC_CC20_DRNG_STATE_SIZE                                                \
 	(LC_CC20_DRNG_SYM_STATE_SIZE + sizeof(struct lc_chacha20_drng_ctx))
-#define LC_CC20_DRNG_CTX_SIZE (sizeof(struct lc_rng) + LC_CC20_DRNG_STATE_SIZE)
+#define LC_CC20_DRNG_CTX_SIZE                                                  \
+	(sizeof(struct lc_rng) +                                               \
+	 ((LC_CC20_DRNG_STATE_SIZE + LC_SYM_ALIGNMASK(lc_cc20_drng)) &         \
+	  (unsigned long)(~(LC_SYM_ALIGNMASK(lc_cc20_drng)))))
 
 #define _LC_CC20_DRNG_SET_CTX(name, ctx, offset)                               \
 	_LC_SYM_SET_CTX((&name->cc20), lc_chacha20, ctx, offset)

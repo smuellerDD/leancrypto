@@ -281,8 +281,8 @@ static void lc_cc20_drng_zero(void *_state)
 
 	sym_ctx = &state->cc20;
 
-	lc_memset_secure((uint8_t *)state + sizeof(struct lc_chacha20_drng_ctx),
-			 0, LC_CC20_DRNG_STATE_SIZE);
+	lc_sym_zero(sym_ctx);
+	state->seeded = 0;
 	lc_sym_init(sym_ctx);
 }
 
