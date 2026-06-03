@@ -208,7 +208,7 @@ out:
 #else
 	(void)data;
 	(void)avail_datalen;
-	(void)ctx;
+	(void)key;
 	return -EOPNOTSUPP;
 #endif
 }
