@@ -731,6 +731,15 @@ static int lc_dilithium_verify_avx2_internal(const struct lc_dilithium_sig *sig,
 		polyz_unpack_avx(&ws->z.vec[i],
 				 sig->sig + LC_DILITHIUM_CTILDE_BYTES +
 					 i * LC_DILITHIUM_POLYZ_PACKEDBYTES);
+
+		/* Apply inifity norm check */
+		poly_reduce_avx(&ws->z.vec[i]);
+		if (poly_chknorm_avx(&ws->z.vec[i],
+				     LC_DILITHIUM_GAMMA1 - LC_DILITHIUM_BETA)) {
+			ret = -EINVAL;
+			goto out;
+		}
+
 		poly_ntt_avx(&ws->z.vec[i]);
 	}
 

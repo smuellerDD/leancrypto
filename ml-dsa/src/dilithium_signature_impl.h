@@ -797,6 +797,8 @@ static int lc_dilithium_verify_internal_ahat(const struct lc_dilithium_sig *sig,
 		polyz_unpack(&z->vec[i],
 			     signature + i * LC_DILITHIUM_POLYZ_PACKEDBYTES);
 
+		/* Apply infinity norm check */
+		poly_reduce(&z->vec[i]);
 		if (poly_chknorm(&z->vec[i],
 				 LC_DILITHIUM_GAMMA1 - LC_DILITHIUM_BETA)) {
 			ret = -EINVAL;
