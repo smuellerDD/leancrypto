@@ -221,8 +221,7 @@ static void gcm_mult(struct lc_aes_gcm_cryptor *ctx,
 		 * are used with the gcm_mult function, we can ignore the
 		 * cast.
 		 */
-		gcm_ctx->gcm_gmult_accel((uint64_t *)output,
-					     gcm_ctx->HL);
+		gcm_ctx->gcm_gmult_accel((uint64_t *)output, gcm_ctx->HL);
 #pragma GCC diagnostic pop
 		return;
 	}
