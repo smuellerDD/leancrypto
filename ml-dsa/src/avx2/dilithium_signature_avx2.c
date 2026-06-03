@@ -712,12 +712,13 @@ static int lc_dilithium_verify_avx2_internal(const struct lc_dilithium_sig *sig,
 		poly c, w1, h;
 		keccakx4_state keccak_state;
 	};
-	unsigned int i, j, pos = 0;
 	const uint8_t *hint = sig->sig + LC_DILITHIUM_CTILDE_BYTES +
 			      LC_DILITHIUM_L * LC_DILITHIUM_POLYZ_PACKEDBYTES;
 	polyvecl *row;
-	int ret = 0;
+	const uint8_t *signature = sig->sig + LC_DILITHIUM_CTILDE_BYTES;
 	struct lc_hash_ctx *hash_ctx = &ctx->dilithium_hash_ctx;
+	unsigned int i, j, pos = 0;
+	int ret = 0;
 	LC_DECLARE_MEM(ws, struct workspace_verify, 32);
 
 	row = ws->rowbuf;
@@ -729,8 +730,8 @@ static int lc_dilithium_verify_avx2_internal(const struct lc_dilithium_sig *sig,
 	/* Unpack z; shortness follows from unpacking */
 	for (i = 0; i < LC_DILITHIUM_L; i++) {
 		polyz_unpack_avx(&ws->z.vec[i],
-				 sig->sig + LC_DILITHIUM_CTILDE_BYTES +
-					 i * LC_DILITHIUM_POLYZ_PACKEDBYTES);
+				 signature +
+				 i * LC_DILITHIUM_POLYZ_PACKEDBYTES);
 
 		/* Apply inifity norm check */
 		poly_reduce_avx(&ws->z.vec[i]);
