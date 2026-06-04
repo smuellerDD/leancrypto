@@ -218,8 +218,9 @@ LC_INTERFACE_FUNCTION(void, lc_hmac_zero, struct lc_hmac_ctx *hmac_ctx)
 	if (!hmac_ctx)
 		return;
 
+	lc_hash_zero(&hmac_ctx->hash_ctx);
 	lc_memset_secure((uint8_t *)hmac_ctx + sizeof(struct lc_hmac_ctx), 0,
-			 LC_HMAC_STATE_SIZE);
+			 LC_HMAC_KEY_SIZE);
 }
 
 LC_INTERFACE_FUNCTION(size_t, lc_hmac_macsize, struct lc_hmac_ctx *hmac_ctx)

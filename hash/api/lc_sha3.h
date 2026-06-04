@@ -56,10 +56,8 @@ struct lc_sha3_224_state {
 	uint8_t squeeze_more : 1;
 };
 
-#define LC_SHA3_224_STATE_SIZE                                                 \
-	LC_HASH_STATE_SIZE_ALIGN(sizeof(struct lc_sha3_224_state))
-#define LC_SHA3_224_CTX_SIZE                                                   \
-	(sizeof(struct lc_hash_ctx) + LC_SHA3_224_STATE_SIZE)
+#define LC_SHA3_224_STATE_SIZE (LC_HASH_CTX_SIZE)
+#define LC_SHA3_224_CTX_SIZE (LC_HASH_CTX_SIZE)
 
 #define LC_SHA3_224_CTX(name)                                                  \
 	LC_HASH_SET_CTX(name, lc_sha3_224);                                    \
@@ -104,10 +102,8 @@ struct lc_sha3_256_state {
 	uint8_t squeeze_more : 1;
 };
 
-#define LC_SHA3_256_STATE_SIZE                                                 \
-	LC_HASH_STATE_SIZE_ALIGN(sizeof(struct lc_sha3_256_state))
-#define LC_SHA3_256_CTX_SIZE                                                   \
-	(sizeof(struct lc_hash_ctx) + LC_SHA3_256_STATE_SIZE)
+#define LC_SHA3_256_STATE_SIZE (LC_HASH_CTX_SIZE)
+#define LC_SHA3_256_CTX_SIZE (LC_HASH_CTX_SIZE)
 
 #define LC_SHA3_256_CTX(name)                                                  \
 	LC_HASH_SET_CTX(name, lc_sha3_256);                                    \
@@ -152,10 +148,8 @@ struct lc_sha3_384_state {
 	uint8_t squeeze_more : 1;
 };
 
-#define LC_SHA3_384_STATE_SIZE                                                 \
-	LC_HASH_STATE_SIZE_ALIGN(sizeof(struct lc_sha3_384_state))
-#define LC_SHA3_384_CTX_SIZE                                                   \
-	(sizeof(struct lc_hash_ctx) + LC_SHA3_384_STATE_SIZE)
+#define LC_SHA3_384_STATE_SIZE (LC_HASH_CTX_SIZE)
+#define LC_SHA3_384_CTX_SIZE (LC_HASH_CTX_SIZE)
 
 #define LC_SHA3_384_CTX(name)                                                  \
 	LC_HASH_SET_CTX(name, lc_sha3_384);                                    \
@@ -200,10 +194,8 @@ struct lc_sha3_512_state {
 	uint8_t squeeze_more : 1;
 };
 
-#define LC_SHA3_512_STATE_SIZE                                                 \
-	LC_HASH_STATE_SIZE_ALIGN(sizeof(struct lc_sha3_512_state))
-#define LC_SHA3_512_CTX_SIZE                                                   \
-	(sizeof(struct lc_hash_ctx) + LC_SHA3_512_STATE_SIZE)
+#define LC_SHA3_512_STATE_SIZE (LC_HASH_CTX_SIZE)
+#define LC_SHA3_512_CTX_SIZE (LC_HASH_CTX_SIZE)
 
 #define LC_SHA3_512_CTX(name)                                                  \
 	LC_HASH_SET_CTX(name, lc_sha3_512);                                    \
@@ -247,10 +239,8 @@ struct lc_shake_128_state {
 	uint8_t squeeze_more : 1;
 };
 
-#define LC_SHAKE_128_STATE_SIZE                                                \
-	LC_HASH_STATE_SIZE_ALIGN(sizeof(struct lc_shake_128_state))
-#define LC_SHAKE_128_CTX_SIZE                                                  \
-	(sizeof(struct lc_hash_ctx) + LC_SHAKE_128_STATE_SIZE)
+#define LC_SHAKE_128_STATE_SIZE (LC_HASH_CTX_SIZE)
+#define LC_SHAKE_128_CTX_SIZE (LC_HASH_CTX_SIZE)
 
 #define LC_SHAKE_128_CTX(name)                                                 \
 	LC_HASH_SET_CTX(name, lc_shake128);                                    \
