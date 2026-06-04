@@ -45,21 +45,19 @@ struct lc_hc_cryptor {
 	struct lc_rng_ctx drbg;
 	uint8_t drbg_state[LC_DRBG_HASH_STATE_SIZE];
 	struct lc_hmac_ctx auth_ctx;
+	struct lc_hmac_key hmac_key;
 	size_t keystream_ptr;
 	uint8_t keystream[LC_HC_KEYSTREAM_BLOCK];
 };
 
-#define LC_HC_CTX_SIZE                                                         \
-	(sizeof(struct lc_aead) + sizeof(struct lc_hc_cryptor) +               \
-	 LC_HMAC_STATE_SIZE)
+#define LC_HC_CTX_SIZE (sizeof(struct lc_aead) + sizeof(struct lc_hc_cryptor))
 
 /* Hash-based AEAD-algorithm */
 extern const struct lc_aead *lc_hash_aead;
 
 #define _LC_HC_SET_CTX(name, hashname)                                         \
 	LC_DRBG_HASH_RNG_CTX((&name->drbg));                                   \
-	_LC_HMAC_SET_CTX((&name->auth_ctx), hashname, name,                    \
-			 (sizeof(struct lc_hc_cryptor)))
+	_LC_HMAC_SET_CTX((&name->auth_ctx), hashname, (&name->hmac_key), 0)
 
 #define LC_HC_SET_CTX(name, hashname)                                          \
 	LC_AEAD_CTX(name, lc_hash_aead);                                       \

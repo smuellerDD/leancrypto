@@ -365,10 +365,16 @@ static void lc_hc_zero(void *state)
 	struct lc_rng_ctx *drbg = &hc->drbg;
 
 	lc_rng_zero(drbg);
+
+	lc_hmac_zero(&hc->auth_ctx);
+	/*
+	 * hc->hmac_key is zeroized by lc_hmac_zero as its buffer is
+	 * directly adjacent to hmac_ctx.
+	 */
+
+	/* Zeroize the key stream */
 	hc->keystream_ptr = 0;
 	memset(hc->keystream, 0, sizeof(hc->keystream));
-	lc_memset_secure((uint8_t *)hc + sizeof(struct lc_hc_cryptor), 0,
-			 LC_HMAC_STATE_SIZE);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_hc_alloc, const struct lc_hash *hash,

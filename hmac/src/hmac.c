@@ -215,12 +215,20 @@ LC_INTERFACE_FUNCTION(void, lc_hmac_zero_free, struct lc_hmac_ctx *hmac_ctx)
 
 LC_INTERFACE_FUNCTION(void, lc_hmac_zero, struct lc_hmac_ctx *hmac_ctx)
 {
+	uint8_t *implied_key;
 	if (!hmac_ctx)
 		return;
 
 	lc_hash_zero(&hmac_ctx->hash_ctx);
-	lc_memset_secure((uint8_t *)hmac_ctx + sizeof(struct lc_hmac_ctx), 0,
-			 LC_HMAC_KEY_SIZE);
+
+	/*
+	 * Only clear the key buffer if it was allocated with lc_hmac_alloc or
+	 * LC_HMAC_SET_CTX (i.e. its buffer is right behind the lc_hmac_ctx).
+	 * All others must zeroize the key state themselves.
+	 */
+	implied_key = (uint8_t *)hmac_ctx + sizeof(struct lc_hmac_ctx);
+	if ((uint8_t *)hmac_ctx->key == implied_key)
+		lc_memset_secure(implied_key, 0, LC_HMAC_KEY_SIZE);
 }
 
 LC_INTERFACE_FUNCTION(size_t, lc_hmac_macsize, struct lc_hmac_ctx *hmac_ctx)

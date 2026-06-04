@@ -727,8 +727,11 @@ static void lc_cc_zero(void *state)
 	if (!cc)
 		return;
 
-	lc_memset_secure((uint8_t *)cc + sizeof(struct lc_cc_cryptor), 0,
-			 LC_CC_STATE_SIZE);
+	lc_hash_zero(&cc->cshake);
+	lc_cshake_ctx_zero(&cc->auth_ctx);
+	cc->keystream_ptr = 0;
+	lc_memset_secure(cc->keystream, 0, LC_CSHAKE_CRYPT_ALIGNMENT +
+					   LC_CC_KEYSTREAM_BLOCK);
 }
 
 static const struct lc_aead _lc_cshake_aead = {

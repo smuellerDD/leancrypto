@@ -36,21 +36,23 @@ extern "C" {
 /// \cond DO_NOT_DOCUMENT
 struct lc_drbg_hmac_state {
 	struct lc_hmac_ctx hmac_ctx; /* Cipher handle - HMAC_MAX_STATE_SIZE */
+	struct lc_hmac_key hmac_key;
 	uint8_t *V; /* internal state 10.1.1.1 1a) - DRBG_STATELEN */
 	uint8_t *C; /* static value 10.1.1.1 1b) - DRBG_STATELEN */
 	unsigned int seeded : 1;
 };
 
-#define LC_DRBG_HMAC_STATE_SIZE (2 * LC_DRBG_HMAC_STATELEN + LC_HMAC_STATE_SIZE)
+#define LC_DRBG_HMAC_STATE_SIZE (2 * LC_DRBG_HMAC_STATELEN)
 #define LC_DRBG_HMAC_CTX_SIZE                                                  \
 	(LC_DRBG_HMAC_STATE_SIZE + sizeof(struct lc_drbg_hmac_state) +         \
 	 sizeof(struct lc_rng))
 
 #define _LC_DRBG_HMAC_SET_CTX(name, ctx, offset)                               \
-	_LC_HMAC_SET_CTX((&(name)->hmac_ctx), LC_DRBG_HMAC_CORE, ctx, offset); \
-	(name)->V = (uint8_t *)((uint8_t *)ctx + offset + LC_HMAC_STATE_SIZE); \
-	(name)->C = (uint8_t *)((uint8_t *)ctx + offset + LC_HMAC_STATE_SIZE + \
-				LC_DRBG_HMAC_STATELEN);                        \
+	_LC_HMAC_SET_CTX((&(name)->hmac_ctx), LC_DRBG_HMAC_CORE,               \
+			 (&(name)->hmac_key), 0);                              \
+	(name)->V = (uint8_t *)((uint8_t *)ctx + offset);                      \
+	(name)->C =                                                            \
+		(uint8_t *)((uint8_t *)ctx + offset + LC_DRBG_HMAC_STATELEN);  \
 	(name)->seeded = 0
 
 #define LC_DRBG_HMAC_SET_CTX(name)                                             \

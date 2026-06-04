@@ -359,8 +359,12 @@ LC_INTERFACE_FUNCTION(int, lc_kh_alloc, const struct lc_sym *sym,
 
 static void lc_kh_zero(void *state)
 {
-	lc_memset_secure((uint8_t *)state + sizeof(struct lc_kh_cryptor), 0,
-			 LC_KH_STATE_SIZE);
+	struct lc_kh_cryptor *kh = state;
+
+	if (!kh)
+		return;
+	lc_kmac_zero(&kh->auth_ctx);
+	lc_sym_zero(&kh->sym);
 }
 
 static const struct lc_aead _lc_symkmac_aead = {

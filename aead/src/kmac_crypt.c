@@ -640,8 +640,11 @@ static inline void lc_kc_zero(void *state)
 	if (!kc)
 		return;
 
-	lc_memset_secure((uint8_t *)kc + sizeof(struct lc_kc_cryptor), 0,
-			 LC_KC_STATE_SIZE);
+	lc_kmac_zero(&kc->auth_ctx);
+	lc_kmac_zero(&kc->kmac);
+	kc->keystream_ptr = 0;
+	lc_memset_secure(kc->keystream, 0, LC_KMAC_CRYPT_ALIGNMENT +
+					   LC_KC_KEYSTREAM_BLOCK);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_kc_alloc, const struct lc_hash *hash,

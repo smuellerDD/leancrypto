@@ -356,9 +356,13 @@ static void lc_drbg_hmac_zero(void *_state)
 		return;
 
 	drbg_hmac->seeded = 0;
-	lc_memset_secure((uint8_t *)drbg_hmac +
-				 sizeof(struct lc_drbg_hmac_state),
-			 0, LC_DRBG_HMAC_STATE_SIZE);
+	lc_hmac_zero(&drbg_hmac->hmac_ctx);
+	/*
+	 * drbg_hmac->hmac_key is zeroized by lc_hmac_zero as its buffer is
+	 * directly adjacent to hmac_ctx.
+	 */
+	lc_memset_secure(drbg_hmac->V, 0, LC_DRBG_HMAC_STATELEN);
+	lc_memset_secure(drbg_hmac->C, 0, LC_DRBG_HMAC_STATELEN);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_drbg_hmac_alloc, struct lc_rng_ctx **drbg)
