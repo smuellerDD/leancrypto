@@ -136,7 +136,13 @@ static void lc_sh_selftest(void)
 
 	LC_SELFTEST_RUN(lc_symhmac_aead->algorithm_type);
 
+#ifdef LINUX_KERNEL
+	struct lc_aead_ctx *sh;
+	if (lc_sh_alloc(lc_aes_cbc, lc_sha512, &sh))
+		return;
+#else
 	LC_SH_CTX_ON_STACK(sh, lc_aes_cbc, lc_sha512);
+#endif
 
 	if (lc_sh_setkey_nocheck(sh->aead_state, key, sizeof(key), in, 16))
 		goto out;
@@ -157,7 +163,12 @@ static void lc_sh_selftest(void)
 out:
 	lc_compare_selftest(lc_symhmac_aead->algorithm_type, act_ct, in,
 			    sizeof(in), "Sym/HMAC AEAD decrypt");
+
+#ifdef LINUX_KERNEL
+	lc_aead_zero_free(sh);
+#else
 	lc_aead_zero(sh);
+#endif
 }
 
 /**
