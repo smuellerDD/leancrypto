@@ -232,8 +232,9 @@ enum lc_alg_status_val lc_kmac_ctx_alg_status(const struct lc_hash_ctx *ctx);
 #define LC_KMAC_CTX_ON_STACK(name, hashname)                                   \
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_KMAC_CTX_SIZE,            \
-				  LC_HASH_COMMON_ALIGNMENT);                   \
+		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")             \
+			LC_ALIGNED_BUFFER(name##_ctx_buf, LC_KMAC_CTX_SIZE,    \
+					  LC_HASH_COMMON_ALIGNMENT);           \
 	struct lc_kmac_ctx *name = (struct lc_kmac_ctx *)name##_ctx_buf;       \
 	LC_KMAC_SET_CTX(name, hashname);                                       \
 	lc_kmac_zero(name);                                                    \
@@ -254,8 +255,10 @@ enum lc_alg_status_val lc_kmac_ctx_alg_status(const struct lc_hash_ctx *ctx);
 #define LC_KMAC_CTX_ON_STACK_REINIT(name, hashname)                            \
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_KMAC_CTX_SIZE_REINIT,     \
-				  LC_HASH_COMMON_ALIGNMENT);                   \
+		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")             \
+			LC_ALIGNED_BUFFER(name##_ctx_buf,                      \
+					  LC_KMAC_CTX_SIZE_REINIT,             \
+					  LC_HASH_COMMON_ALIGNMENT);           \
 	struct lc_kmac_ctx *name = (struct lc_kmac_ctx *)name##_ctx_buf;       \
 	LC_KMAC_SET_CTX_REINIT(name, hashname);                                \
 	lc_kmac_zero(name);                                                    \

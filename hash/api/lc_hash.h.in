@@ -255,6 +255,7 @@ void lc_hash_zero(struct lc_hash_ctx *hash_ctx);
 #define LC_HASH_CTX_ON_STACK(name, hashname)                                        \
 	_Pragma("GCC diagnostic push")                                              \
 		_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
+			_Pragma("GCC diagnostic ignored \"-Wcast-align\"")          \
 			LC_ALIGNED_BUFFER(name##_ctx_buf,                           \
 					  LC_HASH_CTX_SIZE,                         \
 					  LC_HASH_COMMON_ALIGNMENT);                \

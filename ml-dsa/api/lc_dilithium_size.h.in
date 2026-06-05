@@ -322,6 +322,7 @@ struct lc_dilithium_ctx {
 #define LC_DILITHIUM_CTX_ON_STACK(name)                                        \
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+			_Pragma("GCC diagnostic ignored \"-Wcast-align\"")     \
 		LC_ALIGNED_BUFFER(                                             \
 			name##_ctx_buf, LC_DILITHIUM_CTX_SIZE,                 \
 			LC_HASH_COMMON_ALIGNMENT);                             \
@@ -371,20 +372,21 @@ struct lc_dilithium_ctx {
  *
  * @param [in] name Name of the stack variable
  */
-#define @dilithium_macro@_CTX_ON_STACK_AHAT(name)                                \
+#define @dilithium_macro@_CTX_ON_STACK_AHAT(name)                              \
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+			_Pragma("GCC diagnostic ignored \"-Wcast-align\"")     \
 		LC_ALIGNED_BUFFER(                                             \
 			name##_ctx_buf, LC_DILITHIUM_CTX_SIZE +                \
-			@dilithium_macro@_AHAT_PAD + @dilithium_macro@_AHAT_SIZE,  \
+			@dilithium_macro@_AHAT_PAD + @dilithium_macro@_AHAT_SIZE,\
 			LC_HASH_COMMON_ALIGNMENT);                             \
 	struct lc_dilithium_ctx *name =                                        \
 		(struct lc_dilithium_ctx *)name##_ctx_buf;                     \
 	LC_DILITHIUM_SET_CTX(name);                                            \
 	name->ahat = (uint8_t *)name + LC_DILITHIUM_CTX_SIZE +                 \
-		      @dilithium_macro@_AHAT_PAD;                                \
+		      @dilithium_macro@_AHAT_PAD;                              \
 	name->ahat_expanded = 0;                                               \
-	name->ahat_size = @dilithium_macro@_AHAT_SIZE;                           \
+	name->ahat_size = @dilithium_macro@_AHAT_SIZE;                         \
 	_Pragma("GCC diagnostic pop")
 
 /**
@@ -756,6 +758,7 @@ struct lc_dilithium_ed25519_ctx {
 #define LC_DILITHIUM_ED25519_CTX_ON_STACK(name)                                \
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+			_Pragma("GCC diagnostic ignored \"-Wcast-align\"")     \
 		LC_ALIGNED_BUFFER(                                             \
 			name##_ctx_buf, LC_DILITHIUM_ED25519_CTX_SIZE,         \
 			LC_HASH_COMMON_ALIGNMENT);                             \
@@ -1082,6 +1085,7 @@ struct lc_dilithium_ed448_ctx {
 #define LC_DILITHIUM_ED448_CTX_ON_STACK(name)                                  \
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
+			_Pragma("GCC diagnostic ignored \"-Wcast-align\"")     \
 		LC_ALIGNED_BUFFER(                                             \
 			name##_ctx_buf, LC_DILITHIUM_ED448_CTX_SIZE,           \
 			LC_HASH_COMMON_ALIGNMENT);                             \
