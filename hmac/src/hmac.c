@@ -49,12 +49,11 @@ LC_INTERFACE_FUNCTION(void, lc_hmac_reinit, struct lc_hmac_ctx *hmac_ctx)
 		return;
 
 	hash_ctx = &hmac_ctx->hash_ctx;
-	key = hmac_ctx->key;
-
-	if (!key)
+	if (lc_hash_init(hash_ctx))
 		return;
 
-	if (lc_hash_init(hash_ctx))
+	key = hmac_ctx->key;
+	if (!key)
 		return;
 	lc_hash_update(hash_ctx, key->k_ipad, lc_hash_blocksize(hash_ctx));
 }
