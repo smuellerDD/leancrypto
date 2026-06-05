@@ -54,8 +54,9 @@ int lc_al_alloc(struct lc_aead_ctx **ctx);
 #define LC_AL_CTX_ON_STACK(name)                                               \
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_AL_CTX_SIZE,              \
-				  LC_ASCON_ALIGNMENT);                         \
+		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")             \
+			LC_ALIGNED_BUFFER(name##_ctx_buf, LC_AL_CTX_SIZE,      \
+					  LC_ASCON_ALIGNMENT);                 \
 	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;       \
 	LC_ASCON_SET_CTX(name, lc_ascon_128a, lc_ascon_aead);                  \
 	struct lc_ascon_cryptor *__name_ascon_crypto = name->aead_state;       \

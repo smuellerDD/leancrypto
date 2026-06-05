@@ -276,8 +276,9 @@ enum lc_alg_status_val lc_sym_ctx_alg_status(const struct lc_sym_ctx *ctx);
 #define LC_SYM_CTX_ON_STACK(name, symname)                                     \
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_SYM_CTX_SIZE,             \
-				  LC_SYM_COMMON_ALIGNMENT);                    \
+		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")             \
+			LC_ALIGNED_BUFFER(name##_ctx_buf, LC_SYM_CTX_SIZE,     \
+					  LC_SYM_COMMON_ALIGNMENT);            \
 	struct lc_sym_ctx *name = (struct lc_sym_ctx *)name##_ctx_buf;         \
 	LC_SYM_SET_CTX(name, symname);                                         \
 	lc_sym_zero(name);                                                     \

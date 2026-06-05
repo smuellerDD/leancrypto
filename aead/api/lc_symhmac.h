@@ -320,8 +320,9 @@ int lc_sh_alloc(const struct lc_sym *sym, const struct lc_hash *hash,
 #define LC_SH_CTX_ON_STACK(name, sym, hash)                                    \
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_SH_CTX_SIZE,              \
-				  LC_HASH_COMMON_ALIGNMENT);                   \
+		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")             \
+			LC_ALIGNED_BUFFER(name##_ctx_buf, LC_SH_CTX_SIZE,      \
+					  LC_HASH_COMMON_ALIGNMENT);           \
 	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;       \
 	LC_SH_SET_CTX(name, sym, hash);                                        \
 	lc_aead_zero(name);                                                    \

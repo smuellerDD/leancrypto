@@ -133,10 +133,12 @@ int lc_aes_kw_decrypt(struct lc_sym_ctx *ctx, const uint8_t *in, uint8_t *out,
 #define LC_AES_XTS_CTX_ON_STACK(name)                                          \
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-		LC_ALIGNED_BUFFER(name##_ctx_buf,                              \
-				  LC_SYM_CTX_SIZE_LEN(                         \
-					  LC_AES_RISCV64_XTS_MAX_BLOCK_SIZE),  \
-				  LC_SYM_COMMON_ALIGNMENT);                    \
+		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")             \
+			LC_ALIGNED_BUFFER(                                     \
+				name##_ctx_buf,                                \
+				LC_SYM_CTX_SIZE_LEN(                           \
+					LC_AES_RISCV64_XTS_MAX_BLOCK_SIZE),    \
+				LC_SYM_COMMON_ALIGNMENT);                      \
 	struct lc_sym_ctx *name = (struct lc_sym_ctx *)name##_ctx_buf;         \
 	LC_SYM_SET_CTX(name, lc_aes_xts);                                      \
 	lc_sym_zero(name);                                                     \
@@ -151,10 +153,12 @@ int lc_aes_kw_decrypt(struct lc_sym_ctx *ctx, const uint8_t *in, uint8_t *out,
 #define LC_AES_CBC_CTX_ON_STACK(name)                                          \
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-		LC_ALIGNED_BUFFER(name##_ctx_buf,                              \
-				  LC_SYM_CTX_SIZE_LEN(                         \
-					  LC_AES_RISCV64_CBC_MAX_BLOCK_SIZE),  \
-				  LC_SYM_COMMON_ALIGNMENT);                    \
+		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")             \
+			LC_ALIGNED_BUFFER(                                     \
+				name##_ctx_buf,                                \
+				LC_SYM_CTX_SIZE_LEN(                           \
+					LC_AES_RISCV64_CBC_MAX_BLOCK_SIZE),    \
+				LC_SYM_COMMON_ALIGNMENT);                      \
 	struct lc_sym_ctx *name = (struct lc_sym_ctx *)name##_ctx_buf;         \
 	LC_SYM_SET_CTX(name, lc_aes_cbc);                                      \
 	lc_sym_zero(name);                                                     \
@@ -169,10 +173,12 @@ int lc_aes_kw_decrypt(struct lc_sym_ctx *ctx, const uint8_t *in, uint8_t *out,
 #define LC_AES_CTR_CTX_ON_STACK(name)                                          \
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-		LC_ALIGNED_BUFFER(name##_ctx_buf,                              \
-				  LC_SYM_CTX_SIZE_LEN(                         \
-					  LC_AES_RISCV64_CTR_MAX_BLOCK_SIZE),  \
-				  LC_SYM_COMMON_ALIGNMENT);                    \
+		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")             \
+			LC_ALIGNED_BUFFER(                                     \
+				name##_ctx_buf,                                \
+				LC_SYM_CTX_SIZE_LEN(                           \
+					LC_AES_RISCV64_CTR_MAX_BLOCK_SIZE),    \
+				LC_SYM_COMMON_ALIGNMENT);                      \
 	struct lc_sym_ctx *name = (struct lc_sym_ctx *)name##_ctx_buf;         \
 	LC_SYM_SET_CTX(name, lc_aes_ctr);                                      \
 	lc_sym_zero(name);                                                     \
@@ -187,10 +193,12 @@ int lc_aes_kw_decrypt(struct lc_sym_ctx *ctx, const uint8_t *in, uint8_t *out,
 #define LC_AES_CTX_ON_STACK(name)                                              \
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-		LC_ALIGNED_BUFFER(                                             \
-			name##_ctx_buf,                                        \
-			LC_SYM_CTX_SIZE_LEN(LC_AES_AESNI_MAX_BLOCK_SIZE),      \
-			LC_SYM_COMMON_ALIGNMENT);                              \
+		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")             \
+			LC_ALIGNED_BUFFER(                                     \
+				name##_ctx_buf,                                \
+				LC_SYM_CTX_SIZE_LEN(                           \
+					LC_AES_AESNI_MAX_BLOCK_SIZE),          \
+				LC_SYM_COMMON_ALIGNMENT);                      \
 	struct lc_sym_ctx *name = (struct lc_sym_ctx *)name##_ctx_buf;         \
 	LC_SYM_SET_CTX(name, lc_aes);                                          \
 	lc_sym_zero(name);                                                     \

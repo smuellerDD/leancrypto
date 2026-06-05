@@ -129,8 +129,9 @@ int lc_aes_gcm_generate_iv(struct lc_aead_ctx *ctx, const uint8_t *fixed_field,
 #define LC_AES_GCM_CTX_ON_STACK(name)                                          \
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_AES_GCM_CTX_SIZE,         \
-				  LC_MEM_COMMON_ALIGNMENT);                    \
+		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")             \
+			LC_ALIGNED_BUFFER(name##_ctx_buf, LC_AES_GCM_CTX_SIZE, \
+					  LC_MEM_COMMON_ALIGNMENT);            \
 	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;       \
 	LC_AES_GCM_SET_CTX(name);                                              \
 	lc_aead_zero(name);                                                    \

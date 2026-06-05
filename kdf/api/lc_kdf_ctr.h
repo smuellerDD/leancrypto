@@ -142,8 +142,10 @@ extern const struct lc_rng *lc_kdf_ctr_rng;
 #define LC_CTR_KDF_DRNG_CTX_ON_STACK(name, hashname)                           \
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_CTR_KDF_DRNG_CTX_SIZE,    \
-				  LC_HASH_COMMON_ALIGNMENT);                   \
+		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")             \
+			LC_ALIGNED_BUFFER(name##_ctx_buf,                      \
+					  LC_CTR_KDF_DRNG_CTX_SIZE,            \
+					  LC_HASH_COMMON_ALIGNMENT);           \
 	struct lc_rng_ctx *name = (struct lc_rng_ctx *)name##_ctx_buf;         \
 	LC_CTR_KDF_RNG_CTX(name, hashname);                                    \
 	_Pragma("GCC diagnostic pop")

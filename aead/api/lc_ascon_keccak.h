@@ -82,8 +82,9 @@ int lc_ak_alloc_taglen(const struct lc_hash *hash, uint8_t taglen,
 #define LC_AK_CTX_ON_STACK(name, hash)                                         \
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_AK_CTX_SIZE,              \
-				  LC_ASCON_ALIGNMENT);                         \
+		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")             \
+			LC_ALIGNED_BUFFER(name##_ctx_buf, LC_AK_CTX_SIZE,      \
+					  LC_ASCON_ALIGNMENT);                 \
 	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;       \
 	LC_ASCON_SET_CTX(name, hash, lc_ascon_keccak_aead);                    \
 	struct lc_ascon_cryptor *__name_ascon_crypto = name->aead_state;       \
@@ -105,8 +106,9 @@ int lc_ak_alloc_taglen(const struct lc_hash *hash, uint8_t taglen,
 #define LC_AK_CTX_ON_STACK_TAGLEN(name, hash, tagsize)                         \
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_AK_CTX_SIZE,              \
-				  LC_ASCON_ALIGNMENT);                         \
+		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")             \
+			LC_ALIGNED_BUFFER(name##_ctx_buf, LC_AK_CTX_SIZE,      \
+					  LC_ASCON_ALIGNMENT);                 \
 	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;       \
 	LC_ASCON_SET_CTX(name, hash, lc_ascon_keccak_aead);                    \
 	struct lc_ascon_cryptor *__name_ascon_crypto = name->aead_state;       \

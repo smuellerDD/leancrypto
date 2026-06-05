@@ -105,8 +105,9 @@ int lc_cc_alloc(const struct lc_hash *hash, struct lc_aead_ctx **ctx);
 #define LC_CC_CTX_ON_STACK(name, hash)                                         \
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
-		LC_ALIGNED_BUFFER(name##_ctx_buf, LC_CC_CTX_SIZE,              \
-				  LC_CSHAKE_CRYPT_ALIGNMENT);                  \
+		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")             \
+			LC_ALIGNED_BUFFER(name##_ctx_buf, LC_CC_CTX_SIZE,      \
+					  LC_CSHAKE_CRYPT_ALIGNMENT);          \
 	struct lc_aead_ctx *name = (struct lc_aead_ctx *)name##_ctx_buf;       \
 	LC_CC_SET_CTX(name, hash);                                             \
 	_Pragma("GCC diagnostic pop")
