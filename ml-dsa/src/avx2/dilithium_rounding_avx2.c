@@ -190,7 +190,6 @@ void use_hint_avx(__m256i *b, const __m256i *a, const __m256i *restrict hint)
 	LC_FPU_ENABLE;
 	const __m256i zero = _mm256_setzero_si256();
 	const __m256i mask = _mm256_set1_epi32(15);
-	const __m256i one = _mm256_set1_epi32(1);
 	LC_FPU_DISABLE;
 #pragma GCC diagnostic pop
 
@@ -198,16 +197,10 @@ void use_hint_avx(__m256i *b, const __m256i *a, const __m256i *restrict hint)
 
 	LC_FPU_ENABLE;
 	for (i = 0; i < LC_DILITHIUM_N / 8; i++) {
-		/*
-		 * When the low bits are 0 and the hint bit is 1, the output
-		 * is only correct if a == q-1. To guarantee that, subtract 1
-		 * from a.
-		 */
 		f = _mm256_load_si256(&a0[i]);
-		f = _mm256_sub_epi32(f, one);
-
 		g = _mm256_load_si256(&b[i]);
 		h = _mm256_load_si256(&hint[i]);
+		f = _mm256_sub_epi32(f, h);
 		t = _mm256_blendv_epi32(zero, h, f);
 		t = _mm256_slli_epi32(t, 1);
 		h = _mm256_sub_epi32(h, t);
