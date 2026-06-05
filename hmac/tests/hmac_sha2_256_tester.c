@@ -65,12 +65,12 @@ static int hmac_sha2_256_tester(void)
 	CKINT(lc_hmac_init_with_hmac_key(hmac_ctx, &key));
 	lc_hmac_update(hmac_ctx, msg_256, sizeof(msg_256));
 	lc_hmac_final(hmac_ctx, act);
-	lc_hmac_zero_free(hmac_ctx);
 
 	ret = lc_compare(act, exp_256, LC_SHA256_SIZE_DIGEST,
 			 "HMAC SHA2-256 II");
 
 out:
+	lc_hmac_zero_free(hmac_ctx);
 	return !!ret;
 }
 
