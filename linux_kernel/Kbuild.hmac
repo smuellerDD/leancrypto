@@ -16,6 +16,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_HMAC)					       \
 ifdef CONFIG_LEANCRYPTO_HMAC
 obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= hmac_sha2_256_tester.o
 hmac_sha2_256_tester-y			+= ../hmac/tests/hmac_sha2_256_tester.o
+endif
 
 else ifdef CONFIG_LEANCRYPTO_SHA2_512
 
