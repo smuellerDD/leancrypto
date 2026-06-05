@@ -135,7 +135,7 @@ if get_option('dilithium_87').enabled()
 	test('Dilithium keygen Performance', dilithium_keygen_tester,
 	     timeout: 1000, is_parallel: false, suite: performance)
 	test('Dilithium PK from SK', dilithium_pk_from_sk_tester,
-	     timeout: 1000)
+	     timeout: 1000, suite: regression)
 	test('Dilithium C keep AHat API 10000', dilithium_tester_ahat,
 	     timeout: 1000, is_parallel: false, suite: performance)
 	test('Dilithium C discard AHat API 10000', dilithium_tester_ahat,
@@ -697,7 +697,7 @@ if get_option('dilithium_65').enabled()
 	test('Dilithium 65 keygen Performance', dilithium_65_keygen_tester,
 	     timeout: 1000, is_parallel: false, suite: performance)
 	test('Dilithium 65 PK from SK', dilithium_65_pk_from_sk_tester,
-	     timeout: 1000)
+	     timeout: 1000, suite: regression)
 
 	test('Dilithium 65 C keep AHat API 10000', dilithium_65_tester_ahat,
 	     timeout: 1000, is_parallel: false, suite: performance)
@@ -1268,7 +1268,7 @@ if get_option('dilithium_44').enabled()
 	test('Dilithium 44 keygen Performance', dilithium_44_keygen_tester,
 	     timeout: 1000, is_parallel: false, suite: performance)
 	test('Dilithium 44 PK from SK', dilithium_44_pk_from_sk_tester,
-	     timeout: 1000)
+	     timeout: 1000, suite: regression)
 
 	test('Dilithium 44 C keep AHat API 10000', dilithium_44_tester_ahat,
 	     timeout: 1000, is_parallel: false, suite: performance)
