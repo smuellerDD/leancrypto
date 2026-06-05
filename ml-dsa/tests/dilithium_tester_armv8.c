@@ -24,7 +24,9 @@
 #include "ret_checkers.h"
 #include "visibility.h"
 
-#include "armv8/dilithium_signature_armv8.h"
+#include "armv8/dilithium_signature_keygen_armv8.h"
+#include "armv8/dilithium_signature_siggen_armv8.h"
+#include "armv8/dilithium_signature_sigver_armv8.h"
 
 static int _dilithium_tester_armv8(unsigned int rounds, unsigned int internal,
 				   unsigned int prehashed,

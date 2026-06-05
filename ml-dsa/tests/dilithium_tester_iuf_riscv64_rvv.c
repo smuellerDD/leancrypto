@@ -24,7 +24,9 @@
 #include "ret_checkers.h"
 #include "visibility.h"
 
-#include "riscv64/dilithium_signature_riscv64_rvv.h"
+#include "riscv64/dilithium_signature_keygen_riscv64_rvv.h"
+#include "riscv64/dilithium_signature_siggen_riscv64_rvv.h"
+#include "riscv64/dilithium_signature_sigver_riscv64_rvv.h"
 
 static int _dilithium_tester_iuf_riscv64_rvv(unsigned int rounds,
 					     unsigned int internal,

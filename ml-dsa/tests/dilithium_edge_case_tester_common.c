@@ -20,7 +20,7 @@
 #include "dilithium_edge_case_tester.h"
 #include "visibility.h"
 
-#include "dilithium_signature_c.h"
+#include "dilithium_signature_siggen_c.h"
 
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {

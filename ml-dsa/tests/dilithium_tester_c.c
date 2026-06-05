@@ -23,7 +23,9 @@
 #include "ret_checkers.h"
 #include "visibility.h"
 
-#include "dilithium_signature_c.h"
+#include "dilithium_signature_keygen_c.h"
+#include "dilithium_signature_siggen_c.h"
+#include "dilithium_signature_sigver_c.h"
 
 static int _dilithium_tester_c(unsigned int rounds, unsigned int internal,
 			       unsigned int prehashed, unsigned int external_mu)

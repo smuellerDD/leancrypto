@@ -1,0 +1,1 @@
+../../../ml-dsa/src/riscv64/dilithium_signature_siggen_api_riscv64.c

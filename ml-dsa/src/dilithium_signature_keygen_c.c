@@ -1,0 +1,63 @@
+/*
+ * Copyright (C) 2022 - 2026, Stephan Mueller <smueller@chronox.de>
+ *
+ * License: see LICENSE file in root directory
+ *
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, ALL OF
+ * WHICH ARE HEREBY DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+ * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ */
+/*
+ * This code is derived in parts from the code distribution provided with
+ * https://github.com/pq-crystals/dilithium
+ *
+ * That code is released under Public Domain
+ * (https://creativecommons.org/share-your-work/public-domain/cc0/);
+ * or Apache 2.0 License (https://www.apache.org/licenses/LICENSE-2.0.html).
+ */
+
+#include "dilithium_signature_keygen_c.h"
+#include "visibility.h"
+
+/* We need once the buffer size to handle the hashing */
+#define LC_POLY_UNIFOR_BUF_SIZE_MULTIPLIER 1
+
+/* The C implementation of invntt produces small enough integers */
+#define LC_DILITHIUM_INVNTT_SMALL
+
+#include "dilithium_poly.h"
+#include "dilithium_poly_common.h"
+#include "dilithium_poly_c.h"
+#include "dilithium_polyvec.h"
+#include "dilithium_polyvec_c.h"
+#include "dilithium_pack.h"
+#include "dilithium_signature_keygen_impl.h"
+
+LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_from_seed_c,
+		      struct lc_dilithium_pk *pk, struct lc_dilithium_sk *sk,
+		      const uint8_t *seed, size_t seedlen)
+{
+	return lc_dilithium_keypair_from_seed_impl(pk, sk, seed, seedlen);
+}
+
+LC_INTERFACE_FUNCTION(int, lc_dilithium_pk_from_sk_c,
+		      struct lc_dilithium_pk *pk,
+		      const struct lc_dilithium_sk *sk)
+{
+	return lc_dilithium_pk_from_sk_impl(pk, sk);
+}
+
+LC_INTERFACE_FUNCTION(int, lc_dilithium_keypair_c, struct lc_dilithium_pk *pk,
+		      struct lc_dilithium_sk *sk, struct lc_rng_ctx *rng_ctx)
+{
+	return lc_dilithium_keypair_impl(pk, sk, rng_ctx);
+}

@@ -23,7 +23,9 @@
 #include "visibility.h"
 
 #include "dilithium_type.h"
-#include "dilithium_signature_c.h"
+#include "dilithium_signature_keygen_c.h"
+#include "dilithium_signature_siggen_c.h"
+#include "dilithium_signature_sigver_c.h"
 
 static int dilithium_tester_ahat(struct lc_dilithium_ctx *ctx, int reset)
 {

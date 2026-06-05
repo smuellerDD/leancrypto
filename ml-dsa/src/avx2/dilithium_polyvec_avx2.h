@@ -406,30 +406,9 @@ void polyvec_matrix_expand(polyvecl mat[LC_DILITHIUM_K],
 			   const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
 			   void *ws_buf, void *ws_keccak, polyvecl *tmp);
 
-void polyvec_matrix_expand_row0(polyvecl *rowa, polyvecl *rowb,
-				const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
-				void *ws_buf, void *ws_keccak);
-void polyvec_matrix_expand_row1(polyvecl *rowa, polyvecl *rowb,
-				const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
-				void *ws_buf, void *ws_keccak);
-void polyvec_matrix_expand_row2(polyvecl *rowa, polyvecl *rowb,
-				const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
-				void *ws_buf, void *ws_keccak);
-void polyvec_matrix_expand_row3(polyvecl *rowa, polyvecl *rowb,
-				const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
-				void *ws_buf, void *ws_keccak);
-void polyvec_matrix_expand_row4(polyvecl *rowa, polyvecl *rowb,
-				const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
-				void *ws_buf, void *ws_keccak);
-void polyvec_matrix_expand_row5(polyvecl *rowa, polyvecl *rowb,
-				const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
-				void *ws_buf, void *ws_keccak);
-void polyvec_matrix_expand_row6(polyvecl *rowa, polyvecl *rowb,
-				const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
-				void *ws_buf, void *ws_keccak);
-void polyvec_matrix_expand_row7(polyvecl *rowa, polyvecl *rowb,
-				const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
-				void *ws_buf, void *ws_keccak);
+void polyvec_matrix_expand_row(polyvecl **row, polyvecl buf[2],
+			       const uint8_t rho[LC_DILITHIUM_SEEDBYTES],
+			       unsigned int i, void *ws_buf, void *ws_keccak);
 
 #ifdef __cplusplus
 }

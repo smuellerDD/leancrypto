@@ -24,7 +24,9 @@
 #include "ret_checkers.h"
 #include "visibility.h"
 
-#include "avx2/dilithium_signature_avx2.h"
+#include "avx2/dilithium_signature_keygen_avx2.h"
+#include "avx2/dilithium_signature_siggen_avx2.h"
+#include "avx2/dilithium_signature_sigver_avx2.h"
 
 static int _dilithium_tester_iuf_avx2(unsigned int rounds,
 				      unsigned int internal,

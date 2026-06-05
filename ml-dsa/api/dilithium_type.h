@@ -205,6 +205,7 @@ extern "C" {
 #define polyz_pack_avx DILITHIUM_F(polyz_pack_avx)
 #define polyw1_pack_avx DILITHIUM_F(polyw1_pack_avx)
 #define polyvec_matrix_expand DILITHIUM_F(polyvec_matrix_expand)
+#define polyvec_matrix_expand_row DILITHIUM_F(polyvec_matrix_expand_row)
 #define polyvec_matrix_expand_row0 DILITHIUM_F(polyvec_matrix_expand_row0)
 #define polyvec_matrix_expand_row1 DILITHIUM_F(polyvec_matrix_expand_row1)
 #define polyvec_matrix_expand_row2 DILITHIUM_F(polyvec_matrix_expand_row2)

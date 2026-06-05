@@ -3,7 +3,10 @@
 # Files compiled only once
 if (dilithium_enabled)
 	src += files([
-		'dilithium_api.c',
+		'dilithium_common_api.c',
+		'dilithium_keygen_api.c',
+		'dilithium_siggen_api.c',
+		'dilithium_sigver_api.c',
 		'dilithium_ntt.c',
 		'dilithium_poly.c',
 		'dilithium_rounding.c',
@@ -16,7 +19,9 @@ dilithium_c = files([
 	'dilithium_poly_type.c',
 	'dilithium_rounding_type.c',
 	'dilithium_selftest.c',
-	'dilithium_signature_c.c',
+	'dilithium_signature_keygen_c.c',
+	'dilithium_signature_siggen_c.c',
+	'dilithium_signature_sigver_c.c',
 	'dilithium_signature_helper.c',
 ])
 
@@ -46,23 +51,33 @@ if get_option('dilithium_87').enabled()
 
 	if (x86_64_asm)
 		dilithium_87_files += files([
-			'avx2/dilithium_signature_api_avx2.c'
+			'avx2/dilithium_signature_keygen_api_avx2.c',
+			'avx2/dilithium_signature_siggen_api_avx2.c',
+			'avx2/dilithium_signature_sigver_api_avx2.c'
 		])
 	elif (arm64_asm)
 		dilithium_87_files += files([
-			'armv8/dilithium_signature_api_armv8.c'
+			'armv8/dilithium_signature_keygen_api_armv8.c',
+			'armv8/dilithium_signature_siggen_api_armv8.c',
+			'armv8/dilithium_signature_sigver_api_armv8.c',
 		])
 	elif (arm32_neon_asm)
 		dilithium_87_files += files([
-			'armv7/dilithium_signature_api_armv7.c'
+			'armv7/dilithium_signature_keygen_api_armv7.c',
+			'armv7/dilithium_signature_siggen_api_armv7.c',
+			'armv7/dilithium_signature_sigver_api_armv7.c'
 		])
 	elif (riscv64_asm)
 		dilithium_87_files += files([
-			'riscv64/dilithium_signature_api_riscv64.c'
+			'riscv64/dilithium_signature_keygen_api_riscv64.c',
+			'riscv64/dilithium_signature_siggen_api_riscv64.c',
+			'riscv64/dilithium_signature_sigver_api_riscv64.c'
 		])
 	else
 		dilithium_87_files += files([
-			'dilithium_signature_api_c.c'
+			'dilithium_signature_keygen_api_c.c',
+			'dilithium_signature_siggen_api_c.c',
+			'dilithium_signature_sigver_api_c.c',
 		])
 	endif
 
@@ -82,23 +97,33 @@ if get_option('dilithium_65').enabled()
 
 	if (x86_64_asm)
 		dilithium_65_files += files([
-			'avx2/dilithium_signature_api_avx2.c'
+			'avx2/dilithium_signature_keygen_api_avx2.c',
+			'avx2/dilithium_signature_siggen_api_avx2.c',
+			'avx2/dilithium_signature_sigver_api_avx2.c'
 		])
 	elif (arm64_asm)
 		dilithium_65_files += files([
-			'armv8/dilithium_signature_api_armv8.c'
+			'armv8/dilithium_signature_keygen_api_armv8.c',
+			'armv8/dilithium_signature_siggen_api_armv8.c',
+			'armv8/dilithium_signature_sigver_api_armv8.c'
 		])
 	elif (arm32_neon_asm)
 		dilithium_65_files += files([
-			'armv7/dilithium_signature_api_armv7.c'
+			'armv7/dilithium_signature_keygen_api_armv7.c',
+			'armv7/dilithium_signature_siggen_api_armv7.c',
+			'armv7/dilithium_signature_sigver_api_armv7.c'
 		])
 	elif (riscv64_asm)
 		dilithium_65_files += files([
-			'riscv64/dilithium_signature_api_riscv64.c'
+			'riscv64/dilithium_signature_keygen_api_riscv64.c',
+			'riscv64/dilithium_signature_siggen_api_riscv64.c',
+			'riscv64/dilithium_signature_sigver_api_riscv64.c'
 		])
 	else
 		dilithium_65_files += files([
-			'dilithium_signature_api_c.c'
+			'dilithium_signature_keygen_api_c.c',
+			'dilithium_signature_siggen_api_c.c',
+			'dilithium_signature_sigver_api_c.c',
 		])
 	endif
 
@@ -119,11 +144,15 @@ if get_option('dilithium_44').enabled()
 
 	if (riscv64_asm)
 		dilithium_44_files += files([
-			'riscv64/dilithium_signature_api_riscv64.c'
+			'riscv64/dilithium_signature_keygen_api_riscv64.c',
+			'riscv64/dilithium_signature_siggen_api_riscv64.c',
+			'riscv64/dilithium_signature_sigver_api_riscv64.c'
 		])
 	else
 		dilithium_44_files += files([
-			'dilithium_signature_api_c.c'
+			'dilithium_signature_keygen_api_c.c',
+			'dilithium_signature_siggen_api_c.c',
+			'dilithium_signature_sigver_api_c.c',
 		])
 	endif
 

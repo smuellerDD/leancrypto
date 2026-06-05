@@ -1,0 +1,1 @@
+../../../ml-dsa/src/avx2/dilithium_signature_siggen_avx2.c
