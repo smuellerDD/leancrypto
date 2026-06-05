@@ -31,6 +31,7 @@
 #include "alignment.h"
 #include "build_bug_on.h"
 #include "dilithium_type.h"
+#include "dilithium_internal.h"
 #include "dilithium_pack.h"
 #include "dilithium_pct.h"
 #include "lc_hash.h"

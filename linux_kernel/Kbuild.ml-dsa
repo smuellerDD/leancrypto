@@ -77,21 +77,36 @@ leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_ED25519)			       \
 
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_87
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_ED25519)			       \
-				+= ../ml-dsa/src/dilithium_ed25519_signature.o
+				+= ../ml-dsa/src/dilithium_ed25519_signature_common.o\
+				   ../ml-dsa/src/dilithium_ed25519_signature_keygen.o\
+				   ../ml-dsa/src/dilithium_ed25519_signature_siggen.o\
+				   ../ml-dsa/src/dilithium_ed25519_signature_sigver.o
 endif
 
 # Dilithium-65-ED25519 implementation
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_65
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_ED25519)			       \
-				+= dilithium65/dilithium_ed25519_signature.o
-CFLAGS_dilithium65/dilithium_ed25519_signature.o	:= -DLC_DILITHIUM_TYPE_65
+				+= dilithium65/dilithium_ed25519_signature_common.o\
+				   dilithium65/dilithium_ed25519_signature_keygen.o\
+				   dilithium65/dilithium_ed25519_signature_siggen.o\
+				   dilithium65/dilithium_ed25519_signature_sigver.o
+CFLAGS_dilithium65/dilithium_ed25519_signature_common.o	:= -DLC_DILITHIUM_TYPE_65
+CFLAGS_dilithium65/dilithium_ed25519_signature_keygen.o	:= -DLC_DILITHIUM_TYPE_65
+CFLAGS_dilithium65/dilithium_ed25519_signature_siggen.o	:= -DLC_DILITHIUM_TYPE_65
+CFLAGS_dilithium65/dilithium_ed25519_signature_sigver.o	:= -DLC_DILITHIUM_TYPE_65
 endif
 
 # Dilithium-44-ED25519 implementation
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_44
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_ED25519)			       \
-				+= dilithium44/dilithium_ed25519_signature.o
-CFLAGS_dilithium44/dilithium_ed25519_signature.o	:= -DLC_DILITHIUM_TYPE_44
+				+= dilithium44/dilithium_ed25519_signature_common.o\
+				   dilithium44/dilithium_ed25519_signature_keygen.o\
+				   dilithium44/dilithium_ed25519_signature_siggen.o\
+				   dilithium44/dilithium_ed25519_signature_sigver.o
+CFLAGS_dilithium44/dilithium_ed25519_signature_common.o	:= -DLC_DILITHIUM_TYPE_44
+CFLAGS_dilithium44/dilithium_ed25519_signature_keygen.o	:= -DLC_DILITHIUM_TYPE_44
+CFLAGS_dilithium44/dilithium_ed25519_signature_siggen.o	:= -DLC_DILITHIUM_TYPE_44
+CFLAGS_dilithium44/dilithium_ed25519_signature_sigver.o	:= -DLC_DILITHIUM_TYPE_44
 endif
 
 # Dilithium-87-ED448 implementation
@@ -100,21 +115,36 @@ leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_ED448)				       \
 
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_87
 leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_ED448)				       \
-				+= ../ml-dsa/src/dilithium_ed448_signature.o
+				+= ../ml-dsa/src/dilithium_ed448_signature_common.o\
+				   ../ml-dsa/src/dilithium_ed448_signature_keygen.o\
+				   ../ml-dsa/src/dilithium_ed448_signature_siggen.o\
+				   ../ml-dsa/src/dilithium_ed448_signature_sigver.o
 endif
 
 # Dilithium-65-ED448 implementation
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_65
-leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_ED448)				       \
-				+= dilithium65/dilithium_ed448_signature.o
-CFLAGS_dilithium65/dilithium_ed448_signature.o	:= -DLC_DILITHIUM_TYPE_65
+leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_ED448)			       \
+				+= dilithium65/dilithium_ed448_signature_common.o\
+				   dilithium65/dilithium_ed448_signature_keygen.o\
+				   dilithium65/dilithium_ed448_signature_siggen.o\
+				   dilithium65/dilithium_ed448_signature_sigver.o
+CFLAGS_dilithium65/dilithium_ed448_signature_common.o	:= -DLC_DILITHIUM_TYPE_65
+CFLAGS_dilithium65/dilithium_ed448_signature_keygen.o	:= -DLC_DILITHIUM_TYPE_65
+CFLAGS_dilithium65/dilithium_ed448_signature_siggen.o	:= -DLC_DILITHIUM_TYPE_65
+CFLAGS_dilithium65/dilithium_ed448_signature_sigver.o	:= -DLC_DILITHIUM_TYPE_65
 endif
 
 # Dilithium-44-ED448 implementation
 ifdef CONFIG_LEANCRYPTO_DILITHIUM_44
-leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_ED448)				       \
-				+= dilithium44/dilithium_ed448_signature.o
-CFLAGS_dilithium44/dilithium_ed448_signature.o	:= -DLC_DILITHIUM_TYPE_44
+leancrypto-$(CONFIG_LEANCRYPTO_DILITHIUM_ED448)			       \
+				+= dilithium44/dilithium_ed448_signature_common.o\
+				   dilithium44/dilithium_ed448_signature_keygen.o\
+				   dilithium44/dilithium_ed448_signature_siggen.o\
+				   dilithium44/dilithium_ed448_signature_sigver.o
+CFLAGS_dilithium44/dilithium_ed448_signature_common.o	:= -DLC_DILITHIUM_TYPE_44
+CFLAGS_dilithium44/dilithium_ed448_signature_keygen.o	:= -DLC_DILITHIUM_TYPE_44
+CFLAGS_dilithium44/dilithium_ed448_signature_siggen.o	:= -DLC_DILITHIUM_TYPE_44
+CFLAGS_dilithium44/dilithium_ed448_signature_sigver.o	:= -DLC_DILITHIUM_TYPE_44
 endif
 
 ifdef CONFIG_X86_64

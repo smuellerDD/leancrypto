@@ -26,11 +26,21 @@ dilithium_c = files([
 ])
 
 if get_option('dilithium_ed25519').enabled()
-	dilithium_c += files ([ 'dilithium_ed25519_signature.c' ])
+	dilithium_c += files ([
+		'dilithium_ed25519_signature_common.c',
+		'dilithium_ed25519_signature_keygen.c',
+		'dilithium_ed25519_signature_siggen.c',
+		'dilithium_ed25519_signature_sigver.c',
+	])
 endif
 
 if get_option('dilithium_ed448').enabled()
-	dilithium_c += files ([ 'dilithium_ed448_signature.c' ])
+	dilithium_c += files ([
+		'dilithium_ed448_signature_common.c',
+		'dilithium_ed448_signature_keygen.c',
+		'dilithium_ed448_signature_siggen.c',
+		'dilithium_ed448_signature_sigver.c',
+	])
 endif
 
 if (dilithium_enabled)
