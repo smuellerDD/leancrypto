@@ -76,9 +76,13 @@ static int __init leancrypto_init(void)
 	if (ret)
 		goto free_sha3;
 
-	ret = lc_kernel_rng_init();
+	ret = lc_kernel_hmac_init();
 	if (ret)
 		goto free_kmac;
+
+	ret = lc_kernel_rng_init();
+	if (ret)
+		goto free_hmac;
 
 	ret = lc_kernel_dilithium_init();
 	if (ret)
@@ -356,6 +360,9 @@ free_dilithium:
 free_rng:
 	lc_kernel_rng_exit();
 
+free_hmac:
+	lc_kernel_hmac_exit();
+
 free_kmac:
 	lc_kernel_kmac256_exit();
 
@@ -380,6 +387,7 @@ static void __exit leancrypto_exit(void)
 	lc_kernel_sha512_exit();
 	lc_kernel_sha3_exit();
 	lc_kernel_kmac256_exit();
+	lc_kernel_hmac_exit();
 	lc_kernel_rng_exit();
 	lc_kernel_dilithium_exit();
 	lc_kernel_dilithium_65_exit();

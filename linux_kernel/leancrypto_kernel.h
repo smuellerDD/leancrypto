@@ -99,6 +99,20 @@ static inline void lc_kernel_kmac256_exit(void)
 }
 #endif
 
+#ifdef CONFIG_LEANCRYPTO_HMAC
+int __init lc_kernel_hmac_init(void);
+void lc_kernel_hmac_exit(void);
+#else
+static inline int __init lc_kernel_hmac_init(void)
+{
+	return 0;
+}
+
+static inline void lc_kernel_hmac_exit(void)
+{
+}
+#endif
+
 #ifdef CONFIG_LEANCRYPTO_XDRBG_DRNG
 int __init lc_kernel_rng_init(void);
 void lc_kernel_rng_exit(void);
