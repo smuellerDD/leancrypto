@@ -105,6 +105,30 @@ option('dilithium_ed25519', type: 'feature', value: 'enabled',
 option('dilithium_ed448', type: 'feature', value: 'enabled',
        description: 'Dilithium-ED448 Hybrid Signature')
 
+option('dilithium_keygen', type: 'feature', value: 'enabled',
+       description: '''Dilithium Key Generation Support
+
+This enables Dilithium key generation support for all enabled algorithm types.
+When disabled, all code implementing key generation will not be compiled. The
+API is still available but will always return -EOPNOTSUPP.
+''')
+
+option('dilithium_siggen', type: 'feature', value: 'enabled',
+       description: '''Dilithium Signature Generation Support
+
+This enables Dilithium signature generation support for all enabled algorithm
+types. When disabled, all code implementing signature generation will not be
+compiled. The API is still available but will always return -EOPNOTSUPP.
+''')
+
+option('dilithium_sigver', type: 'feature', value: 'enabled',
+       description: '''Dilithium Signature Verification Support
+
+This enables Dilithium signature verification support for all enabled algorithm
+types. When disabled, all code implementing signature verification will not be
+compiled. The API is still available but will always return -EOPNOTSUPP.
+''')
+
 option('kyber_1024', type: 'feature', value: 'enabled',
        description: '''Kyber-1024 Support
 

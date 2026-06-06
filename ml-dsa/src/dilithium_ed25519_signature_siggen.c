@@ -70,18 +70,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sign_update,
 		      struct lc_dilithium_ed25519_ctx *ctx, const uint8_t *m,
 		      size_t mlen)
 {
-	struct lc_dilithium_ctx *dilithium_ctx;
-	struct lc_hash_ctx *hash_ctx;
-	int ret = 0;
-
-	CKNULL(ctx, -EINVAL);
-
-	dilithium_ctx = &ctx->dilithium_ctx;
-	hash_ctx = &dilithium_ctx->dilithium_hash_ctx;
-	lc_hash_update(hash_ctx, m, mlen);
-
-out:
-	return ret;
+	return lc_dilithium_ed25519_common_update(ctx, m, mlen);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_sign_final,

@@ -67,6 +67,23 @@ out:
 	return ret;
 }
 
+int lc_dilithium_ed448_common_update(struct lc_dilithium_ed448_ctx *ctx,
+				     const uint8_t *m, size_t mlen)
+{
+	struct lc_dilithium_ctx *dilithium_ctx;
+	struct lc_hash_ctx *hash_ctx;
+	int ret = 0;
+
+	CKNULL(ctx, -EINVAL);
+
+	dilithium_ctx = &ctx->dilithium_ctx;
+	hash_ctx = &dilithium_ctx->dilithium_hash_ctx;
+	lc_hash_update(hash_ctx, m, mlen);
+
+out:
+	return ret;
+}
+
 LC_INTERFACE_FUNCTION(int, lc_dilithium_ed448_ctx_alloc,
 		      struct lc_dilithium_ed448_ctx **ctx)
 {

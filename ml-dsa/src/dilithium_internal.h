@@ -25,7 +25,12 @@ extern "C" {
 #endif
 
 int lc_dilithium_ed25519_common_init(struct lc_dilithium_ed25519_ctx *ctx);
+int lc_dilithium_ed25519_common_update(struct lc_dilithium_ed25519_ctx *ctx,
+				       const uint8_t *m, size_t mlen);
+
 int lc_dilithium_ed448_common_init(struct lc_dilithium_ed448_ctx *ctx);
+int lc_dilithium_ed448_common_update(struct lc_dilithium_ed448_ctx *ctx,
+				     const uint8_t *m, size_t mlen);
 
 #ifdef __cplusplus
 }

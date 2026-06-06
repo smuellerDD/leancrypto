@@ -16,11 +16,18 @@ dilithium_avx2 = files([
 	'dilithium_polyvec_avx2.c',
 	'dilithium_rejsample_avx2.c',
 	'dilithium_rounding_avx2.c',
-	'dilithium_signature_keygen_avx2.c',
-	'dilithium_signature_siggen_avx2.c',
-	'dilithium_signature_sigver_avx2.c',
 	'dilithium_shuffle_avx2.S',
 ])
+
+if get_option('dilithium_keygen').enabled()
+	dilithium_avx2 += files([ 'dilithium_signature_keygen_avx2.c' ])
+endif
+if get_option('dilithium_siggen').enabled()
+	dilithium_avx2 += files([ 'dilithium_signature_siggen_avx2.c' ])
+endif
+if get_option('dilithium_sigver').enabled()
+	dilithium_avx2 += files([ 'dilithium_signature_sigver_avx2.c' ])
+endif
 
 if get_option('dilithium_87').enabled()
 	leancrypto_dilithium_87_avx2_lib = static_library(

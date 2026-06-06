@@ -11,7 +11,7 @@
 # * disable all cryptography except:
 #   - SHA2-256
 #   - SHA2-512
-#   - ML-DSA (all key sizes)
+#   - ML-DSA signature verification (all key sizes)
 #   - SLH-DSA (all sizes)
 #   - Composite ML-DSA and ED25519
 #   - Composite ML-DSA and ED448
@@ -39,6 +39,9 @@ DISABLE_SYM="
 DISABLE_SIGNATURE="
  -Dslh_dsa_ascon_128s=disabled
  -Dslh_dsa_ascon_128f=disabled
+
+ -Ddilithium_keygen=disabled
+ -Ddilithium_siggen=disabled
 "
 
 DISABLE_KEM="
@@ -91,9 +94,18 @@ DSIABLE_ASN1="
  -Dx509_csr_parser=disabled
 "
 
-FORCE_SEEDSOURCE="
- -Dseedsource=cpu
-"
+if [ x"$1" = x"test" ]
+then
+	shift
+else
+	FORCE_SEEDSOURCE="
+	 -Dseedsource=cpu
+	"
+
+	FORCE_EFI="
+	 -Defi=enabled
+	"
+fi
 
 # Optionally disable unused signatures
 # -Dsphincs_shake_256s=disabled -Dsphincs_shake_256f=disabled
@@ -105,8 +117,6 @@ FORCE_SEEDSOURCE="
 CFLAGS="-I/usr/include/efi/x86_64 -I/usr/include/efi/aarch64" \
 meson setup leancrypto-build-shim \
  -Dbuildtype=release \
- -Defi=enabled \
- -Dbuildtype=release \
  $DISABLE_AEAD \
  $DISABLE_SYM \
  $DISABLE_SIGNATURE \
@@ -116,5 +126,7 @@ meson setup leancrypto-build-shim \
  $DISABLE_ASN1 \
  $DISABLE_MISC \
  $DSIABLE_ASN1 \
- $FORCE_SEEDSOURCE $1
+ $FORCE_SEEDSOURCE \
+ $FORCE_EFI
+ $1
 

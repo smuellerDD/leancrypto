@@ -14,10 +14,17 @@ dilithium_armv8 = files([
 	'dilithium_ntt_armv8.S',
 	'dilithium_poly.c',
 	'dilithium_poly_armv8.S',
-	'dilithium_signature_keygen_armv8.c',
-	'dilithium_signature_siggen_armv8.c',
-	'dilithium_signature_sigver_armv8.c',
 ])
+
+if get_option('dilithium_keygen').enabled()
+	dilithium_armv8 += files([ 'dilithium_signature_keygen_armv8.c' ])
+endif
+if get_option('dilithium_siggen').enabled()
+	dilithium_armv8 += files([ 'dilithium_signature_siggen_armv8.c' ])
+endif
+if get_option('dilithium_sigver').enabled()
+	dilithium_armv8 += files([ 'dilithium_signature_sigver_armv8.c' ])
+endif
 
 if get_option('dilithium_87').enabled()
 	leancrypto_dilithium_87_armv8_lib = static_library(

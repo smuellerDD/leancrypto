@@ -6,18 +6,38 @@ src += files([
 
 # Files which are compiled for each Dilithium implementation separately
 dilithium_riscv64_asm = files([
-	'dilithium_signature_keygen_riscv64.c',
-	'dilithium_signature_siggen_riscv64.c',
-	'dilithium_signature_sigver_riscv64.c',
 	'ntt_8l_dualissue_plant_rv64im.S'
 ])
 
+if get_option('dilithium_keygen').enabled()
+	dilithium_riscv64_asm += files([ 'dilithium_signature_keygen_riscv64.c' ])
+endif
+if get_option('dilithium_siggen').enabled()
+	dilithium_riscv64_asm += files([ 'dilithium_signature_siggen_riscv64.c' ])
+endif
+if get_option('dilithium_sigver').enabled()
+	dilithium_riscv64_asm += files([ 'dilithium_signature_sigver_riscv64.c' ])
+endif
+
 dilithium_riscv64_rvv_asm = files([
-	'dilithium_signature_keygen_riscv64_rvv.c',
-	'dilithium_signature_siggen_riscv64_rvv.c',
-	'dilithium_signature_sigver_riscv64_rvv.c',
 	'ntt_rvv.S'
 ])
+
+if get_option('dilithium_keygen').enabled()
+	dilithium_riscv64_rvv_asm += files([
+		'dilithium_signature_keygen_riscv64_rvv.c'
+	])
+endif
+if get_option('dilithium_siggen').enabled()
+	dilithium_riscv64_rvv_asm += files([
+		'dilithium_signature_siggen_riscv64_rvv.c'
+	])
+endif
+if get_option('dilithium_sigver').enabled()
+	dilithium_riscv64_rvv_asm += files([
+		'dilithium_signature_sigver_riscv64_rvv.c'
+	])
+endif
 
 if get_option('dilithium_87').enabled()
 	leancrypto_dilithium_87_riscv64_lib = static_library(

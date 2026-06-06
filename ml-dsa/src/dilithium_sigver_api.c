@@ -137,6 +137,9 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_verify_update,
 		      struct lc_dilithium_ctx *ctx, const uint8_t *m,
 		      size_t mlen)
 {
+	if (!ctx)
+		return -EINVAL;
+
 #ifdef LC_DILITHIUM_87_ENABLED
 	return lc_dilithium_87_verify_update(ctx, m, mlen);
 #elif defined(LC_DILITHIUM_65_ENABLED)

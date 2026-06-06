@@ -764,6 +764,21 @@ if (get_option('chacha20poly1305').enabled() and
     get_option('chacha20').disabled())
 	error('ChaCha20 Poly 1305 requires the presence of ChaCha20')
 endif
+
+if (dilithium_enabled and
+    get_option('dilithium_keygen').disabled() and
+    get_option('dilithium_siggen').disabled() and
+    get_option('dilithium_sigver').disabled())
+	error('ML-DSA is enabled, but key gen, sig gen and sig ver are disabled')
+endif
+
+dilithium_all_enabled = false
+if (get_option('dilithium_keygen').enabled() and
+    get_option('dilithium_siggen').enabled() and
+    get_option('dilithium_sigver').enabled())
+        dilithium_all_enabled = true
+endif
+
 ################################################################################
 # Enable assembler support
 ################################################################################

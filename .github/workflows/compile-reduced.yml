@@ -45,5 +45,11 @@ jobs:
       run: meson compile -C build-aesgcm-only
     - name: AES-GCM-only Meson test
       run: meson test -C build-aesgcm-only --suite=regression
+    - name: Shim Boot Loader Support Meson setup ${{ matrix.default-library }}
+      run: bash build-scripts/shim_support.sh test -Ddefault_library=${{ matrix.default-library }}
+    - name: Shim Boot Loader Support Meson compile
+      run: meson compile -C leancrypto-build-shim
+    - name: Shim Boot Loader Support test
+      run: meson test -C leancrypto-build-shim --suite=regression
 
 

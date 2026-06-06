@@ -78,7 +78,7 @@ LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_verify_update,
 		      struct lc_dilithium_ed25519_ctx *ctx, const uint8_t *m,
 		      size_t mlen)
 {
-	return lc_dilithium_ed25519_sign_update(ctx, m, mlen);
+	return lc_dilithium_ed25519_common_update(ctx, m, mlen);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_verify_final,

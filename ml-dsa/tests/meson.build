@@ -1,4 +1,4 @@
-if get_option('dilithium_87').enabled()
+if get_option('dilithium_87').enabled() and dilithium_all_enabled == true
 	include_dilithium_internal = include_directories([ '../src' ])
 
 	dilithium_tester_c = executable('dilithium_tester_c',
@@ -564,7 +564,7 @@ if get_option('dilithium_87').enabled()
 	endif
 endif
 
-if get_option('dilithium_65').enabled()
+if get_option('dilithium_65').enabled() and dilithium_all_enabled == true
 	include_dilithium_65_internal = include_directories([ '../src' ])
 
 	dilithium_65_tester_c = executable('dilithium_65_tester_c',
@@ -1136,7 +1136,7 @@ if get_option('dilithium_65').enabled()
 	endif
 endif
 
-if get_option('dilithium_44').enabled()
+if get_option('dilithium_44').enabled() and dilithium_all_enabled == true
 	include_dilithium_44_internal = include_directories([ '../src' ])
 
 	dilithium_44_tester_c = executable('dilithium_44_tester_c',
