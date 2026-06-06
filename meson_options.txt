@@ -227,6 +227,30 @@ option('sphincs_shake_128f', type: 'feature', value: 'enabled',
        description: '''Sphincs Plus 128 fast signature (SLH-DSA-SHAKE-128f)
 ''')
 
+option('sphincs_keygen', type: 'feature', value: 'enabled',
+       description: '''Sphincs Plus Key Generation Support
+
+This enables Sphincs Plus key generation support for all enabled algorithm types.
+When disabled, all code implementing key generation will not be compiled. The
+API is still available but will always return -EOPNOTSUPP.
+''')
+
+option('sphincs_siggen', type: 'feature', value: 'enabled',
+       description: '''Sphincs Plus Signature Generation Support
+
+This enables Sphincs Plus signature generation support for all enabled algorithm
+types. When disabled, all code implementing signature generation will not be
+compiled. The API is still available but will always return -EOPNOTSUPP.
+''')
+
+option('sphincs_sigver', type: 'feature', value: 'enabled',
+       description: '''Sphincs Plus Signature Verification Support
+
+This enables Sphincs Plus signature verification support for all enabled algorithm
+types. When disabled, all code implementing signature verification will not be
+compiled. The API is still available but will always return -EOPNOTSUPP.
+''')
+
 option('aes_block', type: 'feature', value: 'enabled',
        description: 'AES block cipher support (encryption of one block)')
 option('aes_ecb', type: 'feature', value: 'disabled',

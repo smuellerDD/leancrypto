@@ -3,7 +3,7 @@
 # Files compiled only once
 if (sphincs_enabled)
 	src += files([
-		'sphincs_api.c',
+		'sphincs_common_api.c',
 	])
 endif
 
@@ -12,7 +12,6 @@ sphincs_src = files([
 	'sphincs_hash_shake.c',
 	'sphincs_merkle.c',
 	'sphincs_selftest.c',
-	'sphincs_sign.c',
 	'sphincs_signature_helper.c',
 	# FIPS 205 mandates the "simple" thash operation
 	#'sphincs_thash_shake_robust.c',
@@ -22,6 +21,27 @@ sphincs_src = files([
 	'sphincs_wots.c',
 	'sphincs_wotsx1.c',
 ])
+
+if get_option('sphincs_keygen').enabled()
+	src += files([ 'sphincs_keygen_api.c', ])
+	sphincs_src += files([ 'sphincs_keygen.c', ])
+else
+	src += files([ 'sphincs_keygen_api_null.c', ])
+endif
+
+if get_option('sphincs_siggen').enabled()
+	src += files([ 'sphincs_siggen_api.c', ])
+	sphincs_src += files([ 'sphincs_siggen.c', ])
+else
+	src += files([ 'sphincs_siggen_api_null.c', ])
+endif
+
+if get_option('sphincs_sigver').enabled()
+	src += files([ 'sphincs_sigver_api.c', ])
+	sphincs_src += files([ 'sphincs_sigver.c', ])
+else
+	src += files([ 'sphincs_sigver_api_null.c', ])
+endif
 
 sphincs_src_avx2 = files([
 	'avx2/sphincs_fors_avx2.c',

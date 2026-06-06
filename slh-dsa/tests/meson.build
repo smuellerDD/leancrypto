@@ -1,4 +1,4 @@
-if get_option('sphincs_shake_256s').enabled()
+if get_option('sphincs_shake_256s').enabled() and sphincs_all_enabled
 	include_sphincs_internal = include_directories([ '../src' ])
 
 	sphincs_tester_256s = executable('sphincs_tester_256s',

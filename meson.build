@@ -779,6 +779,20 @@ if (get_option('dilithium_keygen').enabled() and
         dilithium_all_enabled = true
 endif
 
+if (sphincs_enabled and
+    get_option('sphincs_keygen').disabled() and
+    get_option('sphincs_siggen').disabled() and
+    get_option('sphincs_sigver').disabled())
+	error('SLH-DSA is enabled, but key gen, sig gen and sig ver are disabled')
+endif
+
+sphincs_all_enabled = false
+if (get_option('sphincs_keygen').enabled() and
+    get_option('sphincs_siggen').enabled() and
+    get_option('sphincs_sigver').enabled())
+        sphincs_all_enabled = true
+endif
+
 ################################################################################
 # Enable assembler support
 ################################################################################

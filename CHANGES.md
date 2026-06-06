@@ -33,7 +33,7 @@ Changes 1.8.0-prerelease
 
 * Add return code checker defending against fault injections
 
-* ML-DSA: slicing the implementation to allow keygen, siggen and sigver to be compiled independently - together with dead code stripping, only the desired functionality is present (e.g. in secure boot mode, only sigver is of interest)
+* ML-DSA / SLH-DSA: slicing the implementation to allow keygen, siggen and sigver to be compiled independently - together with dead code stripping, only the desired functionality is present (e.g. in secure boot mode, only sigver is of interest) - build-script/shim_support.sh compiles only signature verification
 
 * Linux kernel: add HMAC support
 

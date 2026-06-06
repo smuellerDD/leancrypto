@@ -12,7 +12,7 @@
 #   - SHA2-256
 #   - SHA2-512
 #   - ML-DSA signature verification (all key sizes)
-#   - SLH-DSA (all sizes)
+#   - SLH-DSA signature verification (all sizes)
 #   - Composite ML-DSA and ED25519
 #   - Composite ML-DSA and ED448
 #   - X.509 parser
@@ -42,6 +42,9 @@ DISABLE_SIGNATURE="
 
  -Ddilithium_keygen=disabled
  -Ddilithium_siggen=disabled
+
+ -Dsphincs_keygen=disabled
+ -Dsphincs_siggen=disabled
 "
 
 DISABLE_KEM="
