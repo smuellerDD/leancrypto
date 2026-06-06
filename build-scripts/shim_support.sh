@@ -127,6 +127,6 @@ meson setup leancrypto-build-shim \
  $DISABLE_MISC \
  $DSIABLE_ASN1 \
  $FORCE_SEEDSOURCE \
- $FORCE_EFI
- $1
+ $FORCE_EFI \
+ $@
 
