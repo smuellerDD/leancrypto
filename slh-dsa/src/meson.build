@@ -5,6 +5,25 @@ if (sphincs_enabled)
 	src += files([
 		'sphincs_common_api.c',
 	])
+
+	if get_option('sphincs_keygen').enabled()
+		src += files([ 'sphincs_keygen_api.c', ])
+	else
+		src += files([ 'sphincs_keygen_api_null.c', ])
+	endif
+
+	if get_option('sphincs_siggen').enabled()
+		src += files([ 'sphincs_siggen_api.c', ])
+	else
+		src += files([ 'sphincs_siggen_api_null.c', ])
+	endif
+
+	if get_option('sphincs_sigver').enabled()
+		src += files([ 'sphincs_sigver_api.c', ])
+	else
+		src += files([ 'sphincs_sigver_api_null.c', ])
+	endif
+
 endif
 
 sphincs_src = files([
@@ -23,24 +42,27 @@ sphincs_src = files([
 ])
 
 if get_option('sphincs_keygen').enabled()
-	src += files([ 'sphincs_keygen_api.c', ])
 	sphincs_src += files([ 'sphincs_keygen.c', ])
-else
-	src += files([ 'sphincs_keygen_api_null.c', ])
 endif
 
 if get_option('sphincs_siggen').enabled()
-	src += files([ 'sphincs_siggen_api.c', ])
 	sphincs_src += files([ 'sphincs_siggen.c', ])
-else
-	src += files([ 'sphincs_siggen_api_null.c', ])
 endif
 
 if get_option('sphincs_sigver').enabled()
-	src += files([ 'sphincs_sigver_api.c', ])
 	sphincs_src += files([ 'sphincs_sigver.c', ])
-else
-	src += files([ 'sphincs_sigver_api_null.c', ])
+endif
+
+if get_option('sphincs_keygen').enabled()
+	sphincs_src += files([ 'sphincs_keygen.c', ])
+endif
+
+if get_option('sphincs_siggen').enabled()
+	sphincs_src += files([ 'sphincs_siggen.c', ])
+endif
+
+if get_option('sphincs_sigver').enabled()
+	sphincs_src += files([ 'sphincs_sigver.c', ])
 endif
 
 sphincs_src_avx2 = files([
