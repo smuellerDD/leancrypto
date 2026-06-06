@@ -8,7 +8,10 @@ ccflags-$(CONFIG_LEANCRYPTO_SPHINCS) += -I$(src)/../slh-dsa/src
 ################################################################################
 # Sphincs Common
 leancrypto-$(CONFIG_LEANCRYPTO_SPHINCS)					       \
-				+= ../slh-dsa/src/sphincs_api.o		       \
+				+= ../slh-dsa/src/sphincs_common_api.o	       \
+				   ../slh-dsa/src/sphincs_keygen_api.o	       \
+				   ../slh-dsa/src/sphincs_siggen_api.o	       \
+				   ../slh-dsa/src/sphincs_sigver_api.o	       \
 				   leancrypto_kernel_sphincs.o
 
 # Sphincs SHAKE 256s
@@ -17,7 +20,9 @@ leancrypto-$(CONFIG_LEANCRYPTO_SPHINCS_256s)				       \
 				   ../slh-dsa/src/sphincs_hash_shake.o	       \
 				   ../slh-dsa/src/sphincs_merkle.o	       \
 				   ../slh-dsa/src/sphincs_selftest.o	       \
-				   ../slh-dsa/src/sphincs_sign.o	       \
+				   ../slh-dsa/src/sphincs_keygen.o	       \
+				   ../slh-dsa/src/sphincs_siggen.o	       \
+				   ../slh-dsa/src/sphincs_sigver.o	       \
 				   ../slh-dsa/src/sphincs_signature_helper.o   \
 				   ../slh-dsa/src/sphincs_thash_shake_simple.o \
 				   ../slh-dsa/src/sphincs_utils.o	       \
@@ -31,7 +36,9 @@ leancrypto-$(CONFIG_LEANCRYPTO_SPHINCS_256f)				       \
 				   sphincs_shake_256f/sphincs_hash_shake.o     \
 				   sphincs_shake_256f/sphincs_merkle.o	       \
 				   sphincs_shake_256f/sphincs_selftest.o       \
-				   sphincs_shake_256f/sphincs_sign.o	       \
+				   sphincs_shake_256f/sphincs_keygen.o	       \
+				   sphincs_shake_256f/sphincs_siggen.o	       \
+				   sphincs_shake_256f/sphincs_sigver.o	       \
 				   sphincs_shake_256f/sphincs_signature_helper.o\
 				   sphincs_shake_256f/sphincs_thash_shake_simple.o\
 				   sphincs_shake_256f/sphincs_utils.o	       \
@@ -43,7 +50,9 @@ CFLAGS_sphincs_shake_256f/sphincs_fors.o		:= -DLC_SPHINCS_TYPE_256F
 CFLAGS_sphincs_shake_256f/sphincs_hash_shake.o		:= -DLC_SPHINCS_TYPE_256F
 CFLAGS_sphincs_shake_256f/sphincs_merkle.o		:= -DLC_SPHINCS_TYPE_256F
 CFLAGS_sphincs_shake_256f/sphincs_selftest.o		:= -DLC_SPHINCS_TYPE_256F
-CFLAGS_sphincs_shake_256f/sphincs_sign.o		:= -DLC_SPHINCS_TYPE_256F
+CFLAGS_sphincs_shake_256f/sphincs_keygen.o		:= -DLC_SPHINCS_TYPE_256F
+CFLAGS_sphincs_shake_256f/sphincs_siggen.o		:= -DLC_SPHINCS_TYPE_256F
+CFLAGS_sphincs_shake_256f/sphincs_sigver.o		:= -DLC_SPHINCS_TYPE_256F
 CFLAGS_sphincs_shake_256f/sphincs_signature_helper.o	:= -DLC_SPHINCS_TYPE_256F
 CFLAGS_sphincs_shake_256f/sphincs_thash_shake_simple.o	:= -DLC_SPHINCS_TYPE_256F
 CFLAGS_sphincs_shake_256f/sphincs_utils.o		:= -DLC_SPHINCS_TYPE_256F
@@ -57,7 +66,9 @@ leancrypto-$(CONFIG_LEANCRYPTO_SPHINCS_192s)				       \
 				   sphincs_shake_192s/sphincs_hash_shake.o     \
 				   sphincs_shake_192s/sphincs_merkle.o	       \
 				   sphincs_shake_192s/sphincs_selftest.o       \
-				   sphincs_shake_192s/sphincs_sign.o	       \
+				   sphincs_shake_192s/sphincs_keygen.o	       \
+				   sphincs_shake_192s/sphincs_siggen.o	       \
+				   sphincs_shake_192s/sphincs_sigver.o	       \
 				   sphincs_shake_192s/sphincs_signature_helper.o\
 				   sphincs_shake_192s/sphincs_thash_shake_simple.o\
 				   sphincs_shake_192s/sphincs_utils.o	       \
@@ -69,7 +80,9 @@ CFLAGS_sphincs_shake_192s/sphincs_fors.o		:= -DLC_SPHINCS_TYPE_192S
 CFLAGS_sphincs_shake_192s/sphincs_hash_shake.o		:= -DLC_SPHINCS_TYPE_192S
 CFLAGS_sphincs_shake_192s/sphincs_merkle.o		:= -DLC_SPHINCS_TYPE_192S
 CFLAGS_sphincs_shake_192s/sphincs_selftest.o		:= -DLC_SPHINCS_TYPE_192S
-CFLAGS_sphincs_shake_192s/sphincs_sign.o		:= -DLC_SPHINCS_TYPE_192S
+CFLAGS_sphincs_shake_192s/sphincs_keygen.o		:= -DLC_SPHINCS_TYPE_192S
+CFLAGS_sphincs_shake_192s/sphincs_siggen.o		:= -DLC_SPHINCS_TYPE_192S
+CFLAGS_sphincs_shake_192s/sphincs_sigver.o		:= -DLC_SPHINCS_TYPE_192S
 CFLAGS_sphincs_shake_192s/sphincs_signature_helper.o	:= -DLC_SPHINCS_TYPE_192S
 CFLAGS_sphincs_shake_192s/sphincs_thash_shake_simple.o	:= -DLC_SPHINCS_TYPE_192S
 CFLAGS_sphincs_shake_192s/sphincs_utils.o		:= -DLC_SPHINCS_TYPE_192S
@@ -82,7 +95,9 @@ leancrypto-$(CONFIG_LEANCRYPTO_SPHINCS_192f)				       \
 				+= sphincs_shake_192f/sphincs_fors.o	       \
 				   sphincs_shake_192f/sphincs_hash_shake.o     \
 				   sphincs_shake_192f/sphincs_merkle.o	       \
-				   sphincs_shake_192f/sphincs_sign.o	       \
+				   sphincs_shake_192f/sphincs_keygen.o	       \
+				   sphincs_shake_192f/sphincs_siggen.o	       \
+				   sphincs_shake_192f/sphincs_sigver.o	       \
 				   sphincs_shake_192f/sphincs_selftest.o       \
 				   sphincs_shake_192f/sphincs_signature_helper.o\
 				   sphincs_shake_192f/sphincs_thash_shake_simple.o\
@@ -95,7 +110,9 @@ CFLAGS_sphincs_shake_192f/sphincs_fors.o		:= -DLC_SPHINCS_TYPE_192F
 CFLAGS_sphincs_shake_192f/sphincs_hash_shake.o		:= -DLC_SPHINCS_TYPE_192F
 CFLAGS_sphincs_shake_192f/sphincs_merkle.o		:= -DLC_SPHINCS_TYPE_192F
 CFLAGS_sphincs_shake_192f/sphincs_selftest.o		:= -DLC_SPHINCS_TYPE_192F
-CFLAGS_sphincs_shake_192f/sphincs_sign.o		:= -DLC_SPHINCS_TYPE_192F
+CFLAGS_sphincs_shake_192f/sphincs_keygen.o		:= -DLC_SPHINCS_TYPE_192F
+CFLAGS_sphincs_shake_192f/sphincs_siggen.o		:= -DLC_SPHINCS_TYPE_192F
+CFLAGS_sphincs_shake_192f/sphincs_sigver.o		:= -DLC_SPHINCS_TYPE_192F
 CFLAGS_sphincs_shake_192f/sphincs_signature_helper.o	:= -DLC_SPHINCS_TYPE_192F
 CFLAGS_sphincs_shake_192f/sphincs_thash_shake_simple.o	:= -DLC_SPHINCS_TYPE_192F
 CFLAGS_sphincs_shake_192f/sphincs_utils.o		:= -DLC_SPHINCS_TYPE_192F
@@ -109,7 +126,9 @@ leancrypto-$(CONFIG_LEANCRYPTO_SPHINCS_128s)				       \
 				   sphincs_shake_128s/sphincs_hash_shake.o     \
 				   sphincs_shake_128s/sphincs_merkle.o	       \
 				   sphincs_shake_128s/sphincs_selftest.o       \
-				   sphincs_shake_128s/sphincs_sign.o	       \
+				   sphincs_shake_128s/sphincs_keygen.o	       \
+				   sphincs_shake_128s/sphincs_siggen.o	       \
+				   sphincs_shake_128s/sphincs_sigver.o	       \
 				   sphincs_shake_128s/sphincs_signature_helper.o\
 				   sphincs_shake_128s/sphincs_thash_shake_simple.o\
 				   sphincs_shake_128s/sphincs_utils.o	       \
@@ -121,7 +140,9 @@ CFLAGS_sphincs_shake_128s/sphincs_fors.o		:= -DLC_SPHINCS_TYPE_128S
 CFLAGS_sphincs_shake_128s/sphincs_hash_shake.o		:= -DLC_SPHINCS_TYPE_128S
 CFLAGS_sphincs_shake_128s/sphincs_merkle.o		:= -DLC_SPHINCS_TYPE_128S
 CFLAGS_sphincs_shake_128s/sphincs_selftest.o		:= -DLC_SPHINCS_TYPE_128S
-CFLAGS_sphincs_shake_128s/sphincs_sign.o		:= -DLC_SPHINCS_TYPE_128S
+CFLAGS_sphincs_shake_128s/sphincs_keygen.o		:= -DLC_SPHINCS_TYPE_128S
+CFLAGS_sphincs_shake_128s/sphincs_siggen.o		:= -DLC_SPHINCS_TYPE_128S
+CFLAGS_sphincs_shake_128s/sphincs_sigver.o		:= -DLC_SPHINCS_TYPE_128S
 CFLAGS_sphincs_shake_128s/sphincs_signature_helper.o	:= -DLC_SPHINCS_TYPE_128S
 CFLAGS_sphincs_shake_128s/sphincs_thash_shake_simple.o	:= -DLC_SPHINCS_TYPE_128S
 CFLAGS_sphincs_shake_128s/sphincs_utils.o		:= -DLC_SPHINCS_TYPE_128S
@@ -135,7 +156,9 @@ leancrypto-$(CONFIG_LEANCRYPTO_SPHINCS_128f)				       \
 				   sphincs_shake_128f/sphincs_hash_shake.o     \
 				   sphincs_shake_128f/sphincs_merkle.o	       \
 				   sphincs_shake_128f/sphincs_selftest.o       \
-				   sphincs_shake_128f/sphincs_sign.o	       \
+				   sphincs_shake_128f/sphincs_keygen.o	       \
+				   sphincs_shake_128f/sphincs_siggen.o	       \
+				   sphincs_shake_128f/sphincs_sigver.o	       \
 				   sphincs_shake_128f/sphincs_signature_helper.o\
 				   sphincs_shake_128f/sphincs_thash_shake_simple.o\
 				   sphincs_shake_128f/sphincs_utils.o	       \
@@ -147,7 +170,9 @@ CFLAGS_sphincs_shake_128f/sphincs_fors.o		:= -DLC_SPHINCS_TYPE_128F
 CFLAGS_sphincs_shake_128f/sphincs_hash_shake.o		:= -DLC_SPHINCS_TYPE_128F
 CFLAGS_sphincs_shake_128f/sphincs_merkle.o		:= -DLC_SPHINCS_TYPE_128F
 CFLAGS_sphincs_shake_128f/sphincs_selftest.o		:= -DLC_SPHINCS_TYPE_128F
-CFLAGS_sphincs_shake_128f/sphincs_sign.o		:= -DLC_SPHINCS_TYPE_128F
+CFLAGS_sphincs_shake_128f/sphincs_keygen.o		:= -DLC_SPHINCS_TYPE_128F
+CFLAGS_sphincs_shake_128f/sphincs_siggen.o		:= -DLC_SPHINCS_TYPE_128F
+CFLAGS_sphincs_shake_128f/sphincs_sigver.o		:= -DLC_SPHINCS_TYPE_128F
 CFLAGS_sphincs_shake_128f/sphincs_signature_helper.o	:= -DLC_SPHINCS_TYPE_128F
 CFLAGS_sphincs_shake_128f/sphincs_thash_shake_simple.o	:= -DLC_SPHINCS_TYPE_128F
 CFLAGS_sphincs_shake_128f/sphincs_utils.o		:= -DLC_SPHINCS_TYPE_128F
