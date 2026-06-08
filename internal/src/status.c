@@ -109,7 +109,7 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 		"";
 #endif
 	const char __maybe_unused *riscv64_rvv_vlen =
-#if defined(LC_HOST_RISCV64) || defined(CONFIG_RISCV)
+#if defined(LC_KYBER) && (defined(LC_HOST_RISCV64) || defined(CONFIG_RISCV))
 		lc_riscv_rvv_is_vlen128() ? "RISV64-RVV128 " :
 		lc_riscv_rvv_is_vlen256() ? "RISV64-RVV256 " :
 					    "";
