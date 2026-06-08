@@ -37,6 +37,8 @@ Changes 1.8.0-prerelease
 
 * Linux kernel: add HMAC support
 
+* Ascon: add support and tests for NULL AAD and NULL PT
+
 Changes 1.7.2
 * Fix RDSEED counter
 

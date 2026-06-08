@@ -78,6 +78,7 @@ static int ascon_tester_one(const uint8_t *pt, size_t ptlen,
 		return -EFAULT;
 	ret = lc_aead_decrypt(al, out_enc, out_dec, ptlen, aad, aadlen, tag,
 			      exp_tag_len);
+
 	//bin2print(out_dec, ptlen, stderr, "out_enc");
 	lc_aead_zero(al);
 	if (ret < 0)
@@ -91,12 +92,15 @@ static int ascon_tester_one(const uint8_t *pt, size_t ptlen,
 	if (lc_aead_setkey(al, key, keylen, nonce, noncelen))
 		return -EFAULT;
 
-	out_enc[0] = (uint8_t)((out_enc[0] + 1) & 0xff);
-	ret = lc_aead_decrypt(al, out_enc, out_dec, ptlen, aad, aadlen, tag,
-			      exp_tag_len);
+	if (ptlen) {
+		out_enc[0] = (uint8_t)((out_enc[0] + 1) & 0xff);
+		ret = lc_aead_decrypt(al, out_enc, out_dec, ptlen, aad, aadlen,
+				      tag, exp_tag_len);
+		if (ret != -EBADMSG)
+			ret_checked += 1;
+	}
+
 	lc_aead_zero(al);
-	if (ret != -EBADMSG)
-		ret_checked += 1;
 
 	return ret_checked;
 }
@@ -169,6 +173,62 @@ static int ascon_tester_128_non_aligned(void)
 				sizeof(exp_tag));
 }
 
+static int ascon_tester_128_null_aad(void)
+{
+	/* From NIST ACVP */
+	static const uint8_t pt[] = { 0xA6, 0xA6 };
+	static const uint8_t nonce[] = { 0xE0, 0x92, 0xE3, 0x90, 0xF8, 0xD1,
+					 0x2E, 0xB9, 0x15, 0x52, 0x0B, 0x2C,
+					 0xE2, 0x93, 0xE6, 0xBA };
+	static const uint8_t key[] = { 0x53, 0x1C, 0x5B, 0x05, 0xE6, 0x16, 0x9D,
+				       0x2B, 0xEE, 0x5D, 0xF8, 0x0C, 0xCC, 0x8A,
+				       0x2A, 0xAF };
+	static const uint8_t exp_ct[] = { 0xc9, 0xb8 };
+	static const uint8_t exp_tag[] = { 0x93, 0x43, 0x81, 0x7a, 0x83, 0x2b,
+					   0xe0, 0xec, 0xd8, 0x8e, 0x3f, 0xfc,
+					   0x0d, 0x81, 0x51, 0x1b };
+
+	return ascon_tester_one(pt, sizeof(pt), nonce, sizeof(nonce), NULL, 0,
+				key, sizeof(key), exp_ct, exp_tag,
+				sizeof(exp_tag));
+}
+
+static int ascon_tester_128_null_pt(void)
+{
+	/* From NIST ACVP */
+	static const uint8_t aad[] = { 0x50, 0x9C };
+	static const uint8_t nonce[] = { 0xE0, 0xE5, 0xE0, 0x06, 0x67, 0xDB,
+					 0xD1, 0x6B, 0x40, 0x92, 0x6D, 0x1F,
+					 0xAD, 0xED, 0xE7, 0x79 };
+	static const uint8_t key[] = { 0x5E, 0xF6, 0x37, 0x72, 0x00, 0xDC, 0xAB,
+				       0x0C, 0x05, 0xD3, 0x3C, 0x14, 0xE7, 0x4D,
+				       0x83, 0x3F };
+	static const uint8_t exp_tag[] = { 0x4c, 0xd9, 0x61, 0x3a, 0x76, 0x79,
+					   0x82, 0x5a, 0xc5, 0x79, 0x4a, 0x83,
+					   0xd3, 0x45, 0xe4, 0x29 };
+
+	return ascon_tester_one(NULL, 0, nonce, sizeof(nonce), aad, sizeof(aad),
+				key, sizeof(key), NULL, exp_tag,
+				sizeof(exp_tag));
+}
+
+static int ascon_tester_128_null_pt_aad(void)
+{
+	/* From NIST ACVP */
+	static const uint8_t nonce[] = { 0x0F, 0x0B, 0xB5, 0x97, 0xD2, 0x87,
+					 0x97, 0x53, 0x44, 0x53, 0x49, 0x87,
+					 0x00, 0x96, 0xE2, 0x9B };
+	static const uint8_t key[] = { 0x24, 0x66, 0x17, 0xC0, 0xF9, 0xFD, 0x0A,
+				       0x1D, 0x3F, 0x04, 0x5D, 0x92, 0x04, 0xBF,
+				       0x71, 0xE6 };
+	static const uint8_t exp_tag[] = { 0x0e, 0xfa, 0x20, 0x72, 0x16, 0x28,
+					   0x9f, 0x85, 0xe2, 0xaf, 0xed, 0x13,
+					   0xd8, 0x6c, 0x21, 0x81 };
+
+	return ascon_tester_one(NULL, 0, nonce, sizeof(nonce), NULL, 0, key,
+				sizeof(key), NULL, exp_tag, sizeof(exp_tag));
+}
+
 LC_TEST_FUNC(int, main, int argc, char *argv[])
 {
 	int ret = 0;
@@ -177,6 +237,9 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 
 	ret += ascon_tester_128();
 	ret += ascon_tester_128_non_aligned();
+	ret += ascon_tester_128_null_aad();
+	ret += ascon_tester_128_null_pt();
+	ret += ascon_tester_128_null_pt_aad();
 
 	ret = test_validate_status(ret, lc_aead_alg_status(lc_ascon_aead), 1);
 	ret += test_print_status();

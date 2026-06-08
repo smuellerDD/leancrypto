@@ -143,20 +143,22 @@ static int lc_ascon_aad(struct lc_ascon_cryptor *ascon, const uint8_t *aad,
 	/* Rationale for pad byte: see ascon_squeeze_common */
 	static const uint8_t pad_trail = 0x80;
 
-	/* Authenticated Data - Insert into rate section of the state */
-	while (aadlen >= hash->sponge_rate) {
-		lc_sponge_add_bytes(hash, state_mem, aad, 0, hash->sponge_rate);
+	if (aadlen) {
+		/* Authenticated Data - Insert into rate section of the state */
+		while (aadlen >= hash->sponge_rate) {
+			lc_sponge_add_bytes(hash, state_mem, aad, 0,
+					    hash->sponge_rate);
 
-		aadlen -= hash->sponge_rate;
-		aad += hash->sponge_rate;
+			aadlen -= hash->sponge_rate;
+			aad += hash->sponge_rate;
 
+			lc_sponge(hash, state_mem, ascon->roundb);
+		}
+
+		lc_sponge_add_bytes(hash, state_mem, aad, 0, aadlen);
+		lc_ascon_add_padbyte(ascon, aadlen);
 		lc_sponge(hash, state_mem, ascon->roundb);
 	}
-
-	lc_sponge_add_bytes(hash, state_mem, aad, 0, aadlen);
-	lc_ascon_add_padbyte(ascon, aadlen);
-
-	lc_sponge(hash, state_mem, ascon->roundb);
 
 	/* Add pad_trail bit */
 	lc_sponge_add_bytes(hash, state_mem, &pad_trail, ascon->statesize - 1,
