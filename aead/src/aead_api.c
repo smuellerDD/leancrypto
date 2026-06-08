@@ -92,10 +92,8 @@ LC_INTERFACE_FUNCTION(int, lc_aead_encrypt, struct lc_aead_ctx *ctx,
 	if (!plaintext)
 		plaintext = ciphertext;
 
-	aead->encrypt(aead_state, plaintext, ciphertext, datalen, aad, aadlen,
-		      tag, taglen);
-
-	return 0;
+	return aead->encrypt(aead_state, plaintext, ciphertext, datalen, aad,
+			     aadlen, tag, taglen);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_aead_enc_init, struct lc_aead_ctx *ctx,
@@ -113,9 +111,7 @@ LC_INTERFACE_FUNCTION(int, lc_aead_enc_init, struct lc_aead_ctx *ctx,
 	if (!aead || !aead_state || !aead->enc_init)
 		return -EOPNOTSUPP;
 
-	aead->enc_init(aead_state, aad, aadlen);
-
-	return 0;
+	return aead->enc_init(aead_state, aad, aadlen);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_aead_enc_update, struct lc_aead_ctx *ctx,
@@ -141,9 +137,7 @@ LC_INTERFACE_FUNCTION(int, lc_aead_enc_update, struct lc_aead_ctx *ctx,
 	if (!plaintext)
 		plaintext = ciphertext;
 
-	aead->enc_update(aead_state, plaintext, ciphertext, datalen);
-
-	return 0;
+	return aead->enc_update(aead_state, plaintext, ciphertext, datalen);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_aead_enc_final, struct lc_aead_ctx *ctx,
@@ -161,9 +155,7 @@ LC_INTERFACE_FUNCTION(int, lc_aead_enc_final, struct lc_aead_ctx *ctx,
 	if (!aead || !aead_state || !aead->enc_final)
 		return -EOPNOTSUPP;
 
-	aead->enc_final(aead_state, tag, taglen);
-
-	return 0;
+	return aead->enc_final(aead_state, tag, taglen);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_aead_decrypt, struct lc_aead_ctx *ctx,
@@ -209,9 +201,7 @@ LC_INTERFACE_FUNCTION(int, lc_aead_dec_init, struct lc_aead_ctx *ctx,
 	if (!aead || !aead_state || !aead->dec_init)
 		return -EOPNOTSUPP;
 
-	aead->dec_init(aead_state, aad, aadlen);
-
-	return 0;
+	return aead->dec_init(aead_state, aad, aadlen);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_aead_dec_update, struct lc_aead_ctx *ctx,
@@ -237,9 +227,7 @@ LC_INTERFACE_FUNCTION(int, lc_aead_dec_update, struct lc_aead_ctx *ctx,
 	if (!ciphertext)
 		ciphertext = plaintext;
 
-	aead->dec_update(aead_state, ciphertext, plaintext, datalen);
-
-	return 0;
+	return aead->dec_update(aead_state, ciphertext, plaintext, datalen);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_aead_dec_final, struct lc_aead_ctx *ctx,

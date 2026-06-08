@@ -135,8 +135,8 @@ out:
 }
 
 /* Insert the AAD into the sponge state. */
-static void lc_ascon_aad(struct lc_ascon_cryptor *ascon, const uint8_t *aad,
-			 size_t aadlen)
+static int lc_ascon_aad(struct lc_ascon_cryptor *ascon, const uint8_t *aad,
+			size_t aadlen)
 {
 	const struct lc_hash *hash = ascon->hash;
 	uint64_t *state_mem = ascon->state;
@@ -144,7 +144,7 @@ static void lc_ascon_aad(struct lc_ascon_cryptor *ascon, const uint8_t *aad,
 	static const uint8_t pad_trail = 0x80;
 
 	if (!aadlen)
-		return;
+		return -EINVAL;
 
 	/* Authenticated Data - Insert into rate section of the state */
 	while (aadlen >= hash->sponge_rate) {
@@ -164,6 +164,8 @@ static void lc_ascon_aad(struct lc_ascon_cryptor *ascon, const uint8_t *aad,
 	/* Add pad_trail bit */
 	lc_sponge_add_bytes(hash, state_mem, &pad_trail, ascon->statesize - 1,
 			    sizeof(pad_trail));
+
+	return 0;
 }
 
 /* Handle the finalization phase of the Ascon algorithm. */
@@ -227,8 +229,8 @@ static void lc_ascon_enc_update(struct lc_ascon_cryptor *ascon,
 	}
 }
 
-static void lc_ascon_enc_final(struct lc_ascon_cryptor *ascon, uint8_t *tag,
-			       size_t taglen)
+static int lc_ascon_enc_final(struct lc_ascon_cryptor *ascon, uint8_t *tag,
+			      size_t taglen)
 {
 	const struct lc_hash *hash = ascon->hash;
 
@@ -243,30 +245,38 @@ static void lc_ascon_enc_final(struct lc_ascon_cryptor *ascon, uint8_t *tag,
 		lc_sponge(hash, ascon->state, ascon->roundb);
 
 	/* Enforce the tag size */
-	if (taglen != ascon->taglen)
-		return;
+	if (taglen != ascon->taglen) {
+		lc_memset_secure(tag, 0, taglen);
+		return -EINVAL;
+	}
 
 	lc_ascon_add_padbyte(ascon, ascon->rate_offset);
 
 	/* Finalization */
 	lc_ascon_finalization(ascon, tag, taglen);
+
+	return 0;
 }
 
 /* Complete one-shot encryption */
-void lc_ascon_encrypt(void *state, const uint8_t *plaintext,
-		      uint8_t *ciphertext, size_t datalen, const uint8_t *aad,
-		      size_t aadlen, uint8_t *tag, size_t taglen)
+int lc_ascon_encrypt(void *state, const uint8_t *plaintext,
+		     uint8_t *ciphertext, size_t datalen, const uint8_t *aad,
+		     size_t aadlen, uint8_t *tag, size_t taglen)
 {
 	struct lc_ascon_cryptor *ascon = state;
+	int ret;
 
 	/* Authenticated Data */
-	lc_ascon_aad(ascon, aad, aadlen);
+	CKINT(lc_ascon_aad(ascon, aad, aadlen));
 
 	/* Plaintext - Insert into rate */
 	lc_ascon_enc_update(ascon, plaintext, ciphertext, datalen);
 
 	/* Finalize operation and get authentication tag */
-	lc_ascon_enc_final(ascon, tag, taglen);
+	CKINT(lc_ascon_enc_final(ascon, tag, taglen));
+
+out:
+	return ret;
 }
 
 /* Ciphertext - Insert into sponge state and extract the plaintext */
@@ -378,45 +388,53 @@ int lc_ascon_decrypt(void *state, const uint8_t *ciphertext, uint8_t *plaintext,
 		     const uint8_t *tag, size_t taglen)
 {
 	struct lc_ascon_cryptor *ascon = state;
+	int ret;
 
 	/* Authenticated Data - Insert into rate */
-	lc_ascon_aad(ascon, aad, aadlen);
+	CKINT(lc_ascon_aad(ascon, aad, aadlen));
 
 	/* Ciphertext - Insert into rate */
 	lc_ascon_dec_update(ascon, ciphertext, plaintext, datalen);
 
 	/* Finalize operation and authenticate operation */
-	return lc_ascon_dec_final(ascon, tag, taglen);
+	CKINT(lc_ascon_dec_final(ascon, tag, taglen));
+
+out:
+	return ret;
 }
 
-void lc_ascon_aad_interface(void *state, const uint8_t *aad, size_t aadlen)
+int lc_ascon_aad_interface(void *state, const uint8_t *aad, size_t aadlen)
 {
 	struct lc_ascon_cryptor *ascon = state;
 
-	lc_ascon_aad(ascon, aad, aadlen);
+	return lc_ascon_aad(ascon, aad, aadlen);
 }
 
-void lc_ascon_enc_update_interface(void *state, const uint8_t *plaintext,
-				   uint8_t *ciphertext, size_t datalen)
+int lc_ascon_enc_update_interface(void *state, const uint8_t *plaintext,
+				  uint8_t *ciphertext, size_t datalen)
 {
 	struct lc_ascon_cryptor *ascon = state;
 
 	lc_ascon_enc_update(ascon, plaintext, ciphertext, datalen);
+
+	return 0;
 }
 
-void lc_ascon_enc_final_interface(void *state, uint8_t *tag, size_t taglen)
+int lc_ascon_enc_final_interface(void *state, uint8_t *tag, size_t taglen)
 {
 	struct lc_ascon_cryptor *ascon = state;
 
-	lc_ascon_enc_final(ascon, tag, taglen);
+	return lc_ascon_enc_final(ascon, tag, taglen);
 }
 
-void lc_ascon_dec_update_interface(void *state, const uint8_t *ciphertext,
-				   uint8_t *plaintext, size_t datalen)
+int lc_ascon_dec_update_interface(void *state, const uint8_t *ciphertext,
+				  uint8_t *plaintext, size_t datalen)
 {
 	struct lc_ascon_cryptor *ascon = state;
 
 	lc_ascon_dec_update(ascon, ciphertext, plaintext, datalen);
+
+	return 0;
 }
 
 int lc_ascon_dec_final_interface(void *state, const uint8_t *tag, size_t taglen)

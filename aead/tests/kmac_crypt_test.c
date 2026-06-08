@@ -121,6 +121,7 @@ static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
 	ret = lc_aead_dec_final(kc, tag, exp_tag_len);
 	if (ret < 0)
 		return 1;
+
 	//bin2print(out_dec, sizeof(out_dec), stderr, "out_dec");
 	ret_checked += lc_compare(out_dec, pt, ptlen,
 				  "KMAC crypt: Decryption, plaintext");
@@ -141,7 +142,6 @@ static int kc_tester_kmac_one(const uint8_t *pt, size_t ptlen,
 	return ret_checked;
 }
 
-#include "timecop.h"
 static int kc_tester_kmac_validate(void)
 {
 	static const uint8_t key[] = {
@@ -166,11 +166,14 @@ static int kc_tester_kmac_validate(void)
 
 	if (lc_aead_setkey(kc, key, sizeof(key), NULL, 0))
 		return 1;
-	if (lc_aead_encrypt(kc, in, out_enc, sizeof(in), NULL, 0, NULL, 0))
+
+	if (lc_aead_encrypt(kc, in, out_enc, sizeof(in), NULL, 0, NULL, 0) !=
+	    -EBADMSG)
 		return 1;
 
 	if (lc_kmac_init(kmac256, in, sizeof(in), NULL, 0))
 		return 1;
+
 	lc_kmac_final_xof(kmac256, out_kmac, sizeof(out_kmac));
 
 	return lc_compare(out_kmac + 32, out_enc, sizeof(out_enc),
@@ -236,6 +239,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 		ret = 77;
 		goto out;
 	}
+
 	ret2 = kc_tester_kmac_validate();
 	if (ret2 == -EOPNOTSUPP) {
 		ret = 77;

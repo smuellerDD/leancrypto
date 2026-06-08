@@ -75,7 +75,7 @@ static int lc_aes_gcm_test(int argc)
 			act_tag, sizeof(act_tag));
 	ret += lc_compare(act_ct, zero, sizeof(zero),
 			  "AES GCM encrypt ciphertext");
-	ret += lc_compare(act_tag, zero, sizeof(zero), "AES GCM encrypt tag");
+	ret += lc_compare(act_tag, one, sizeof(one), "AES GCM encrypt tag");
 	lc_aead_zero(aes_gcm);
 
 	/*

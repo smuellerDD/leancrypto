@@ -529,7 +529,7 @@ out:
  * This function allows to be invoked multiple times to insert the AAD. The
  * individual AAD chunks do not need to be multiples of AES blocks.
  */
-static void gcm_aad(void *state, const uint8_t *aad, size_t aad_len)
+static int gcm_aad(void *state, const uint8_t *aad, size_t aad_len)
 {
 	struct lc_aes_gcm_cryptor *ctx = state;
 	struct lc_gcm_ctx *gcm_ctx;
@@ -537,7 +537,7 @@ static void gcm_aad(void *state, const uint8_t *aad, size_t aad_len)
 	uint8_t use_len, rem_aad;
 
 	if (!ctx)
-		return;
+		return -EINVAL;
 
 	gcm_ctx = &ctx->gcm_ctx;
 	rem_aad = gcm_ctx->aad_len & (AES_BLOCKSIZE - 1);
@@ -570,6 +570,8 @@ static void gcm_aad(void *state, const uint8_t *aad, size_t aad_len)
 		p += use_len;
 		rem_aad = 0;
 	}
+
+	return 0;
 }
 
 /*
@@ -581,8 +583,8 @@ static void gcm_aad(void *state, const uint8_t *aad, size_t aad_len)
  * invocation MUST be called with length mod AES_BLOCKSIZE == 0. (Only the final
  * call can have a partial block length of < 128 bits.)
  */
-static void gcm_enc_update(void *state, const uint8_t *plaintext,
-			   uint8_t *ciphertext, size_t datalen)
+static int gcm_enc_update(void *state, const uint8_t *plaintext,
+			  uint8_t *ciphertext, size_t datalen)
 {
 	struct lc_aes_gcm_cryptor *ctx = state;
 	struct lc_gcm_ctx *gcm_ctx;
@@ -593,8 +595,8 @@ static void gcm_enc_update(void *state, const uint8_t *plaintext,
 	 * IV is generated and set by lc_aes_gcm_generate_iv.
 	 */
 	if (!ctx || (fips140_mode_enabled() && ctx->gcm_ctx.external_iv)) {
-		memset(ciphertext, 0, datalen);
-		return;
+		lc_memset_secure(ciphertext, 0, datalen);
+		return -EINVAL;
 	}
 
 	gcm_ctx = &ctx->gcm_ctx;
@@ -616,8 +618,8 @@ static void gcm_enc_update(void *state, const uint8_t *plaintext,
 	 */
 	if (gcm_ctx->len > ((1ULL << 32) - 1) * AES_BLOCKSIZE) {
 		/* clear out the destination buffer */
-		memset(ciphertext, 0, datalen);
-		return;
+		lc_memset_secure(ciphertext, 0, datalen);
+		return -EOVERFLOW;
 	}
 
 	while (datalen > 0) {
@@ -682,18 +684,20 @@ static void gcm_enc_update(void *state, const uint8_t *plaintext,
 		plaintext += use_len; // bump our input pointer forward
 		ciphertext += use_len; // bump our output pointer forward
 	}
+
+	return 0;
 }
 
-static void gcm_dec_update(void *state, const uint8_t *ciphertext,
-			   uint8_t *plaintext, size_t datalen)
+static int gcm_dec_update(void *state, const uint8_t *ciphertext,
+			  uint8_t *plaintext, size_t datalen)
 {
 	struct lc_aes_gcm_cryptor *ctx = state;
 	struct lc_gcm_ctx *gcm_ctx;
 	uint8_t use_len, i, non_align, rem_aad;
 
 	if (!ctx) {
-		memset(plaintext, 0, datalen);
-		return;
+		lc_memset_secure(plaintext, 0, datalen);
+		return -EINVAL;
 	}
 
 	gcm_ctx = &ctx->gcm_ctx;
@@ -775,6 +779,8 @@ static void gcm_dec_update(void *state, const uint8_t *ciphertext,
 		ciphertext += use_len; // bump our input pointer forward
 		plaintext += use_len; // bump our plaintext pointer forward
 	}
+
+	return 0;
 }
 
 /*
@@ -784,7 +790,7 @@ static void gcm_dec_update(void *state, const uint8_t *ciphertext,
  * It performs the final GHASH to produce the resulting authentication TAG.
  *
  */
-static void gcm_enc_final(void *state, uint8_t *tag, size_t tag_len)
+static int gcm_enc_final(void *state, uint8_t *tag, size_t tag_len)
 {
 	struct lc_aes_gcm_cryptor *ctx = state;
 	struct lc_gcm_ctx *gcm_ctx;
@@ -798,8 +804,8 @@ static void gcm_enc_final(void *state, uint8_t *tag, size_t tag_len)
 	 */
 	if (!ctx || (tag_len < 64 / 8 || tag_len > AES_BLOCKSIZE) ||
 	    (fips140_mode_enabled() && ctx->gcm_ctx.external_iv)) {
-		memset(tag, 0, tag_len);
-		return;
+		lc_memset_secure(tag, 0, tag_len);
+		return -EINVAL;
 	}
 
 	gcm_ctx = &ctx->gcm_ctx;
@@ -828,6 +834,8 @@ static void gcm_enc_final(void *state, uint8_t *tag, size_t tag_len)
 
 	/* Tag is not sensitive any more */
 	unpoison(tag, tag_len);
+
+	return 0;
 }
 
 /*
@@ -846,7 +854,7 @@ static int gcm_dec_final(void *state, const uint8_t *tag, size_t taglen)
 	uint8_t check_tag[AES_BLOCKSIZE] __align(8);
 	int ret;
 
-	gcm_enc_final(state, check_tag, taglen);
+	CKINT(gcm_enc_final(state, check_tag, taglen));
 
 	/* now we verify the authentication tag in 'constant time' */
 	CKRET_HARDENED(lc_memcmp_secure(tag, taglen, check_tag, taglen),
@@ -857,22 +865,32 @@ out:
 	return ret;
 }
 
-static void gcm_encrypt(void *state, const uint8_t *plaintext,
-			uint8_t *ciphertext, size_t datalen, const uint8_t *aad,
-			size_t aadlen, uint8_t *tag, size_t taglen)
+static int gcm_encrypt(void *state, const uint8_t *plaintext,
+		       uint8_t *ciphertext, size_t datalen, const uint8_t *aad,
+		       size_t aadlen, uint8_t *tag, size_t taglen)
 {
-	gcm_aad(state, aad, aadlen);
-	gcm_enc_update(state, plaintext, ciphertext, datalen);
-	gcm_enc_final(state, tag, taglen);
+	int ret;
+
+	CKINT(gcm_aad(state, aad, aadlen));
+	CKINT(gcm_enc_update(state, plaintext, ciphertext, datalen));
+	CKINT(gcm_enc_final(state, tag, taglen));
+
+out:
+	return ret;
 }
 
 static int gcm_decrypt(void *state, const uint8_t *ciphertext,
 		       uint8_t *plaintext, size_t datalen, const uint8_t *aad,
 		       size_t aadlen, const uint8_t *tag, size_t taglen)
 {
-	gcm_aad(state, aad, aadlen);
-	gcm_dec_update(state, ciphertext, plaintext, datalen);
-	return gcm_dec_final(state, tag, taglen);
+	int ret;
+
+	CKINT(gcm_aad(state, aad, aadlen));
+	CKINT(gcm_dec_update(state, ciphertext, plaintext, datalen));
+	CKINT(gcm_dec_final(state, tag, taglen));
+
+out:
+	return ret;
 }
 
 /*

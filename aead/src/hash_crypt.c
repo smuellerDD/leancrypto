@@ -229,18 +229,20 @@ static void lc_hc_crypt(struct lc_hc_cryptor *hc, const uint8_t *in,
 	}
 }
 
-static void lc_hc_add_aad(void *state, const uint8_t *aad, size_t aadlen)
+static int lc_hc_add_aad(void *state, const uint8_t *aad, size_t aadlen)
 {
 	struct lc_hc_cryptor *hc = state;
 	struct lc_hmac_ctx *auth_ctx = &hc->auth_ctx;
 
 	/* Add the AAD data into the CSHAKE context */
 	lc_hmac_update(auth_ctx, aad, aadlen);
+
+	return 0;
 }
 
 #define LC_SHA_MAX_SIZE_DIGEST 64
 
-static void lc_hc_encrypt_tag(void *state, uint8_t *tag, size_t taglen)
+static int lc_hc_encrypt_tag(void *state, uint8_t *tag, size_t taglen)
 {
 	struct lc_hc_cryptor *hc = state;
 	struct lc_hmac_ctx *auth_ctx;
@@ -250,7 +252,7 @@ static void lc_hc_encrypt_tag(void *state, uint8_t *tag, size_t taglen)
 	digestsize = lc_hc_get_tagsize(hc);
 	/* Guard against programming error. */
 	if (LC_SHA_MAX_SIZE_DIGEST < digestsize)
-		return;
+		return -EINVAL;
 
 	/* Generate authentication tag */
 	if (taglen < digestsize) {
@@ -262,10 +264,12 @@ static void lc_hc_encrypt_tag(void *state, uint8_t *tag, size_t taglen)
 	} else {
 		lc_hmac_final(auth_ctx, tag);
 	}
+
+	return 0;
 }
 
-static void lc_hc_encrypt(void *state, const uint8_t *plaintext,
-			  uint8_t *ciphertext, size_t datalen)
+static int lc_hc_encrypt(void *state, const uint8_t *plaintext,
+			 uint8_t *ciphertext, size_t datalen)
 {
 	struct lc_hc_cryptor *hc = state;
 	struct lc_hmac_ctx *auth_ctx = &hc->auth_ctx;
@@ -277,10 +281,12 @@ static void lc_hc_encrypt(void *state, const uint8_t *plaintext,
 	 * Perform an Encrypt-Then-MAC operation.
 	 */
 	lc_hmac_update(auth_ctx, ciphertext, datalen);
+
+	return 0;
 }
 
-static void lc_hc_decrypt(void *state, const uint8_t *ciphertext,
-			  uint8_t *plaintext, size_t datalen)
+static int lc_hc_decrypt(void *state, const uint8_t *ciphertext,
+			 uint8_t *plaintext, size_t datalen)
 {
 	struct lc_hc_cryptor *hc = state;
 	struct lc_hmac_ctx *auth_ctx = &hc->auth_ctx;
@@ -291,23 +297,29 @@ static void lc_hc_decrypt(void *state, const uint8_t *ciphertext,
 	 */
 	lc_hmac_update(auth_ctx, ciphertext, datalen);
 	lc_hc_crypt(hc, ciphertext, plaintext, datalen);
+
+	return 0;
 }
 
-static void lc_hc_encrypt_oneshot(void *state, const uint8_t *plaintext,
-				  uint8_t *ciphertext, size_t datalen,
-				  const uint8_t *aad, size_t aadlen,
-				  uint8_t *tag, size_t taglen)
+static int lc_hc_encrypt_oneshot(void *state, const uint8_t *plaintext,
+				 uint8_t *ciphertext, size_t datalen,
+				 const uint8_t *aad, size_t aadlen,
+				 uint8_t *tag, size_t taglen)
 {
 	struct lc_hc_cryptor *hc = state;
+	int ret;
 
 	/* Insert the AAD */
-	lc_hc_add_aad(state, aad, aadlen);
+	CKINT(lc_hc_add_aad(state, aad, aadlen));
 
 	/* Confidentiality protection: Encrypt data */
-	lc_hc_encrypt(hc, plaintext, ciphertext, datalen);
+	CKINT(lc_hc_encrypt(hc, plaintext, ciphertext, datalen));
 
 	/* Integrity protection: MAC data */
-	lc_hc_encrypt_tag(hc, tag, taglen);
+	CKINT(lc_hc_encrypt_tag(hc, tag, taglen));
+
+out:
+	return ret;
 }
 
 static int lc_hc_decrypt_authenticate(void *state, const uint8_t *tag,
@@ -324,7 +336,7 @@ static int lc_hc_decrypt_authenticate(void *state, const uint8_t *tag,
 	 * Calculate the authentication tag for the processed. We do not need
 	 * to check the return code as we use the maximum tag size.
 	 */
-	lc_hc_encrypt_tag(hc, calctag, taglen);
+	CKINT(lc_hc_encrypt_tag(hc, calctag, taglen));
 	CKRET_HARDENED(lc_memcmp_secure(calctag, taglen, tag, taglen),
 		       -EBADMSG);
 
@@ -339,9 +351,10 @@ static int lc_hc_decrypt_oneshot(void *state, const uint8_t *ciphertext,
 				 const uint8_t *tag, size_t taglen)
 {
 	struct lc_hc_cryptor *hc = state;
+	int ret;
 
 	/* Insert the AAD */
-	lc_hc_add_aad(state, aad, aadlen);
+	CKINT(lc_hc_add_aad(state, aad, aadlen));
 
 	/*
 	 * To ensure constant time between passing and failing decryption,
@@ -353,10 +366,13 @@ static int lc_hc_decrypt_oneshot(void *state, const uint8_t *ciphertext,
 	 */
 
 	/* Confidentiality protection: decrypt data */
-	lc_hc_decrypt(hc, ciphertext, plaintext, datalen);
+	CKINT(lc_hc_decrypt(hc, ciphertext, plaintext, datalen));
 
 	/* Integrity protection: verify MAC of data */
-	return lc_hc_decrypt_authenticate(hc, tag, taglen);
+	CKINT_HARDENED(lc_hc_decrypt_authenticate(hc, tag, taglen));
+
+out:
+	return ret;
 }
 
 static void lc_hc_zero(void *state)

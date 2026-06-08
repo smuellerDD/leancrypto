@@ -277,8 +277,8 @@ static int lc_chacha20_poly1305_setkey(void *state, const uint8_t *key,
 						   ivlen);
 }
 
-static void lc_chacha20_poly1305_add_aad(void *state, const uint8_t *aad,
-					 size_t aadlen)
+static int lc_chacha20_poly1305_add_aad(void *state, const uint8_t *aad,
+					size_t aadlen)
 {
 	struct lc_chacha20_poly1305_cryptor *cc20p1305 = state;
 	struct lc_poly1305_context *poly1305 = &cc20p1305->poly1305_ctx;
@@ -286,6 +286,8 @@ static void lc_chacha20_poly1305_add_aad(void *state, const uint8_t *aad,
 	/* Add the AAD data into the Poly1305 context */
 	lc_poly1305_update(poly1305, aad, aadlen);
 	cc20p1305->aadlen += aadlen;
+
+	return 0;
 }
 
 static inline void
@@ -311,8 +313,8 @@ lc_chacha20_poly1305_aad_pad(struct lc_chacha20_poly1305_cryptor *cc20p1305)
 	lc_poly1305_update(poly1305, null_buffer, padlen);
 }
 
-static void lc_chacha20_poly1305_encrypt_tag(void *state, uint8_t *tag,
-					     size_t taglen)
+static int lc_chacha20_poly1305_encrypt_tag(void *state, uint8_t *tag,
+					    size_t taglen)
 {
 	struct lc_chacha20_poly1305_cryptor *cc20p1305 = state;
 	struct lc_poly1305_context *poly1305 = &cc20p1305->poly1305_ctx;
@@ -342,6 +344,8 @@ static void lc_chacha20_poly1305_encrypt_tag(void *state, uint8_t *tag,
 		lc_poly1305_final(poly1305, tag);
 		unpoison(tag, LC_POLY1305_TAGSIZE);
 	}
+
+	return 0;
 }
 
 static int lc_chacha20_poly1305_decrypt_authenticate(void *state,
@@ -359,7 +363,8 @@ static int lc_chacha20_poly1305_decrypt_authenticate(void *state,
 	 * Calculate the authentication tag for the processed. We do not need
 	 * to check the return code as we use the maximum tag size.
 	 */
-	lc_chacha20_poly1305_encrypt_tag(cc20p1305, calctag, sizeof(calctag));
+	CKINT(lc_chacha20_poly1305_encrypt_tag(cc20p1305, calctag,
+					       sizeof(calctag)));
 	CKRET_HARDENED(lc_memcmp_secure(calctag, taglen, tag, taglen),
 		       -EBADMSG);
 
@@ -368,8 +373,8 @@ out:
 	return ret;
 }
 
-static void lc_chacha20_poly1305_encrypt(void *state, const uint8_t *plaintext,
-					 uint8_t *ciphertext, size_t datalen)
+static int lc_chacha20_poly1305_encrypt(void *state, const uint8_t *plaintext,
+					uint8_t *ciphertext, size_t datalen)
 {
 	struct lc_chacha20_poly1305_cryptor *cc20p1305 = state;
 	struct lc_poly1305_context *poly1305 = &cc20p1305->poly1305_ctx;
@@ -385,10 +390,12 @@ static void lc_chacha20_poly1305_encrypt(void *state, const uint8_t *plaintext,
 	 * Perform an Encrypt-Then-MAC operation.
 	 */
 	lc_poly1305_update(poly1305, ciphertext, datalen);
+
+	return 0;
 }
 
-static void lc_chacha20_poly1305_decrypt(void *state, const uint8_t *ciphertext,
-					 uint8_t *plaintext, size_t datalen)
+static int lc_chacha20_poly1305_decrypt(void *state, const uint8_t *ciphertext,
+					uint8_t *plaintext, size_t datalen)
 {
 	struct lc_chacha20_poly1305_cryptor *cc20p1305 = state;
 	struct lc_poly1305_context *poly1305 = &cc20p1305->poly1305_ctx;
@@ -403,24 +410,31 @@ static void lc_chacha20_poly1305_decrypt(void *state, const uint8_t *ciphertext,
 	lc_poly1305_update(poly1305, ciphertext, datalen);
 	lc_sym_decrypt(chacha20, ciphertext, plaintext, datalen);
 	cc20p1305->datalen += datalen;
+
+	return 0;
 }
 
-static void
+static int
 lc_chacha20_poly1305_encrypt_oneshot(void *state, const uint8_t *plaintext,
 				     uint8_t *ciphertext, size_t datalen,
 				     const uint8_t *aad, size_t aadlen,
 				     uint8_t *tag, size_t taglen)
 {
 	struct lc_chacha20_poly1305_cryptor *cc20p1305 = state;
+	int ret;
 
 	/* Insert the AAD */
-	lc_chacha20_poly1305_add_aad(state, aad, aadlen);
+	CKINT(lc_chacha20_poly1305_add_aad(state, aad, aadlen));
 
 	/* Confidentiality protection: Encrypt data */
-	lc_chacha20_poly1305_encrypt(cc20p1305, plaintext, ciphertext, datalen);
+	CKINT(lc_chacha20_poly1305_encrypt(cc20p1305, plaintext, ciphertext,
+					   datalen));
 
 	/* Integrity protection: Poly1305 tag */
-	lc_chacha20_poly1305_encrypt_tag(cc20p1305, tag, taglen);
+	CKINT(lc_chacha20_poly1305_encrypt_tag(cc20p1305, tag, taglen));
+
+out:
+	return ret;
 }
 
 static int
@@ -430,9 +444,10 @@ lc_chacha20_poly1305_decrypt_oneshot(void *state, const uint8_t *ciphertext,
 				     const uint8_t *tag, size_t taglen)
 {
 	struct lc_chacha20_poly1305_cryptor *cc20p1305 = state;
+	int ret;
 
 	/* Insert the AAD */
-	lc_chacha20_poly1305_add_aad(state, aad, aadlen);
+	CKINT(lc_chacha20_poly1305_add_aad(state, aad, aadlen));
 
 	/*
 	 * To ensure constant time between passing and failing decryption,
@@ -443,11 +458,15 @@ lc_chacha20_poly1305_decrypt_oneshot(void *state, const uint8_t *ciphertext,
 	 * function.
 	 */
 	/* Confidentiality protection: decrypt data */
-	lc_chacha20_poly1305_decrypt(cc20p1305, ciphertext, plaintext, datalen);
+	CKINT(lc_chacha20_poly1305_decrypt(cc20p1305, ciphertext, plaintext,
+					   datalen));
 
 	/* Integrity protection: verify MAC of data */
-	return lc_chacha20_poly1305_decrypt_authenticate(cc20p1305, tag,
-							 taglen);
+	CKINT_HARDENED(lc_chacha20_poly1305_decrypt_authenticate(cc20p1305, tag,
+								 taglen));
+
+out:
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_chacha20_poly1305_alloc, struct lc_aead_ctx **ctx)

@@ -211,22 +211,29 @@ static int lc_kh_setkey(void *state, const uint8_t *key, size_t keylen,
 	return lc_kh_setkey_nocheck(state, key, keylen, iv, ivlen);
 }
 
-static void lc_kh_add_aad(void *state, const uint8_t *aad, size_t aadlen)
+static int lc_kh_add_aad(void *state, const uint8_t *aad, size_t aadlen)
 {
 	struct lc_kh_cryptor *kh = state;
 	struct lc_kmac_ctx *auth_ctx = &kh->auth_ctx;
 
 	/* Add the AAD data into the CSHAKE context */
 	lc_kmac_update(auth_ctx, aad, aadlen);
+
+	return 0;
 }
 
-static void lc_kh_encrypt_tag(void *state, uint8_t *tag, size_t taglen)
+static int lc_kh_encrypt_tag(void *state, uint8_t *tag, size_t taglen)
 {
 	struct lc_kh_cryptor *kh = state;
 	struct lc_kmac_ctx *auth_ctx = &kh->auth_ctx;
+	int ret;
 
 	/* Generate authentication tag */
-	lc_kmac_final_xof(auth_ctx, tag, taglen);
+	ret = lc_kmac_final_xof(auth_ctx, tag, taglen);
+	if (ret < 0)
+		lc_memset_secure(tag, 0, taglen);
+
+	return ret;
 }
 
 static int lc_kh_decrypt_authenticate(void *state, const uint8_t *tag,
@@ -253,8 +260,8 @@ out:
 	return ret;
 }
 
-static void lc_kh_encrypt(void *state, const uint8_t *plaintext,
-			  uint8_t *ciphertext, size_t datalen)
+static int lc_kh_encrypt(void *state, const uint8_t *plaintext,
+			 uint8_t *ciphertext, size_t datalen)
 {
 	struct lc_kh_cryptor *kh = state;
 	struct lc_kmac_ctx *auth_ctx = &kh->auth_ctx;
@@ -266,8 +273,8 @@ static void lc_kh_encrypt(void *state, const uint8_t *plaintext,
 
 	/* Safety-measure to avoid leaking data */
 	if (trailing_bytes) {
-		memset(ciphertext + datalen - trailing_bytes, 0,
-		       trailing_bytes);
+		lc_memset_secure(ciphertext + datalen - trailing_bytes, 0,
+				 trailing_bytes);
 	}
 
 	/*
@@ -275,10 +282,12 @@ static void lc_kh_encrypt(void *state, const uint8_t *plaintext,
 	 * Perform an Encrypt-Then-MAC operation.
 	 */
 	lc_kmac_update(auth_ctx, ciphertext, datalen);
+
+	return 0;
 }
 
-static void lc_kh_decrypt(void *state, const uint8_t *ciphertext,
-			  uint8_t *plaintext, size_t datalen)
+static int lc_kh_decrypt(void *state, const uint8_t *ciphertext,
+			 uint8_t *plaintext, size_t datalen)
 {
 	struct lc_kh_cryptor *kh = state;
 	struct lc_kmac_ctx *auth_ctx = &kh->auth_ctx;
@@ -294,25 +303,33 @@ static void lc_kh_decrypt(void *state, const uint8_t *ciphertext,
 	lc_sym_decrypt(sym, ciphertext, plaintext, datalen);
 
 	/* Safety-measure to avoid leaking data */
-	if (trailing_bytes)
-		memset(plaintext + datalen - trailing_bytes, 0, trailing_bytes);
+	if (trailing_bytes) {
+		lc_memset_secure(plaintext + datalen - trailing_bytes, 0,
+				 trailing_bytes);
+	}
+
+	return 0;
 }
 
-static void lc_kh_encrypt_oneshot(void *state, const uint8_t *plaintext,
-				  uint8_t *ciphertext, size_t datalen,
-				  const uint8_t *aad, size_t aadlen,
-				  uint8_t *tag, size_t taglen)
+static int lc_kh_encrypt_oneshot(void *state, const uint8_t *plaintext,
+				 uint8_t *ciphertext, size_t datalen,
+				 const uint8_t *aad, size_t aadlen,
+				 uint8_t *tag, size_t taglen)
 {
 	struct lc_kh_cryptor *kh = state;
+	int ret;
 
 	/* Insert the AAD */
-	lc_kh_add_aad(state, aad, aadlen);
+	CKINT(lc_kh_add_aad(state, aad, aadlen));
 
 	/* Confidentiality protection: Encrypt data */
-	lc_kh_encrypt(kh, plaintext, ciphertext, datalen);
+	CKINT(lc_kh_encrypt(kh, plaintext, ciphertext, datalen));
 
 	/* Integrity protection: KMAC data */
-	lc_kh_encrypt_tag(kh, tag, taglen);
+	CKINT(lc_kh_encrypt_tag(kh, tag, taglen));
+
+out:
+	return ret;
 }
 
 static int lc_kh_decrypt_oneshot(void *state, const uint8_t *ciphertext,
@@ -321,9 +338,10 @@ static int lc_kh_decrypt_oneshot(void *state, const uint8_t *ciphertext,
 				 const uint8_t *tag, size_t taglen)
 {
 	struct lc_kh_cryptor *kh = state;
+	int ret;
 
 	/* Insert the AAD */
-	lc_kh_add_aad(state, aad, aadlen);
+	CKINT(lc_kh_add_aad(state, aad, aadlen));
 
 	/*
 	 * To ensure constant time between passing and failing decryption,
@@ -333,10 +351,13 @@ static int lc_kh_decrypt_oneshot(void *state, const uint8_t *ciphertext,
 	 * there is such an error from the timing analysis of this function.
 	 */
 	/* Confidentiality protection: decrypt data */
-	lc_kh_decrypt(kh, ciphertext, plaintext, datalen);
+	CKINT(lc_kh_decrypt(kh, ciphertext, plaintext, datalen));
 
 	/* Integrity protection: verify MAC of data */
-	return lc_kh_decrypt_authenticate(kh, tag, taglen);
+	CKINT_HARDENED(lc_kh_decrypt_authenticate(kh, tag, taglen));
+
+out:
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_kh_alloc, const struct lc_sym *sym,

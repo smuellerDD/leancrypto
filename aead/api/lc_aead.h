@@ -32,19 +32,19 @@ extern "C" {
 struct lc_aead {
 	int (*setkey)(void *state, const uint8_t *key, const size_t keylen,
 		      const uint8_t *iv, size_t ivlen);
-	void (*encrypt)(void *state, const uint8_t *plaintext,
-			uint8_t *ciphertext, size_t datalen, const uint8_t *aad,
-			size_t aadlen, uint8_t *tag, size_t taglen);
-	void (*enc_init)(void *state, const uint8_t *aad, size_t aadlen);
-	void (*enc_update)(void *state, const uint8_t *plaintext,
-			   uint8_t *ciphertext, size_t datalen);
-	void (*enc_final)(void *state, uint8_t *tag, size_t taglen);
+	int (*encrypt)(void *state, const uint8_t *plaintext,
+		       uint8_t *ciphertext, size_t datalen, const uint8_t *aad,
+		       size_t aadlen, uint8_t *tag, size_t taglen);
+	int (*enc_init)(void *state, const uint8_t *aad, size_t aadlen);
+	int (*enc_update)(void *state, const uint8_t *plaintext,
+			  uint8_t *ciphertext, size_t datalen);
+	int (*enc_final)(void *state, uint8_t *tag, size_t taglen);
 	int (*decrypt)(void *state, const uint8_t *ciphertext,
 		       uint8_t *plaintext, size_t datalen, const uint8_t *aad,
 		       size_t aadlen, const uint8_t *tag, size_t taglen);
-	void (*dec_init)(void *state, const uint8_t *aad, size_t aadlen);
-	void (*dec_update)(void *state, const uint8_t *ciphertext,
-			   uint8_t *plaintext, size_t datalen);
+	int (*dec_init)(void *state, const uint8_t *aad, size_t aadlen);
+	int (*dec_update)(void *state, const uint8_t *ciphertext,
+			  uint8_t *plaintext, size_t datalen);
 	int (*dec_final)(void *state, const uint8_t *tag, size_t taglen);
 	void (*zero)(void *state);
 	uint64_t algorithm_type;
