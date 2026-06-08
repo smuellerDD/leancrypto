@@ -35,6 +35,7 @@ http://creativecommons.org/publicdomain/zero/1.0/
 #include "ext_headers_internal.h"
 #include "ext_headers_x86.h"
 #include "KeccakP-1600-times4-SnP.h"
+#include "lc_memset_secure.h"
 
 #if __BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__
 #error Expecting a little-endian platform
@@ -111,7 +112,7 @@ static const uint64_t rho56[4] = { 0x0007060504030201, 0x080F0E0D0C0B0A09,
 
 void KeccakP1600times4_InitializeAll(void *states)
 {
-	memset(states, 0, KeccakP1600times4_statesSizeInBytes);
+	lc_memset_secure(states, 0, KeccakP1600times4_statesSizeInBytes);
 }
 
 void KeccakP1600times4_AddBytes(void *states, unsigned int instanceIndex,
@@ -316,8 +317,9 @@ void KeccakP1600times4_OverwriteWithZeroes(void *states,
 	}
 
 	if (sizeLeft > 0) {
-		memset(&statesAsLanes[laneIndex(instanceIndex, lanePosition)],
-		       0, sizeLeft);
+		lc_memset_secure(&statesAsLanes[laneIndex(instanceIndex,
+							  lanePosition)],
+				 0, sizeLeft);
 	}
 }
 

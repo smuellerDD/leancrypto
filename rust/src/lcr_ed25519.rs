@@ -282,7 +282,7 @@ impl lcr_ed25519 {
         let result = unsafe {
             leancrypto::lc_ed25519_sig_ptr(&mut ptr, &mut len, &mut self.sig)
         };
-        if result < 0 {
+        if result < 0 || ptr == ptr::null_mut() {
             return Err(SignatureError::ProcessingError);
         }
 

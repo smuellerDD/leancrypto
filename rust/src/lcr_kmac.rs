@@ -81,14 +81,30 @@ impl lcr_kmac {
             return Err(HashError::ProcessingError);
         }
 
+        /*
+         * &[].as_ptr() returns 0x1 and not a NULL pointer
+         */
+        let mut keyptr = key.as_ptr();
+        if key.len() == 0 {
+            keyptr = ptr::null();
+        }
+        let mut sptr = s.as_ptr();
+        if s.len() == 0 {
+            sptr = ptr::null_mut();
+        }
+        let mut msgptr = msg.as_ptr();
+        if msg.len() == 0 {
+            msgptr = ptr::null_mut();
+        }
+
         unsafe {
             leancrypto::lc_kmac(
                 self.lcr_type_mapping(),
-                key.as_ptr(),
+                keyptr,
                 key.len(),
-                s.as_ptr(),
+                sptr,
                 s.len(),
-                msg.as_ptr(),
+                msgptr,
                 msg.len(),
                 mac.as_mut_ptr(),
                 mac.len(),
@@ -121,14 +137,30 @@ impl lcr_kmac {
             return Err(HashError::ProcessingError);
         }
 
+        /*
+         * &[].as_ptr() returns 0x1 and not a NULL pointer
+         */
+        let mut keyptr = key.as_ptr();
+        if key.len() == 0 {
+            keyptr = ptr::null();
+        }
+        let mut sptr = s.as_ptr();
+        if s.len() == 0 {
+            sptr = ptr::null_mut();
+        }
+        let mut msgptr = msg.as_ptr();
+        if msg.len() == 0 {
+            msgptr = ptr::null_mut();
+        }
+
         unsafe {
             leancrypto::lc_kmac_xof(
                 self.lcr_type_mapping(),
-                key.as_ptr(),
+                keyptr,
                 key.len(),
-                s.as_ptr(),
+                sptr,
                 s.len(),
-                msg.as_ptr(),
+                msgptr,
                 msg.len(),
                 mac.as_mut_ptr(),
                 mac.len(),
