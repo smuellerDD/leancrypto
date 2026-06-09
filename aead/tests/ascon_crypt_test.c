@@ -66,7 +66,8 @@ static int ascon_tester_one(const uint8_t *pt, size_t ptlen,
 	if (lc_aead_setkey(al_heap, key, keylen, nonce, noncelen))
 		return 1;
 
-	memcpy(out_enc, pt, ptlen);
+	if (ptlen)
+		memcpy(out_enc, pt, ptlen);
 	lc_aead_encrypt(al_heap, out_enc, out_enc, ptlen, aad, aadlen, tag,
 			exp_tag_len);
 	lc_aead_zero_free(al_heap);
