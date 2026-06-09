@@ -82,7 +82,7 @@ pub struct lcr_x509_key {
     san_dns: Vec<CString>,
     skid: Vec<u8>,
     akid: Vec<u8>,
-    serial: Vec<CString>,
+    serial: Vec<u8>,
 }
 
 #[allow(dead_code)]
@@ -1356,15 +1356,15 @@ impl lcr_x509_key {
     /// * Returns Ok() on success or X509Error on error
     pub fn cert_set_serial(
         &mut self,
-        serial: &str,
+        serial: &[u8],
     ) -> Result<(), X509Error> {
         self.cert_configurable()?;
-        self.serial.push(CString::new(serial).unwrap());
+        self.serial.extend_from_slice(serial);
 
         let result = unsafe {
             leancrypto::lc_x509_cert_set_serial(
                 &mut self.x509_cert,
-                self.serial.as_ptr() as *const c_char,
+                self.serial.as_ptr(),
                 self.serial.len(),
             )
         };
