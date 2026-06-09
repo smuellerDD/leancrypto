@@ -252,8 +252,10 @@ static int lc_kernel_bike_ss(struct kpp_request *req)
 	copied = sg_copy_to_buffer(req->src,
 				   sg_nents_for_len(req->src, req->src_len), ct,
 				   sizeof(struct lc_bike_ct));
-	if (copied != sizeof(struct lc_bike_ct))
-		return -EINVAL;
+	if (copied != sizeof(struct lc_bike_ct)) {
+		ret = -EINVAL;
+		goto out;
+	}
 
 	/*
 	 * If the requested shared secret size is exactly the BIKE SS size
