@@ -21,6 +21,11 @@
 #include "aes_armce.h"
 #include "aes_c.h"
 #include "aes_riscv64.h"
+#include "chacha20_c.h"
+#include "chacha20_neon.h"
+#include "chacha20_riscv64_v_zbb.h"
+#include "chacha20_avx2.h"
+#include "chacha20_avx512.h"
 #include "cpufeatures.h"
 #include "ext_headers_internal.h"
 #include "fips_mode.h"
@@ -180,6 +185,9 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 #ifdef LC_AES
 		" AES: %s%s%s%s\n"
 #endif
+#ifdef LC_CHACHA20
+		" ChaCha20: %s%s%s%s\n"
+#endif
 #ifdef LC_SHA2_256
 		" SHA2-256: %s%s%s%s%s%s\n"
 #endif
@@ -220,6 +228,20 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 		(lc_aes_aesni && lc_aes_aesni != lc_aes_c) ? "AESNI " : "",
 		(lc_aes_armce && lc_aes_armce != lc_aes_c) ? "ARMv8-CE " : "",
 		(lc_aes_riscv64 && lc_aes_riscv64 != lc_aes_c) ? "RISCV64 " : ""
+#endif
+
+	/* ChaCha20 */
+#ifdef LC_CHACHA20
+		,
+		(lc_chacha20_neon && lc_chacha20_neon != lc_chacha20_c) ?
+			"Neon " : "",
+		(lc_chacha20_avx512 && lc_chacha20_avx512 != lc_chacha20_c) ?
+			"AVX512 " : "",
+		(lc_chacha20_avx2 && lc_chacha20_avx2 != lc_chacha20_c) ?
+			"AVX2 " : "",
+		(lc_chacha20_riscv64_v_zbb &&
+		 lc_chacha20_riscv64_v_zbb != lc_chacha20_c) ? "RISCV64-Zbb " :
+							       ""
 #endif
 
 	/* SHA2-256 */
