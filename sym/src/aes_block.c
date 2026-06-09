@@ -112,8 +112,10 @@ aes_setkey(struct lc_sym_state *ctx, const uint8_t *key, size_t keylen,
 		return -EINVAL;
 
 	ret = aes_set_type(&ctx->block_ctx, keylen);
-	if (!ret)
-		setkey(&ctx->block_ctx, key);
+	if (ret)
+		return ret;
+
+	setkey(&ctx->block_ctx, key);
 
 	return 0;
 }
