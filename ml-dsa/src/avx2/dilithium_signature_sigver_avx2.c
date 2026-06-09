@@ -148,8 +148,10 @@ static int lc_dilithium_verify_avx2_internal(const struct lc_dilithium_sig *sig,
 	}
 
 	if (ctx->external_mu) {
-		if (ctx->external_mu_len != LC_DILITHIUM_CRHBYTES)
-			return -EINVAL;
+		if (ctx->external_mu_len != LC_DILITHIUM_CRHBYTES) {
+			ret = -EINVAL;
+			goto out;
+		}
 
 		/* Call random oracle and verify challenge */
 		CKINT(lc_hash_init(hash_ctx));
