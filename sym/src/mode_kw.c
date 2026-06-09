@@ -128,13 +128,11 @@ static void mode_kw_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
 	const struct lc_sym *wrappeded_cipher;
 	struct aes_kw_block block;
 	uint64_t t = 1;
-	size_t rounded_len = len & ~(AES_KW_SEMIBSIZE - 1);
+	size_t rounded_len;
 	unsigned int i;
 
 	if (!ctx || !ctx->wrappeded_cipher)
 		return;
-
-	wrappeded_cipher = ctx->wrappeded_cipher;
 
 	/*
 	 * Require at least 2 semiblocks (note, the 3rd semiblock that is
@@ -148,6 +146,9 @@ static void mode_kw_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
 	/* Enforce that input size is multiple of 8 */
 	if (len & (AES_KW_SEMIBSIZE - 1))
 		return;
+
+	wrappeded_cipher = ctx->wrappeded_cipher;
+	rounded_len = len & ~(AES_KW_SEMIBSIZE - 1);
 
 	if (in != out)
 		memcpy(out, in, rounded_len);
@@ -194,14 +195,12 @@ static void mode_kw_decrypt(struct lc_mode_state *ctx, const uint8_t *in,
 {
 	const struct lc_sym *wrappeded_cipher;
 	struct aes_kw_block block;
-	uint64_t t = 6 * (len >> 3);
-	size_t rounded_len = len & ~(AES_KW_SEMIBSIZE - 1);
+	uint64_t t;
+	size_t rounded_len;
 	unsigned int i;
 
 	if (!ctx || !ctx->wrappeded_cipher)
 		return;
-
-	wrappeded_cipher = ctx->wrappeded_cipher;
 
 	/*
 	 * Require at least 2 semiblocks (note, the 3rd semiblock that is
@@ -213,6 +212,10 @@ static void mode_kw_decrypt(struct lc_mode_state *ctx, const uint8_t *in,
 	/* Enforce that input size is multiple of 8 */
 	if (len & (AES_KW_SEMIBSIZE - 1))
 		return;
+
+	wrappeded_cipher = ctx->wrappeded_cipher;
+	t = 6 * (len >> 3);
+	rounded_len = len & ~(AES_KW_SEMIBSIZE - 1);
 
 	if (in != out)
 		memcpy(out, in, rounded_len);
