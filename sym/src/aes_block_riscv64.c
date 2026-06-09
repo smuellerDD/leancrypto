@@ -39,22 +39,26 @@ struct lc_sym_state {
 
 #define LC_AES_BLOCK_SIZE sizeof(struct lc_sym_state)
 
-static void aes_riscv64_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
-				uint8_t *out, size_t len)
+static int aes_riscv64_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
+			       uint8_t *out, size_t len)
 {
 	if (!ctx || len != AES_BLOCKLEN)
-		return;
+		return -EINVAL;
 
 	aes_riscv64_encrypt_asm(in, out, &ctx->enc_block_ctx);
+
+	return 0;
 }
 
-static void aes_riscv64_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
-				uint8_t *out, size_t len)
+static int aes_riscv64_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
+			       uint8_t *out, size_t len)
 {
 	if (!ctx || len != AES_BLOCKLEN)
-		return;
+		return -EINVAL;
 
 	aes_riscv64_decrypt_asm(in, out, &ctx->dec_block_ctx);
+
+	return 0;
 }
 
 static int aes_riscv64_init(struct lc_sym_state *ctx)

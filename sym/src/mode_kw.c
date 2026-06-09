@@ -122,8 +122,8 @@ out2:
 	lc_sym_zero(ctx);
 }
 
-static void mode_kw_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
-			    uint8_t *out, size_t len)
+static int mode_kw_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
+			   uint8_t *out, size_t len)
 {
 	const struct lc_sym *wrappeded_cipher;
 	struct aes_kw_block block;
@@ -132,7 +132,7 @@ static void mode_kw_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
 	unsigned int i;
 
 	if (!ctx || !ctx->wrappeded_cipher)
-		return;
+		return -EINVAL;
 
 	/*
 	 * Require at least 2 semiblocks (note, the 3rd semiblock that is
@@ -141,11 +141,11 @@ static void mode_kw_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
 	 * Also ensure that the given data is aligned to semiblock.
 	 */
 	if (len < (2 * AES_KW_SEMIBSIZE))
-		return;
+		return -EINVAL;
 
 	/* Enforce that input size is multiple of 8 */
 	if (len & (AES_KW_SEMIBSIZE - 1))
-		return;
+		return -EINVAL;
 
 	wrappeded_cipher = ctx->wrappeded_cipher;
 	rounded_len = len & ~(AES_KW_SEMIBSIZE - 1);
@@ -188,10 +188,12 @@ static void mode_kw_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
 	ctx->tag = block.A;
 
 	lc_memset_secure(&block, 0, sizeof(block));
+
+	return 0;
 }
 
-static void mode_kw_decrypt(struct lc_mode_state *ctx, const uint8_t *in,
-			    uint8_t *out, size_t len)
+static int mode_kw_decrypt(struct lc_mode_state *ctx, const uint8_t *in,
+			   uint8_t *out, size_t len)
 {
 	const struct lc_sym *wrappeded_cipher;
 	struct aes_kw_block block;
@@ -200,18 +202,18 @@ static void mode_kw_decrypt(struct lc_mode_state *ctx, const uint8_t *in,
 	unsigned int i;
 
 	if (!ctx || !ctx->wrappeded_cipher)
-		return;
+		return -EINVAL;
 
 	/*
 	 * Require at least 2 semiblocks (note, the 3rd semiblock that is
 	 * required by SP800-38F is the IV.
 	 */
 	if (len < (2 * AES_KW_SEMIBSIZE))
-		return;
+		return -EINVAL;
 
 	/* Enforce that input size is multiple of 8 */
 	if (len & (AES_KW_SEMIBSIZE - 1))
-		return;
+		return -EINVAL;
 
 	wrappeded_cipher = ctx->wrappeded_cipher;
 	t = 6 * (len >> 3);
@@ -252,6 +254,8 @@ static void mode_kw_decrypt(struct lc_mode_state *ctx, const uint8_t *in,
 	ctx->tag = block.A;
 
 	lc_memset_secure(&block, 0, sizeof(block));
+
+	return 0;
 }
 
 static void mode_kw_init(struct lc_mode_state *ctx,

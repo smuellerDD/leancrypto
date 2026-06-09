@@ -35,16 +35,16 @@ struct lc_sym_state {
 
 #define LC_AES_KW_BLOCK_SIZE sizeof(struct lc_sym_state)
 
-static void aes_armce_kw_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
-				 uint8_t *out, size_t len)
+static int aes_armce_kw_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
+				uint8_t *out, size_t len)
 {
-	lc_mode_kw_c->encrypt(&ctx->kw_state, in, out, len);
+	return lc_mode_kw_c->encrypt(&ctx->kw_state, in, out, len);
 }
 
-static void aes_armce_kw_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
-				 uint8_t *out, size_t len)
+static int aes_armce_kw_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
+				uint8_t *out, size_t len)
 {
-	lc_mode_kw_c->decrypt(&ctx->kw_state, in, out, len);
+	return lc_mode_kw_c->decrypt(&ctx->kw_state, in, out, len);
 }
 
 static int aes_armce_kw_init_nocheck(struct lc_sym_state *ctx)

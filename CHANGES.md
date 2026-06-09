@@ -39,6 +39,8 @@ Changes 1.8.0-prerelease
 
 * Ascon: add support and tests for NULL AAD and NULL PT
 
+* symmetric ciphers: return error codes for encrypt/decrypt
+
 Changes 1.7.2
 * Fix RDSEED counter
 

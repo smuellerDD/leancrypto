@@ -34,10 +34,10 @@ struct lc_sym_state {
 
 #define LC_AES_CTR_BLOCK_SIZE sizeof(struct lc_sym_state)
 
-static void aes_riscv64_ctr_crypt(struct lc_sym_state *ctx, const uint8_t *in,
-				  uint8_t *out, size_t len)
+static int aes_riscv64_ctr_crypt(struct lc_sym_state *ctx, const uint8_t *in,
+				 uint8_t *out, size_t len)
 {
-	lc_mode_ctr_c->encrypt(&ctx->ctr_state, in, out, len);
+	return lc_mode_ctr_c->encrypt(&ctx->ctr_state, in, out, len);
 }
 
 static int aes_riscv64_ctr_init_nocheck(struct lc_sym_state *ctx)

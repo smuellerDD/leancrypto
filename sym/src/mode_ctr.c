@@ -134,15 +134,15 @@ out2:
  * Symmetrical operation: same function for encrypting as for decrypting.
  * Note any IV/nonce should never be reused with the same key.
  */
-static void mode_ctr_crypt(struct lc_mode_state *ctx, const uint8_t *in,
-			   uint8_t *out, size_t len)
+static int mode_ctr_crypt(struct lc_mode_state *ctx, const uint8_t *in,
+			  uint8_t *out, size_t len)
 {
 	const struct lc_sym *wrappeded_cipher;
 	uint8_t buffer[AES_BLOCKLEN];
 	size_t i, todo;
 
 	if (!ctx || !ctx->wrappeded_cipher)
-		return;
+		return -EINVAL;
 
 	wrappeded_cipher = ctx->wrappeded_cipher;
 
@@ -160,6 +160,8 @@ static void mode_ctr_crypt(struct lc_mode_state *ctx, const uint8_t *in,
 	}
 
 	lc_memset_secure(buffer, 0, sizeof(buffer));
+
+	return 0;
 }
 
 static void mode_ctr_init(struct lc_mode_state *ctx,

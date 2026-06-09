@@ -36,13 +36,13 @@ struct lc_sym_state {
 
 #define LC_AES_ARMV8_CBC_BLOCK_SIZE sizeof(struct lc_sym_state)
 
-static void aes_armce_cbc_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
-				  uint8_t *out, size_t len)
+static int aes_armce_cbc_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
+				 uint8_t *out, size_t len)
 {
 	size_t round_len = len & ~(AES_BLOCKLEN - 1);
 
 	if (!ctx)
-		return;
+		return -EINVAL;
 
 	LC_NEON_ENABLE;
 	aes_v8_cbc_encrypt(in, out, round_len, &ctx->enc_block_ctx, ctx->iv, 1);
@@ -54,15 +54,17 @@ static void aes_armce_cbc_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 	 */
 	if (len > round_len)
 		memset(out + round_len, 0, len - round_len);
+
+	return 0;
 }
 
-static void aes_armce_cbc_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
-				  uint8_t *out, size_t len)
+static int aes_armce_cbc_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
+				 uint8_t *out, size_t len)
 {
 	size_t round_len = len & ~(AES_BLOCKLEN - 1);
 
 	if (!ctx)
-		return;
+		return -EINVAL;
 
 	LC_NEON_ENABLE;
 	aes_v8_cbc_encrypt(in, out, round_len, &ctx->dec_block_ctx, ctx->iv, 0);
@@ -74,6 +76,8 @@ static void aes_armce_cbc_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 	 */
 	if (len > round_len)
 		memset(out + round_len, 0, len - round_len);
+
+	return 0;
 }
 
 static int aes_armce_cbc_init_nocheck(struct lc_sym_state *ctx)

@@ -116,15 +116,15 @@ out2:
 	lc_sym_zero(ctx);
 }
 
-static void mode_cbc_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
-			     uint8_t *out, size_t len)
+static int mode_cbc_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
+			    uint8_t *out, size_t len)
 {
 	const struct lc_sym *wrappeded_cipher;
 	size_t i, rounded_len = len & ~(AES_BLOCKLEN - 1);
 	uint8_t *iv = ctx->iv;
 
-	if (!ctx || !ctx->wrappeded_cipher)
-		return;
+	if (!ctx || !ctx->wrappeded_cipher || (len & (AES_BLOCKLEN - 1)))
+		return -EINVAL;
 
 	wrappeded_cipher = ctx->wrappeded_cipher;
 
@@ -139,17 +139,19 @@ static void mode_cbc_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
 	}
 	/* store Iv in ctx for next call */
 	memcpy(ctx->iv, iv, AES_BLOCKLEN);
+
+	return 0;
 }
 
-static void mode_cbc_decrypt(struct lc_mode_state *ctx, const uint8_t *in,
-			     uint8_t *out, size_t len)
+static int mode_cbc_decrypt(struct lc_mode_state *ctx, const uint8_t *in,
+			    uint8_t *out, size_t len)
 {
 	const struct lc_sym *wrappeded_cipher;
 	size_t i, rounded_len = len & ~(AES_BLOCKLEN - 1);
 	uint8_t storeNextIv[AES_BLOCKLEN];
 
-	if (!ctx || !ctx->wrappeded_cipher)
-		return;
+	if (!ctx || !ctx->wrappeded_cipher || (len & (AES_BLOCKLEN - 1)))
+		return -EINVAL;
 
 	wrappeded_cipher = ctx->wrappeded_cipher;
 
@@ -165,6 +167,8 @@ static void mode_cbc_decrypt(struct lc_mode_state *ctx, const uint8_t *in,
 	}
 
 	lc_memset_secure(storeNextIv, 0, sizeof(storeNextIv));
+
+	return 0;
 }
 
 static void mode_cbc_init(struct lc_mode_state *ctx,

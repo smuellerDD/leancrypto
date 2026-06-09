@@ -71,28 +71,28 @@ LC_INTERFACE_FUNCTION(int, lc_sym_getiv, const struct lc_sym_ctx *ctx,
 	return sym->getiv(ctx->sym_state, iv, ivlen);
 }
 
-LC_INTERFACE_FUNCTION(void, lc_sym_encrypt, struct lc_sym_ctx *ctx,
+LC_INTERFACE_FUNCTION(int, lc_sym_encrypt, struct lc_sym_ctx *ctx,
 		      const uint8_t *in, uint8_t *out, size_t len)
 {
 	const struct lc_sym *sym;
 
 	if (!ctx)
-		return;
+		return -EINVAL;
 
 	sym = ctx->sym;
-	sym->encrypt(ctx->sym_state, in, out, len);
+	return sym->encrypt(ctx->sym_state, in, out, len);
 }
 
-LC_INTERFACE_FUNCTION(void, lc_sym_decrypt, struct lc_sym_ctx *ctx,
+LC_INTERFACE_FUNCTION(int, lc_sym_decrypt, struct lc_sym_ctx *ctx,
 		      const uint8_t *in, uint8_t *out, size_t len)
 {
 	const struct lc_sym *sym;
 
 	if (!ctx)
-		return;
+		return -EINVAL;
 
 	sym = ctx->sym;
-	sym->decrypt(ctx->sym_state, in, out, len);
+	return sym->decrypt(ctx->sym_state, in, out, len);
 }
 
 LC_INTERFACE_FUNCTION(void, lc_sym_zero, struct lc_sym_ctx *ctx)

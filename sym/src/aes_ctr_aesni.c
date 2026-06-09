@@ -55,14 +55,14 @@ static void aes_aesni_ctr96_inc(struct lc_sym_state *ctx)
 	}
 }
 
-static void aes_aesni_ctr_crypt(struct lc_sym_state *ctx, const uint8_t *in,
-				uint8_t *out, size_t len)
+static int aes_aesni_ctr_crypt(struct lc_sym_state *ctx, const uint8_t *in,
+			       uint8_t *out, size_t len)
 {
 	size_t blocks = len >> 4, block_bytes = blocks << 4;
 	uint32_t ctr32;
 
 	if (!ctx)
-		return;
+		return -EINVAL;
 
 	LC_FPU_ENABLE;
 
@@ -128,6 +128,8 @@ static void aes_aesni_ctr_crypt(struct lc_sym_state *ctx, const uint8_t *in,
 	}
 
 	LC_FPU_DISABLE;
+
+	return 0;
 }
 
 static int aes_aesni_ctr_init_nocheck(struct lc_sym_state *ctx)

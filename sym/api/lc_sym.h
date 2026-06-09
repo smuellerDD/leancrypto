@@ -38,10 +38,10 @@ struct lc_sym {
 		      size_t keylen);
 	int (*setiv)(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen);
 	int (*getiv)(const struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen);
-	void (*encrypt)(struct lc_sym_state *ctx, const uint8_t *in,
-			uint8_t *out, size_t len);
-	void (*decrypt)(struct lc_sym_state *ctx, const uint8_t *in,
-			uint8_t *out, size_t len);
+	int (*encrypt)(struct lc_sym_state *ctx, const uint8_t *in,
+		       uint8_t *out, size_t len);
+	int (*decrypt)(struct lc_sym_state *ctx, const uint8_t *in,
+		       uint8_t *out, size_t len);
 	uint64_t algorithm_type;
 	unsigned int statesize;
 	unsigned int blocksize;
@@ -189,9 +189,11 @@ int lc_sym_getiv(const struct lc_sym_ctx *ctx, uint8_t *iv, size_t ivlen);
  *    is always a multiple of 16 bytes.
  * 2. Only the last invocation is allowed to be not a multiple of 16 bytes for
  *    algorithms that allow it (e.g. XTS, CTR)
+ *
+ * @return 0 on success, < 0 on error
  */
-void lc_sym_encrypt(struct lc_sym_ctx *ctx, const uint8_t *in, uint8_t *out,
-		    size_t len);
+int lc_sym_encrypt(struct lc_sym_ctx *ctx, const uint8_t *in, uint8_t *out,
+		   size_t len);
 
 /**
  * @ingroup Symmetric
@@ -212,9 +214,11 @@ void lc_sym_encrypt(struct lc_sym_ctx *ctx, const uint8_t *in, uint8_t *out,
  *    is always a multiple of 16 bytes.
  * 2. Only the last invocation is allowed to be not a multiple of 16 bytes for
  *    algorithms that allow it (e.g. XTS, CTR)
+ *
+ * @return 0 on success, < 0 on error
  */
-void lc_sym_decrypt(struct lc_sym_ctx *ctx, const uint8_t *in, uint8_t *out,
-		    size_t len);
+int lc_sym_decrypt(struct lc_sym_ctx *ctx, const uint8_t *in, uint8_t *out,
+		   size_t len);
 
 /**
  * @ingroup Symmetric

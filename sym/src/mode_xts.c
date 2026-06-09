@@ -186,17 +186,17 @@ static void xts_enc_block(struct lc_mode_state *ctx,
 	xor_64(block, ctx->tweak.b, AES_BLOCKLEN);
 }
 
-static void mode_xts_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
-			     uint8_t *out, size_t len)
+static int mode_xts_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
+			    uint8_t *out, size_t len)
 {
 	size_t i, rounded_len = len & ~(AES_BLOCKLEN - 1);
 
 	if (!ctx || !ctx->wrapped_cipher)
-		return;
+		return -EINVAL;
 
 	/* We must have 128 bits input data or more */
 	if (rounded_len < AES_BLOCKLEN)
-		return;
+		return -EINVAL;
 
 	if (in != out)
 		memcpy(out, in, len);
@@ -259,6 +259,8 @@ static void mode_xts_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
 
 	/* Timecop: output is not sensitive regarding side-channels. */
 	unpoison(out, len);
+
+	return 0;
 }
 
 static void xts_dec_block(struct lc_mode_state *ctx,
@@ -280,17 +282,17 @@ static void xts_dec_block(struct lc_mode_state *ctx,
 	xor_64(block, tweak->b, AES_BLOCKLEN);
 }
 
-static void mode_xts_decrypt(struct lc_mode_state *ctx, const uint8_t *in,
-			     uint8_t *out, size_t len)
+static int mode_xts_decrypt(struct lc_mode_state *ctx, const uint8_t *in,
+			    uint8_t *out, size_t len)
 {
 	size_t i, rounded_len = len & ~(AES_BLOCKLEN - 1);
 
 	if (!ctx || !ctx->wrapped_cipher)
-		return;
+		return -EINVAL;
 
 	/* We must have 128 bits input data or more */
 	if (rounded_len < AES_BLOCKLEN)
-		return;
+		return -EINVAL;
 
 	if (in != out)
 		memcpy(out, in, len);
@@ -353,6 +355,8 @@ static void mode_xts_decrypt(struct lc_mode_state *ctx, const uint8_t *in,
 
 	/* Timecop: output is not sensitive regarding side-channels. */
 	unpoison(out, len);
+
+	return 0;
 }
 
 static void mode_xts_init(struct lc_mode_state *ctx,

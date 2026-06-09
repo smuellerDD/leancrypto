@@ -40,26 +40,30 @@ struct lc_sym_state {
 
 #define LC_AES_BLOCK_SIZE sizeof(struct lc_sym_state)
 
-static void aes_armce_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
-			      uint8_t *out, size_t len)
+static int aes_armce_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
+			     uint8_t *out, size_t len)
 {
 	if (!ctx || len != AES_BLOCKLEN)
-		return;
+		return -EINVAL;
 
 	LC_NEON_ENABLE;
 	aes_v8_encrypt(in, out, &ctx->enc_block_ctx);
 	LC_NEON_DISABLE;
+
+	return 0;
 }
 
-static void aes_armce_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
-			      uint8_t *out, size_t len)
+static int aes_armce_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
+			     uint8_t *out, size_t len)
 {
 	if (!ctx || len != AES_BLOCKLEN)
-		return;
+		return -EINVAL;
 
 	LC_NEON_ENABLE;
 	aes_v8_decrypt(in, out, &ctx->dec_block_ctx);
 	LC_NEON_DISABLE;
+
+	return 0;
 }
 
 static int aes_armce_init(struct lc_sym_state *ctx)

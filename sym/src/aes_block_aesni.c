@@ -43,11 +43,11 @@ struct lc_sym_state {
 
 unsigned int lc_x86_64_cpuid[4] __attribute__((used)) = { 0 };
 
-static void aes_aesni_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
-			      uint8_t *out, size_t len)
+static int aes_aesni_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
+			     uint8_t *out, size_t len)
 {
 	if (!ctx || len != AES_BLOCKLEN)
-		return;
+		return -EINVAL;
 
 	LC_FPU_ENABLE;
 	aesni_encrypt(in, out, &ctx->enc_block_ctx);
@@ -55,13 +55,15 @@ static void aes_aesni_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 
 	/* Timecop: output is not sensitive regarding side-channels. */
 	unpoison(out, AES_BLOCKLEN);
+
+	return 0;
 }
 
-static void aes_aesni_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
-			      uint8_t *out, size_t len)
+static int aes_aesni_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
+			     uint8_t *out, size_t len)
 {
 	if (!ctx || len != AES_BLOCKLEN)
-		return;
+		return -EINVAL;
 
 	LC_FPU_ENABLE;
 	aesni_decrypt(in, out, &ctx->dec_block_ctx);
@@ -69,6 +71,8 @@ static void aes_aesni_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 
 	/* Timecop: output is not sensitive regarding side-channels. */
 	unpoison(out, AES_BLOCKLEN);
+
+	return 0;
 }
 
 static int aes_aesni_init(struct lc_sym_state *ctx)

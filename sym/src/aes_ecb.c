@@ -35,14 +35,14 @@ struct lc_sym_state {
 
 #define LC_AES_ECB_BLOCK_SIZE sizeof(struct lc_sym_state)
 
-static void aes_ecb_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
-			    uint8_t *out, size_t len)
+static int aes_ecb_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
+			   uint8_t *out, size_t len)
 {
 	const struct aes_block_ctx *block_ctx;
 	size_t i, rounded_len = len & ~(AES_BLOCKLEN - 1);
 
 	if (!ctx)
-		return;
+		return -EINVAL;
 	block_ctx = &ctx->block_ctx;
 
 	if (in != out)
@@ -51,16 +51,18 @@ static void aes_ecb_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 	/* In-place encryption operation of plaintext. */
 	for (i = 0; i < rounded_len; i += AES_BLOCKLEN, out += AES_BLOCKLEN)
 		aes_cipher((state_t *)out, block_ctx);
+
+	return 0;
 }
 
-static void aes_ecb_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
-			    uint8_t *out, size_t len)
+static int aes_ecb_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
+			   uint8_t *out, size_t len)
 {
 	const struct aes_block_ctx *block_ctx;
 	size_t i, rounded_len = len & ~(AES_BLOCKLEN - 1);
 
 	if (!ctx)
-		return;
+		return -EINVAL;
 	block_ctx = &ctx->block_ctx;
 
 	if (in != out)
@@ -69,6 +71,8 @@ static void aes_ecb_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 	/* In-place decryption operation of plaintext. */
 	for (i = 0; i < rounded_len; i += AES_BLOCKLEN, out += AES_BLOCKLEN)
 		aes_inv_cipher((state_t *)out, block_ctx);
+
+	return 0;
 }
 
 static void aes_ecb_init(struct lc_sym_state *ctx)

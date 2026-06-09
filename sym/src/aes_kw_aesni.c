@@ -36,22 +36,26 @@ struct lc_sym_state {
 
 #define LC_AES_KW_BLOCK_SIZE sizeof(struct lc_sym_state)
 
-static void aes_aesni_kw_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
-				 uint8_t *out, size_t len)
+static int aes_aesni_kw_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
+				uint8_t *out, size_t len)
 {
-	lc_mode_kw_c->encrypt(&ctx->kw_state, in, out, len);
+	int ret = lc_mode_kw_c->encrypt(&ctx->kw_state, in, out, len);
 
 	/* Timecop: output is not sensitive regarding side-channels. */
 	unpoison(out, len);
+
+	return ret;
 }
 
-static void aes_aesni_kw_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
-				 uint8_t *out, size_t len)
+static int aes_aesni_kw_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
+				uint8_t *out, size_t len)
 {
-	lc_mode_kw_c->decrypt(&ctx->kw_state, in, out, len);
+	int ret = lc_mode_kw_c->decrypt(&ctx->kw_state, in, out, len);
 
 	/* Timecop: output is not sensitive regarding side-channels. */
 	unpoison(out, len);
+
+	return ret;
 }
 
 static int aes_aesni_kw_init_nocheck(struct lc_sym_state *ctx)

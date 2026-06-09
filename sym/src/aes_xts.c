@@ -36,16 +36,16 @@ struct lc_sym_state {
 
 #define LC_AES_XTS_BLOCK_SIZE sizeof(struct lc_sym_state)
 
-static void aes_xts_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
-			    uint8_t *out, size_t len)
+static int aes_xts_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
+			   uint8_t *out, size_t len)
 {
-	lc_mode_xts_c->encrypt(&ctx->xts_state, in, out, len);
+	return lc_mode_xts_c->encrypt(&ctx->xts_state, in, out, len);
 }
 
-static void aes_xts_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
-			    uint8_t *out, size_t len)
+static int aes_xts_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
+			   uint8_t *out, size_t len)
 {
-	lc_mode_xts_c->decrypt(&ctx->xts_state, in, out, len);
+	return lc_mode_xts_c->decrypt(&ctx->xts_state, in, out, len);
 }
 
 static int aes_xts_init_nocheck(struct lc_sym_state *ctx)

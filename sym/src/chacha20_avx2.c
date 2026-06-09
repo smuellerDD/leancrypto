@@ -29,8 +29,8 @@
 
 #include "asm/AVX2/chacha20_asm_avx2.h"
 
-static void cc20_crypt_avx2(struct lc_sym_state *ctx, const uint8_t *in,
-			    uint8_t *out, size_t len)
+static int cc20_crypt_avx2(struct lc_sym_state *ctx, const uint8_t *in,
+			   uint8_t *out, size_t len)
 {
 	int ret;
 
@@ -61,7 +61,7 @@ static void cc20_crypt_avx2(struct lc_sym_state *ctx, const uint8_t *in,
 
 		if (ret) {
 			lc_memset_secure(out, 0, len);
-			return;
+			return ret;
 		}
 
 		in += todo;
@@ -77,7 +77,7 @@ static void cc20_crypt_avx2(struct lc_sym_state *ctx, const uint8_t *in,
 
 		if (ret) {
 			lc_memset_secure(out, 0, len);
-			return;
+			return ret;
 		}
 
 		if (in != out)
@@ -88,6 +88,8 @@ static void cc20_crypt_avx2(struct lc_sym_state *ctx, const uint8_t *in,
 		/* When we are in this loop, the keystream_ptr was zero */
 		ctx->keystream_ptr = (uint8_t)len;
 	}
+
+	return 0;
 }
 
 static const struct lc_sym _lc_chacha20_avx2 = {

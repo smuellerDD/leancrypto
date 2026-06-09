@@ -33,19 +33,19 @@ struct lc_sym_state {
 
 #define LC_AES_BLOCK_SIZE sizeof(struct lc_sym_state)
 
-static void aes_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
-			uint8_t *out, size_t len,
-			void (*encrypt)(state_t *state,
-					const struct aes_block_ctx *block_ctx))
+static int aes_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
+		       uint8_t *out, size_t len,
+		       void (*encrypt)(state_t *state,
+				       const struct aes_block_ctx *block_ctx))
 {
 	const struct aes_block_ctx *block_ctx;
+	int ret = 0;
 
-	if (!ctx)
-		return;
+	CKNULL(ctx, -EINVAL);
+
 	block_ctx = &ctx->block_ctx;
 
-	if (len != AES_BLOCKLEN)
-		return;
+	CKRET(len != AES_BLOCKLEN, -EINVAL);
 
 	if (in != out)
 		memcpy(out, in, AES_BLOCKLEN);
@@ -55,21 +55,24 @@ static void aes_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 
 	/* Timecop: output is not sensitive regarding side-channels. */
 	unpoison(out, AES_BLOCKLEN);
+
+out:
+	return ret;
 }
 
-static void aes_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
-			uint8_t *out, size_t len,
-			void (*decrypt)(state_t *state,
-					const struct aes_block_ctx *block_ctx))
+static int aes_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
+		       uint8_t *out, size_t len,
+		       void (*decrypt)(state_t *state,
+				       const struct aes_block_ctx *block_ctx))
 {
 	const struct aes_block_ctx *block_ctx;
+	int ret = 0;
 
-	if (!ctx)
-		return;
+	CKNULL(ctx, -EINVAL);
+
 	block_ctx = &ctx->block_ctx;
 
-	if (len != AES_BLOCKLEN)
-		return;
+	CKRET(len != AES_BLOCKLEN, -EINVAL);
 
 	if (in != out)
 		memcpy(out, in, AES_BLOCKLEN);
@@ -79,6 +82,9 @@ static void aes_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 
 	/* Timecop: output is not sensitive regarding side-channels. */
 	unpoison(out, AES_BLOCKLEN);
+
+out:
+	return ret;
 }
 
 static int aes_init(struct lc_sym_state *ctx)
@@ -141,16 +147,16 @@ static int aes_setkey_c_internal(struct lc_sym_state *ctx, const uint8_t *key,
 	return aes_setkey(ctx, key, keylen, aes_setkey_c);
 }
 
-static void aes_encrypt_c_internal(struct lc_sym_state *ctx, const uint8_t *in,
+static int aes_encrypt_c_internal(struct lc_sym_state *ctx, const uint8_t *in,
 				   uint8_t *out, size_t len)
 {
-	aes_encrypt(ctx, in, out, len, aes_encrypt_c);
+	return aes_encrypt(ctx, in, out, len, aes_encrypt_c);
 }
 
-static void aes_decrypt_c_internal(struct lc_sym_state *ctx, const uint8_t *in,
+static int aes_decrypt_c_internal(struct lc_sym_state *ctx, const uint8_t *in,
 				   uint8_t *out, size_t len)
 {
-	aes_decrypt(ctx, in, out, len, aes_decrypt_c);
+	return aes_decrypt(ctx, in, out, len, aes_decrypt_c);
 }
 
 static const struct lc_sym _lc_aes_sbox = {
@@ -172,16 +178,16 @@ static int aes_setkey_ct_internal(struct lc_sym_state *ctx, const uint8_t *key,
 	return aes_setkey(ctx, key, keylen, aes_setkey_ct);
 }
 
-static void aes_encrypt_ct_internal(struct lc_sym_state *ctx, const uint8_t *in,
-				    uint8_t *out, size_t len)
+static int aes_encrypt_ct_internal(struct lc_sym_state *ctx, const uint8_t *in,
+				   uint8_t *out, size_t len)
 {
-	aes_encrypt(ctx, in, out, len, aes_encrypt_ct);
+	return aes_encrypt(ctx, in, out, len, aes_encrypt_ct);
 }
 
-static void aes_decrypt_ct_internal(struct lc_sym_state *ctx, const uint8_t *in,
-				    uint8_t *out, size_t len)
+static int aes_decrypt_ct_internal(struct lc_sym_state *ctx, const uint8_t *in,
+				   uint8_t *out, size_t len)
 {
-	aes_decrypt(ctx, in, out, len, aes_decrypt_ct);
+	return aes_decrypt(ctx, in, out, len, aes_decrypt_ct);
 }
 
 static const struct lc_sym _lc_aes_ct = {

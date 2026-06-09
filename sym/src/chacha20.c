@@ -258,14 +258,14 @@ void cc20_crypt_remaining(struct lc_sym_state *ctx, const uint8_t **in,
 	}
 }
 
-static void cc20_crypt(struct lc_sym_state *ctx, const uint8_t *in,
-		       uint8_t *out, size_t len)
+static int cc20_crypt(struct lc_sym_state *ctx, const uint8_t *in,
+		      uint8_t *out, size_t len)
 {
 	if (!ctx)
-		return;
+		return -EINVAL;
 
 	if (!len)
-		return;
+		return -EINVAL;
 
 	cc20_crypt_remaining(ctx, &in, &out, &len);
 
@@ -286,6 +286,8 @@ static void cc20_crypt(struct lc_sym_state *ctx, const uint8_t *in,
 		/* When we are in this loop, the keystream_ptr was zero */
 		ctx->keystream_ptr = (uint8_t)todo;
 	}
+
+	return 0;
 }
 
 int cc20_init(struct lc_sym_state *ctx)

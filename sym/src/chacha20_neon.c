@@ -32,12 +32,14 @@
 #include "asm/ARMv8/chacha20_asm_neon.h"
 #endif
 
-static void cc20_crypt_neon(struct lc_sym_state *ctx, const uint8_t *in,
-			    uint8_t *out, size_t len)
+static int cc20_crypt_neon(struct lc_sym_state *ctx, const uint8_t *in,
+			   uint8_t *out, size_t len)
 {
 	LC_NEON_ENABLE;
 	cc20_crypt_asm(ctx, in, out, len, ChaCha20_neon);
 	LC_NEON_DISABLE;
+
+	return 0;
 }
 
 static const struct lc_sym _lc_chacha20_neon = {

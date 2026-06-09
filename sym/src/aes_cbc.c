@@ -34,16 +34,16 @@ struct lc_sym_state {
 
 #define LC_AES_CBC_BLOCK_SIZE sizeof(struct lc_sym_state)
 
-static void aes_cbc_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
-			    uint8_t *out, size_t len)
+static int aes_cbc_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
+			   uint8_t *out, size_t len)
 {
-	lc_mode_cbc_c->encrypt(&ctx->cbc_state, in, out, len);
+	return lc_mode_cbc_c->encrypt(&ctx->cbc_state, in, out, len);
 }
 
-static void aes_cbc_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
-			    uint8_t *out, size_t len)
+static int aes_cbc_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
+			   uint8_t *out, size_t len)
 {
-	lc_mode_cbc_c->decrypt(&ctx->cbc_state, in, out, len);
+	return lc_mode_cbc_c->decrypt(&ctx->cbc_state, in, out, len);
 }
 
 static int aes_cbc_init_nocheck(struct lc_sym_state *ctx)

@@ -41,11 +41,17 @@ struct lc_sym_state {
 
 #define LC_AES_ARMV8_XTS_BLOCK_SIZE sizeof(struct lc_sym_state)
 
-static void aes_armce_xts_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
-				  uint8_t *out, size_t len)
+static int aes_armce_xts_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
+				 uint8_t *out, size_t len)
 {
+	size_t rounded_len = len & ~(AES_BLOCKLEN - 1);
+
 	if (!ctx)
-		return;
+		return -EINVAL;
+
+	/* We must have 128 bits input data or more */
+	if (rounded_len < AES_BLOCKLEN)
+		return -EINVAL;
 
 	LC_NEON_ENABLE;
 	aes_v8_xts_encrypt(in, out, len, &ctx->enc_block_ctx, &ctx->tweak_ctx,
@@ -57,13 +63,21 @@ static void aes_armce_xts_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 
 	/* Timecop: output is not sensitive regarding side-channels. */
 	unpoison(out, len);
+
+	return 0;
 }
 
-static void aes_armce_xts_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
-				  uint8_t *out, size_t len)
+static int aes_armce_xts_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
+				 uint8_t *out, size_t len)
 {
+	size_t rounded_len = len & ~(AES_BLOCKLEN - 1);
+
 	if (!ctx)
-		return;
+		return -EINVAL;
+
+	/* We must have 128 bits input data or more */
+	if (rounded_len < AES_BLOCKLEN)
+		return -EINVAL;
 
 	LC_NEON_ENABLE;
 	aes_v8_xts_decrypt(in, out, len, &ctx->dec_block_ctx, &ctx->tweak_ctx,
@@ -75,6 +89,8 @@ static void aes_armce_xts_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 
 	/* Timecop: output is not sensitive regarding side-channels. */
 	unpoison(out, len);
+
+	return 0;
 }
 
 static int aes_armce_xts_init_nocheck(struct lc_sym_state *ctx)
