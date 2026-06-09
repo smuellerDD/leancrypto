@@ -32,7 +32,6 @@
 static void cc20_crypt_avx2(struct lc_sym_state *ctx, const uint8_t *in,
 			    uint8_t *out, size_t len)
 {
-	size_t fullblock_bytes;
 	int ret;
 
 	/*
@@ -43,20 +42,31 @@ static void cc20_crypt_avx2(struct lc_sym_state *ctx, const uint8_t *in,
 
 	cc20_crypt_remaining(ctx, &in, &out, &len);
 
-	fullblock_bytes = len & ~(LC_CC20_BLOCK_SIZE - 1);
+	while (len > LC_CC20_BLOCK_SIZE) {
+		size_t todo = len & ~(LC_CC20_BLOCK_SIZE - 1);
+		size_t blocks = len / LC_CC20_BLOCK_SIZE;
 
-	if (fullblock_bytes) {
+		/*
+		 * Identify a wrap of the counter and only perform the
+		 * operation up to the wrap.
+		 */
+		if (ctx->counter[0] + blocks < ctx->counter[0]) {
+			blocks = 0 - ctx->counter[0];
+			todo = blocks * LC_CC20_BLOCK_SIZE;
+		}
+
 		LC_FPU_ENABLE;
-		ret = cc20_crypt_bytes_avx2(ctx->key.u, in, out,
-					    fullblock_bytes);
+		ret = cc20_crypt_bytes_avx2(ctx->key.u, in, out, todo);
 		LC_FPU_DISABLE;
 
-		if (ret)
+		if (ret) {
 			lc_memset_secure(out, 0, len);
+			return;
+		}
 
-		in += fullblock_bytes;
-		out += fullblock_bytes;
-		len -= fullblock_bytes;
+		in += todo;
+		out += todo;
+		len -= todo;
 	}
 
 	if (len) {
@@ -65,8 +75,10 @@ static void cc20_crypt_avx2(struct lc_sym_state *ctx, const uint8_t *in,
 					    LC_CC20_BLOCK_SIZE);
 		LC_FPU_DISABLE;
 
-		if (ret)
+		if (ret) {
 			lc_memset_secure(out, 0, len);
+			return;
+		}
 
 		if (in != out)
 			memcpy(out, in, len);
