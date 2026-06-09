@@ -82,6 +82,9 @@ pub struct lcr_x509_key {
     skid: Vec<u8>,
     akid: Vec<u8>,
     serial: Vec<u8>,
+
+    eku: Vec<CString>,
+    keyusage: Vec<CString>,
 }
 
 #[allow(dead_code)]
@@ -120,6 +123,9 @@ impl lcr_x509_key {
             skid: Vec::new(),
             akid: Vec::new(),
             serial: Vec::new(),
+
+            eku: Vec::new(),
+            keyusage: Vec::new(),
         }
     }
 
@@ -600,6 +606,10 @@ impl lcr_x509_key {
             Err(_) => return Err(X509Error::ProcessingError)?,
             Ok(res) => res,
         };
+
+        self.eku.push(s);
+
+        let s = self.eku.last().unwrap();
         let result = unsafe {
             leancrypto::lc_x509_cert_set_eku(&mut self.x509_cert, s.as_ptr())
         };
@@ -656,6 +666,10 @@ impl lcr_x509_key {
             Err(_) => return Err(X509Error::ProcessingError)?,
             Ok(res) => res,
         };
+
+        self.keyusage.push(s);
+
+        let s = self.keyusage.last().unwrap();
         let result = unsafe {
             leancrypto::lc_x509_cert_set_keyusage(
                 &mut self.x509_cert,
