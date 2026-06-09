@@ -238,6 +238,9 @@ static int lc_sh_encrypt_tag(void *state, uint8_t *tag, size_t taglen)
 	struct lc_hmac_ctx *auth_ctx = &sh->auth_ctx;
 	uint8_t tmptag[LC_SHA_MAX_SIZE_DIGEST];
 
+	if (taglen < 8)
+		return -EINVAL;
+
 	/* Generate authentication tag */
 	lc_hmac_final(auth_ctx, tmptag);
 

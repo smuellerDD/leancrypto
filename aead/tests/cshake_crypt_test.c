@@ -168,7 +168,8 @@ static int cc_tester_cshake_validate(void)
 
 	if (lc_aead_setkey(cc, key, sizeof(key), NULL, 0))
 		return 1;
-	if (lc_aead_encrypt(cc, in, out_enc, sizeof(in), NULL, 0, NULL, 0))
+	if (lc_aead_encrypt(cc, in, out_enc, sizeof(in), NULL, 0, NULL, 0) !=
+	    -EINVAL)
 		return 1;
 
 	lc_cshake_init(cshake256, (uint8_t *)LC_CC_CUSTOMIZATION_STRING,

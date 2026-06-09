@@ -248,6 +248,9 @@ static int lc_hc_encrypt_tag(void *state, uint8_t *tag, size_t taglen)
 	struct lc_hmac_ctx *auth_ctx;
 	size_t digestsize;
 
+	if (taglen < 8)
+		return -EINVAL;
+
 	auth_ctx = &hc->auth_ctx;
 	digestsize = lc_hc_get_tagsize(hc);
 	/* Guard against programming error. */

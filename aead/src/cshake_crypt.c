@@ -580,6 +580,9 @@ static int lc_cc_encrypt_tag(void *state, uint8_t *tag, size_t taglen)
 	struct lc_cshake_ctx *auth_ctx;
 	int ret;
 
+	if (taglen < 8)
+		return -EINVAL;
+
 	auth_ctx = &cc->auth_ctx;
 
 	/* Generate authentication tag */

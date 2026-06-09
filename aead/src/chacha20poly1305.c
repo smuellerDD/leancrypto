@@ -321,6 +321,9 @@ static int lc_chacha20_poly1305_encrypt_tag(void *state, uint8_t *tag,
 	size_t padlen = cc20p1305->datalen % 16;
 	uint8_t length[8];
 
+	if (taglen < 8)
+		return -EINVAL;
+
 	if (padlen) {
 		padlen = 16 - padlen;
 		lc_poly1305_update(poly1305, null_buffer, padlen);

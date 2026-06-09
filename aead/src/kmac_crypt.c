@@ -511,6 +511,9 @@ static int lc_kc_encrypt_tag(void *state, uint8_t *tag, size_t taglen)
 	struct lc_kmac_ctx *auth_ctx;
 	int ret;
 
+	if (taglen < 8)
+		return -EINVAL;
+
 	auth_ctx = &kc->auth_ctx;
 
 	/* Generate authentication tag */

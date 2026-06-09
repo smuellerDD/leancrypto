@@ -168,7 +168,7 @@ static int kc_tester_kmac_validate(void)
 		return 1;
 
 	if (lc_aead_encrypt(kc, in, out_enc, sizeof(in), NULL, 0, NULL, 0) !=
-	    -EBADMSG)
+	    -EINVAL)
 		return 1;
 
 	if (lc_kmac_init(kmac256, in, sizeof(in), NULL, 0))

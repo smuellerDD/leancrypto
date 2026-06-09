@@ -228,6 +228,9 @@ static int lc_kh_encrypt_tag(void *state, uint8_t *tag, size_t taglen)
 	struct lc_kmac_ctx *auth_ctx = &kh->auth_ctx;
 	int ret;
 
+	if (taglen < 8)
+		return -EINVAL;
+
 	/* Generate authentication tag */
 	ret = lc_kmac_final_xof(auth_ctx, tag, taglen);
 	if (ret < 0)
@@ -243,6 +246,9 @@ static int lc_kh_decrypt_authenticate(void *state, const uint8_t *tag,
 	struct lc_kmac_ctx *auth_ctx = &kh->auth_ctx;
 	uint8_t calctag[128] __align(sizeof(uint64_t));
 	int ret;
+
+	if (taglen < 8)
+		return -EINVAL;
 
 	taglen = min_size(taglen, sizeof(calctag));
 
