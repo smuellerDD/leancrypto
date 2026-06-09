@@ -275,7 +275,7 @@ static int drbg_hash_df(struct lc_drbg_hash_state *drbg, uint8_t *outval,
 	}
 
 out:
-	memset(tmp, 0, LC_DRBG_HASH_BLOCKLEN);
+	lc_memset_secure(tmp, 0, LC_DRBG_HASH_BLOCKLEN);
 	return ret;
 }
 
@@ -312,7 +312,7 @@ static int drbg_hash_update(struct lc_drbg_hash_state *drbg,
 	drbg_hash_df(drbg, drbg->C, LC_DRBG_HASH_STATELEN, &data1);
 
 out:
-	memset(drbg->scratchpad, 0, LC_DRBG_HASH_STATELEN);
+	lc_memset_secure(drbg->scratchpad, 0, LC_DRBG_HASH_STATELEN);
 	return ret;
 }
 
@@ -341,7 +341,7 @@ static int drbg_hash_process_addtl(struct lc_drbg_hash_state *drbg,
 		     LC_DRBG_HASH_BLOCKLEN);
 
 out:
-	memset(drbg->scratchpad, 0, LC_DRBG_HASH_BLOCKLEN);
+	lc_memset_secure(drbg->scratchpad, 0, LC_DRBG_HASH_BLOCKLEN);
 	return ret;
 }
 
@@ -378,8 +378,8 @@ static int drbg_hash_hashgen(struct lc_drbg_hash_state *drbg, uint8_t *buf,
 	}
 
 out:
-	memset(drbg->scratchpad, 0,
-	       (LC_DRBG_HASH_STATELEN + LC_DRBG_HASH_BLOCKLEN));
+	lc_memset_secure(drbg->scratchpad, 0,
+			 (LC_DRBG_HASH_STATELEN + LC_DRBG_HASH_BLOCKLEN));
 	return ret;
 }
 
@@ -423,7 +423,7 @@ static int drbg_hash_generate_internal(struct lc_drbg_hash_state *drbg,
 	}
 
 out:
-	memset(drbg->scratchpad, 0, LC_DRBG_HASH_BLOCKLEN);
+	lc_memset_secure(drbg->scratchpad, 0, LC_DRBG_HASH_BLOCKLEN);
 	return ret;
 }
 

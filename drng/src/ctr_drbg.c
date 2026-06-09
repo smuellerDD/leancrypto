@@ -260,8 +260,8 @@ static int drbg_ctr_df(uint8_t *df_data, size_t bytes_to_return,
 
 	CKINT(lc_sym_init(algo));
 
-	memset(pad, 0, LC_DRBG_CTR_BLOCKLEN);
-	memset(iv, 0, LC_DRBG_CTR_BLOCKLEN);
+	lc_memset_secure(pad, 0, LC_DRBG_CTR_BLOCKLEN);
+	lc_memset_secure(iv, 0, LC_DRBG_CTR_BLOCKLEN);
 
 	/* 10.4.2 step 1 is implicit as we work byte-wise */
 
@@ -528,7 +528,7 @@ static int drbg_ctr_update(struct lc_drbg_ctr_state *drbg,
 	int ret = -EFAULT;
 
 	if (3 > reseed)
-		memset(df_data, 0, LC_DRBG_CTR_STATELEN);
+		lc_memset_secure(df_data, 0, LC_DRBG_CTR_STATELEN);
 
 	if (!reseed) {
 		drbg_ctr_inc(drbg);
@@ -581,7 +581,7 @@ static int drbg_ctr_generate_internal(struct lc_drbg_ctr_state *drbg,
 		CKINT(drbg_ctr_update(drbg, addtl, 2));
 
 	/* 10.2.1.5.2 step 4.1 */
-	memset(buf, 0, buflen);
+	lc_memset_secure(buf, 0, buflen);
 
 	while (buflen) {
 		size_t todo2 = min_size(LC_DRBG_MAX_REQUEST_BYTES, buflen),
