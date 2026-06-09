@@ -44,7 +44,13 @@ struct lc_sym_state {
 static void aes_aesni_xts_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 				  uint8_t *out, size_t len)
 {
+	size_t rounded_len = len & ~(AES_BLOCKLEN - 1);
+
 	if (!ctx)
+		return;
+
+	/* We must have 128 bits input data or more */
+	if (rounded_len < AES_BLOCKLEN)
 		return;
 
 	LC_FPU_ENABLE;
@@ -62,7 +68,13 @@ static void aes_aesni_xts_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 static void aes_aesni_xts_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 				  uint8_t *out, size_t len)
 {
+	size_t rounded_len = len & ~(AES_BLOCKLEN - 1);
+
 	if (!ctx)
+		return;
+
+	/* We must have 128 bits input data or more */
+	if (rounded_len < AES_BLOCKLEN)
 		return;
 
 	LC_FPU_ENABLE;
