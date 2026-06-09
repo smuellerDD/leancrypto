@@ -35,6 +35,13 @@ LC_INTERFACE_FUNCTION(void, lc_hotp, const uint8_t *hmac_key,
 	if (!hotp_val)
 		return;
 
+	/*
+	 * RFC 4226 requires numbers of digits in [6:8] intervall, we allow
+	 * [6:9]
+	 */
+	if (digits < 6 || digits > 9)
+		return;
+
 	/* calculate the modulo value */
 	while (digits > 0) {
 		modulo *= 10;
