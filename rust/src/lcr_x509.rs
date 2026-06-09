@@ -21,7 +21,6 @@ use crate::error::X509Error;
 use crate::ffi::leancrypto;
 use std::ffi::CString;
 use std::fmt;
-use std::os::raw::c_char;
 use std::ptr;
 use zeroize::Zeroize;
 
@@ -784,10 +783,11 @@ impl lcr_x509_key {
         self.cert_configurable()?;
         self.san_email.push(CString::new(email).unwrap());
 
+        let s = self.san_email.last().unwrap();
         let result = unsafe {
             leancrypto::lc_x509_cert_set_san_email(
                 &mut self.x509_cert,
-                self.san_email.as_ptr() as *const c_char,
+                s.as_ptr(),
             )
         };
         if result < 0 {
@@ -814,10 +814,11 @@ impl lcr_x509_key {
         self.cert_configurable()?;
         self.san_dns.push(CString::new(dns).unwrap());
 
+        let s = self.san_dns.last().unwrap();
         let result = unsafe {
             leancrypto::lc_x509_cert_set_san_dns(
                 &mut self.x509_cert,
-                self.san_dns.as_ptr() as *const c_char,
+                s.as_ptr(),
             )
         };
         if result < 0 {
@@ -989,11 +990,12 @@ impl lcr_x509_key {
         self.cert_configurable()?;
         self.subject_cn.push(CString::new(cn).unwrap());
 
+        let s = self.subject_cn.last().unwrap();
         let result = unsafe {
             leancrypto::lc_x509_cert_set_subject_cn(
                 &mut self.x509_cert,
-                self.subject_cn.as_ptr() as *const c_char,
-                self.subject_cn.len(),
+                s.as_ptr(),
+                s.as_bytes().len(),
             )
         };
         if result < 0 {
@@ -1020,11 +1022,12 @@ impl lcr_x509_key {
         self.cert_configurable()?;
         self.subject_email.push(CString::new(email).unwrap());
 
+        let s = self.subject_email.last().unwrap();
         let result = unsafe {
             leancrypto::lc_x509_cert_set_subject_email(
                 &mut self.x509_cert,
-                self.subject_email.as_ptr() as *const c_char,
-                self.subject_email.len(),
+                s.as_ptr(),
+                s.as_bytes().len(),
             )
         };
         if result < 0 {
@@ -1051,11 +1054,12 @@ impl lcr_x509_key {
         self.cert_configurable()?;
         self.subject_ou.push(CString::new(ou).unwrap());
 
+        let s = self.subject_ou.last().unwrap();
         let result = unsafe {
             leancrypto::lc_x509_cert_set_subject_ou(
                 &mut self.x509_cert,
-                self.subject_ou.as_ptr() as *const c_char,
-                self.subject_ou.len(),
+                s.as_ptr(),
+                s.as_bytes().len(),
             )
         };
         if result < 0 {
@@ -1082,11 +1086,12 @@ impl lcr_x509_key {
         self.cert_configurable()?;
         self.subject_o.push(CString::new(o).unwrap());
 
+        let s = self.subject_o.last().unwrap();
         let result = unsafe {
             leancrypto::lc_x509_cert_set_subject_o(
                 &mut self.x509_cert,
-                self.subject_o.as_ptr() as *const c_char,
-                self.subject_o.len(),
+                s.as_ptr(),
+                s.as_bytes().len(),
             )
         };
         if result < 0 {
@@ -1113,11 +1118,12 @@ impl lcr_x509_key {
         self.cert_configurable()?;
         self.subject_st.push(CString::new(st).unwrap());
 
+        let s = self.subject_st.last().unwrap();
         let result = unsafe {
             leancrypto::lc_x509_cert_set_subject_st(
                 &mut self.x509_cert,
-                self.subject_st.as_ptr() as *const c_char,
-                self.subject_st.len(),
+                s.as_ptr(),
+                s.as_bytes().len(),
             )
         };
         if result < 0 {
@@ -1144,11 +1150,12 @@ impl lcr_x509_key {
         self.cert_configurable()?;
         self.subject_c.push(CString::new(c).unwrap());
 
+        let s = self.subject_c.last().unwrap();
         let result = unsafe {
             leancrypto::lc_x509_cert_set_subject_c(
                 &mut self.x509_cert,
-                self.subject_c.as_ptr() as *const c_char,
-                self.subject_c.len(),
+                s.as_ptr(),
+                s.as_bytes().len(),
             )
         };
         if result < 0 {
@@ -1175,11 +1182,12 @@ impl lcr_x509_key {
         self.cert_configurable()?;
         self.issuer_cn.push(CString::new(cn).unwrap());
 
+        let s = self.issuer_cn.last().unwrap();
         let result = unsafe {
             leancrypto::lc_x509_cert_set_issuer_cn(
                 &mut self.x509_cert,
-                self.issuer_cn.as_ptr() as *const c_char,
-                self.issuer_cn.len(),
+                s.as_ptr(),
+                s.as_bytes().len(),
             )
         };
         if result < 0 {
@@ -1206,11 +1214,12 @@ impl lcr_x509_key {
         self.cert_configurable()?;
         self.issuer_email.push(CString::new(email).unwrap());
 
+        let s = self.issuer_email.last().unwrap();
         let result = unsafe {
             leancrypto::lc_x509_cert_set_issuer_email(
                 &mut self.x509_cert,
-                self.issuer_email.as_ptr() as *const c_char,
-                self.issuer_email.len(),
+                s.as_ptr(),
+                s.as_bytes().len(),
             )
         };
         if result < 0 {
@@ -1237,11 +1246,12 @@ impl lcr_x509_key {
         self.cert_configurable()?;
         self.issuer_ou.push(CString::new(ou).unwrap());
 
+        let s = self.issuer_ou.last().unwrap();
         let result = unsafe {
             leancrypto::lc_x509_cert_set_issuer_ou(
                 &mut self.x509_cert,
-                self.issuer_ou.as_ptr() as *const c_char,
-                self.issuer_ou.len(),
+                s.as_ptr(),
+                s.as_bytes().len(),
             )
         };
         if result < 0 {
@@ -1268,11 +1278,12 @@ impl lcr_x509_key {
         self.cert_configurable()?;
         self.issuer_o.push(CString::new(o).unwrap());
 
+        let s = self.issuer_o.last().unwrap();
         let result = unsafe {
             leancrypto::lc_x509_cert_set_issuer_o(
                 &mut self.x509_cert,
-                self.issuer_o.as_ptr() as *const c_char,
-                self.issuer_o.len(),
+                s.as_ptr(),
+                s.as_bytes().len(),
             )
         };
         if result < 0 {
@@ -1299,11 +1310,12 @@ impl lcr_x509_key {
         self.cert_configurable()?;
         self.issuer_st.push(CString::new(st).unwrap());
 
+        let s = self.issuer_st.last().unwrap();
         let result = unsafe {
             leancrypto::lc_x509_cert_set_issuer_st(
                 &mut self.x509_cert,
-                self.issuer_st.as_ptr() as *const c_char,
-                self.issuer_st.len(),
+                s.as_ptr(),
+                s.as_bytes().len(),
             )
         };
         if result < 0 {
@@ -1330,11 +1342,12 @@ impl lcr_x509_key {
         self.cert_configurable()?;
         self.issuer_c.push(CString::new(c).unwrap());
 
+        let s = self.issuer_c.last().unwrap();
         let result = unsafe {
             leancrypto::lc_x509_cert_set_issuer_c(
                 &mut self.x509_cert,
-                self.issuer_c.as_ptr() as *const c_char,
-                self.issuer_c.len(),
+                s.as_ptr(),
+                s.as_bytes().len(),
             )
         };
         if result < 0 {
