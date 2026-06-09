@@ -145,6 +145,10 @@ static void mode_kw_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
 	if (len < (2 * AES_KW_SEMIBSIZE))
 		return;
 
+	/* Enforce that input size is multiple of 8 */
+	if (len & (AES_KW_SEMIBSIZE - 1))
+		return;
+
 	if (in != out)
 		memcpy(out, in, rounded_len);
 
