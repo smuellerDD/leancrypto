@@ -596,11 +596,12 @@ impl lcr_x509_key {
     ) -> Result<(), X509Error> {
         self.cert_configurable()?;
 
+        let s = match CString::new(eku) {
+            Err(_) => return Err(X509Error::ProcessingError)?,
+            Ok(res) => res,
+        };
         let result = unsafe {
-            leancrypto::lc_x509_cert_set_eku(
-                &mut self.x509_cert,
-                CString::new(eku).unwrap().as_ptr(),
-            )
+            leancrypto::lc_x509_cert_set_eku(&mut self.x509_cert, s.as_ptr())
         };
         if result < 0 {
             return Err(X509Error::ProcessingError);
@@ -651,10 +652,14 @@ impl lcr_x509_key {
     ) -> Result<(), X509Error> {
         self.cert_configurable()?;
 
+        let s = match CString::new(keyusage) {
+            Err(_) => return Err(X509Error::ProcessingError)?,
+            Ok(res) => res,
+        };
         let result = unsafe {
             leancrypto::lc_x509_cert_set_keyusage(
                 &mut self.x509_cert,
-                CString::new(keyusage).unwrap().as_ptr(),
+                s.as_ptr(),
             )
         };
         if result < 0 {
@@ -781,7 +786,12 @@ impl lcr_x509_key {
         email: &str,
     ) -> Result<(), X509Error> {
         self.cert_configurable()?;
-        self.san_email.push(CString::new(email).unwrap());
+
+        let s = match CString::new(email) {
+            Err(_) => return Err(X509Error::ProcessingError)?,
+            Ok(res) => res,
+        };
+        self.san_email.push(s);
 
         let s = self.san_email.last().unwrap();
         let result = unsafe {
@@ -812,7 +822,12 @@ impl lcr_x509_key {
         dns: &str,
     ) -> Result<(), X509Error> {
         self.cert_configurable()?;
-        self.san_dns.push(CString::new(dns).unwrap());
+
+        let s = match CString::new(dns) {
+            Err(_) => return Err(X509Error::ProcessingError)?,
+            Ok(res) => res,
+        };
+        self.san_dns.push(s);
 
         let s = self.san_dns.last().unwrap();
         let result = unsafe {
@@ -988,7 +1003,12 @@ impl lcr_x509_key {
         cn: &str,
     ) -> Result<(), X509Error> {
         self.cert_configurable()?;
-        self.subject_cn.push(CString::new(cn).unwrap());
+
+        let s = match CString::new(cn) {
+            Err(_) => return Err(X509Error::ProcessingError)?,
+            Ok(res) => res,
+        };
+        self.subject_cn.push(s);
 
         let s = self.subject_cn.last().unwrap();
         let result = unsafe {
@@ -1020,7 +1040,12 @@ impl lcr_x509_key {
         email: &str,
     ) -> Result<(), X509Error> {
         self.cert_configurable()?;
-        self.subject_email.push(CString::new(email).unwrap());
+
+        let s = match CString::new(email) {
+            Err(_) => return Err(X509Error::ProcessingError)?,
+            Ok(res) => res,
+        };
+        self.subject_email.push(s);
 
         let s = self.subject_email.last().unwrap();
         let result = unsafe {
@@ -1052,7 +1077,12 @@ impl lcr_x509_key {
         ou: &str,
     ) -> Result<(), X509Error> {
         self.cert_configurable()?;
-        self.subject_ou.push(CString::new(ou).unwrap());
+
+        let s = match CString::new(ou) {
+            Err(_) => return Err(X509Error::ProcessingError)?,
+            Ok(res) => res,
+        };
+        self.subject_ou.push(s);
 
         let s = self.subject_ou.last().unwrap();
         let result = unsafe {
@@ -1084,7 +1114,12 @@ impl lcr_x509_key {
         o: &str,
     ) -> Result<(), X509Error> {
         self.cert_configurable()?;
-        self.subject_o.push(CString::new(o).unwrap());
+
+        let s = match CString::new(o) {
+            Err(_) => return Err(X509Error::ProcessingError)?,
+            Ok(res) => res,
+        };
+        self.subject_o.push(s);
 
         let s = self.subject_o.last().unwrap();
         let result = unsafe {
@@ -1116,7 +1151,12 @@ impl lcr_x509_key {
         st: &str,
     ) -> Result<(), X509Error> {
         self.cert_configurable()?;
-        self.subject_st.push(CString::new(st).unwrap());
+
+        let s = match CString::new(st) {
+            Err(_) => return Err(X509Error::ProcessingError)?,
+            Ok(res) => res,
+        };
+        self.subject_st.push(s);
 
         let s = self.subject_st.last().unwrap();
         let result = unsafe {
@@ -1148,7 +1188,12 @@ impl lcr_x509_key {
         c: &str,
     ) -> Result<(), X509Error> {
         self.cert_configurable()?;
-        self.subject_c.push(CString::new(c).unwrap());
+
+        let s = match CString::new(c) {
+            Err(_) => return Err(X509Error::ProcessingError)?,
+            Ok(res) => res,
+        };
+        self.subject_c.push(s);
 
         let s = self.subject_c.last().unwrap();
         let result = unsafe {
@@ -1180,7 +1225,12 @@ impl lcr_x509_key {
         cn: &str,
     ) -> Result<(), X509Error> {
         self.cert_configurable()?;
-        self.issuer_cn.push(CString::new(cn).unwrap());
+
+        let s = match CString::new(cn) {
+            Err(_) => return Err(X509Error::ProcessingError)?,
+            Ok(res) => res,
+        };
+        self.issuer_cn.push(s);
 
         let s = self.issuer_cn.last().unwrap();
         let result = unsafe {
@@ -1212,7 +1262,12 @@ impl lcr_x509_key {
         email: &str,
     ) -> Result<(), X509Error> {
         self.cert_configurable()?;
-        self.issuer_email.push(CString::new(email).unwrap());
+
+        let s = match CString::new(email) {
+            Err(_) => return Err(X509Error::ProcessingError)?,
+            Ok(res) => res,
+        };
+        self.issuer_email.push(s);
 
         let s = self.issuer_email.last().unwrap();
         let result = unsafe {
@@ -1244,7 +1299,12 @@ impl lcr_x509_key {
         ou: &str,
     ) -> Result<(), X509Error> {
         self.cert_configurable()?;
-        self.issuer_ou.push(CString::new(ou).unwrap());
+
+        let s = match CString::new(ou) {
+            Err(_) => return Err(X509Error::ProcessingError)?,
+            Ok(res) => res,
+        };
+        self.issuer_ou.push(s);
 
         let s = self.issuer_ou.last().unwrap();
         let result = unsafe {
@@ -1276,7 +1336,12 @@ impl lcr_x509_key {
         o: &str,
     ) -> Result<(), X509Error> {
         self.cert_configurable()?;
-        self.issuer_o.push(CString::new(o).unwrap());
+
+        let s = match CString::new(o) {
+            Err(_) => return Err(X509Error::ProcessingError)?,
+            Ok(res) => res,
+        };
+        self.issuer_o.push(s);
 
         let s = self.issuer_o.last().unwrap();
         let result = unsafe {
@@ -1308,7 +1373,12 @@ impl lcr_x509_key {
         st: &str,
     ) -> Result<(), X509Error> {
         self.cert_configurable()?;
-        self.issuer_st.push(CString::new(st).unwrap());
+
+        let s = match CString::new(st) {
+            Err(_) => return Err(X509Error::ProcessingError)?,
+            Ok(res) => res,
+        };
+        self.issuer_st.push(s);
 
         let s = self.issuer_st.last().unwrap();
         let result = unsafe {
@@ -1340,7 +1410,12 @@ impl lcr_x509_key {
         c: &str,
     ) -> Result<(), X509Error> {
         self.cert_configurable()?;
-        self.issuer_c.push(CString::new(c).unwrap());
+
+        let s = match CString::new(c) {
+            Err(_) => return Err(X509Error::ProcessingError)?,
+            Ok(res) => res,
+        };
+        self.issuer_c.push(s);
 
         let s = self.issuer_c.last().unwrap();
         let result = unsafe {
