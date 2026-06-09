@@ -178,6 +178,10 @@ int lc_hmac_alloc(const struct lc_hash *hash, struct lc_hmac_ctx **hmac_ctx);
  * @ingroup HMAC
  * @brief Zeroize and free HMAC context
  *
+ * \warning If a caller used \p lc_hmac_init_with_hmac_key to provide a separate
+ * storage for the key, the zeroization does NOT clear the key buffer to allow
+ * it to be reused. The caller is responsible to clear it.
+ *
  * @param [in] hmac_ctx HMAC context to be zeroized and freed
  */
 void lc_hmac_zero_free(struct lc_hmac_ctx *hmac_ctx);
@@ -186,6 +190,10 @@ void lc_hmac_zero_free(struct lc_hmac_ctx *hmac_ctx);
  * @ingroup HMAC
  * @brief Zeroize HMAC context allocated with either HMAC_CTX_ON_STACK or
  *	  hmac_alloc
+ *
+ * \warning If a caller used \p lc_hmac_init_with_hmac_key to provide a separate
+ * storage for the key, the zeroization does NOT clear the key buffer to allow
+ * it to be reused. The caller is responsible to clear it.
  *
  * @param [in] hmac_ctx HMAC context to be zeroized
  */
