@@ -33,13 +33,16 @@ static int ascon_tester_one(const uint8_t *pt, size_t ptlen,
 	struct lc_aead_ctx *al_heap = NULL;
 	ssize_t ret;
 	int ret_checked = 0;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wvla"
-	uint8_t out_enc[ptlen];
-	uint8_t out_dec[ptlen];
-	uint8_t tag[exp_tag_len];
-#pragma GCC diagnostic pop
+	uint8_t out_enc[32];
+	uint8_t out_dec[32];
+	uint8_t tag[16];
 	LC_AL_CTX_ON_STACK(al);
+
+	if (ptlen > sizeof(out_enc))
+		return -EINVAL;
+
+	if (exp_tag_len > sizeof(tag))
+		return -EINVAL;
 
 	/* One shot encryption with pt ptr != ct ptr */
 	if (lc_aead_setkey(al, key, keylen, nonce, noncelen))
