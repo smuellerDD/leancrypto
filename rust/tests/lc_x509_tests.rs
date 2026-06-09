@@ -38,7 +38,7 @@ fn pkcs8_key_pair_one(key_type: lcr_x509_key_type) {
 
     /* Import PKCS8 blob into new PKCS8 component */
     let mut pkcs8_2 = lcr_x509_key::new();
-    let result = pkcs8_2.pkcs8_sk_load(der_key);
+    let result = pkcs8_2.pkcs8_decode(der_key);
     assert_eq!(result, Ok(()));
 }
 

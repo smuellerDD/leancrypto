@@ -59,7 +59,7 @@ impl rustls::crypto::KeyProvider for KeyProvider {
         let mut pkcs8 = lcr_x509_key::new();
 
         pkcs8
-            .pkcs8_sk_load(&key_der.secret_der())
+            .pkcs8_decode(&key_der.secret_der())
             .map_err(|e| Error::General(format!("leancrypto error: {e}")))?;
         Ok(Arc::new(PKey(Arc::new(RwLock::new(pkcs8)))))
     }
