@@ -177,13 +177,16 @@ impl lcr_sym {
             return Err(SymError::ProcessingError);
         }
 
-        unsafe {
+        let result = unsafe {
             leancrypto::lc_sym_encrypt(
                 self.sym_ctx,
                 plaintext.as_ptr(),
                 ciphertext.as_mut_ptr(),
                 ciphertext.len(),
             )
+        };
+        if result < 0 {
+            return Err(SymError::ProcessingError);
         }
 
         Ok(())
@@ -212,7 +215,7 @@ impl lcr_sym {
             return Err(SymError::ProcessingError);
         }
 
-        unsafe {
+        let result = unsafe {
             leancrypto::lc_aes_kw_encrypt(
                 self.sym_ctx,
                 plaintext.as_ptr(),
@@ -220,6 +223,9 @@ impl lcr_sym {
                 plaintext.len(),
             )
         };
+        if result < 0 {
+            return Err(SymError::ProcessingError);
+        }
 
         Ok(())
     }
@@ -247,7 +253,7 @@ impl lcr_sym {
             return Err(SymError::ProcessingError);
         }
 
-        unsafe {
+        let result = unsafe {
             leancrypto::lc_sym_decrypt(
                 self.sym_ctx,
                 ciphertext.as_ptr(),
@@ -255,6 +261,9 @@ impl lcr_sym {
                 plaintext.len(),
             )
         };
+        if result < 0 {
+            return Err(SymError::ProcessingError);
+        }
 
         Ok(())
     }
