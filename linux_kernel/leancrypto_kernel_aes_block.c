@@ -47,6 +47,7 @@ static void lc_aes_block_encrypt(struct crypto_tfm *tfm, uint8_t *out,
 {
 	struct lc_sym_ctx *ctx = crypto_tfm_ctx(tfm);
 
+	/* ignore return code */
 	lc_sym_encrypt(ctx, in, out, AES_BLOCK_SIZE);
 }
 
@@ -55,6 +56,7 @@ static void lc_aes_block_decrypt(struct crypto_tfm *tfm, uint8_t *out,
 {
 	struct lc_sym_ctx *ctx = crypto_tfm_ctx(tfm);
 
+	/* ignore return code */
 	lc_sym_decrypt(ctx, in, out, AES_BLOCK_SIZE);
 }
 

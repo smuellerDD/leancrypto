@@ -43,9 +43,9 @@ static int lc_aes_ctr_setkey(struct crypto_skcipher *tfm, const u8 *key,
 }
 
 static int lc_aes_ctr_common(struct skcipher_request *req,
-			     void (*crypt_func)(struct lc_sym_ctx *ctx,
-						const uint8_t *in, uint8_t *out,
-						size_t len))
+			     int (*crypt_func)(struct lc_sym_ctx *ctx,
+					       const uint8_t *in, uint8_t *out,
+					       size_t len))
 {
 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
 	struct lc_sym_ctx *ctx = crypto_skcipher_ctx(tfm);
@@ -67,7 +67,10 @@ static int lc_aes_ctr_common(struct skcipher_request *req,
 		if (!nbytes)
 			return -EINVAL;
 
-		crypt_func(ctx, walk.src.virt.addr, walk.dst.virt.addr, nbytes);
+		err = crypt_func(ctx, walk.src.virt.addr, walk.dst.virt.addr,
+				 nbytes);
+		if (err)
+			return err;
 		err = skcipher_walk_done(&walk, walk.nbytes - nbytes);
 	}
 
