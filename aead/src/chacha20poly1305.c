@@ -359,6 +359,9 @@ static int lc_chacha20_poly1305_decrypt_authenticate(void *state,
 	uint8_t calctag[LC_POLY1305_TAGSIZE] __align(sizeof(uint64_t));
 	int ret;
 
+	if (taglen < 8)
+		return -EINVAL;
+
 	if (taglen > sizeof(calctag))
 		taglen = sizeof(calctag);
 
