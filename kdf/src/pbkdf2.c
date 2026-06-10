@@ -177,11 +177,24 @@ LC_INTERFACE_FUNCTION(int, lc_pbkdf2, const struct lc_hash *hash,
 		      size_t saltlen, const uint32_t count, uint8_t *key,
 		      size_t keylen)
 {
+	int ret;
+
 	lc_pbkdf2_selftest();
 	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_PBKDF2);
 
-	return lc_pbkdf2_nocheck(hash, pw, pwlen, salt, saltlen, count, key,
-				 keylen);
+	CKINT(fips140_min_keysize(keylen));
+
+	/* Salt should also be at least 128 bits */
+	CKINT(fips140_min_keysize(saltlen));
+
+	/* SP800-132 wants a minimum count of 1000 */
+	CKRET(fips140_mode_enabled() && count < 1000, -EOPNOTSUPP);
+
+	CKINT(lc_pbkdf2_nocheck(hash, pw, pwlen, salt, saltlen, count, key,
+			        keylen));
+
+out:
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_pbkdf2_alg_status,
