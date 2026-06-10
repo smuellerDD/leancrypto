@@ -60,6 +60,8 @@ extern const struct lc_sym *lc_aes_xts;
  * @param [out] out Ciphertext resulting of the encryption
  * @param [in] len Size of the input / output buffer
  *
+ * @return 0 on success, < 0 on error
+ *
  * The plaintext and the ciphertext buffer may be identical to support
  * in-place cryptographic operations.
  *
@@ -69,8 +71,8 @@ extern const struct lc_sym *lc_aes_xts;
  * lc_sym_encrypt. The difference is that it also obtains the tag from the
  * AES KW operation.
  */
-void lc_aes_kw_encrypt(struct lc_sym_ctx *ctx, const uint8_t *in, uint8_t *out,
-		       size_t len);
+int lc_aes_kw_encrypt(struct lc_sym_ctx *ctx, const uint8_t *in, uint8_t *out,
+		      size_t len);
 
 /**
  * @ingroup Symmetric

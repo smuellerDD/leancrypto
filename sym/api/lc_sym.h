@@ -120,6 +120,8 @@ struct lc_sym_ctx {
  *		   perform sym calculation with.
  *
  * The caller must provide an allocated \p ctx.
+ *
+ * @return 0 on success, < 0 on error
  */
 int lc_sym_init(struct lc_sym_ctx *ctx);
 

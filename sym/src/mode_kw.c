@@ -29,6 +29,7 @@
 #include "lc_memset_secure.h"
 #include "lc_memcmp_secure.h"
 #include "mode_kw.h"
+#include "ret_checkers.h"
 #include "timecop.h"
 #include "visibility.h"
 
@@ -323,18 +324,21 @@ static const struct lc_sym_mode _lc_mode_kw_c = {
 };
 const struct lc_sym_mode *lc_mode_kw_c = &_lc_mode_kw_c;
 
-LC_INTERFACE_FUNCTION(void, lc_aes_kw_encrypt, struct lc_sym_ctx *ctx,
+LC_INTERFACE_FUNCTION(int, lc_aes_kw_encrypt, struct lc_sym_ctx *ctx,
 		      const uint8_t *in, uint8_t *out, size_t len)
 {
 	struct lc_mode_state *state;
+	int ret;
 
-	if (!ctx)
-		return;
+	CKNULL(ctx, -EINVAL);
 	state = (struct lc_mode_state *)ctx->sym_state;
 
 	/* Output: Tag || Ciphertext */
-	lc_sym_encrypt(ctx, in, out + AES_KW_SEMIBSIZE, len);
+	CKINT(lc_sym_encrypt(ctx, in, out + AES_KW_SEMIBSIZE, len));
 	val64_to_ptr(out, state->tag);
+
+out:
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_aes_kw_decrypt, struct lc_sym_ctx *ctx,
@@ -343,8 +347,7 @@ LC_INTERFACE_FUNCTION(int, lc_aes_kw_decrypt, struct lc_sym_ctx *ctx,
 	struct lc_mode_state *state;
 	int ret;
 
-	if (!ctx)
-		return -EINVAL;
+	CKNULL(ctx, -EINVAL);
 	state = (struct lc_mode_state *)ctx->sym_state;
 
 	ret = mode_kw_setiv(state, in, AES_KW_SEMIBSIZE);
@@ -352,8 +355,8 @@ LC_INTERFACE_FUNCTION(int, lc_aes_kw_decrypt, struct lc_sym_ctx *ctx,
 		return ret;
 
 	/* Input: Tag || Ciphertext */
-	mode_kw_decrypt(state, in + AES_KW_SEMIBSIZE, out,
-			len - AES_KW_SEMIBSIZE);
+	CKINT(mode_kw_decrypt(state, in + AES_KW_SEMIBSIZE, out,
+			      len - AES_KW_SEMIBSIZE));
 	/* Perform authentication check in constant time */
 	{
 		uint64_t expected = be_bswap64(AES_KW_IV);
@@ -362,5 +365,7 @@ LC_INTERFACE_FUNCTION(int, lc_aes_kw_decrypt, struct lc_sym_ctx *ctx,
 				     sizeof(expected)))
 			return -EBADMSG;
 	}
-	return 0;
+
+out:
+	return ret;
 }
