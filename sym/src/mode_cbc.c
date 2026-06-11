@@ -260,6 +260,7 @@ static int mode_cbc_getiv(const struct lc_mode_state *ctx, uint8_t *iv,
 		return -EINVAL;
 
 	memcpy(iv, ctx->iv, AES_BLOCKLEN);
+	unpoison(iv, AES_BLOCKLEN);
 	return 0;
 }
 

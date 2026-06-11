@@ -108,6 +108,7 @@ static int test_encrypt_cbc_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 	CKINT(lc_sym_encrypt_iv(ctx, in, out, sizeof(in), extiv,
 				sizeof(extiv)));
 	rc += lc_compare(out, exp, sizeof(in), "AES-CBC external IV data");
+	unpoison(extiv, sizeof(extiv));
 	rc += lc_compare(ivout, extiv, sizeof(extiv),
 			 "AES-CBC encrypt external IV");
 

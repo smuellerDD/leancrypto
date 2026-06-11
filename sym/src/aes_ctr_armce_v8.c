@@ -26,6 +26,7 @@
 #include "lc_sym.h"
 #include "mode_ctr.h"
 #include "ret_checkers.h"
+#include "timecop.h"
 #include "visibility.h"
 #include "xor.h"
 
@@ -198,6 +199,7 @@ static int aes_armce_ctr_getiv(const struct lc_sym_state *ctx, uint8_t *iv,
 		return -EINVAL;
 
 	memcpy(iv, ctx->iv, AES_BLOCKLEN);
+	unpoison(iv, AES_BLOCKLEN);
 	return 0;
 }
 

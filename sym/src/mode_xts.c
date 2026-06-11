@@ -534,6 +534,7 @@ static int mode_xts_getiv(const struct lc_mode_state *ctx, uint8_t *iv,
 		return -EINVAL;
 
 	memcpy(iv, ctx->tweak.b, AES_BLOCKLEN);
+	unpoison(iv, AES_BLOCKLEN);
 	return 0;
 }
 

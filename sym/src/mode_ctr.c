@@ -264,6 +264,7 @@ static int mode_ctr_getiv(const struct lc_mode_state *ctx, uint8_t *iv,
 		return -EINVAL;
 
 	ctr128_to_ptr(iv, ctx->iv);
+	unpoison(iv, AES_BLOCKLEN);
 	return 0;
 }
 

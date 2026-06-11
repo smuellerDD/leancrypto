@@ -367,6 +367,7 @@ static int mode_kw_getiv(const struct lc_mode_state *ctx, uint8_t *iv,
 		return -EINVAL;
 
 	val64_to_ptr(iv, ctx->tag);
+	unpoison(iv, AES_KW_SEMIBSIZE);
 	return 0;
 }
 

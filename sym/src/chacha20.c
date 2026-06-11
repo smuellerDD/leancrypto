@@ -429,6 +429,8 @@ int cc20_getiv(const struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen)
 		return -EINVAL;
 	}
 
+	unpoison(iv, ivlen);
+
 	return 0;
 }
 static const struct lc_sym _lc_chacha20 = { .init = cc20_init,
