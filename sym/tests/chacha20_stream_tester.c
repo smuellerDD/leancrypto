@@ -316,7 +316,7 @@ static int chacha20_enc_large(const struct lc_sym *chacha20_sym,
 		0x23, 0xf3, 0xb1, 0x87, 0xbe,
 	};
 	uint8_t res[sizeof(exp)];
-	int ret;
+	int ret, rc;
 	char str[30];
 	LC_SYM_CTX_ON_STACK(chacha20, chacha20_sym);
 
@@ -327,11 +327,7 @@ static int chacha20_enc_large(const struct lc_sym *chacha20_sym,
 	lc_sym_encrypt(chacha20, (uint8_t *)string, res, sizeof(string));
 	snprintf(str, sizeof(str), "ChaCha20 large enc - %s", name);
 	unpoison(res, sizeof(res));
-	ret = lc_compare(res, exp, sizeof(exp), str);
-	if (ret) {
-		ret = -EINVAL;
-		goto out;
-	}
+	rc = lc_compare(res, exp, sizeof(exp), str);
 	lc_sym_zero(chacha20);
 
 	/* Decrypt */
@@ -341,15 +337,11 @@ static int chacha20_enc_large(const struct lc_sym *chacha20_sym,
 	lc_sym_decrypt(chacha20, res, res, sizeof(res));
 	snprintf(str, sizeof(str), "ChaCha20 large enc - %s", name);
 	unpoison(res, sizeof(res));
-	ret = lc_compare(res, string, sizeof(string), str);
-	if (ret) {
-		ret = -EINVAL;
-		goto out;
-	}
+	rc += lc_compare(res, string, sizeof(string), str);
 
 out:
 	lc_sym_zero(chacha20);
-	return !!ret;
+	return ret ? !!ret : rc;
 }
 #pragma GCC diagnostic pop
 
@@ -379,8 +371,9 @@ static const uint8_t rfc_exp[] = {
 static int chacha20_enc_selftest(const struct lc_sym *chacha20_sym,
 				 const char *name)
 {
-	uint8_t res[sizeof(rfc_exp)];
-	int ret;
+	uint8_t res[sizeof(rfc_exp)], res2[sizeof(rfc_exp)];
+	uint8_t ivout[sizeof(rfc_iv)], extiv[sizeof(rfc_iv)];
+	int ret, rc;
 	char str[30];
 	LC_SYM_CTX_ON_STACK(chacha20, chacha20_sym);
 
@@ -392,31 +385,44 @@ static int chacha20_enc_selftest(const struct lc_sym *chacha20_sym,
 	CKINT(lc_sym_setkey(chacha20, (uint8_t *)rfc_key, sizeof(rfc_key)));
 	CKINT(lc_sym_setiv(chacha20, (uint8_t *)rfc_iv, sizeof(rfc_iv)));
 	lc_sym_encrypt(chacha20, (uint8_t *)rfc_string, res, sizeof(res));
+	lc_sym_getiv(chacha20, ivout, sizeof(ivout));
 	snprintf(str, sizeof(str), "ChaCha20 enc - %s", name);
 	unpoison(res, sizeof(res));
-	ret = lc_compare(res, rfc_exp, sizeof(rfc_exp), str);
-	if (ret) {
-		ret = -EINVAL;
-		goto out;
-	}
+	rc = lc_compare(res, rfc_exp, sizeof(rfc_exp), str);
+
+	/* Encrypt with external IV */
+	memcpy(extiv, rfc_iv, sizeof(rfc_iv));
+	CKINT(lc_sym_init_iv(chacha20, extiv, sizeof(extiv)));
+	CKINT(lc_sym_encrypt_iv(chacha20, (uint8_t *)rfc_string, res,
+				sizeof(res), extiv, sizeof(extiv)));
+	rc += lc_compare(res, rfc_exp, sizeof(rfc_exp),
+			 "ChaCha20 encrypt external IV ciphertext");
+	rc += lc_compare(ivout, extiv, sizeof(extiv),
+			 "ChaCha20 encrypt external IV");
 	lc_sym_zero(chacha20);
 
 	/* Decrypt */
 	CKINT(lc_sym_init(chacha20));
 	CKINT(lc_sym_setkey(chacha20, (uint8_t *)rfc_key, sizeof(rfc_key)));
 	CKINT(lc_sym_setiv(chacha20, (uint8_t *)rfc_iv, sizeof(rfc_iv)));
-	lc_sym_decrypt(chacha20, res, res, sizeof(res));
+	lc_sym_decrypt(chacha20, res, res2, sizeof(res));
 	snprintf(str, sizeof(str), "ChaCha20 dec - %s", name);
-	unpoison(res, sizeof(res));
-	ret = lc_compare(res, (uint8_t *)rfc_string, sizeof(res), str);
-	if (ret) {
-		ret = -EINVAL;
-		goto out;
-	}
+	unpoison(res2, sizeof(res));
+	rc += lc_compare(res2, (uint8_t *)rfc_string, sizeof(res2), str);
+
+	/* Decrypt with external IV */
+	memcpy(extiv, rfc_iv, sizeof(rfc_iv));
+	CKINT(lc_sym_init_iv(chacha20, extiv, sizeof(extiv)));
+	CKINT(lc_sym_decrypt_iv(chacha20, res, res2, sizeof(res), extiv,
+				sizeof(extiv)));
+	rc += lc_compare(res2, (uint8_t *)rfc_string, sizeof(res2),
+			 "ChaCha20 external IV decrypt plaintext");
+	rc += lc_compare(ivout, extiv, sizeof(extiv),
+			 "ChaCha20 decrypt external IV");
 
 out:
 	lc_sym_zero(chacha20);
-	return !!ret;
+	return ret ? !!ret : rc;
 }
 
 static int chacha20_stream_test(const struct lc_sym *chacha20_sym,
@@ -454,10 +460,6 @@ static int chacha20_stream_test(const struct lc_sym *chacha20_sym,
 	snprintf(str, sizeof(str), "ChaCha20 stream enc - %s", name);
 	unpoison(res, sizeof(res));
 	ret = lc_compare(res, rfc_exp, sizeof(rfc_exp), str);
-	if (ret) {
-		ret = -EINVAL;
-		goto out;
-	}
 	lc_sym_zero(chacha20);
 
 	/* Decrypt */
@@ -482,11 +484,7 @@ static int chacha20_stream_test(const struct lc_sym *chacha20_sym,
 
 	snprintf(str, sizeof(str), "ChaCha20 stream dec - %s", name);
 	unpoison(res, sizeof(res));
-	ret = lc_compare(res, (uint8_t *)rfc_string, sizeof(res), str);
-	if (ret) {
-		ret = -EINVAL;
-		goto out;
-	}
+	ret += lc_compare(res, (uint8_t *)rfc_string, sizeof(res), str);
 
 out:
 	lc_sym_zero(chacha20);

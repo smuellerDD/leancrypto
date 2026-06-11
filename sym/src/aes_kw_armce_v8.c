@@ -41,10 +41,26 @@ static int aes_armce_kw_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 	return lc_mode_kw_c->encrypt(&ctx->kw_state, in, out, len);
 }
 
+static int aes_armce_kw_encrypt_iv(const struct lc_sym_state *ctx,
+				   const uint8_t *in, uint8_t *out, size_t len,
+				   uint8_t *iv, size_t ivlen)
+{
+	return lc_mode_kw_c->encrypt_iv(&ctx->kw_state, in, out, len, iv,
+					ivlen);
+}
+
 static int aes_armce_kw_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 				uint8_t *out, size_t len)
 {
 	return lc_mode_kw_c->decrypt(&ctx->kw_state, in, out, len);
+}
+
+static int aes_armce_kw_decrypt_iv(const struct lc_sym_state *ctx,
+				   const uint8_t *in, uint8_t *out, size_t len,
+				   uint8_t *iv, size_t ivlen)
+{
+	return lc_mode_kw_c->decrypt_iv(&ctx->kw_state, in, out, len, iv,
+					ivlen);
 }
 
 static int aes_armce_kw_init_nocheck(struct lc_sym_state *ctx)
@@ -71,6 +87,12 @@ static int aes_armce_kw_setkey(struct lc_sym_state *ctx, const uint8_t *key,
 	return lc_mode_kw_c->setkey(&ctx->kw_state, key, keylen);
 }
 
+static int aes_armce_kw_init_iv(const struct lc_sym_state *ctx, uint8_t *iv,
+				size_t ivlen)
+{
+	return lc_mode_kw_c->init_iv(&ctx->kw_state, iv, ivlen);
+}
+
 static int aes_armce_kw_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 			      size_t ivlen)
 {
@@ -91,6 +113,11 @@ static const struct lc_sym _lc_aes_kw_armce = {
 	.getiv = aes_armce_kw_getiv,
 	.encrypt = aes_armce_kw_encrypt,
 	.decrypt = aes_armce_kw_decrypt,
+
+	.init_iv = aes_armce_kw_init_iv,
+	.encrypt_iv = aes_armce_kw_encrypt_iv,
+	.decrypt_iv = aes_armce_kw_decrypt_iv,
+
 	.statesize = LC_AES_KW_BLOCK_SIZE,
 	.blocksize = AES_BLOCKLEN,
 	.algorithm_type = LC_ALG_STATUS_AES_KW

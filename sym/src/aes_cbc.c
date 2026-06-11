@@ -40,10 +40,26 @@ static int aes_cbc_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 	return lc_mode_cbc_c->encrypt(&ctx->cbc_state, in, out, len);
 }
 
+static int aes_cbc_encrypt_iv(const struct lc_sym_state *ctx, const uint8_t *in,
+			      uint8_t *out, size_t len, uint8_t *iv,
+			      size_t ivlen)
+{
+	return lc_mode_cbc_c->encrypt_iv(&ctx->cbc_state, in, out, len, iv,
+					 ivlen);
+}
+
 static int aes_cbc_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 			   uint8_t *out, size_t len)
 {
 	return lc_mode_cbc_c->decrypt(&ctx->cbc_state, in, out, len);
+}
+
+static int aes_cbc_decrypt_iv(const struct lc_sym_state *ctx, const uint8_t *in,
+			      uint8_t *out, size_t len, uint8_t *iv,
+			      size_t ivlen)
+{
+	return lc_mode_cbc_c->decrypt_iv(&ctx->cbc_state, in, out, len, iv,
+					 ivlen);
 }
 
 static int aes_cbc_init_nocheck(struct lc_sym_state *ctx)
@@ -69,6 +85,12 @@ static int aes_cbc_setkey(struct lc_sym_state *ctx, const uint8_t *key,
 	return lc_mode_cbc_c->setkey(&ctx->cbc_state, key, keylen);
 }
 
+static int aes_cbc_init_iv(const struct lc_sym_state *ctx, uint8_t *iv,
+			  size_t ivlen)
+{
+	return lc_mode_cbc_c->init_iv(&ctx->cbc_state, iv, ivlen);
+}
+
 static int aes_cbc_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 			 size_t ivlen)
 {
@@ -89,6 +111,11 @@ static const struct lc_sym _lc_aes_cbc_c = { .init = aes_cbc_init,
 					     .getiv = aes_cbc_getiv,
 					     .encrypt = aes_cbc_encrypt,
 					     .decrypt = aes_cbc_decrypt,
+
+					     .init_iv = aes_cbc_init_iv,
+					     .encrypt_iv = aes_cbc_encrypt_iv,
+					     .decrypt_iv = aes_cbc_decrypt_iv,
+
 					     .statesize = LC_AES_CBC_BLOCK_SIZE,
 					     .blocksize = AES_BLOCKLEN,
 					     .algorithm_type =

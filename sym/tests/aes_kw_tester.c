@@ -72,9 +72,8 @@ static int test_encrypt_kw_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wvla"
-	uint8_t out[ptlen + 8], out2[ptlen];
+	uint8_t out[ptlen + 8], out2[ptlen], ivout[8], extiv[8];
 #pragma GCC diagnostic pop
-	uint8_t tag[8];
 	int ret, rc;
 
 	/* Unpoison key to let implementation poison it */
@@ -85,7 +84,17 @@ static int test_encrypt_kw_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 	CKINT(lc_sym_setkey(ctx, key, keylen));
 	lc_aes_kw_encrypt(ctx, pt, out, ptlen);
 	ret = lc_compare(out + 8, ct, ptlen, "AES-KW encrypt ciphertext");
-	ret += lc_compare(out, iv, sizeof(tag), "AES-KW encrypt tag");
+	ret += lc_compare(out, iv, 8, "AES-KW encrypt tag");
+
+	/* Encrypt with external IV */
+	memset(extiv, 0, sizeof(extiv));
+	CKINT(lc_sym_init_iv(ctx, extiv, sizeof(extiv)));
+	CKINT(lc_sym_encrypt_iv(ctx, pt, out + 8, ptlen, extiv,
+				sizeof(extiv)));
+	ret += lc_compare(out + 8, ct, ptlen,
+			  "AES-KW encrypt external IV ciphertext");
+	ret += lc_compare(extiv, iv, sizeof(extiv),
+			  "AES-KW external IV encrypt tag");
 
 	/* Decrypt */
 	rc = lc_aes_kw_decrypt(ctx, out, out2, sizeof(out));
@@ -94,6 +103,16 @@ static int test_encrypt_kw_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 		printf("AES-KW Decryption error\n");
 	}
 	ret += lc_compare(out2, pt, ptlen, "AES-KW decrypt plaintext");
+
+	/* Decrypt with external IV */
+	CKINT(lc_sym_init_iv(ctx, extiv, sizeof(extiv)));
+	CKINT(lc_sym_decrypt_iv(ctx, out + 8, out2, ptlen, extiv,
+				sizeof(extiv)));
+	ret += lc_compare(out2, pt, ptlen,
+			  "AES-KW external IV decrypt plaintext");
+	memset(ivout, 0xa6, sizeof(ivout));
+	ret += lc_compare(extiv, ivout, sizeof(extiv),
+			  "AES-KW decrypt external IV");
 
 	/* Decrypt with error */
 	out[0] = (uint8_t)((out[0] + 1) & 0xff);

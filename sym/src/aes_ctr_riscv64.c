@@ -40,6 +40,14 @@ static int aes_riscv64_ctr_crypt(struct lc_sym_state *ctx, const uint8_t *in,
 	return lc_mode_ctr_c->encrypt(&ctx->ctr_state, in, out, len);
 }
 
+static int aes_riscv64_ctr_crypt_iv(const struct lc_sym_state *ctx,
+				    const uint8_t *in, uint8_t *out, size_t len,
+				    uint8_t *iv, size_t ivlen)
+{
+	return lc_mode_ctr_c->encrypt_iv(&ctx->ctr_state, in, out, len, iv,
+					 ivlen);
+}
+
 static int aes_riscv64_ctr_init_nocheck(struct lc_sym_state *ctx)
 {
 	lc_mode_ctr_c->init(&ctx->ctr_state, lc_aes_riscv64_enc_only, NULL,
@@ -64,6 +72,12 @@ static int aes_riscv64_ctr_setkey(struct lc_sym_state *ctx, const uint8_t *key,
 	return lc_mode_ctr_c->setkey(&ctx->ctr_state, key, keylen);
 }
 
+static int aes_riscv64_ctr_init_iv(const struct lc_sym_state *ctx, uint8_t *iv,
+				   size_t ivlen)
+{
+	return lc_mode_ctr_c->init_iv(&ctx->ctr_state, iv, ivlen);
+}
+
 static int aes_riscv64_ctr_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 				 size_t ivlen)
 {
@@ -84,6 +98,11 @@ static const struct lc_sym _lc_aes_ctr_riscv64 = {
 	.getiv = aes_riscv64_ctr_getiv,
 	.encrypt = aes_riscv64_ctr_crypt,
 	.decrypt = aes_riscv64_ctr_crypt,
+
+	.init_iv = aes_riscv64_ctr_init_iv,
+	.encrypt_iv = aes_riscv64_ctr_crypt_iv,
+	.decrypt_iv = aes_riscv64_ctr_crypt_iv,
+
 	.statesize = LC_AES_CTR_BLOCK_SIZE,
 	.blocksize = 1,
 	.algorithm_type = LC_ALG_STATUS_AES_CTR

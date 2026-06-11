@@ -32,6 +32,7 @@
 #include "lc_status.h"
 #include "lc_sym.h"
 #include "math_helper.h"
+#include "ret_checkers.h"
 #include "rotate.h"
 #include "timecop.h"
 #include "visibility.h"
@@ -290,6 +291,31 @@ static int cc20_crypt(struct lc_sym_state *ctx, const uint8_t *in,
 	return 0;
 }
 
+static int cc20_crypt_iv(const struct lc_sym_state *ctx, const uint8_t *in,
+		         uint8_t *out, size_t len, uint8_t *iv, size_t ivlen)
+{
+	struct lc_sym_state local_ctx;
+	int ret;
+
+	CKNULL(ctx, -EINVAL);
+	CKNULL(len, -EINVAL);
+
+	/* Set up local context */
+	cc20_init_constants(&local_ctx);
+	CKINT(cc20_setiv(&local_ctx, iv, ivlen));
+	memcpy(local_ctx.key.b, ctx->key.b, sizeof(local_ctx.key));
+
+	/* Encrypt local context */
+	CKINT(cc20_crypt(&local_ctx, in, out, len));
+
+	/* Get the IV */
+	CKINT(cc20_getiv(&local_ctx, iv, ivlen));
+
+out:
+	lc_memset_secure(&local_ctx, 0, sizeof(local_ctx));
+	return ret;
+}
+
 int cc20_init(struct lc_sym_state *ctx)
 {
 	cc20_selftest();
@@ -333,6 +359,24 @@ int cc20_setkey(struct lc_sym_state *ctx, const uint8_t *key, size_t keylen)
 
 	return 0;
 }
+
+int cc20_init_iv(const struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen)
+{
+	(void)ctx;
+	(void)iv;
+
+	switch (ivlen) {
+	case 12:
+		break;
+	case 16:
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
 
 int cc20_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen)
 {
@@ -393,6 +437,11 @@ static const struct lc_sym _lc_chacha20 = { .init = cc20_init,
 					    .getiv = cc20_getiv,
 					    .encrypt = cc20_crypt,
 					    .decrypt = cc20_crypt,
+
+					    .init_iv = cc20_init_iv,
+					    .encrypt_iv = cc20_crypt_iv,
+					    .decrypt_iv = cc20_crypt_iv,
+
 					    .statesize = LC_CC20_STATE_SIZE,
 					    .blocksize = 1,
 					    .algorithm_type =

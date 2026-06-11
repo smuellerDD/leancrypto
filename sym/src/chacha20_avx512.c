@@ -92,6 +92,32 @@ static int cc20_crypt_avx512(struct lc_sym_state *ctx, const uint8_t *in,
 	return 0;
 }
 
+static int cc20_crypt_iv_avx512(const struct lc_sym_state *ctx,
+				const uint8_t *in, uint8_t *out, size_t len,
+				uint8_t *iv, size_t ivlen)
+{
+	struct lc_sym_state local_ctx;
+	int ret;
+
+	CKNULL(ctx, -EINVAL);
+	CKNULL(len, -EINVAL);
+
+	/* Set up local context */
+	cc20_init_constants(&local_ctx);
+	CKINT(cc20_setiv(&local_ctx, iv, ivlen));
+	memcpy(local_ctx.key.b, ctx->key.b, sizeof(local_ctx.key));
+
+	/* Encrypt local context */
+	CKINT(cc20_crypt_avx512(&local_ctx, in, out, len));
+
+	/* Get the IV */
+	CKINT(cc20_getiv(&local_ctx, iv, ivlen));
+
+out:
+	lc_memset_secure(&local_ctx, 0, sizeof(local_ctx));
+	return ret;
+}
+
 static const struct lc_sym _lc_chacha20_avx512 = {
 	.init = cc20_init,
 	.setkey = cc20_setkey,
@@ -99,6 +125,11 @@ static const struct lc_sym _lc_chacha20_avx512 = {
 	.getiv = cc20_getiv,
 	.encrypt = cc20_crypt_avx512,
 	.decrypt = cc20_crypt_avx512,
+
+	.init_iv = cc20_init_iv,
+	.encrypt_iv = cc20_crypt_iv_avx512,
+	.decrypt_iv = cc20_crypt_iv_avx512,
+
 	.statesize = LC_CC20_STATE_SIZE,
 	.blocksize = 1,
 	.algorithm_type = LC_ALG_STATUS_CHACHA20

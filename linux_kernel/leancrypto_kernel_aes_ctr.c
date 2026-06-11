@@ -43,16 +43,17 @@ static int lc_aes_ctr_setkey(struct crypto_skcipher *tfm, const u8 *key,
 }
 
 static int lc_aes_ctr_common(struct skcipher_request *req,
-			     int (*crypt_func)(struct lc_sym_ctx *ctx,
+			     int (*crypt_func)(const struct lc_sym_ctx *ctx,
 					       const uint8_t *in, uint8_t *out,
-					       size_t len))
+					       size_t len, uint8_t *iv,
+					       size_t ivlen))
 {
 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
 	struct lc_sym_ctx *ctx = crypto_skcipher_ctx(tfm);
 	struct skcipher_walk walk;
 	int err;
 
-	err = lc_sym_setiv(ctx, req->iv, AES_BLOCK_SIZE);
+	err = lc_sym_init_iv(ctx, req->iv, AES_BLOCK_SIZE);
 	if (err)
 		return err;
 
@@ -68,7 +69,7 @@ static int lc_aes_ctr_common(struct skcipher_request *req,
 			return -EINVAL;
 
 		err = crypt_func(ctx, walk.src.virt.addr, walk.dst.virt.addr,
-				 nbytes);
+				 nbytes, req->iv, AES_BLOCK_SIZE);
 		if (err)
 			return err;
 		err = skcipher_walk_done(&walk, walk.nbytes - nbytes);
@@ -82,12 +83,12 @@ static int lc_aes_ctr_common(struct skcipher_request *req,
 
 static int lc_aes_ctr_encrypt(struct skcipher_request *req)
 {
-	return lc_aes_ctr_common(req, lc_sym_encrypt);
+	return lc_aes_ctr_common(req, lc_sym_encrypt_iv);
 }
 
 static int lc_aes_ctr_decrypt(struct skcipher_request *req)
 {
-	return lc_aes_ctr_common(req, lc_sym_decrypt);
+	return lc_aes_ctr_common(req, lc_sym_decrypt_iv);
 }
 
 static int lc_aes_ctr_init(struct crypto_skcipher *tfm)

@@ -95,6 +95,45 @@ LC_INTERFACE_FUNCTION(int, lc_sym_decrypt, struct lc_sym_ctx *ctx,
 	return sym->decrypt(ctx->sym_state, in, out, len);
 }
 
+LC_INTERFACE_FUNCTION(int, lc_sym_encrypt_iv, const struct lc_sym_ctx *ctx,
+		      const uint8_t *in, uint8_t *out, size_t len, uint8_t *iv,
+		      size_t ivlen)
+{
+	const struct lc_sym *sym;
+
+	if (!ctx)
+		return -EINVAL;
+
+	sym = ctx->sym;
+	return sym->encrypt_iv(ctx->sym_state, in, out, len, iv, ivlen);
+}
+
+LC_INTERFACE_FUNCTION(int, lc_sym_decrypt_iv, const struct lc_sym_ctx *ctx,
+		      const uint8_t *in, uint8_t *out, size_t len, uint8_t *iv,
+		      size_t ivlen)
+{
+	const struct lc_sym *sym;
+
+	if (!ctx)
+		return -EINVAL;
+
+	sym = ctx->sym;
+	return sym->decrypt_iv(ctx->sym_state, in, out, len, iv, ivlen);
+}
+
+LC_INTERFACE_FUNCTION(int, lc_sym_init_iv, const struct lc_sym_ctx *ctx,
+		      uint8_t *iv, size_t ivlen)
+{
+	const struct lc_sym *sym;
+
+	if (!ctx)
+		return -EINVAL;
+
+	sym = ctx->sym;
+	return sym->init_iv(ctx->sym_state, iv, ivlen);
+}
+
+
 LC_INTERFACE_FUNCTION(void, lc_sym_zero, struct lc_sym_ctx *ctx)
 {
 	const struct lc_sym *sym;

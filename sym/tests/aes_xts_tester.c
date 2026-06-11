@@ -186,7 +186,7 @@ static int test_encrypt_xts_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wvla"
-	uint8_t out[ptlen], out2[ptlen];
+	uint8_t out[ptlen], out2[ptlen], ivout[ivlen], extiv[ivlen];
 #pragma GCC diagnostic pop
 	int ret, rc;
 
@@ -210,7 +210,18 @@ static int test_encrypt_xts_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 		       2 * AES_BLOCKLEN);
 	lc_sym_encrypt(ctx, pt + 3 * AES_BLOCKLEN, out + 3 * AES_BLOCKLEN,
 		       ptlen - 3 * AES_BLOCKLEN);
+	lc_sym_getiv(ctx, ivout, sizeof(ivout));
 	rc = lc_compare(out, ct, ptlen, "AES-XTS encrypt ciphertext");
+
+	/* Encrypt with external IV */
+	memcpy(extiv, iv, ivlen);
+	CKINT(lc_sym_init_iv(ctx, extiv, sizeof(extiv)));
+	CKINT(lc_sym_encrypt_iv(ctx, pt, out, ptlen, extiv,
+				sizeof(extiv)));
+	rc += lc_compare(out, ct, ptlen,
+			 "AES-XTS encrypt external IV ciphertext");
+	rc += lc_compare(ivout, extiv, sizeof(extiv),
+			 "AES-XTS encrypt external IV");
 
 	/* Decrypt */
 	CKINT(lc_sym_init(ctx));
@@ -219,8 +230,18 @@ static int test_encrypt_xts_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 	lc_sym_decrypt(ctx, out, out2, AES_BLOCKLEN);
 	lc_sym_decrypt(ctx, out + AES_BLOCKLEN, out2 + AES_BLOCKLEN,
 		       ptlen - AES_BLOCKLEN);
-
+	lc_sym_getiv(ctx, ivout, sizeof(ivout));
 	rc += lc_compare(out2, pt, ptlen, "AES-XTS decrypt plaintext");
+
+	/* Decrypt with external IV */
+	memcpy(extiv, iv, ivlen);
+	CKINT(lc_sym_init_iv(ctx, extiv, sizeof(extiv)));
+	CKINT(lc_sym_decrypt_iv(ctx, out, out2, ptlen, extiv,
+				sizeof(extiv)));
+	rc += lc_compare(out2, pt, ptlen,
+			 "AES-XTS external IV decrypt plaintext");
+	rc += lc_compare(ivout, extiv, sizeof(extiv),
+			 "AES-XTS decrypt external IV");
 
 out:
 	return ret ? !!ret : !!rc;

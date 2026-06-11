@@ -50,8 +50,8 @@ static int lc_aes_xts_setkey(struct crypto_skcipher *tfm, const u8 *key,
 /* This handles cases where the source and/or destination span pages. */
 static noinline int lc_aes_xts_slowpath(
 	struct skcipher_request *req,
-	int (*crypt_func)(struct lc_sym_ctx *ctx, const uint8_t *in,
-			  uint8_t *out, size_t len))
+	int (*crypt_func)(const struct lc_sym_ctx *ctx, const uint8_t *in,
+			  uint8_t *out, size_t len, uint8_t *iv, size_t ivlen))
 {
 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
 	struct lc_sym_ctx *ctx = crypto_skcipher_ctx(tfm);
@@ -83,19 +83,13 @@ static noinline int lc_aes_xts_slowpath(
 	err = skcipher_walk_virt(&walk, req, false);
 
 	while (walk.nbytes) {
-		unsigned int nbytes = walk.nbytes;
-
-		if (nbytes < walk.total)
-			nbytes = round_down(nbytes, AES_BLOCK_SIZE);
-
-		if (!nbytes)
-			return -EINVAL;
-
 		err = crypt_func(ctx, walk.src.virt.addr, walk.dst.virt.addr,
-				 nbytes);
+				 walk.nbytes & ~(AES_BLOCK_SIZE - 1), req->iv,
+				 AES_BLOCK_SIZE);
 		if (err)
 			return err;
-		err = skcipher_walk_done(&walk, walk.nbytes - nbytes);
+		err = skcipher_walk_done(&walk,
+					 walk.nbytes & (AES_BLOCK_SIZE - 1));
 	}
 
 	if (err || !tail)
@@ -114,19 +108,19 @@ static noinline int lc_aes_xts_slowpath(
 	if (err)
 		return err;
 
-	crypt_func(ctx, walk.src.virt.addr, walk.dst.virt.addr, walk.nbytes);
-
-	err = skcipher_walk_done(&walk, 0);
+	err = crypt_func(ctx, walk.src.virt.addr, walk.dst.virt.addr,
+			 walk.nbytes, req->iv, AES_BLOCK_SIZE);
 	if (err)
 		return err;
 
-	return lc_sym_getiv(ctx, req->iv, AES_BLOCK_SIZE);
+	return skcipher_walk_done(&walk, 0);
 }
 
 static int lc_aes_xts_common(struct skcipher_request *req,
-			     int (*crypt_func)(struct lc_sym_ctx *ctx,
+			     int (*crypt_func)(const struct lc_sym_ctx *ctx,
 					       const uint8_t *in, uint8_t *out,
-					       size_t len))
+					       size_t len, uint8_t *iv,
+					       size_t ivlen))
 {
 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
 	struct lc_sym_ctx *ctx = crypto_skcipher_ctx(tfm);
@@ -135,7 +129,7 @@ static int lc_aes_xts_common(struct skcipher_request *req,
 	if (unlikely(req->cryptlen < AES_BLOCK_SIZE))
 		return -EINVAL;
 
-	err = lc_sym_setiv(ctx, req->iv, AES_BLOCK_SIZE);
+	err = lc_sym_init_iv(ctx, req->iv, AES_BLOCK_SIZE);
 	if (err)
 		return err;
 
@@ -148,11 +142,8 @@ static int lc_aes_xts_common(struct skcipher_request *req,
 	 */
 	if (likely(req->src->length >= req->cryptlen &&
 		   req->dst->length >= req->cryptlen)) {
-		err = crypt_func(ctx, sg_virt(req->src), sg_virt(req->dst),
-				 req->cryptlen);
-		if (err)
-			return err;
-		return lc_sym_getiv(ctx, req->iv, AES_BLOCK_SIZE);
+		return crypt_func(ctx, sg_virt(req->src), sg_virt(req->dst),
+				  req->cryptlen, req->iv, AES_BLOCK_SIZE);
 	}
 
 	return lc_aes_xts_slowpath(req, crypt_func);
@@ -160,12 +151,12 @@ static int lc_aes_xts_common(struct skcipher_request *req,
 
 static int lc_aes_xts_encrypt(struct skcipher_request *req)
 {
-	return lc_aes_xts_common(req, lc_sym_encrypt);
+	return lc_aes_xts_common(req, lc_sym_encrypt_iv);
 }
 
 static int lc_aes_xts_decrypt(struct skcipher_request *req)
 {
-	return lc_aes_xts_common(req, lc_sym_decrypt);
+	return lc_aes_xts_common(req, lc_sym_decrypt_iv);
 }
 
 static int lc_aes_xts_init(struct crypto_skcipher *tfm)
@@ -186,6 +177,7 @@ static struct skcipher_alg lc_aes_xts_skciphers[] = {
 			.cra_driver_name = "xts-aes-leancrypto",
 			.cra_priority = LC_KERNEL_DEFAULT_PRIO,
 			.cra_blocksize = AES_BLOCK_SIZE,
+			.cra_alignmask = LC_SYM_ALIGNMASK(lc_aes_xts),
 			.cra_ctxsize = LC_SYM_CTX_SIZE_LEN(
 					LC_AES_RISCV64_XTS_MAX_BLOCK_SIZE),
 			.cra_module = THIS_MODULE,

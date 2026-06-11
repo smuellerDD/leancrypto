@@ -134,8 +134,10 @@ out2:
  * Symmetrical operation: same function for encrypting as for decrypting.
  * Note any IV/nonce should never be reused with the same key.
  */
-static int mode_ctr_crypt(struct lc_mode_state *ctx, const uint8_t *in,
-			  uint8_t *out, size_t len)
+static int mode_ctr_crypt_iv_internal(const struct lc_mode_state *ctx,
+				      const uint8_t *in, uint8_t *out,
+				      size_t len,
+				      uint64_t iv[AES_CTR128_64BIT_WORDS])
 {
 	const struct lc_sym *wrappeded_cipher;
 	uint8_t buffer[AES_BLOCKLEN];
@@ -151,10 +153,10 @@ static int mode_ctr_crypt(struct lc_mode_state *ctx, const uint8_t *in,
 
 	for (i = 0; i < len; i += todo) {
 		/* we need to regen xor compliment in buffer */
-		ctr128_to_ptr(buffer, ctx->iv);
+		ctr128_to_ptr(buffer, iv);
 		wrappeded_cipher->encrypt(ctx->wrapped_cipher_ctx, buffer,
 					  buffer, sizeof(buffer));
-		ctr128_inc(ctx->iv);
+		ctr128_inc(iv);
 		todo = min_size(len - i, AES_BLOCKLEN);
 		xor_64(out + i, buffer, todo);
 	}
@@ -162,6 +164,31 @@ static int mode_ctr_crypt(struct lc_mode_state *ctx, const uint8_t *in,
 	lc_memset_secure(buffer, 0, sizeof(buffer));
 
 	return 0;
+}
+
+static int mode_ctr_crypt_iv(const struct lc_mode_state *ctx, const uint8_t *in,
+			     uint8_t *out, size_t len, uint8_t *iv,
+			     size_t ivlen)
+{
+	uint64_t iv_qword[AES_CTR128_64BIT_WORDS];
+	int ret;
+
+	if (ivlen != AES_BLOCKLEN)
+		return -EINVAL;
+
+	ptr_to_ctr128(iv_qword, iv);
+	ret = mode_ctr_crypt_iv_internal(ctx, in, out, len, iv_qword);
+	ctr128_to_ptr(iv, iv_qword);
+
+	lc_memset_secure(iv_qword, 0, sizeof(iv_qword));
+
+	return ret;
+}
+
+static int mode_ctr_crypt(struct lc_mode_state *ctx, const uint8_t *in,
+			  uint8_t *out, size_t len)
+{
+	return mode_ctr_crypt_iv_internal(ctx, in, out, len, ctx->iv);
 }
 
 static void mode_ctr_init(struct lc_mode_state *ctx,
@@ -209,6 +236,17 @@ static int mode_ctr_setkey(struct lc_mode_state *ctx, const uint8_t *key,
 	return wrappeded_cipher->setkey(ctx->wrapped_cipher_ctx, key, keylen);
 }
 
+static int mode_ctr_init_iv(const struct lc_mode_state *ctx, uint8_t *iv,
+			    size_t ivlen)
+{
+	(void)ctx;
+	(void)iv;
+
+	if (ivlen != AES_BLOCKLEN)
+		return -EINVAL;
+	return 0;
+}
+
 static int mode_ctr_setiv(struct lc_mode_state *ctx, const uint8_t *iv,
 			  size_t ivlen)
 {
@@ -236,6 +274,11 @@ static const struct lc_sym_mode _lc_mode_ctr_c = {
 	.getiv = mode_ctr_getiv,
 	.encrypt = mode_ctr_crypt,
 	.decrypt = mode_ctr_crypt,
+
+	.init_iv = mode_ctr_init_iv,
+	.encrypt_iv = mode_ctr_crypt_iv,
+	.decrypt_iv = mode_ctr_crypt_iv,
+
 	.statesize = LC_AES_CTR_BLOCK_SIZE,
 	.blocksize = 1,
 };

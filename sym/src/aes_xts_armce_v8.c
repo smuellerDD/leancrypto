@@ -36,17 +36,17 @@ struct lc_sym_state {
 	struct aes_v8_block_ctx dec_block_ctx;
 	struct aes_v8_block_ctx tweak_ctx;
 	union lc_xts_tweak tweak;
-	uint8_t iv_tweaked;
 };
 
 #define LC_AES_ARMV8_XTS_BLOCK_SIZE sizeof(struct lc_sym_state)
 
-static int aes_armce_xts_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
-				 uint8_t *out, size_t len)
+static int aes_armce_xts_encrypt_iv(const struct lc_sym_state *ctx,
+				    const uint8_t *in, uint8_t *out, size_t len,
+				    uint8_t *iv, size_t ivlen)
 {
 	size_t rounded_len = len & ~(AES_BLOCKLEN - 1);
 
-	if (!ctx)
+	if (!ctx || ivlen != AES_BLOCKLEN)
 		return -EINVAL;
 
 	/* We must have 128 bits input data or more */
@@ -55,11 +55,39 @@ static int aes_armce_xts_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 
 	LC_NEON_ENABLE;
 	aes_v8_xts_encrypt(in, out, len, &ctx->enc_block_ctx, &ctx->tweak_ctx,
-			   ctx->tweak.b, ctx->iv_tweaked);
+			   iv);
 	LC_NEON_DISABLE;
 
-	/* IV was tweaked during first processing. */
-	ctx->iv_tweaked = 1;
+	/* Timecop: output is not sensitive regarding side-channels. */
+	unpoison(out, len);
+
+	return 0;
+}
+
+static int aes_armce_xts_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
+				 uint8_t *out, size_t len)
+{
+	return aes_armce_xts_encrypt_iv(ctx, in, out, len, ctx->tweak.b,
+					sizeof(ctx->tweak.b));
+}
+
+static int aes_armce_xts_decrypt_iv(const struct lc_sym_state *ctx,
+				    const uint8_t *in, uint8_t *out, size_t len,
+				    uint8_t *iv, size_t ivlen)
+{
+	size_t rounded_len = len & ~(AES_BLOCKLEN - 1);
+
+	if (!ctx || ivlen != AES_BLOCKLEN)
+		return -EINVAL;
+
+	/* We must have 128 bits input data or more */
+	if (rounded_len < AES_BLOCKLEN)
+		return -EINVAL;
+
+	LC_NEON_ENABLE;
+	aes_v8_xts_decrypt(in, out, len, &ctx->dec_block_ctx, &ctx->tweak_ctx,
+			   iv);
+	LC_NEON_DISABLE;
 
 	/* Timecop: output is not sensitive regarding side-channels. */
 	unpoison(out, len);
@@ -70,27 +98,8 @@ static int aes_armce_xts_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 static int aes_armce_xts_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 				 uint8_t *out, size_t len)
 {
-	size_t rounded_len = len & ~(AES_BLOCKLEN - 1);
-
-	if (!ctx)
-		return -EINVAL;
-
-	/* We must have 128 bits input data or more */
-	if (rounded_len < AES_BLOCKLEN)
-		return -EINVAL;
-
-	LC_NEON_ENABLE;
-	aes_v8_xts_decrypt(in, out, len, &ctx->dec_block_ctx, &ctx->tweak_ctx,
-			   ctx->tweak.b, ctx->iv_tweaked);
-	LC_NEON_DISABLE;
-
-	/* IV was tweaked during first processing. */
-	ctx->iv_tweaked = 1;
-
-	/* Timecop: output is not sensitive regarding side-channels. */
-	unpoison(out, len);
-
-	return 0;
+	return aes_armce_xts_decrypt_iv(ctx, in, out, len, ctx->tweak.b,
+					sizeof(ctx->tweak.b));
 }
 
 static int aes_armce_xts_init_nocheck(struct lc_sym_state *ctx)
@@ -141,13 +150,21 @@ static int aes_armce_xts_setkey(struct lc_sym_state *ctx, const uint8_t *key,
 				     (unsigned int)(one_keylen << 3),
 				     &ctx->tweak_ctx));
 
-	/* Let first enc/dec operation tweak the IV */
-	ctx->iv_tweaked = 0;
-
 out:
 	LC_NEON_DISABLE;
 	unpoison(key, keylen);
 	return ret;
+}
+
+static int aes_armce_xts_init_iv(const struct lc_sym_state *ctx, uint8_t *iv,
+				 size_t ivlen)
+{
+	if (!ctx || ivlen != AES_BLOCKLEN)
+		return -EINVAL;
+
+	aes_v8_encrypt(iv, iv, &ctx->tweak_ctx);
+
+	return 0;
 }
 
 static int aes_armce_xts_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
@@ -157,9 +174,7 @@ static int aes_armce_xts_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 		return -EINVAL;
 
 	memcpy(ctx->tweak.b, iv, AES_BLOCKLEN);
-
-	/* Let first enc/dec operation tweak the IV */
-	ctx->iv_tweaked = 0;
+	aes_v8_encrypt(ctx->tweak.b, ctx->tweak.b, &ctx->tweak_ctx);
 
 	return 0;
 }
@@ -182,6 +197,11 @@ static const struct lc_sym _lc_aes_xts_armce = {
 	.getiv = aes_armce_xts_getiv,
 	.encrypt = aes_armce_xts_encrypt,
 	.decrypt = aes_armce_xts_decrypt,
+
+	.init_iv = aes_armce_xts_init_iv,
+	.encrypt_iv = aes_armce_xts_encrypt_iv,
+	.decrypt_iv = aes_armce_xts_decrypt_iv,
+
 	.statesize = LC_AES_ARMV8_XTS_BLOCK_SIZE,
 	.blocksize = AES_BLOCKLEN,
 	.algorithm_type = LC_ALG_STATUS_AES_XTS

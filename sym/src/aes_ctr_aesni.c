@@ -37,31 +37,32 @@ struct lc_sym_state {
 
 #define LC_AES_AESNI_CTR_BLOCK_SIZE sizeof(struct lc_sym_state)
 
-static void aes_aesni_ctr96_inc(struct lc_sym_state *ctx)
+static void aes_aesni_ctr96_inc(uint8_t *iv)
 {
-	uint32_t ctr32 = ptr_to_be32(&ctx->iv[8]);
+	uint32_t ctr32 = ptr_to_be32(&iv[8]);
 
 	ctr32++;
-	be32_to_ptr(&ctx->iv[8], ctr32);
+	be32_to_ptr(&iv[8], ctr32);
 	if (ctr32 == 0) {
-		ctr32 = ptr_to_be32(&ctx->iv[4]);
+		ctr32 = ptr_to_be32(&iv[4]);
 		ctr32++;
-		be32_to_ptr(&ctx->iv[4], ctr32);
+		be32_to_ptr(&iv[4], ctr32);
 		if (ctr32 == 0) {
-			ctr32 = ptr_to_be32(&ctx->iv[0]);
+			ctr32 = ptr_to_be32(&iv[0]);
 			ctr32++;
-			be32_to_ptr(&ctx->iv[0], ctr32);
+			be32_to_ptr(&iv[0], ctr32);
 		}
 	}
 }
 
-static int aes_aesni_ctr_crypt(struct lc_sym_state *ctx, const uint8_t *in,
-			       uint8_t *out, size_t len)
+static int aes_aesni_ctr_crypt_iv(const struct lc_sym_state *ctx,
+				  const uint8_t *in, uint8_t *out, size_t len,
+				  uint8_t *iv, size_t ivlen)
 {
 	size_t blocks = len >> 4, block_bytes = blocks << 4;
 	uint32_t ctr32;
 
-	if (!ctx)
+	if (!ctx || ivlen != AES_BLOCKLEN)
 		return -EINVAL;
 
 	LC_FPU_ENABLE;
@@ -69,7 +70,7 @@ static int aes_aesni_ctr_crypt(struct lc_sym_state *ctx, const uint8_t *in,
 	while (blocks) {
 		size_t todo;
 
-		ctr32 = ptr_to_be32(&ctx->iv[12]);
+		ctr32 = ptr_to_be32(&iv[12]);
 
 		/* Cipher operation is limited to 32LSB of the counter */
 		ctr32 += (uint32_t)blocks;
@@ -82,12 +83,12 @@ static int aes_aesni_ctr_crypt(struct lc_sym_state *ctx, const uint8_t *in,
 		}
 
 		aesni_ctr32_encrypt_blocks(in, out, todo, &ctx->enc_block_ctx,
-					   ctx->iv);
+					   iv);
 
 		/* CTR is not updated by cipher operation */
-		be32_to_ptr(&ctx->iv[12], ctr32);
+		be32_to_ptr(&iv[12], ctr32);
 		if (ctr32 == 0)
-			aes_aesni_ctr96_inc(ctx);
+			aes_aesni_ctr96_inc(iv);
 
 		blocks -= todo;
 
@@ -108,13 +109,13 @@ static int aes_aesni_ctr_crypt(struct lc_sym_state *ctx, const uint8_t *in,
 		uint8_t buffer[AES_BLOCKLEN] = { 0 };
 		size_t residual_len = len - block_bytes;
 
-		ctr32 = ptr_to_be32(&ctx->iv[12]);
+		ctr32 = ptr_to_be32(&iv[12]);
 		ctr32++;
 
 		memcpy(buffer, in, residual_len);
 
 		aesni_ctr32_encrypt_blocks(buffer, buffer, 1,
-					   &ctx->enc_block_ctx, ctx->iv);
+					   &ctx->enc_block_ctx, iv);
 		memcpy(out, buffer, residual_len);
 
 		/* Timecop: output is not sensitive regarding side-channels. */
@@ -122,14 +123,20 @@ static int aes_aesni_ctr_crypt(struct lc_sym_state *ctx, const uint8_t *in,
 
 		lc_memset_secure(buffer, 0, sizeof(buffer));
 
-		be32_to_ptr(&ctx->iv[12], ctr32);
+		be32_to_ptr(&iv[12], ctr32);
 		if (ctr32 == 0)
-			aes_aesni_ctr96_inc(ctx);
+			aes_aesni_ctr96_inc(iv);
 	}
 
 	LC_FPU_DISABLE;
 
 	return 0;
+}
+
+static int aes_aesni_ctr_crypt(struct lc_sym_state *ctx, const uint8_t *in,
+			       uint8_t *out, size_t len)
+{
+	return aes_aesni_ctr_crypt_iv(ctx, in, out, len, ctx->iv, AES_BLOCKLEN);
 }
 
 static int aes_aesni_ctr_init_nocheck(struct lc_sym_state *ctx)
@@ -172,6 +179,16 @@ out:
 	return ret;
 }
 
+static int aes_aesni_ctr_init_iv(const struct lc_sym_state *ctx, uint8_t *iv,
+				 size_t ivlen)
+{
+	(void)ctx;
+	(void)iv;
+	if (ivlen != AES_BLOCKLEN)
+		return -EINVAL;
+	return 0;
+}
+
 static int aes_aesni_ctr_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 			       size_t ivlen)
 {
@@ -200,6 +217,11 @@ static const struct lc_sym _lc_aes_ctr_aesni = {
 	.getiv = aes_aesni_ctr_getiv,
 	.encrypt = aes_aesni_ctr_crypt,
 	.decrypt = aes_aesni_ctr_crypt,
+
+	.init_iv = aes_aesni_ctr_init_iv,
+	.encrypt_iv = aes_aesni_ctr_crypt_iv,
+	.decrypt_iv = aes_aesni_ctr_crypt_iv,
+
 	.statesize = LC_AES_AESNI_CTR_BLOCK_SIZE,
 	.blocksize = 1,
 	.algorithm_type = LC_ALG_STATUS_AES_CTR

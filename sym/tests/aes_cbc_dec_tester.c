@@ -78,7 +78,7 @@ static const uint8_t in128[] = {
 };
 
 static int test_decrypt_cbc_one(struct lc_sym_ctx *ctx, const uint8_t *key,
-				size_t keylen, uint8_t *in)
+				size_t keylen, const uint8_t *in)
 {
 	static const uint8_t iv[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05,
 				      0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b,
@@ -92,23 +92,33 @@ static int test_decrypt_cbc_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 		0x24, 0x45, 0xdf, 0x4f, 0x9b, 0x17, 0xad, 0x2b, 0x41, 0x7b,
 		0xe6, 0x6c, 0x37, 0x10
 	};
-	int ret;
+	uint8_t act[sizeof(out)], extiv[sizeof(iv)], ivout[sizeof(extiv)];
+	int ret, rc;
 
 	CKINT(lc_sym_init(ctx));
 	CKINT(lc_sym_setkey(ctx, key, keylen));
 	CKINT(lc_sym_setiv(ctx, iv, sizeof(iv)));
-	lc_sym_decrypt(ctx, in, in, sizeof(out));
-	ret = lc_compare(in, out, sizeof(out), "AES-CBC decrypt");
+	lc_sym_decrypt(ctx, in, act, sizeof(out));
+	lc_sym_getiv(ctx, ivout, sizeof(ivout));
+	rc = lc_compare(act, out, sizeof(out), "AES-CBC decrypt");
+
+	/* Decrypt with external IV */
+	memcpy(extiv, iv, sizeof(iv));
+	CKINT(lc_sym_init_iv(ctx, extiv, sizeof(extiv)));
+	CKINT(lc_sym_decrypt_iv(ctx, in, act, sizeof(out), extiv,
+				sizeof(extiv)));
+	rc += lc_compare(act, out, sizeof(out), "AES-CBC external IV data");
+	rc += lc_compare(ivout, extiv, sizeof(extiv),
+			 "AES-CBC encrypt external IV");
 
 out:
 	lc_sym_zero(ctx);
-	return !!ret;
+	return ret ? !!ret : rc;
 }
 
 static int test_decrypt_cbc(const struct lc_sym *aes, const char *name)
 {
 	struct lc_sym_ctx *aes_cbc_heap;
-	uint8_t in[sizeof(in256)];
 	int ret;
 	LC_SYM_CTX_ON_STACK(aes_cbc, aes);
 
@@ -117,25 +127,22 @@ static int test_decrypt_cbc(const struct lc_sym *aes, const char *name)
 	       (unsigned int)LC_SYM_CTX_SIZE);
 
 	unpoison(key256, sizeof(key256));
-	memcpy(in, in256, sizeof(in256));
-	ret = test_decrypt_cbc_one(aes_cbc, key256, sizeof(key256), in);
+	ret = test_decrypt_cbc_one(aes_cbc, key256, sizeof(key256), in256);
 	lc_sym_zero(aes_cbc);
 
-	memcpy(in, in192, sizeof(in192));
 	unpoison(key192, sizeof(key192));
-	ret += test_decrypt_cbc_one(aes_cbc, key192, sizeof(key192), in);
+	ret += test_decrypt_cbc_one(aes_cbc, key192, sizeof(key192), in192);
 	lc_sym_zero(aes_cbc);
 
-	memcpy(in, in128, sizeof(in128));
 	unpoison(key128, sizeof(key128));
-	ret += test_decrypt_cbc_one(aes_cbc, key128, sizeof(key128), in);
+	ret += test_decrypt_cbc_one(aes_cbc, key128, sizeof(key128), in128);
 	lc_sym_zero(aes_cbc);
 
 	if (lc_sym_alloc(aes, &aes_cbc_heap))
 		return ret + 1;
-	memcpy(in, in256, sizeof(in256));
 	unpoison(key256, sizeof(key256));
-	ret += test_decrypt_cbc_one(aes_cbc_heap, key256, sizeof(key256), in);
+	ret += test_decrypt_cbc_one(aes_cbc_heap, key256, sizeof(key256),
+				    in256);
 	lc_sym_zero_free(aes_cbc_heap);
 
 	return ret;

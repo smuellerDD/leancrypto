@@ -1685,8 +1685,9 @@ SYM_FUNC_ENTER(aesni_xts_encrypt)
 	movl	240(%r8),%eax
 
 	movq	%r9,%r14	# Store pointer to IV for later retrieval
-	cmpb	$0,16(%r9)	# Was IV already tweaked?
-	jne	.Ltweaked_enc	# If yes, skip tweaking
+	//cmpb	$0,16(%r9)	# Was IV already tweaked?
+	//jne	.Ltweaked_enc	# If yes, skip tweaking
+	jmp	.Ltweaked_enc	# IV must have already been tweaked
 
 	movups	(%r8),%xmm0
 	movups	16(%r8),%xmm1
@@ -2174,8 +2175,9 @@ SYM_FUNC_ENTER(aesni_xts_decrypt)
 	movl	240(%r8),%eax
 
 	movq	%r9,%r14	# Store pointer to IV for later retrieval
-	cmpb	$0,16(%r9)	# Was IV already tweaked?
-	jne	.Ltweaked_dec	# If yes, skip tweaking
+	//cmpb	$0,16(%r9)	# Was IV already tweaked?
+	//jne	.Ltweaked_dec	# If yes, skip tweaking
+	jmp	.Ltweaked_dec	# IV must have already been tweaked
 
 	movups	(%r8),%xmm0
 	movups	16(%r8),%xmm1

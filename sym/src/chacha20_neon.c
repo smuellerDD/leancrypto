@@ -42,6 +42,17 @@ static int cc20_crypt_neon(struct lc_sym_state *ctx, const uint8_t *in,
 	return 0;
 }
 
+static int cc20_crypt_iv_neon(const struct lc_sym_state *ctx, const uint8_t *in,
+			      uint8_t *out, size_t len, uint8_t *iv,
+			      size_t ivlen)
+{
+	LC_NEON_ENABLE;
+	cc20_crypt_iv_asm(ctx, in, out, len, iv, ivlen, ChaCha20_neon);
+	LC_NEON_DISABLE;
+
+	return 0;
+}
+
 static const struct lc_sym _lc_chacha20_neon = {
 	.init = cc20_init,
 	.setkey = cc20_setkey,
@@ -49,6 +60,11 @@ static const struct lc_sym _lc_chacha20_neon = {
 	.getiv = cc20_getiv,
 	.encrypt = cc20_crypt_neon,
 	.decrypt = cc20_crypt_neon,
+
+	.init_iv = cc20_init_iv,
+	.encrypt_iv = cc20_crypt_iv_neon,
+	.decrypt_iv = cc20_crypt_iv_neon,
+
 	.statesize = LC_CC20_STATE_SIZE,
 	.blocksize = 1,
 	.algorithm_type = LC_ALG_STATUS_CHACHA20

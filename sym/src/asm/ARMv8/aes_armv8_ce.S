@@ -2031,8 +2031,9 @@ SYM_FUNC_ENTER(aes_v8_xts_encrypt)
 	b.ne	Lxts_enc_big_size
 
 	ld1	{v6.16b},[x5],#16	// Load the IV
-	cmp	x6,#0			// Was the IV tweaked?
-	b.ne	Ltweaked_enc
+	//cmp	x6,#0			// Was the IV tweaked?
+	//b.ne	Ltweaked_enc
+	b	Ltweaked_enc		// IV must have been tweaked
 
 	// Encrypt the iv with key2, as the first XEX iv.
 	ldr	w6,[x4,#240]
@@ -2121,8 +2122,9 @@ Lxts_enc_big_size:
 	csel	x8,xzr,x8,eq
 
 	ld1	{v6.16b},[x5],#16	// Load the IV
-	cmp	x6,#0			// Was the IV tweaked?
-	b.ne	Ltweaked_big_enc
+	//cmp	x6,#0			// Was the IV tweaked?
+	//b.ne	Ltweaked_big_enc
+	b	Ltweaked_big_enc
 
 	// Firstly, encrypt the iv with key2, as the first iv of XEX.
 	ldr	w6,[x4,#240]
@@ -2678,8 +2680,9 @@ SYM_FUNC_ENTER(aes_v8_xts_decrypt)
 	b.ne	Lxts_dec_big_size
 
 	ld1	{v6.16b},[x5],#16	// Load the IV
-	cmp	x6,#0			// Was the IV tweaked?
-	b.ne	Ltweaked_dec
+	//cmp	x6,#0			// Was the IV tweaked?
+	//b.ne	Ltweaked_dec		// IV must have been tweaked
+	b	Ltweaked_dec
 
 	// Encrypt the iv with key2, as the first XEX iv.
 	ldr	w6,[x4,#240]
@@ -2764,8 +2767,9 @@ Lxts_dec_big_size:
 	b.lo	Lxts_dec_abort
 
 	ld1	{v6.16b},[x5],#16	// Load the IV
-	cmp	x6,#0			// Was the IV tweaked?
-	b.ne	Ltweaked_big_dec
+	//cmp	x6,#0			// Was the IV tweaked?
+	//b.ne	Ltweaked_big_dec
+	b	Ltweaked_big_dec
 
 	// Encrypt the iv with key2, as the first XEX iv
 	ldr	w6,[x4,#240]

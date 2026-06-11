@@ -24,6 +24,7 @@
  */
 
 #include "aes_aesni.h"
+#include "aes_block_internal.h"
 #include "aes_internal.h"
 #include "asm/AESNI_x86_64/aes_aesni_x86_64.h"
 #include "build_bug_on.h"
@@ -109,32 +110,19 @@ out:
 	return ret;
 }
 
-static int aes_aesni_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
-			   size_t ivlen)
-{
-	(void)ctx;
-	(void)iv;
-	(void)ivlen;
-	return -EOPNOTSUPP;
-}
-
-static int aes_aesni_getiv(const struct lc_sym_state *ctx, uint8_t *iv,
-			   size_t ivlen)
-{
-	(void)ctx;
-	(void)iv;
-	(void)ivlen;
-	return -EOPNOTSUPP;
-}
-
 static const struct lc_sym _lc_aes_aesni = {
 	.init = aes_aesni_init,
 	.init_nocheck = NULL,
 	.setkey = aes_aesni_setkey,
-	.setiv = aes_aesni_setiv,
-	.getiv = aes_aesni_getiv,
+	.setiv = aes_setiv,
+	.getiv = aes_getiv,
 	.encrypt = aes_aesni_encrypt,
 	.decrypt = aes_aesni_decrypt,
+
+	.init_iv = aes_init_iv,
+	.encrypt_iv = aes_crypt_iv,
+	.decrypt_iv = aes_crypt_iv,
+
 	.statesize = LC_AES_BLOCK_SIZE,
 	.blocksize = AES_BLOCKLEN,
 };

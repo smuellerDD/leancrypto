@@ -17,6 +17,7 @@
  * DAMAGE.
  */
 
+#include "aes_block_internal.h"
 #include "aes_c.h"
 #include "aes_internal.h"
 #include "build_bug_on.h"
@@ -125,7 +126,19 @@ out:
 	return ret;
 }
 
-static int aes_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen)
+int aes_crypt_iv(const struct lc_sym_state *ctx, const uint8_t *in,
+		 uint8_t *out, size_t len, uint8_t *iv, size_t ivlen)
+{
+	(void)ctx;
+	(void)in;
+	(void)out;
+	(void)len;
+	(void)iv;
+	(void)ivlen;
+	return -EOPNOTSUPP;
+}
+
+int aes_init_iv(const struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen)
 {
 	(void)ctx;
 	(void)iv;
@@ -133,7 +146,15 @@ static int aes_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen)
 	return -EOPNOTSUPP;
 }
 
-static int aes_getiv(const struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen)
+int aes_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen)
+{
+	(void)ctx;
+	(void)iv;
+	(void)ivlen;
+	return -EOPNOTSUPP;
+}
+
+int aes_getiv(const struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen)
 {
 	(void)ctx;
 	(void)iv;
@@ -148,13 +169,13 @@ static int aes_setkey_c_internal(struct lc_sym_state *ctx, const uint8_t *key,
 }
 
 static int aes_encrypt_c_internal(struct lc_sym_state *ctx, const uint8_t *in,
-				   uint8_t *out, size_t len)
+				  uint8_t *out, size_t len)
 {
 	return aes_encrypt(ctx, in, out, len, aes_encrypt_c);
 }
 
 static int aes_decrypt_c_internal(struct lc_sym_state *ctx, const uint8_t *in,
-				   uint8_t *out, size_t len)
+				  uint8_t *out, size_t len)
 {
 	return aes_decrypt(ctx, in, out, len, aes_decrypt_c);
 }
@@ -167,6 +188,11 @@ static const struct lc_sym _lc_aes_sbox = {
 	.getiv = aes_getiv,
 	.encrypt = aes_encrypt_c_internal,
 	.decrypt = aes_decrypt_c_internal,
+
+	.init_iv = aes_init_iv,
+	.encrypt_iv = aes_crypt_iv,
+	.decrypt_iv = aes_crypt_iv,
+
 	.statesize = LC_AES_BLOCK_SIZE,
 	.blocksize = AES_BLOCKLEN,
 };
@@ -198,6 +224,11 @@ static const struct lc_sym _lc_aes_ct = {
 	.getiv = aes_getiv,
 	.encrypt = aes_encrypt_ct_internal,
 	.decrypt = aes_decrypt_ct_internal,
+
+	.init_iv = aes_init_iv,
+	.encrypt_iv = aes_crypt_iv,
+	.decrypt_iv = aes_crypt_iv,
+
 	.statesize = LC_AES_BLOCK_SIZE,
 	.blocksize = AES_BLOCKLEN,
 };

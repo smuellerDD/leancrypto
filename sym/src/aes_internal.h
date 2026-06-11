@@ -48,6 +48,14 @@ struct lc_sym_mode {
 		       uint8_t *out, size_t len);
 	int (*decrypt)(struct lc_mode_state *ctx, const uint8_t *in,
 		       uint8_t *out, size_t len);
+
+	int (*init_iv)(const struct lc_mode_state *ctx, uint8_t *iv,
+		       size_t ivlen);
+	int (*encrypt_iv)(const struct lc_mode_state *ctx, const uint8_t *in,
+			  uint8_t *out, size_t len, uint8_t *iv, size_t ivlen);
+	int (*decrypt_iv)(const struct lc_mode_state *ctx, const uint8_t *in,
+			  uint8_t *out, size_t len, uint8_t *iv, size_t ivlen);
+
 	unsigned int statesize;
 	unsigned int blocksize;
 };

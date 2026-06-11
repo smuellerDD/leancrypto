@@ -36,16 +36,17 @@ struct lc_sym_state {
 
 #define LC_AES_ARMV8_CBC_BLOCK_SIZE sizeof(struct lc_sym_state)
 
-static int aes_armce_cbc_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
-				 uint8_t *out, size_t len)
+static int aes_armce_cbc_encrypt_iv(const struct lc_sym_state *ctx,
+				    const uint8_t *in, uint8_t *out,
+				    size_t len, uint8_t *iv, size_t ivlen)
 {
 	size_t round_len = len & ~(AES_BLOCKLEN - 1);
 
-	if (!ctx)
+	if (!ctx || ivlen != AES_BLOCKLEN)
 		return -EINVAL;
 
 	LC_NEON_ENABLE;
-	aes_v8_cbc_encrypt(in, out, round_len, &ctx->enc_block_ctx, ctx->iv, 1);
+	aes_v8_cbc_encrypt(in, out, round_len, &ctx->enc_block_ctx, iv, 1);
 	LC_NEON_DISABLE;
 
 	/*
@@ -58,16 +59,24 @@ static int aes_armce_cbc_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 	return 0;
 }
 
-static int aes_armce_cbc_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
+static int aes_armce_cbc_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 				 uint8_t *out, size_t len)
+{
+	return aes_armce_cbc_encrypt_iv(ctx, in, out, len, ctx->iv,
+					sizeof(ctx->iv));
+}
+
+static int aes_armce_cbc_decrypt_iv(const struct lc_sym_state *ctx,
+				    const uint8_t *in, uint8_t *out, size_t len,
+				    uint8_t *iv, size_t ivlen)
 {
 	size_t round_len = len & ~(AES_BLOCKLEN - 1);
 
-	if (!ctx)
+	if (!ctx || ivlen != AES_BLOCKLEN)
 		return -EINVAL;
 
 	LC_NEON_ENABLE;
-	aes_v8_cbc_encrypt(in, out, round_len, &ctx->dec_block_ctx, ctx->iv, 0);
+	aes_v8_cbc_encrypt(in, out, round_len, &ctx->dec_block_ctx, iv, 0);
 	LC_NEON_DISABLE;
 
 	/*
@@ -78,6 +87,13 @@ static int aes_armce_cbc_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 		memset(out + round_len, 0, len - round_len);
 
 	return 0;
+}
+
+static int aes_armce_cbc_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
+				 uint8_t *out, size_t len)
+{
+	return aes_armce_cbc_decrypt_iv(ctx, in, out, len, ctx->iv,
+					sizeof(ctx->iv));
 }
 
 static int aes_armce_cbc_init_nocheck(struct lc_sym_state *ctx)
@@ -120,6 +136,17 @@ out:
 	return ret;
 }
 
+static int aes_armce_cbc_init_iv(const struct lc_sym_state *ctx, uint8_t *iv,
+				 size_t ivlen)
+{
+	(void)ctx;
+	(void)iv;
+
+	if (ivlen != AES_BLOCKLEN)
+		return -EINVAL;
+	return 0;
+}
+
 static int aes_armce_cbc_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 			       size_t ivlen)
 {
@@ -148,6 +175,11 @@ static const struct lc_sym _lc_aes_cbc_armce = {
 	.getiv = aes_armce_cbc_getiv,
 	.encrypt = aes_armce_cbc_encrypt,
 	.decrypt = aes_armce_cbc_decrypt,
+
+	.init_iv = aes_armce_cbc_init_iv,
+	.encrypt_iv = aes_armce_cbc_encrypt_iv,
+	.decrypt_iv = aes_armce_cbc_decrypt_iv,
+
 	.statesize = LC_AES_ARMV8_CBC_BLOCK_SIZE,
 	.blocksize = AES_BLOCKLEN,
 	.algorithm_type = LC_ALG_STATUS_AES_CBC

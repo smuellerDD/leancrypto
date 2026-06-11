@@ -19,6 +19,7 @@
 
 #include "aes_c.h"
 #include "aes_internal.h"
+#include "alignment.h"
 #include "bitshift.h"
 #include "compare.h"
 #include "conv_be_le.h"
@@ -123,8 +124,9 @@ out2:
 	lc_sym_zero(ctx);
 }
 
-static int mode_kw_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
-			   uint8_t *out, size_t len)
+static int mode_kw_encrypt_iv_internal(const struct lc_mode_state *ctx,
+				       const uint8_t *in, uint8_t *out,
+				       size_t len, uint64_t *tag)
 {
 	const struct lc_sym *wrappeded_cipher;
 	struct aes_kw_block block;
@@ -186,15 +188,38 @@ static int mode_kw_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
 	}
 
 	/* establish the IV for the caller to pick up */
-	ctx->tag = block.A;
+	*tag = block.A;
 
 	lc_memset_secure(&block, 0, sizeof(block));
 
 	return 0;
 }
 
-static int mode_kw_decrypt(struct lc_mode_state *ctx, const uint8_t *in,
+static int mode_kw_encrypt_iv(const struct lc_mode_state *ctx,
+				       const uint8_t *in, uint8_t *out,
+				       size_t len, uint8_t *iv, size_t ivlen)
+{
+	uint64_t tag;
+	int ret;
+
+	if (ivlen != AES_KW_SEMIBSIZE)
+		return -EINVAL;
+
+	tag = ptr_to_64(iv);
+	ret = mode_kw_encrypt_iv_internal(ctx, in, out, len, &tag);
+	val64_to_ptr(iv, tag);
+	return ret;
+}
+
+static int mode_kw_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
 			   uint8_t *out, size_t len)
+{
+	return mode_kw_encrypt_iv_internal(ctx, in, out, len, &ctx->tag);
+}
+
+static int mode_kw_decrypt_iv_internal(const struct lc_mode_state *ctx,
+				       const uint8_t *in, uint8_t *out,
+				       size_t len, uint64_t *tag)
 {
 	const struct lc_sym *wrappeded_cipher;
 	struct aes_kw_block block;
@@ -224,7 +249,7 @@ static int mode_kw_decrypt(struct lc_mode_state *ctx, const uint8_t *in,
 		memcpy(out, in, rounded_len);
 
 	/* Place the IV into block A */
-	block.A = ctx->tag;
+	block.A = *tag;
 
 	for (i = 0; i < 6; i++) {
 		size_t nbytes = len;
@@ -252,11 +277,33 @@ static int mode_kw_decrypt(struct lc_mode_state *ctx, const uint8_t *in,
 		}
 	}
 
-	ctx->tag = block.A;
+	*tag = block.A;
 
 	lc_memset_secure(&block, 0, sizeof(block));
 
 	return 0;
+}
+
+static int mode_kw_decrypt_iv(const struct lc_mode_state *ctx,
+			      const uint8_t *in, uint8_t *out, size_t len,
+			      uint8_t *iv, size_t ivlen)
+{
+	uint64_t tag;
+	int ret;
+
+	if (ivlen != AES_KW_SEMIBSIZE)
+		return -EINVAL;
+
+	tag = ptr_to_64(iv);
+	ret = mode_kw_decrypt_iv_internal(ctx, in, out, len, &tag);
+	val64_to_ptr(iv, tag);
+	return ret;
+}
+
+static int mode_kw_decrypt(struct lc_mode_state *ctx, const uint8_t *in,
+			   uint8_t *out, size_t len)
+{
+	return mode_kw_decrypt_iv_internal(ctx, in, out, len, &ctx->tag);
 }
 
 static void mode_kw_init(struct lc_mode_state *ctx,
@@ -292,6 +339,17 @@ static int mode_kw_setkey(struct lc_mode_state *ctx, const uint8_t *key,
 	return wrappeded_cipher->setkey(ctx->wrapped_cipher_ctx, key, keylen);
 }
 
+static int mode_kw_init_iv(const struct lc_mode_state *ctx, uint8_t *iv,
+			   size_t ivlen)
+{
+	(void)ctx;
+	(void)iv;
+
+	if (ivlen != AES_KW_SEMIBSIZE)
+		return -EINVAL;
+	return 0;
+}
+
 static int mode_kw_setiv(struct lc_mode_state *ctx, const uint8_t *iv,
 			 size_t ivlen)
 {
@@ -319,6 +377,11 @@ static const struct lc_sym_mode _lc_mode_kw_c = {
 	.getiv = mode_kw_getiv,
 	.encrypt = mode_kw_encrypt,
 	.decrypt = mode_kw_decrypt,
+
+	.init_iv = mode_kw_init_iv,
+	.encrypt_iv = mode_kw_encrypt_iv,
+	.decrypt_iv = mode_kw_decrypt_iv,
+
 	.statesize = LC_AES_KW_BLOCK_SIZE,
 	.blocksize = AES_BLOCKLEN,
 };

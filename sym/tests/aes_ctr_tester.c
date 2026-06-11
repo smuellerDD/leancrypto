@@ -196,9 +196,13 @@ static int test_xcrypt_ctr_one(const char *xcrypt, struct lc_sym_ctx *ctx,
 			       const uint8_t *in, const uint8_t *out,
 			       size_t datalen)
 {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvla"
+	uint8_t ivout[ivlen], extiv[ivlen];
+#pragma GCC diagnostic pop
 	uint8_t act[500];
 	char status[64];
-	int ret;
+	int ret, rc;
 
 	if (sizeof(act) < datalen)
 		return -EFAULT;
@@ -213,10 +217,21 @@ static int test_xcrypt_ctr_one(const char *xcrypt, struct lc_sym_ctx *ctx,
 	CKINT(lc_sym_setkey(ctx, key, keylen));
 	CKINT(lc_sym_setiv(ctx, iv, ivlen));
 	lc_sym_encrypt(ctx, in, act, datalen);
-	ret = lc_compare(act, out, datalen, status);
+	lc_sym_getiv(ctx, ivout, sizeof(ivout));
+	rc = lc_compare(act, out, datalen, status);
+
+	/* Encrypt with external IV */
+	snprintf(status, sizeof(status), "AES-CTR external IV %s", xcrypt);
+	memcpy(extiv, iv, ivlen);
+	CKINT(lc_sym_init_iv(ctx, extiv, sizeof(extiv)));
+	CKINT(lc_sym_encrypt_iv(ctx, in, act, datalen, extiv,
+				sizeof(extiv)));
+	rc += lc_compare(act, out, datalen, status);
+	rc += lc_compare(ivout, extiv, sizeof(extiv),
+			 "AES-CTR encrypt external IV");
 
 out:
-	return ret;
+	return ret ? ret : rc;
 }
 
 static int test_xcrypt_ctr(const struct lc_sym *aes, const char *name,

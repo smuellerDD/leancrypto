@@ -35,18 +35,18 @@ struct lc_sym_state {
 	struct aes_aesni_block_ctx enc_block_ctx;
 	struct aes_aesni_block_ctx dec_block_ctx;
 	struct aes_aesni_block_ctx tweak_ctx;
-	/* Last byte of IV buffer contains indicator whether IV was tweaked */
-	uint8_t iv[AES_BLOCKLEN + 1];
+	uint8_t iv[AES_BLOCKLEN];
 };
 
 #define LC_AES_AESNI_XTS_BLOCK_SIZE sizeof(struct lc_sym_state)
 
-static int aes_aesni_xts_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
-				 uint8_t *out, size_t len)
+static int aes_aesni_xts_encrypt_iv(const struct lc_sym_state *ctx,
+				    const uint8_t *in, uint8_t *out,
+				    size_t len, uint8_t *iv, size_t ivlen)
 {
 	size_t rounded_len = len & ~(AES_BLOCKLEN - 1);
 
-	if (!ctx)
+	if (!ctx || ivlen != AES_BLOCKLEN)
 		return -EINVAL;
 
 	/* We must have 128 bits input data or more */
@@ -55,11 +55,39 @@ static int aes_aesni_xts_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 
 	LC_FPU_ENABLE;
 	aesni_xts_encrypt(in, out, len, &ctx->enc_block_ctx, &ctx->tweak_ctx,
-			  ctx->iv);
+			  iv);
 	LC_FPU_DISABLE;
 
-	/* IV was tweaked during first processing. */
-	ctx->iv[AES_BLOCKLEN] = 1;
+	/* Timecop: output is not sensitive regarding side-channels. */
+	unpoison(out, len);
+
+	return 0;
+}
+
+static int aes_aesni_xts_encrypt(struct lc_sym_state *ctx,
+				 const uint8_t *in, uint8_t *out, size_t len)
+{
+	return aes_aesni_xts_encrypt_iv(ctx, in, out, len, ctx->iv,
+					sizeof(ctx->iv));
+}
+
+static int aes_aesni_xts_decrypt_iv(const struct lc_sym_state *ctx,
+				    const uint8_t *in, uint8_t *out,
+				    size_t len, uint8_t *iv, size_t ivlen)
+{
+	size_t rounded_len = len & ~(AES_BLOCKLEN - 1);
+
+	if (!ctx || ivlen != AES_BLOCKLEN)
+		return -EINVAL;
+
+	/* We must have 128 bits input data or more */
+	if (rounded_len < AES_BLOCKLEN)
+		return -EINVAL;
+
+	LC_FPU_ENABLE;
+	aesni_xts_decrypt(in, out, len, &ctx->dec_block_ctx, &ctx->tweak_ctx,
+			  iv);
+	LC_FPU_DISABLE;
 
 	/* Timecop: output is not sensitive regarding side-channels. */
 	unpoison(out, len);
@@ -70,27 +98,8 @@ static int aes_aesni_xts_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 static int aes_aesni_xts_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 				 uint8_t *out, size_t len)
 {
-	size_t rounded_len = len & ~(AES_BLOCKLEN - 1);
-
-	if (!ctx)
-		return -EINVAL;
-
-	/* We must have 128 bits input data or more */
-	if (rounded_len < AES_BLOCKLEN)
-		return -EINVAL;
-
-	LC_FPU_ENABLE;
-	aesni_xts_decrypt(in, out, len, &ctx->dec_block_ctx, &ctx->tweak_ctx,
-			  ctx->iv);
-	LC_FPU_DISABLE;
-
-	/* IV was tweaked during first processing. */
-	ctx->iv[AES_BLOCKLEN] = 1;
-
-	/* Timecop: output is not sensitive regarding side-channels. */
-	unpoison(out, len);
-
-	return 0;
+	return aes_aesni_xts_decrypt_iv(ctx, in, out, len, ctx->iv,
+					sizeof(ctx->iv));
 }
 
 static int aes_aesni_xts_init_nocheck(struct lc_sym_state *ctx)
@@ -141,13 +150,21 @@ static int aes_aesni_xts_setkey(struct lc_sym_state *ctx, const uint8_t *key,
 				    (unsigned int)(one_keylen << 3),
 				    &ctx->tweak_ctx));
 
-	/* Let first enc/dec operation tweak the IV */
-	ctx->iv[AES_BLOCKLEN] = 0;
-
 out:
 	LC_FPU_DISABLE;
 	unpoison(key, keylen);
 	return ret;
+}
+
+static int aes_aesni_xts_init_iv(const struct lc_sym_state *ctx, uint8_t *iv,
+				 size_t ivlen)
+{
+	if (!ctx || ivlen != AES_BLOCKLEN)
+		return -EINVAL;
+
+	aesni_encrypt(iv, iv, &ctx->tweak_ctx);
+
+	return 0;
 }
 
 static int aes_aesni_xts_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
@@ -157,9 +174,7 @@ static int aes_aesni_xts_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 		return -EINVAL;
 
 	memcpy(ctx->iv, iv, AES_BLOCKLEN);
-
-	/* Let first enc/dec operation tweak the IV */
-	ctx->iv[AES_BLOCKLEN] = 0;
+	aesni_encrypt(ctx->iv, ctx->iv, &ctx->tweak_ctx);
 
 	return 0;
 }
@@ -182,6 +197,11 @@ static const struct lc_sym _lc_aes_xts_aesni = {
 	.getiv = aes_aesni_xts_getiv,
 	.encrypt = aes_aesni_xts_encrypt,
 	.decrypt = aes_aesni_xts_decrypt,
+
+	.init_iv = aes_aesni_xts_init_iv,
+	.encrypt_iv = aes_aesni_xts_encrypt_iv,
+	.decrypt_iv = aes_aesni_xts_decrypt_iv,
+
 	.statesize = LC_AES_AESNI_XTS_BLOCK_SIZE,
 	.blocksize = AES_BLOCKLEN,
 	.algorithm_type = LC_ALG_STATUS_AES_XTS

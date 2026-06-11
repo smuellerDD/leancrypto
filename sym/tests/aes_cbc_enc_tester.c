@@ -83,7 +83,7 @@ static int test_encrypt_cbc_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 	static const uint8_t iv[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05,
 				      0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b,
 				      0x0c, 0x0d, 0x0e, 0x0f };
-	uint8_t in[] = { 0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96,
+	static const uint8_t in[] = { 0x6b, 0xc1, 0xbe, 0xe2, 0x2e, 0x40, 0x9f, 0x96,
 			 0xe9, 0x3d, 0x7e, 0x11, 0x73, 0x93, 0x17, 0x2a,
 			 0xae, 0x2d, 0x8a, 0x57, 0x1e, 0x03, 0xac, 0x9c,
 			 0x9e, 0xb7, 0x6f, 0xac, 0x45, 0xaf, 0x8e, 0x51,
@@ -91,17 +91,28 @@ static int test_encrypt_cbc_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 			 0xe5, 0xfb, 0xc1, 0x19, 0x1a, 0x0a, 0x52, 0xef,
 			 0xf6, 0x9f, 0x24, 0x45, 0xdf, 0x4f, 0x9b, 0x17,
 			 0xad, 0x2b, 0x41, 0x7b, 0xe6, 0x6c, 0x37, 0x10 };
-	int ret;
+	uint8_t out[sizeof(in)], extiv[sizeof(iv)], ivout[sizeof(extiv)];
+	int ret, rc;
 
 	/* Encrypt */
 	CKINT(lc_sym_init(ctx));
 	CKINT(lc_sym_setkey(ctx, key, keylen));
 	CKINT(lc_sym_setiv(ctx, iv, sizeof(iv)));
-	lc_sym_encrypt(ctx, in, in, sizeof(in));
-	ret = lc_compare(in, exp, sizeof(in), "AES-CBC encrypt");
+	lc_sym_encrypt(ctx, in, out, sizeof(in));
+	lc_sym_getiv(ctx, ivout, sizeof(ivout));
+	rc = lc_compare(out, exp, sizeof(in), "AES-CBC encrypt");
+
+	/* Encrypt with external IV */
+	memcpy(extiv, iv, sizeof(iv));
+	CKINT(lc_sym_init_iv(ctx, extiv, sizeof(extiv)));
+	CKINT(lc_sym_encrypt_iv(ctx, in, out, sizeof(in), extiv,
+				sizeof(extiv)));
+	rc += lc_compare(out, exp, sizeof(in), "AES-CBC external IV data");
+	rc += lc_compare(ivout, extiv, sizeof(extiv),
+			 "AES-CBC encrypt external IV");
 
 out:
-	return !!ret;
+	return ret ? !!ret : rc;
 }
 
 static int test_encrypt_cbc(const struct lc_sym *aes, const char *name)

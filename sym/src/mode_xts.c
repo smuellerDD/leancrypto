@@ -168,12 +168,13 @@ out2:
 	lc_sym_zero(ctx);
 }
 
-static void xts_enc_block(struct lc_mode_state *ctx,
-			  uint8_t block[AES_BLOCKLEN])
+static void xts_enc_block(const struct lc_mode_state *ctx,
+			  uint8_t block[AES_BLOCKLEN],
+			  union lc_xts_tweak *tweak)
 {
 	const struct lc_sym *wrapped_cipher = ctx->wrapped_cipher;
 
-	xor_64(block, ctx->tweak.b, AES_BLOCKLEN);
+	xor_64(block, tweak->b, AES_BLOCKLEN);
 
 	/*
 	 * Timecop: C implementation of AES has side channel problems as
@@ -183,11 +184,12 @@ static void xts_enc_block(struct lc_mode_state *ctx,
 
 	wrapped_cipher->encrypt(ctx->wrapped_cipher_ctx, block, block,
 				AES_BLOCKLEN);
-	xor_64(block, ctx->tweak.b, AES_BLOCKLEN);
+	xor_64(block, tweak->b, AES_BLOCKLEN);
 }
 
-static int mode_xts_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
-			    uint8_t *out, size_t len)
+static int mode_xts_encrypt_iv_internal(const struct lc_mode_state *ctx,
+					const uint8_t *in, uint8_t *out,
+					size_t len, union lc_xts_tweak *tweak)
 {
 	size_t i, rounded_len = len & ~(AES_BLOCKLEN - 1);
 
@@ -205,9 +207,9 @@ static int mode_xts_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
 	for (i = 0; i < rounded_len - AES_BLOCKLEN;
 	     i += AES_BLOCKLEN, out += AES_BLOCKLEN) {
 		/* Encrypt */
-		xts_enc_block(ctx, out);
+		xts_enc_block(ctx, out, tweak);
 		/* Increment the tweak */
-		gfmul_alpha(&ctx->tweak);
+		gfmul_alpha(tweak);
 	}
 
 	if (len == rounded_len) {
@@ -215,10 +217,10 @@ static int mode_xts_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
 		 * Encrypt the last block, out already points to the right
 		 * memory location
 		 */
-		xts_enc_block(ctx, out);
+		xts_enc_block(ctx, out, tweak);
 
 		/* Update the tweak to allow stream mode operation */
-		gfmul_alpha(&ctx->tweak);
+		gfmul_alpha(tweak);
 	} else {
 		/*
 		 * Encrypt the last full block and the trailing partial block,
@@ -231,15 +233,15 @@ static int mode_xts_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
 		/* Get last full block */
 		memcpy(CC, out, AES_BLOCKLEN);
 		/* Encrypt */
-		xts_enc_block(ctx, CC);
-		gfmul_alpha(&ctx->tweak);
+		xts_enc_block(ctx, CC, tweak);
+		gfmul_alpha(tweak);
 
 		/* Get the final partial block */
 		memcpy(PP, out + AES_BLOCKLEN, b);
 		/* Add the ciphertext from the last full block */
 		memcpy(PP + b, CC + b, AES_BLOCKLEN - b);
 		/* Encrypt */
-		xts_enc_block(ctx, PP);
+		xts_enc_block(ctx, PP, tweak);
 		/*
 		 * Final tweak increment not needed any more - when we reach
 		 * this code, we got the final block. Thus, a stream mode
@@ -263,7 +265,38 @@ static int mode_xts_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
 	return 0;
 }
 
-static void xts_dec_block(struct lc_mode_state *ctx,
+static int mode_xts_encrypt_iv(const struct lc_mode_state *ctx,
+			       const uint8_t *in, uint8_t *out, size_t len,
+			       uint8_t *iv, size_t ivlen)
+{
+	if (ivlen != AES_BLOCKLEN)
+		return -EINVAL;
+
+	if (!aligned(iv, (sizeof(uint64_t) - 1))) {
+		union lc_xts_tweak tweak;
+		int ret;
+
+		memcpy(tweak.b, iv, AES_BLOCKLEN);
+		ret = mode_xts_encrypt_iv_internal(ctx, in, out, len, &tweak);
+		memcpy(iv, tweak.b, AES_BLOCKLEN);
+		lc_memset_secure(&tweak, 0, sizeof(tweak));
+		return ret;
+	}
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
+	return mode_xts_encrypt_iv_internal(ctx, in, out, len,
+					    (union lc_xts_tweak *)iv);
+#pragma GCC diagnostic pop
+}
+
+static int mode_xts_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
+			    uint8_t *out, size_t len)
+{
+	return mode_xts_encrypt_iv_internal(ctx, in, out, len, &ctx->tweak);
+}
+
+static void xts_dec_block(const struct lc_mode_state *ctx,
 			  uint8_t block[AES_BLOCKLEN],
 			  union lc_xts_tweak *tweak)
 {
@@ -282,8 +315,9 @@ static void xts_dec_block(struct lc_mode_state *ctx,
 	xor_64(block, tweak->b, AES_BLOCKLEN);
 }
 
-static int mode_xts_decrypt(struct lc_mode_state *ctx, const uint8_t *in,
-			    uint8_t *out, size_t len)
+static int mode_xts_decrypt_iv_internal(const struct lc_mode_state *ctx,
+					const uint8_t *in, uint8_t *out,
+					size_t len, union lc_xts_tweak *tweak)
 {
 	size_t i, rounded_len = len & ~(AES_BLOCKLEN - 1);
 
@@ -301,9 +335,9 @@ static int mode_xts_decrypt(struct lc_mode_state *ctx, const uint8_t *in,
 	for (i = 0; i < rounded_len - AES_BLOCKLEN;
 	     i += AES_BLOCKLEN, out += AES_BLOCKLEN) {
 		/* Decrypt */
-		xts_dec_block(ctx, out, &ctx->tweak);
+		xts_dec_block(ctx, out, tweak);
 		/* Update the tweak */
-		gfmul_alpha(&ctx->tweak);
+		gfmul_alpha(tweak);
 	}
 
 	if (len == rounded_len) {
@@ -311,31 +345,31 @@ static int mode_xts_decrypt(struct lc_mode_state *ctx, const uint8_t *in,
 		 * Decrypt the last block, out already points to the right
 		 * memory location
 		 */
-		xts_dec_block(ctx, out, &ctx->tweak);
+		xts_dec_block(ctx, out, tweak);
 
 		/* Update the tweak to allow stream mode operation */
-		gfmul_alpha(&ctx->tweak);
+		gfmul_alpha(tweak);
 	} else {
 		size_t b = len - rounded_len;
 		uint8_t CC[AES_BLOCKLEN] __align(sizeof(uint64_t)),
 			PP[AES_BLOCKLEN] __align(sizeof(uint64_t));
-		union lc_xts_tweak tweak;
+		union lc_xts_tweak tweak_local;
 
-		memcpy(tweak.b, ctx->tweak.b, AES_BLOCKLEN);
+		memcpy(tweak_local.b, tweak->b, AES_BLOCKLEN);
 
 		/* Get last full block */
 		memcpy(PP, out, AES_BLOCKLEN);
 		/* We need the tweak of the last iteration for the decryption */
-		gfmul_alpha(&tweak);
+		gfmul_alpha(&tweak_local);
 		/* Decryption using the last tweak */
-		xts_dec_block(ctx, PP, &tweak);
+		xts_dec_block(ctx, PP, &tweak_local);
 
 		/* Get the final partial block */
 		memcpy(CC, out + AES_BLOCKLEN, b);
 		/* Add the plaintext from the last full block */
 		memcpy(CC + b, PP + b, AES_BLOCKLEN - b);
 		/* Decryption using the last but one tweak */
-		xts_dec_block(ctx, CC, &ctx->tweak);
+		xts_dec_block(ctx, CC, tweak);
 		/*
 		 * Final tweak increment not needed any more - when we reach
 		 * this code, we got the final block. Thus, a stream mode
@@ -351,12 +385,44 @@ static int mode_xts_decrypt(struct lc_mode_state *ctx, const uint8_t *in,
 
 		lc_memset_secure(CC, 0, sizeof(CC));
 		lc_memset_secure(PP, 0, sizeof(PP));
+		lc_memset_secure(&tweak_local, 0, sizeof(tweak_local));
 	}
 
 	/* Timecop: output is not sensitive regarding side-channels. */
 	unpoison(out, len);
 
 	return 0;
+}
+
+static int mode_xts_decrypt_iv(const struct lc_mode_state *ctx,
+			       const uint8_t *in, uint8_t *out, size_t len,
+			       uint8_t *iv, size_t ivlen)
+{
+	if (ivlen != AES_BLOCKLEN)
+		return -EINVAL;
+
+	if (!aligned(iv, (sizeof(uint64_t) - 1))) {
+		union lc_xts_tweak tweak;
+		int ret;
+
+		memcpy(tweak.b, iv, AES_BLOCKLEN);
+		ret = mode_xts_decrypt_iv_internal(ctx, in, out, len, &tweak);
+		memcpy(iv, tweak.b, AES_BLOCKLEN);
+		lc_memset_secure(&tweak, 0, sizeof(tweak));
+		return ret;
+	}
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
+	return mode_xts_decrypt_iv_internal(ctx, in, out, len,
+					    (union lc_xts_tweak *)iv);
+#pragma GCC diagnostic pop
+}
+
+static int mode_xts_decrypt(struct lc_mode_state *ctx, const uint8_t *in,
+			    uint8_t *out, size_t len)
+{
+	return mode_xts_decrypt_iv_internal(ctx, in, out, len, &ctx->tweak);
 }
 
 static void mode_xts_init(struct lc_mode_state *ctx,
@@ -425,6 +491,21 @@ out:
 	return ret;
 }
 
+static int mode_xts_init_iv(const struct lc_mode_state *ctx, uint8_t *iv,
+			    size_t ivlen)
+{
+	const struct lc_sym *wrapped_cipher;
+
+	if (!ctx || ivlen != AES_BLOCKLEN)
+		return -EINVAL;
+
+	wrapped_cipher = ctx->wrapped_cipher;
+	if (!wrapped_cipher)
+		return -EINVAL;
+	return wrapped_cipher->encrypt(ctx->tweak_cipher_ctx, iv, iv,
+				       AES_BLOCKLEN);
+}
+
 static int mode_xts_setiv(struct lc_mode_state *ctx, const uint8_t *iv,
 			  size_t ivlen)
 {
@@ -440,10 +521,10 @@ static int mode_xts_setiv(struct lc_mode_state *ctx, const uint8_t *iv,
 	 * be set with the setkey call.
 	 */
 	wrapped_cipher = ctx->wrapped_cipher;
-	wrapped_cipher->encrypt(ctx->tweak_cipher_ctx, ctx->tweak.b,
-				ctx->tweak.b, AES_BLOCKLEN);
-
-	return 0;
+	if (!wrapped_cipher)
+		return -EINVAL;
+	return wrapped_cipher->encrypt(ctx->tweak_cipher_ctx, ctx->tweak.b,
+				       ctx->tweak.b, AES_BLOCKLEN);
 }
 
 static int mode_xts_getiv(const struct lc_mode_state *ctx, uint8_t *iv,
@@ -463,6 +544,11 @@ static const struct lc_sym_mode _lc_mode_xts_c = {
 	.getiv = mode_xts_getiv,
 	.encrypt = mode_xts_encrypt,
 	.decrypt = mode_xts_decrypt,
+
+	.init_iv = mode_xts_init_iv,
+	.encrypt_iv = mode_xts_encrypt_iv,
+	.decrypt_iv = mode_xts_decrypt_iv,
+
 	.statesize = LC_AES_XTS_BLOCK_SIZE,
 	.blocksize = AES_BLOCKLEN,
 };

@@ -42,6 +42,14 @@ struct lc_sym {
 		       uint8_t *out, size_t len);
 	int (*decrypt)(struct lc_sym_state *ctx, const uint8_t *in,
 		       uint8_t *out, size_t len);
+
+	int (*init_iv)(const struct lc_sym_state *ctx, uint8_t *iv,
+		       size_t ivlen);
+	int (*encrypt_iv)(const struct lc_sym_state *ctx, const uint8_t *in,
+			  uint8_t *out, size_t len, uint8_t *iv, size_t ivlen);
+	int (*decrypt_iv)(const struct lc_sym_state *ctx, const uint8_t *in,
+			  uint8_t *out, size_t len, uint8_t *iv, size_t ivlen);
+
 	uint64_t algorithm_type;
 	unsigned int statesize;
 	unsigned int blocksize;
@@ -110,6 +118,32 @@ struct lc_sym_ctx {
  *    lc_aes.h, lc_chacha20.h.
  *
  * 2. Use the returned cipher handle with the API calls below.
+ *
+ * Concept of parallel use of cipher contexts
+ *
+ * In threaded environments the caller may want to reuse one cipher handle
+ * to be called parallel by different threads. This is achieved by the
+ * consideration that
+ *
+ * 1. The cipher handle will only hold the key (schedule) which is static
+ *    for all context invocations.
+ *
+ * 2. The "volatile" data are the plain/ciphertext and the IV. That is now
+ *    given on a per-call basis.
+ *
+ * Therefore, perform the following steps:
+ *
+ * Prior to parallel use:
+ * allocate algorithm
+ * lc_sym_init();
+ * lc_sym_setkey();
+ *
+ * Parallel use, invoke for each thread:
+ * lc_sym_init_iv();
+ * lc_sym_[en|de]crypt_iv();
+ *
+ * After parallel use:
+ * lc_sym_zero[_free]();
  */
 
 /**
@@ -221,6 +255,89 @@ int lc_sym_encrypt(struct lc_sym_ctx *ctx, const uint8_t *in, uint8_t *out,
  */
 int lc_sym_decrypt(struct lc_sym_ctx *ctx, const uint8_t *in, uint8_t *out,
 		   size_t len);
+
+/**
+ * @ingroup Symmetric
+ * @brief Symmetric encryption with externally stored IV
+ *
+ * @param [in] ctx Reference to sym context implementation to be used to
+ *		   perform sym calculation with.
+ * @param [in] in Plaintext to be encrypted
+ * @param [out] out Ciphertext resulting of the encryption
+ * @param [in] len Size of the input / output buffer
+ * @param [in,out] iv IV that is input and returned from the operation
+ * @param [in] ivlen Size of the IV
+ *
+ * The plaintext and the ciphertext buffer may be identical to support
+ * in-place cryptographic operations.
+ *
+ * The buffer for the IV is held by the caller. In this case, \p ctx can be used
+ * at the same time by multiple callers.
+ *
+ * \note This call is allowed to be called multiple times to operate in
+ * stream mode. However, the caller must enforce the following:
+ * 1. All invocations except for the last data block must contain data that
+ *    is always a multiple of 16 bytes.
+ * 2. Only the last invocation is allowed to be not a multiple of 16 bytes for
+ *    algorithms that allow it (e.g. XTS, CTR)
+ *
+ * \note The IV must be initialized with \p lc_sym_init_iv before the first use.
+ *
+ * @return 0 on success, < 0 on error
+ */
+int lc_sym_encrypt_iv(const struct lc_sym_ctx *ctx, const uint8_t *in,
+		      uint8_t *out, size_t len, uint8_t *iv, size_t ivlen);
+
+/**
+ * @ingroup Symmetric
+ * @brief Symmetric decryption with externally stored IV
+ *
+ * @param [in] ctx Reference to sym context implementation to be used to
+ *		   perform sym calculation with.
+ * @param [in] in Ciphertext to be decrypted
+ * @param [out] out Plaintext resulting of the decryption
+ * @param [in] len Size of the input / output buffer
+ * @param [in,out] iv IV that is input and returned from the operation
+ * @param [in] ivlen Size of the IV
+ *
+ * The plaintext and the ciphertext buffer may be identical to support
+ * in-place cryptographic operations.
+ *
+ * The buffer for the IV is held by the caller. In this case, \p ctx can be used
+ * at the same time by multiple callers.
+ *
+ * \note This call is allowed to be called multiple times to operate in
+ * stream mode. However, the caller must enforce the following:
+ * 1. All invocations except for the last data block must contain data that
+ *    is always a multiple of 16 bytes.
+ * 2. Only the last invocation is allowed to be not a multiple of 16 bytes for
+ *    algorithms that allow it (e.g. XTS, CTR)
+ *
+ * \note The IV must be initialized with \p lc_sym_init_iv before the first use.
+ *
+ * @return 0 on success, < 0 on error
+ */
+int lc_sym_decrypt_iv(const struct lc_sym_ctx *ctx, const uint8_t *in,
+		      uint8_t *out, size_t len, uint8_t *iv, size_t ivlen);
+
+/**
+ * @ingroup Symmetric
+ * @brief Initialize externally stored IV
+ *
+ * Pre-process the externally held IV before using it with \p lc_sym_encrypt_iv
+ * or \p lc_sym_decrypt_iv.
+ *
+ * @param [in] ctx Reference to sym context implementation to be used to
+ *		   perform sym calculation with.
+ * @param [in,out] iv IV that is input and returned from the operation
+ * @param [in] ivlen Size of the IV
+ *
+ * The buffer for the IV is held by the caller. In this case, \p ctx can be used
+ * at the same time by multiple callers.
+ *
+ * @return 0 on success, < 0 on error
+ */
+int lc_sym_init_iv(const struct lc_sym_ctx *ctx, uint8_t *iv, size_t ivlen);
 
 /**
  * @ingroup Symmetric

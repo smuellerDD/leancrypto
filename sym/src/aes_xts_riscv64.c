@@ -42,10 +42,26 @@ static int aes_riscv64_xts_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 	return lc_mode_xts_c->encrypt(&ctx->xts_state, in, out, len);
 }
 
+static int aes_riscv64_xts_encrypt_iv(const struct lc_sym_state *ctx,
+				      const uint8_t *in, uint8_t *out,
+				      size_t len, uint8_t *iv, size_t ivlen)
+{
+	return lc_mode_xts_c->encrypt_iv(&ctx->xts_state, in, out, len, iv,
+					 ivlen);
+}
+
 static int aes_riscv64_xts_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 				   uint8_t *out, size_t len)
 {
 	lc_mode_xts_c->decrypt(&ctx->xts_state, in, out, len);
+}
+
+static int aes_riscv64_xts_decrypt_iv(const struct lc_sym_state *ctx,
+				      const uint8_t *in, uint8_t *out,
+				      size_t len, uint8_t *iv, size_t ivlen)
+{
+	return lc_mode_xts_c->decrypt_iv(&ctx->xts_state, in, out, len, iv,
+					 ivlen);
 }
 
 static int aes_riscv64_xts_init_nocheck(struct lc_sym_state *ctx)
@@ -73,6 +89,12 @@ static int aes_riscv64_xts_setkey(struct lc_sym_state *ctx, const uint8_t *key,
 	return lc_mode_xts_c->setkey(&ctx->xts_state, key, keylen);
 }
 
+static int aes_riscv64_xts_init_iv(const struct lc_sym_state *ctx, uint8_t *iv,
+				   size_t ivlen)
+{
+	return lc_mode_xts_c->init_iv(&ctx->xts_state, iv, ivlen);
+}
+
 static int aes_riscv64_xts_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 				 size_t ivlen)
 {
@@ -93,6 +115,11 @@ static const struct lc_sym _lc_aes_xts_riscv64 = {
 	.getiv = aes_riscv64_xts_getiv,
 	.encrypt = aes_riscv64_xts_encrypt,
 	.decrypt = aes_riscv64_xts_decrypt,
+
+	.init_iv = aes_riscv64_xts_init_iv,
+	.encrypt_iv = aes_riscv64_xts_encrypt_iv,
+	.decrypt_iv = aes_riscv64_xts_decrypt_iv,
+
 	.statesize = LC_AES_XTS_BLOCK_SIZE,
 	.blocksize = AES_BLOCKLEN,
 	.algorithm_type = LC_ALG_STATUS_AES_XTS

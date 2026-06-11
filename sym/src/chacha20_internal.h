@@ -24,6 +24,7 @@
 #include "lc_chacha20.h"
 #include "lc_chacha20_private.h"
 #include "lc_sym.h"
+#include "ret_checkers.h"
 #include "timecop.h"
 #include "xor.h"
 
@@ -33,6 +34,7 @@ extern "C" {
 
 void cc20_selftest(void);
 int cc20_setkey(struct lc_sym_state *ctx, const uint8_t *key, size_t keylen);
+int cc20_init_iv(const struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen);
 int cc20_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen);
 int cc20_getiv(const struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen);
 int cc20_init(struct lc_sym_state *ctx);
@@ -92,6 +94,34 @@ static inline void cc20_crypt_asm(
 	/* Timecop: output is not sensitive regarding side-channels. */
 	(void)origlen;
 	unpoison(out, origlen);
+}
+
+static inline int cc20_crypt_iv_asm(
+	const struct lc_sym_state *ctx, const uint8_t *in, uint8_t *out,
+	size_t len, uint8_t *iv, size_t ivlen,
+	void (*chacha20_asm)(uint8_t *out, const uint8_t *in, size_t len,
+			     const uint32_t key[8], const uint32_t counter[4]))
+{
+	struct lc_sym_state local_ctx;
+	int ret;
+
+	CKNULL(ctx, -EINVAL);
+	CKNULL(len, -EINVAL);
+
+	/* Set up local context */
+	cc20_init_constants(&local_ctx);
+	CKINT(cc20_setiv(&local_ctx, iv, ivlen));
+	memcpy(local_ctx.key.b, ctx->key.b, sizeof(local_ctx.key));
+
+	/* Encrypt local context */
+	cc20_crypt_asm(&local_ctx, in, out, len, chacha20_asm);
+
+	/* Get the IV */
+	CKINT(cc20_getiv(&local_ctx, iv, ivlen));
+
+out:
+	lc_memset_secure(&local_ctx, 0, sizeof(local_ctx));
+	return ret;
 }
 
 #ifdef __cplusplus
