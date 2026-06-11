@@ -460,6 +460,8 @@ static int chacha20_stream_test(const struct lc_sym *chacha20_sym,
 	snprintf(str, sizeof(str), "ChaCha20 stream enc - %s", name);
 	unpoison(res, sizeof(res));
 	ret = lc_compare(res, rfc_exp, sizeof(rfc_exp), str);
+	if (ret)
+		goto out;
 	lc_sym_zero(chacha20);
 
 	/* Decrypt */

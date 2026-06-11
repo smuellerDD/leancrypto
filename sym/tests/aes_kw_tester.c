@@ -83,47 +83,48 @@ static int test_encrypt_kw_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 	CKINT(lc_sym_init(ctx));
 	CKINT(lc_sym_setkey(ctx, key, keylen));
 	lc_aes_kw_encrypt(ctx, pt, out, ptlen);
-	ret = lc_compare(out + 8, ct, ptlen, "AES-KW encrypt ciphertext");
-	ret += lc_compare(out, iv, 8, "AES-KW encrypt tag");
+	rc = lc_compare(out + 8, ct, ptlen, "AES-KW encrypt ciphertext");
+	rc += lc_compare(out, iv, 8, "AES-KW encrypt tag");
 
 	/* Encrypt with external IV */
 	memset(extiv, 0, sizeof(extiv));
 	CKINT(lc_sym_init_iv(ctx, extiv, sizeof(extiv)));
 	CKINT(lc_sym_encrypt_iv(ctx, pt, out + 8, ptlen, extiv,
 				sizeof(extiv)));
-	ret += lc_compare(out + 8, ct, ptlen,
-			  "AES-KW encrypt external IV ciphertext");
-	ret += lc_compare(extiv, iv, sizeof(extiv),
-			  "AES-KW external IV encrypt tag");
+	rc += lc_compare(out + 8, ct, ptlen,
+			 "AES-KW encrypt external IV ciphertext");
+	rc += lc_compare(extiv, iv, sizeof(extiv),
+			 "AES-KW external IV encrypt tag");
 
 	/* Decrypt */
-	rc = lc_aes_kw_decrypt(ctx, out, out2, sizeof(out));
-	if (rc) {
-		ret++;
+	ret = lc_aes_kw_decrypt(ctx, out, out2, sizeof(out));
+	if (ret) {
+		rc++;
 		printf("AES-KW Decryption error\n");
 	}
-	ret += lc_compare(out2, pt, ptlen, "AES-KW decrypt plaintext");
+	rc += lc_compare(out2, pt, ptlen, "AES-KW decrypt plaintext");
 
 	/* Decrypt with external IV */
 	CKINT(lc_sym_init_iv(ctx, extiv, sizeof(extiv)));
 	CKINT(lc_sym_decrypt_iv(ctx, out + 8, out2, ptlen, extiv,
 				sizeof(extiv)));
-	ret += lc_compare(out2, pt, ptlen,
-			  "AES-KW external IV decrypt plaintext");
+	rc += lc_compare(out2, pt, ptlen,
+			 "AES-KW external IV decrypt plaintext");
 	memset(ivout, 0xa6, sizeof(ivout));
-	ret += lc_compare(extiv, ivout, sizeof(extiv),
-			  "AES-KW decrypt external IV");
+	rc += lc_compare(extiv, ivout, sizeof(extiv),
+			 "AES-KW decrypt external IV");
 
 	/* Decrypt with error */
 	out[0] = (uint8_t)((out[0] + 1) & 0xff);
-	rc = lc_aes_kw_decrypt(ctx, out, out2, sizeof(out));
-	if (rc != -EBADMSG) {
-		ret++;
+	ret = lc_aes_kw_decrypt(ctx, out, out2, sizeof(out));
+	if (ret != -EBADMSG) {
+		rc++;
 		printf("AES-KW Decryption error not caught\n");
 	}
+	ret = 0;
 
 out:
-	return !!ret;
+	return ret ? !!ret : rc;
 }
 
 static int test_kw(const struct lc_sym *aes, const char *name)
