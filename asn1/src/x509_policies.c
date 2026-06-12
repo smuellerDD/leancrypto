@@ -22,7 +22,7 @@
  * constraints are compliant to:
  *
  *  * RFC5280
- *  * BSI TR02102-3
+ *  * BSI TR02103
  */
 
 #include "asn1_debug.h"
@@ -91,12 +91,12 @@ LC_INTERFACE_FUNCTION(lc_x509_pol_ret_t, lc_x509_policy_is_ca,
 	    !(pub->key_usage & LC_KEY_USAGE_KEYCERTSIGN))
 		return LC_X509_POL_FALSE;
 
-	/* BSI TR02102-3 chapter 3 */
+	/* BSI TR02103 chapter 3 */
 	CKINT(lc_x509_policy_version_ge(cert, 3));
 	if (ret != LC_X509_POL_TRUE)
 		return ret;
 
-	/* BSI TR02102-3 chapter 3 */
+	/* BSI TR02103 chapter 3 */
 	CKINT(lc_509_policy_cert_contains_signature(cert));
 	if (ret != LC_X509_POL_TRUE)
 		return ret;
