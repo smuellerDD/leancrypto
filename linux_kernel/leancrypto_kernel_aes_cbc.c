@@ -51,6 +51,7 @@ static int lc_aes_cbc_common(struct skcipher_request *req,
 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
 	struct lc_sym_ctx *ctx = crypto_skcipher_ctx(tfm);
 	struct skcipher_walk walk;
+	unsigned int nbytes;
 	int err;
 
 	if (unlikely(req->cryptlen % AES_BLOCK_SIZE))
@@ -62,26 +63,17 @@ static int lc_aes_cbc_common(struct skcipher_request *req,
 
 	err = skcipher_walk_virt(&walk, req, false);
 
-	while (walk.nbytes) {
-		unsigned int nbytes = walk.nbytes;
-
-		if (nbytes < walk.total)
-			nbytes = round_down(nbytes, AES_BLOCK_SIZE);
-
-		if (!nbytes)
-			return -EINVAL;
-
+	while ((nbytes = walk.nbytes)) {
 		err = crypt_func(ctx, walk.src.virt.addr, walk.dst.virt.addr,
-				 nbytes, req->iv, AES_BLOCK_SIZE);
+				 nbytes & (~(AES_BLOCK_SIZE - 1)), req->iv,
+				 AES_BLOCK_SIZE);
 		if (err)
 			return err;
-		err = skcipher_walk_done(&walk, walk.nbytes - nbytes);
+		nbytes &= AES_BLOCK_SIZE - 1;
+		err = skcipher_walk_done(&walk, nbytes);
 	}
 
-	if (err)
-		return err;
-
-	return lc_sym_getiv(ctx, req->iv, AES_BLOCK_SIZE);
+	return err;
 }
 
 static int lc_aes_cbc_encrypt(struct skcipher_request *req)
