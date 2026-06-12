@@ -664,8 +664,7 @@ static inline void lc_kc_zero(void *state)
 	lc_kmac_zero(&kc->auth_ctx);
 	lc_kmac_zero(&kc->kmac);
 	kc->keystream_ptr = 0;
-	lc_memset_secure(kc->keystream, 0, LC_KMAC_CRYPT_ALIGNMENT +
-					   LC_KC_KEYSTREAM_BLOCK);
+	lc_memset_secure(kc->keystream, 0, sizeof(kc->keystream));
 }
 
 LC_INTERFACE_FUNCTION(int, lc_kc_alloc, const struct lc_hash *hash,

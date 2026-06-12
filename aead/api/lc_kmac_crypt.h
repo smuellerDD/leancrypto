@@ -61,8 +61,8 @@ struct lc_kc_cryptor {
  * - Alignment for lc_kc_cryptor
  */
 #define LC_KC_STATE_SIZE                                                       \
-	(LC_HASH_STATE_SIZE + LC_KC_KEYSTREAM_BLOCK +                          \
-	 LC_KMAC_CRYPT_ALIGNMENT + LC_HASH_COMMON_ALIGNMENT)
+	(LC_KC_KEYSTREAM_BLOCK + LC_KMAC_CRYPT_ALIGNMENT +                     \
+	 LC_HASH_STATE_SIZE + LC_HASH_COMMON_ALIGNMENT)
 #define LC_KC_CTX_SIZE                                                         \
 	(sizeof(struct lc_aead_ctx) + sizeof(struct lc_kc_cryptor) +           \
 	 LC_KC_STATE_SIZE)

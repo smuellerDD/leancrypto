@@ -32,10 +32,10 @@ extern "C" {
 
 /// \cond DO_NOT_DOCUMENT
 struct lc_kmac_ctx {
+	struct lc_hash_ctx hash_ctx;
 	uint8_t final_called : 1;
 	uint8_t rng_initialized : 1;
 	uint8_t *shadow_ctx;
-	struct lc_hash_ctx hash_ctx;
 };
 
 #define LC_KMAC_CTX_SIZE (sizeof(struct lc_kmac_ctx))
