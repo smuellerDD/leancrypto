@@ -54,13 +54,17 @@ struct lc_kc_cryptor {
 	LC_ALIGN_PTR_8(p, LC_ALIGNMENT_MASK(LC_KMAC_CRYPT_ALIGNMENT))
 
 /*
- * One block LC_KMAC_CRYPT_ALIGNMENT is required to ensure the
+ * Alignment:
+ * - One block LC_KMAC_CRYPT_ALIGNMENT is required to ensure the
  * ->keystream pointer is aligned
+ *
+ * - Alignment for lc_kc_cryptor
  */
 #define LC_KC_STATE_SIZE                                                       \
-	(LC_HASH_STATE_SIZE + LC_KC_KEYSTREAM_BLOCK + LC_KMAC_CRYPT_ALIGNMENT)
+	(LC_HASH_STATE_SIZE + LC_KC_KEYSTREAM_BLOCK +                          \
+	 LC_KMAC_CRYPT_ALIGNMENT + LC_HASH_COMMON_ALIGNMENT)
 #define LC_KC_CTX_SIZE                                                         \
-	(sizeof(struct lc_aead) + sizeof(struct lc_kc_cryptor) +               \
+	(sizeof(struct lc_aead_ctx) + sizeof(struct lc_kc_cryptor) +           \
 	 LC_KC_STATE_SIZE)
 
 /* KMAC-based AEAD-algorithm */
@@ -76,7 +80,7 @@ extern const struct lc_aead *lc_kmac_aead;
 					       LC_HASH_STATE_SIZE)))
 
 #define LC_KC_SET_CTX(name, hashname)                                          \
-	LC_AEAD_CTX(name, lc_kmac_aead);                                       \
+	LC_AEAD_HASH_ALIGN_CTX(name, lc_kmac_aead);                            \
 	_LC_KC_SET_CTX(((struct lc_kc_cryptor *)name->aead_state), hashname)
 /// \endcond
 

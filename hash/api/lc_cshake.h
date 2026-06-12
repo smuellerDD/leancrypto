@@ -21,6 +21,7 @@
 #define LC_CSHAKE_H
 
 #include "lc_hash.h"
+#include "lc_memory_support.h"
 #include "lc_sha3.h"
 
 #ifdef __cplusplus
@@ -109,9 +110,13 @@ struct lc_cshake_ctx {
 
 #define LC_CSHAKE_SET_CTX(name, hashname) _LC_CSHAKE_SET_CTX(name, hashname)
 
+#define LC_ALIGN_CSHAK_MASK(p)                                                 \
+	LC_ALIGN_PTR_8(p, LC_ALIGNMENT_MASK(LC_HASH_COMMON_ALIGNMENT))
+
 #define _LC_CSHAKE_SET_CTX_REINIT(name, hashname, ctx, offset)                 \
 	_LC_HASH_SET_CTX((&name->hash_ctx), hashname);                         \
-	name->shadow_ctx = (uint8_t *)((uint8_t *)ctx + offset)
+	name->shadow_ctx =                                                     \
+		LC_ALIGN_CSHAK_MASK((uint8_t *)((uint8_t *)ctx + offset))
 
 #define LC_CSHAKE_SET_CTX_REINIT(name, hashname)                               \
 	_LC_CSHAKE_SET_CTX_REINIT(name, hashname, name,                        \

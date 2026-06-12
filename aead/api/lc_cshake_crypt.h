@@ -56,11 +56,16 @@ struct lc_cc_cryptor {
 /*
  * One block LC_CSHAKE_CRYPT_ALIGNMENT is required to ensure the
  * ->keystream pointer is aligned
+ *
+ * State:
+ * - key stream + alignment
+ * - cSHAKE reinit shadow context + alignment
  */
 #define LC_CC_STATE_SIZE                                                       \
-	(LC_HASH_STATE_SIZE + LC_CC_KEYSTREAM_BLOCK + LC_CSHAKE_CRYPT_ALIGNMENT)
+	(LC_CC_KEYSTREAM_BLOCK + LC_CSHAKE_CRYPT_ALIGNMENT +                   \
+	 LC_HASH_STATE_SIZE + LC_HASH_COMMON_ALIGNMENT)
 #define LC_CC_CTX_SIZE                                                         \
-	(sizeof(struct lc_aead) + sizeof(struct lc_cc_cryptor) +               \
+	(sizeof(struct lc_aead_ctx) + sizeof(struct lc_cc_cryptor) +           \
 	 LC_CC_STATE_SIZE)
 
 /* CSHAKE-based AEAD-algorithm */

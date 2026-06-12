@@ -50,7 +50,13 @@ struct lc_hc_cryptor {
 	uint8_t keystream[LC_HC_KEYSTREAM_BLOCK];
 };
 
-#define LC_HC_CTX_SIZE (sizeof(struct lc_aead) + sizeof(struct lc_hc_cryptor))
+/*
+ * Alignment:
+ * - hash alignment to adjust lc_hc_cryptor
+ */
+#define LC_HC_CTX_SIZE                                                         \
+	(sizeof(struct lc_aead_ctx) + sizeof(struct lc_hc_cryptor) +           \
+	 LC_HASH_COMMON_ALIGNMENT)
 
 /* Hash-based AEAD-algorithm */
 extern const struct lc_aead *lc_hash_aead;
@@ -60,7 +66,7 @@ extern const struct lc_aead *lc_hash_aead;
 	_LC_HMAC_SET_CTX((&name->auth_ctx), hashname, (&name->hmac_key), 0)
 
 #define LC_HC_SET_CTX(name, hashname)                                          \
-	LC_AEAD_CTX(name, lc_hash_aead);                                       \
+	LC_AEAD_HASH_ALIGN_CTX(name, lc_hash_aead);                            \
 	_LC_HC_SET_CTX(((struct lc_hc_cryptor *)name->aead_state), hashname)
 /// \endcond
 

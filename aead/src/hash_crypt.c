@@ -405,7 +405,6 @@ LC_INTERFACE_FUNCTION(int, lc_hc_alloc, const struct lc_hash *hash,
 
 	if (ret)
 		return ret;
-	memset(tmp, 0, LC_HC_CTX_SIZE);
 
 	LC_HC_SET_CTX(tmp, hash);
 

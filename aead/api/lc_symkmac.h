@@ -35,9 +35,13 @@ struct lc_kh_cryptor {
 	struct lc_kmac_ctx auth_ctx;
 };
 
-#define LC_KH_STATE_SIZE (LC_SYM_STATE_SIZE)
+/*
+ * Alignment:
+ * - hash alignment to adjust lc_sh_cryptor
+ */
+#define LC_KH_STATE_SIZE (LC_SYM_STATE_SIZE + LC_HASH_COMMON_ALIGNMENT)
 #define LC_KH_CTX_SIZE                                                         \
-	(sizeof(struct lc_aead) + sizeof(struct lc_kh_cryptor) +               \
+	(sizeof(struct lc_aead_ctx) + sizeof(struct lc_kh_cryptor) +           \
 	 LC_KH_STATE_SIZE)
 
 /* AES-CBC with KMAC based AEAD-algorithm */
@@ -49,7 +53,7 @@ extern const struct lc_aead *lc_symkmac_aead;
 	_LC_KMAC_SET_CTX((&name->auth_ctx), hash)
 
 #define LC_KH_SET_CTX(name, sym, hash)                                         \
-	LC_AEAD_CTX(name, lc_symkmac_aead);                                    \
+	LC_AEAD_HASH_ALIGN_CTX(name, lc_symkmac_aead);                         \
 	_LC_KH_SET_CTX(((struct lc_kh_cryptor *)name->aead_state), sym, hash)
 /// \endcond
 

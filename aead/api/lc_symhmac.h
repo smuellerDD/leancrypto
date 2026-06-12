@@ -35,10 +35,14 @@ struct lc_sh_cryptor {
 	struct lc_hmac_ctx auth_ctx;
 };
 
+/*
+ * Alignment:
+ * - hash alignment to adjust lc_sh_cryptor
+ */
 #define LC_SH_STATE_SIZE (LC_SYM_STATE_SIZE + LC_HMAC_STATE_SIZE)
 #define LC_SH_CTX_SIZE                                                         \
-	(sizeof(struct lc_aead) + sizeof(struct lc_sh_cryptor) +               \
-	 LC_SH_STATE_SIZE)
+	(sizeof(struct lc_aead_ctx) + sizeof(struct lc_sh_cryptor) +           \
+	 LC_SH_STATE_SIZE + LC_HASH_COMMON_ALIGNMENT)
 
 /* AES-CBC with HMAC based AEAD-algorithm */
 extern const struct lc_aead *lc_symhmac_aead;
@@ -50,7 +54,7 @@ extern const struct lc_aead *lc_symhmac_aead;
 			 (sizeof(struct lc_sh_cryptor) + LC_SYM_STATE_SIZE))
 
 #define LC_SH_SET_CTX(name, sym, hash)                                         \
-	LC_AEAD_CTX(name, lc_symhmac_aead);                                    \
+	LC_AEAD_HASH_ALIGN_CTX(name, lc_symhmac_aead);                         \
 	_LC_SH_SET_CTX(((struct lc_sh_cryptor *)name->aead_state), sym, hash)
 /// \endcond
 
