@@ -196,6 +196,12 @@ endif
 ifdef CONFIG_LEANCRYPTO_X509_GENERATOR
 ccflags-y	+= -DLC_X509_GENERATOR
 endif
+ifdef CONFIG_LEANCRYPTO_CHACHA20 
+ccflags-y	+= -DLC_CHACHA20
+endif
+ifdef CONFIG_LEANCRYPTO_CHACHA20_POLY1305
+ccflags-y	+= -DLC_CHACHA20_POLY1305
+endif
 
 #
 # Automatically select the BER decoder
