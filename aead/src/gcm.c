@@ -931,16 +931,15 @@ LC_INTERFACE_FUNCTION(int, lc_aes_gcm_generate_iv, struct lc_aead_ctx *ctx,
 		      uint8_t *iv, size_t ivlen, enum lc_aes_gcm_iv_type type)
 {
 	struct lc_aes_gcm_cryptor *gcm_ctx;
-	int ret;
+	int ret = 0;
 
 	CKNULL(ctx, -EINVAL);
 	CKNULL(iv, -EINVAL);
+	CKRET(!ctx->keylen, -ENOKEY);
 
-	if (ivlen < 12)
-		return -EINVAL;
+	CKRET(ivlen < 12, -EINVAL);
 
-	if (fixed_field_len >= ivlen)
-		return -EINVAL;
+	CKRET(fixed_field_len >= ivlen, -EINVAL);
 
 	switch (type) {
 	case lc_aes_gcm_iv_generate_new:
@@ -960,6 +959,7 @@ LC_INTERFACE_FUNCTION(int, lc_aes_gcm_generate_iv, struct lc_aead_ctx *ctx,
 	}
 
 	gcm_ctx = ctx->aead_state;
+	CKINT(gcm_setkey(gcm_ctx, ctx->key, ctx->keylen));
 	CKINT(gcm_setiv(gcm_ctx, iv, ivlen));
 
 out:

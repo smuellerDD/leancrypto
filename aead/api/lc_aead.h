@@ -50,10 +50,17 @@ struct lc_aead {
 	uint64_t algorithm_type;
 };
 
+#define LC_AEAD_MAX_KEYSIZE 64
 struct lc_aead_ctx {
+	uint8_t key[LC_AEAD_MAX_KEYSIZE];
+	uint8_t keylen;
 	const struct lc_aead *aead;
 	void *aead_state;
 };
+
+#define LC_AEAD_CTX_NO_STATE(name, cb)                                         \
+	name->aead = cb;                                                       \
+	name->aead_state = NULL
 
 #define LC_AEAD_CTX(name, cb)                                                  \
 	name->aead = cb;                                                       \
@@ -79,6 +86,33 @@ struct lc_aead_ctx {
  *    lc_kmac_crypt.h, lc_hash_crypt.h, lc_symhmac.h, or lc_symkmac.h.
  *
  * 2. Use the returned cipher handle with the API calls below.
+ *
+ * Concept of parallel use of cipher contexts
+ *
+ * In threaded environments the caller may want to reuse one cipher handle
+ * to be called parallel by different threads. This is achieved by the
+ * consideration that
+ *
+ * 1. A "key cipher handle" will only hold the key which is static for all
+ *    context invocations.
+ *
+ * 2. A separate "volatile cipher handle" will process the actual data.
+ *
+ * Therefore, perform the following steps:
+ *
+ * Prior to parallel use:
+ * struct lc_aead_ctx key_ctx;
+ * LC_AEAD_CTX_NO_STATE(&key_ctx);
+ * lc_aead_setkey(key_ctx, key, keylen, NULL, 0);
+ *
+ * Parallel use, invoke for each thread:
+ * volatile_ctx = allocate algorithm
+ * lc_aead_setkey_from_ctx(volatile_ctx, key_ctx, iv, ivlen);
+ * lc_aead_[en|de]crypt(); or stream operation
+ * lc_aead_zero[_free](volatile_ctx);
+ *
+ * After parallel use:
+ * lc_sym_zero[_free](key_ctx);
  */
 
 /**
@@ -110,10 +144,43 @@ void lc_aead_zero_free(struct lc_aead_ctx *ctx);
  * The algorithm supports a key of arbitrary size. The only requirement is that
  * the same key is used for decryption as for encryption.
  *
+ * \oote The key / IV are allowed to be unset with the following result:
+ * * If key and IV are set: AEAD context is initialized and ready for use with
+ *   encrypt or decrypt.
+ * * If neither key nor IV are given, an error is returned as this is invalid.
+ * * If key is given, but no IV: the key is retained for later use, and it
+ *   initializes the context. The retention is of interest for
+ *   \p lc_aead_setkey_from_ctx.
+ * * If no key is given but an IV: the previously retained key is used together
+ *   with the IV to initialize the context.
+ *
  * @return 0 upon success; < 0 on error
  */
 int lc_aead_setkey(struct lc_aead_ctx *ctx, const uint8_t *key,
 		   const size_t keylen, const uint8_t *iv, size_t ivlen);
+
+/**
+ * @ingroup AEAD
+ * @brief Set the key for the AEAD encyption or decryption operation
+ *
+ * This call is intended to support parallel uses of the AEAD key context.
+ * The key can be set once in the \p key_ctx and reused by new AEAD contexts
+ * for normal operation.
+ *
+ * @param [in] ctx AEAD context handle
+ * @param [in] key_ctx AEAD context with retained key (see the case in
+ * 		       \p lc_aead_setkey where a key but no IV is set)
+ * @param [in] iv initialization vector to be used
+ * @param [in] ivlen length of initialization vector
+ *
+ * \note It is only permissible to use the function where the \p ctx and
+ * \p key_ctx are using the same algorithm.
+ *
+ * @return 0 upon success; < 0 on error
+ */
+int lc_aead_setkey_from_ctx(struct lc_aead_ctx *ctx,
+			    const struct lc_aead_ctx *key_ctx,
+			    const uint8_t *iv, size_t ivlen);
 
 /**
  * @ingroup AEAD

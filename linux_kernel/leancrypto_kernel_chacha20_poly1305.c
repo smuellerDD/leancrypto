@@ -32,11 +32,7 @@
 #include "leancrypto_kernel_aead_helper.h"
 
 struct lc_rfc7539_cc20p1305_ctx {
-	union {
-		struct lc_aead_ctx ctx;
-		uint8_t buffer[LC_CHACHA20_POLY1305_CTX_SIZE];
-	} ctx;
-
+	struct lc_aead_ctx ctx;
 	uint8_t saltlen;
 
 #define LC_RFC7539ESP_CC20P1305_SALT_LEN 4
@@ -44,12 +40,10 @@ struct lc_rfc7539_cc20p1305_ctx {
 };
 
 /* Implement the walking of a scatter-gather list for AAD. */
-static int lc_cc20p1305_aad(struct aead_request *areq, size_t nbytes)
+static int lc_cc20p1305_aad(struct aead_request *areq,
+			    struct lc_aead_ctx *vola_ctx, size_t nbytes)
 {
 	struct scatter_walk src_walk;
-	struct crypto_aead *aead = crypto_aead_reqtfm(areq);
-	struct lc_rfc7539_cc20p1305_ctx *cc20p1305_ctx = crypto_aead_ctx(aead);
-	struct lc_aead_ctx *ctx = &cc20p1305_ctx->ctx.ctx;
 	int ret;
 
 	if (!nbytes)
@@ -70,7 +64,7 @@ static int lc_cc20p1305_aad(struct aead_request *areq, size_t nbytes)
 		if (!todo)
 			return -EINVAL;
 
-		ret = lc_aead_enc_init(ctx, src_vaddr, todo);
+		ret = lc_aead_enc_init(vola_ctx, src_vaddr, todo);
 		if (ret)
 			return ret;
 
@@ -89,11 +83,10 @@ static int lc_cc20p1305_aad(struct aead_request *areq, size_t nbytes)
 	return 0;
 }
 
-static int lc_cc20p1305_enc_final(struct aead_request *areq)
+static int lc_cc20p1305_enc_final(struct aead_request *areq,
+				  struct lc_aead_ctx *vola_ctx)
 {
 	struct crypto_aead *aead = crypto_aead_reqtfm(areq);
-	struct lc_rfc7539_cc20p1305_ctx *cc20p1305_ctx = crypto_aead_ctx(aead);
-	struct lc_aead_ctx *ctx = &cc20p1305_ctx->ctx.ctx;
 	unsigned int authsize = crypto_aead_authsize(aead);
 	/* Maximum tag size */
 	u8 tag[POLY1305_DIGEST_SIZE];
@@ -101,7 +94,7 @@ static int lc_cc20p1305_enc_final(struct aead_request *areq)
 
 	WARN_ON(sizeof(tag) < authsize);
 
-	ret = lc_aead_enc_final(ctx, tag, authsize);
+	ret = lc_aead_enc_final(vola_ctx, tag, authsize);
 	if (ret)
 		return ret;
 
@@ -111,27 +104,25 @@ static int lc_cc20p1305_enc_final(struct aead_request *areq)
 	return 0;
 }
 
-static int lc_cc20p1305_setiv(struct aead_request *areq)
+static int lc_cc20p1305_setiv(struct aead_request *areq,
+			      struct lc_aead_ctx *vola_ctx)
 {
 	struct crypto_aead *aead = crypto_aead_reqtfm(areq);
 	struct lc_rfc7539_cc20p1305_ctx *cc20p1305_ctx = crypto_aead_ctx(aead);
-	struct lc_aead_ctx *ctx = &cc20p1305_ctx->ctx.ctx;
+	struct lc_aead_ctx *ctx = &cc20p1305_ctx->ctx;
 	uint8_t iv[CHACHAPOLY_IV_SIZE];
 
 	memcpy(iv, cc20p1305_ctx->salt, cc20p1305_ctx->saltlen);
 	memcpy(iv + cc20p1305_ctx->saltlen, areq->iv,
 	       CHACHAPOLY_IV_SIZE - cc20p1305_ctx->saltlen);
 
-	/*
-	 * NULL-key implies that the key was already set and now we only set
-	 * the IV.
-	 */
-	return lc_aead_setkey(ctx, NULL, 0, iv, sizeof(iv));
+	return lc_aead_setkey_from_ctx(vola_ctx, ctx, iv, sizeof(iv));
 }
 
 static int lc_cc20p1305_enc(struct aead_request *areq)
 {
 	struct crypto_aead *aead = crypto_aead_reqtfm(areq);
+	struct lc_aead_ctx *vola_ctx = NULL;
 	unsigned int assoclen = areq->assoclen;
 	int ret;
 
@@ -144,26 +135,38 @@ static int lc_cc20p1305_enc(struct aead_request *areq)
 		assoclen -= 8;
 	}
 
-	ret = lc_cc20p1305_setiv(areq);
-	if (ret)
-		return ret;
+	vola_ctx = kmalloc(LC_CHACHA20_POLY1305_CTX_SIZE +
+			   LC_MEM_COMMON_ALIGNMENT, GFP_KERNEL);
+	if (!vola_ctx)
+		return -ENOMEM;
 
-	ret = lc_cc20p1305_aad(areq, assoclen);
-	if (ret)
-		return ret;
+	LC_CHACHA20_POLY1305_SET_CTX(vola_ctx);
 
-	ret = lc_kernel_aead_update(areq, areq->cryptlen, lc_aead_enc_update);
+	ret = lc_cc20p1305_setiv(areq, vola_ctx);
 	if (ret)
-		return ret;
+		goto out;
 
-	return lc_cc20p1305_enc_final(areq);
+	ret = lc_cc20p1305_aad(areq, vola_ctx, assoclen);
+	if (ret)
+		goto out;
+
+	ret = lc_kernel_aead_update(areq, areq->cryptlen, vola_ctx,
+				    lc_aead_enc_update);
+	if (ret)
+		goto out;
+
+	ret = lc_cc20p1305_enc_final(areq, vola_ctx);
+
+out:
+	lc_aead_zero(vola_ctx);
+	kfree(vola_ctx);
+	return ret;
 }
 
-static int lc_cc20p1305_dec_final(struct aead_request *areq)
+static int lc_cc20p1305_dec_final(struct aead_request *areq,
+				  struct lc_aead_ctx *vola_ctx)
 {
 	struct crypto_aead *aead = crypto_aead_reqtfm(areq);
-	struct lc_rfc7539_cc20p1305_ctx *cc20p1305_ctx = crypto_aead_ctx(aead);
-	struct lc_aead_ctx *ctx = &cc20p1305_ctx->ctx.ctx;
 	unsigned int authsize = crypto_aead_authsize(aead);
 	unsigned int cryptlen = areq->cryptlen - authsize;
 	/* Maximum tag size */
@@ -172,12 +175,13 @@ static int lc_cc20p1305_dec_final(struct aead_request *areq)
 	scatterwalk_map_and_copy(tag, areq->src, areq->assoclen + cryptlen,
 				 authsize, 0);
 
-	return lc_aead_dec_final(ctx, tag, authsize);
+	return lc_aead_dec_final(vola_ctx, tag, authsize);
 }
 
 static int lc_cc20p1305_dec(struct aead_request *areq)
 {
 	struct crypto_aead *aead = crypto_aead_reqtfm(areq);
+	struct lc_aead_ctx *vola_ctx = NULL;
 	unsigned int authsize = crypto_aead_authsize(aead);
 	unsigned int assoclen = areq->assoclen;
 	int ret;
@@ -194,27 +198,39 @@ static int lc_cc20p1305_dec(struct aead_request *areq)
 	if (areq->cryptlen < authsize)
 		return -EBADMSG;
 
-	ret = lc_cc20p1305_setiv(areq);
-	if (ret)
-		return ret;
+	vola_ctx = kmalloc(LC_CHACHA20_POLY1305_CTX_SIZE +
+			   LC_MEM_COMMON_ALIGNMENT, GFP_KERNEL);
+	if (!vola_ctx)
+		return -ENOMEM;
 
-	ret = lc_cc20p1305_aad(areq, assoclen);
+	LC_CHACHA20_POLY1305_SET_CTX(vola_ctx);
+
+	ret = lc_cc20p1305_setiv(areq, vola_ctx);
 	if (ret)
-		return ret;
+		goto out;
+
+	ret = lc_cc20p1305_aad(areq, vola_ctx, assoclen);
+	if (ret)
+		goto out;
 
 	ret = lc_kernel_aead_update(areq, areq->cryptlen - authsize,
-				    lc_aead_dec_update);
+				    vola_ctx, lc_aead_dec_update);
 	if (ret)
-		return ret;
+		goto out;
 
-	return lc_cc20p1305_dec_final(areq);
+	ret = lc_cc20p1305_dec_final(areq, vola_ctx);
+
+out:
+	lc_aead_zero(vola_ctx);
+	kfree(vola_ctx);
+	return ret;
 }
 
 static int lc_cc20p1305_setkey(struct crypto_aead *aead, const u8 *key,
 			       unsigned int keylen)
 {
 	struct lc_rfc7539_cc20p1305_ctx *cc20p1305_ctx = crypto_aead_ctx(aead);
-	struct lc_aead_ctx *ctx = &cc20p1305_ctx->ctx.ctx;
+	struct lc_aead_ctx *ctx = &cc20p1305_ctx->ctx;
 
 	if (keylen != cc20p1305_ctx->saltlen + CHACHA_KEY_SIZE)
 		return -EINVAL;
@@ -239,9 +255,9 @@ static int lc_cc20p1305_setauthsize(struct crypto_aead *aead,
 static int lc_cc20p1305_init(struct crypto_aead *aead)
 {
 	struct lc_rfc7539_cc20p1305_ctx *cc20p1305_ctx = crypto_aead_ctx(aead);
-	struct lc_aead_ctx *ctx = &cc20p1305_ctx->ctx.ctx;
+	struct lc_aead_ctx *ctx = &cc20p1305_ctx->ctx;
 
-	LC_CHACHA20_POLY1305_SET_CTX(ctx);
+	LC_AEAD_CTX_NO_STATE(ctx, lc_chacha20_poly1305_aead);
 
 	cc20p1305_ctx->saltlen = CHACHAPOLY_IV_SIZE - crypto_aead_ivsize(aead);
 

@@ -92,6 +92,7 @@ static int lc_aes_gcm_test(int argc)
 	uint8_t act_tag[sizeof(exp_tag)] __align(sizeof(uint32_t));
 	size_t len, i;
 	const uint8_t *in_p;
+	struct lc_aead_ctx *aes_gcm_key;
 	uint8_t *out_p;
 	int ret = 0, rc;
 	LC_AES_GCM_CTX_ON_STACK(aes_gcm);
@@ -122,6 +123,41 @@ static int lc_aes_gcm_test(int argc)
 	}
 	ret += lc_compare(act_ct, in, sizeof(in), "AES GCM decrypt plaintext");
 	lc_aead_zero(aes_gcm);
+
+	/* Test the instantiation from a key context */
+	if (lc_aes_gcm_alloc(&aes_gcm_key))
+		return 1;
+	if (lc_aead_setkey(aes_gcm_key, key, sizeof(key), NULL, 0)) {
+		lc_aead_zero_free(aes_gcm_key);
+		return 1;
+	}
+	/* use the instantiated sub-context */
+	if (lc_aead_setkey_from_ctx(aes_gcm, aes_gcm_key, iv, sizeof(iv))) {
+		lc_aead_zero_free(aes_gcm_key);
+		return 1;
+	}
+
+	lc_aead_encrypt(aes_gcm, in, act_ct, sizeof(in), aadp, aadlen, act_tag,
+			sizeof(act_tag));
+	ret += lc_compare(act_ct, exp_ct, sizeof(exp_ct),
+			  "AES GCM encrypt ciphertext");
+	ret += lc_compare(act_tag, exp_tag, sizeof(exp_tag),
+			  "AES GCM encrypt tag");
+	lc_aead_zero(aes_gcm);
+
+	/* use the instantiated key-context */
+	if (lc_aead_setkey(aes_gcm_key, NULL, 0, iv, sizeof(iv))) {
+		lc_aead_zero_free(aes_gcm_key);
+		return 1;
+	}
+	rc = lc_aead_decrypt(aes_gcm_key, act_ct, act_ct, sizeof(act_ct), aadp,
+			     aadlen, act_tag, sizeof(act_tag));
+	if (rc) {
+		ret += 1;
+		printf("AES GCM decryption authentication failed\n");
+	}
+	ret += lc_compare(act_ct, in, sizeof(in), "AES GCM decrypt plaintext");
+	lc_aead_zero_free(aes_gcm_key);
 
 	/* Test the encryption stream cipher API */
 	if (lc_aead_setkey(aes_gcm, key, sizeof(key), iv, sizeof(iv)))

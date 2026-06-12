@@ -17,9 +17,11 @@
  * DAMAGE.
  */
 
+#include "build_bug_on.h"
 #include "ext_headers_internal.h"
 #include "lc_aead.h"
 #include "lc_memory_support.h"
+#include "ret_checkers.h"
 #include "status_algorithms.h"
 #include "visibility.h"
 
@@ -31,6 +33,8 @@ LC_INTERFACE_FUNCTION(void, lc_aead_zero, struct lc_aead_ctx *ctx)
 	if (!ctx)
 		return;
 
+	lc_memset_secure(ctx->key, 0, ctx->keylen);
+	ctx->keylen = 0;
 	aead = ctx->aead;
 	aead_state = ctx->aead_state;
 
@@ -49,15 +53,93 @@ LC_INTERFACE_FUNCTION(void, lc_aead_zero_free, struct lc_aead_ctx *ctx)
 	lc_free(ctx);
 }
 
+static inline int lc_aead_load_key(struct lc_aead_ctx *ctx,
+				   const uint8_t *key, size_t keylen)
+{
+	if (!ctx)
+		return -EINVAL;
+	if (keylen > LC_AEAD_MAX_KEYSIZE)
+		return -EOVERFLOW;
+
+	memcpy(ctx->key, key, keylen);
+
+	BUILD_BUG_ON(LC_AEAD_MAX_KEYSIZE > (1 << (sizeof(uint8_t) << 3)));
+	ctx->keylen = (uint8_t)keylen;
+	return 0;
+}
+
 LC_INTERFACE_FUNCTION(int, lc_aead_setkey, struct lc_aead_ctx *ctx,
 		      const uint8_t *key, const size_t keylen,
 		      const uint8_t *iv, size_t ivlen)
 {
 	const struct lc_aead *aead;
+	const uint8_t *act_key = NULL;
+	size_t act_keylen = 0;
 	void *aead_state;
+	int ret = 0;
 
-	if (!ctx)
+	CKNULL(ctx, -EINVAL);
+
+	if (keylen) {
+		if (ivlen) {
+			/* Key and IV: use them */
+			act_key = key;
+			act_keylen = keylen;
+		} else {
+			/* Key, but no IV: store key for later use */
+			CKINT(lc_aead_load_key(ctx, key, keylen));
+
+			/*
+			 * If there is no state of the actual algorithm (e.g.
+			 * LC_AEAD_CTX_NO_STATE is used to initialize the
+			 * struct lc_aead_ctx), then we are done.
+			 */
+			if (!ctx->aead_state)
+				return 0;
+
+			/*
+			 * A cipher algorithm state is present, initialize the
+			 * current context and its state.
+			 */
+			act_key = key;
+			act_keylen = keylen;
+		}
+	} else {
+		if (ivlen) {
+			/* No key, but IV: use stored key and provided IV */
+			CKRET(!ctx->keylen, -ENOKEY);
+			act_key = ctx->key;
+			act_keylen = ctx->keylen;
+		} else {
+			/* No key and no IV: invalid */
+			return -EINVAL;
+		}
+	}
+	aead = ctx->aead;
+	aead_state = ctx->aead_state;
+
+	if (!aead || !aead_state)
 		return -EINVAL;
+
+	CKINT(aead->setkey(aead_state, act_key, act_keylen, iv, ivlen));
+
+out:
+	return ret;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_aead_setkey_from_ctx, struct lc_aead_ctx *ctx,
+		      const struct lc_aead_ctx *key_ctx,
+		      const uint8_t *iv, size_t ivlen)
+{
+	const struct lc_aead *aead;
+	void *aead_state;
+	int ret = 0;
+
+	CKNULL(ctx, -EINVAL);
+	CKNULL(key_ctx, -EINVAL);
+	CKRET(!key_ctx->keylen, -ENOKEY);
+	/* It is only permissible to use the key with the same algorithm */
+	CKRET(ctx->aead != key_ctx->aead, -ENOPKG);
 
 	aead = ctx->aead;
 	aead_state = ctx->aead_state;
@@ -65,7 +147,11 @@ LC_INTERFACE_FUNCTION(int, lc_aead_setkey, struct lc_aead_ctx *ctx,
 	if (!aead || !aead_state)
 		return -EINVAL;
 
-	return aead->setkey(aead_state, key, keylen, iv, ivlen);
+	CKINT(aead->setkey(aead_state, key_ctx->key, key_ctx->keylen, iv,
+			   ivlen));
+
+out:
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_aead_encrypt, struct lc_aead_ctx *ctx,

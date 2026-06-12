@@ -43,7 +43,7 @@ Changes 1.8.0-prerelease
 
 * PBKDF2: add FIPS140-3 compliance checks
 
-* Symmetric ciphers; add support for parallel use of cipher contexts - this fixes issues with the AES symmetric support in the Linux kernel
+* AEAD / Symmetric ciphers; add support for parallel use of cipher contexts - this fixes issues with the AES symmetric support in the Linux kernel
 
 Changes 1.7.2
 * Fix RDSEED counter

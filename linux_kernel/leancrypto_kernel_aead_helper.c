@@ -20,12 +20,11 @@
 #include "leancrypto_kernel_aead_helper.h"
 
 int lc_kernel_aead_update(struct aead_request *areq, unsigned int nbytes,
+			  struct lc_aead_ctx *vola_ctx,
 			  int (*process)(struct lc_aead_ctx *ctx,
 					 const uint8_t *in, uint8_t *out,
 					 size_t datalen))
 {
-	struct crypto_aead *aead = crypto_aead_reqtfm(areq);
-	struct lc_aead_ctx *ctx = crypto_aead_ctx(aead);
 	struct scatterlist sg_src[2], sg_dst[2];
 	struct scatterlist *src, *dst;
 	struct scatter_walk src_walk, dst_walk;
@@ -57,7 +56,7 @@ int lc_kernel_aead_update(struct aead_request *areq, unsigned int nbytes,
 			return -EINVAL;
 
 		/* Perform the work */
-		ret = process(ctx, src_vaddr, dst_vaddr, todo);
+		ret = process(vola_ctx, src_vaddr, dst_vaddr, todo);
 
 		scatterwalk_done_dst(&dst_walk, todo);
 		scatterwalk_done_src(&src_walk, todo);
@@ -80,7 +79,7 @@ int lc_kernel_aead_update(struct aead_request *areq, unsigned int nbytes,
 		dst_vaddr = scatterwalk_map(&dst_walk);
 
 		/* Perform the work */
-		ret = process(ctx, src_vaddr, dst_vaddr, todo);
+		ret = process(vola_ctx, src_vaddr, dst_vaddr, todo);
 
 		scatterwalk_unmap(src_vaddr);
 		scatterwalk_unmap(dst_vaddr);

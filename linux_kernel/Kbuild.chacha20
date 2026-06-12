@@ -16,7 +16,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_CHACHA20)				       \
 				   ../sym/src/asm/AVX512/chacha20_impl_avx512.o\
 				   ../sym/src/chacha20_avx2.o                  \
 				   ../sym/src/chacha20_avx512.o
-CFLAGS_../sym/src/asm/AVX512/chacha20_impl_avx512.o	= $(chacha2_avx512_args)
+CFLAGS_../sym/src/asm/AVX512/chacha20_impl_avx512.o	+= $(chacha2_avx512_args)
 else
 leancrypto-$(CONFIG_LEANCRYPTO_CHACHA20)				       \
 				+= ../sym/src/chacha20_avx2_null.o             \

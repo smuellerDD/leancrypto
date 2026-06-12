@@ -31,12 +31,11 @@
 #include "leancrypto_kernel_aead_helper.h"
 
 /* Re-implement lc_ascon_aad */
-static void lc_aead_ascon_aad(struct aead_request *areq)
+static void lc_aead_ascon_aad(struct aead_request *areq,
+			      struct lc_aead_ctx *vola_ctx)
 {
 	struct scatter_walk src_walk;
-	struct crypto_aead *aead = crypto_aead_reqtfm(areq);
-	struct lc_aead_ctx *ctx = crypto_aead_ctx(aead);
-	struct lc_ascon_cryptor *ascon = ctx->aead_state;
+	struct lc_ascon_cryptor *ascon = vola_ctx->aead_state;
 	const struct lc_hash *hash = ascon->hash;
 	uint64_t *state_mem = ascon->state;
 	static const uint8_t pad_trail = 0x80;
@@ -92,17 +91,17 @@ static void lc_aead_ascon_aad(struct aead_request *areq)
 			    sizeof(pad_trail));
 }
 
-static int lc_aead_ascon_enc_final(struct aead_request *areq)
+static int lc_aead_ascon_enc_final(struct aead_request *areq,
+				   struct lc_aead_ctx *vola_ctx)
 {
 	struct crypto_aead *aead = crypto_aead_reqtfm(areq);
-	struct lc_aead_ctx *ctx = crypto_aead_ctx(aead);
 	/* Maximum tag size */
 	u8 tag[64];
 	int ret;
 
 	WARN_ON(sizeof(tag) < crypto_aead_maxauthsize(aead));
 
-	ret = lc_aead_enc_final(ctx, tag, crypto_aead_authsize(aead));
+	ret = lc_aead_enc_final(vola_ctx, tag, crypto_aead_authsize(aead));
 	if (ret)
 		return ret;
 
@@ -113,30 +112,32 @@ static int lc_aead_ascon_enc_final(struct aead_request *areq)
 	return 0;
 }
 
-static int lc_aead_ascon_enc(struct aead_request *areq)
+static int lc_aead_ascon_enc(struct aead_request *areq,
+			     struct lc_aead_ctx *vola_ctx)
 {
 	struct crypto_aead *aead = crypto_aead_reqtfm(areq);
 	struct lc_aead_ctx *ctx = crypto_aead_ctx(aead);
 	int ret;
 
-	/* NULL-key implies loading the key set with lc_ascon_load_key */
-	ret = lc_aead_setkey(ctx, NULL, 0, areq->iv, crypto_aead_ivsize(aead));
+	ret = lc_aead_setkey_from_ctx(vola_ctx, ctx, areq->iv,
+				      crypto_aead_ivsize(aead));
 	if (ret)
 		return ret;
 
-	lc_aead_ascon_aad(areq);
+	lc_aead_ascon_aad(areq, vola_ctx);
 
-	ret = lc_kernel_aead_update(areq, areq->cryptlen, lc_aead_enc_update);
+	ret = lc_kernel_aead_update(areq, areq->cryptlen, vola_ctx,
+				    lc_aead_enc_update);
 	if (ret)
 		return ret;
 
-	return lc_aead_ascon_enc_final(areq);
+	return lc_aead_ascon_enc_final(areq, vola_ctx);
 }
 
-static int lc_aead_ascon_dec_final(struct aead_request *areq)
+static int lc_aead_ascon_dec_final(struct aead_request *areq,
+				   struct lc_aead_ctx *vola_ctx)
 {
 	struct crypto_aead *aead = crypto_aead_reqtfm(areq);
-	struct lc_aead_ctx *ctx = crypto_aead_ctx(aead);
 	unsigned int authsize = crypto_aead_authsize(aead);
 	unsigned int cryptlen = areq->cryptlen - authsize;
 	/* Maximum tag size */
@@ -147,10 +148,11 @@ static int lc_aead_ascon_dec_final(struct aead_request *areq)
 	scatterwalk_map_and_copy(tag, areq->src, areq->assoclen + cryptlen,
 				 authsize, 0);
 
-	return lc_aead_dec_final(ctx, tag, authsize);
+	return lc_aead_dec_final(vola_ctx, tag, authsize);
 }
 
-static int lc_aead_ascon_dec(struct aead_request *areq)
+static int lc_aead_ascon_dec(struct aead_request *areq,
+			     struct lc_aead_ctx *vola_ctx)
 {
 	struct crypto_aead *aead = crypto_aead_reqtfm(areq);
 	struct lc_aead_ctx *ctx = crypto_aead_ctx(aead);
@@ -159,20 +161,20 @@ static int lc_aead_ascon_dec(struct aead_request *areq)
 	if (areq->cryptlen < crypto_aead_authsize(aead))
 		return -EBADMSG;
 
-	/* NULL-key implies loading the key set with lc_ascon_load_key */
-	ret = lc_aead_setkey(ctx, NULL, 0, areq->iv, crypto_aead_ivsize(aead));
+	ret = lc_aead_setkey_from_ctx(vola_ctx, ctx, areq->iv,
+				      crypto_aead_ivsize(aead));
 	if (ret)
 		return ret;
 
-	lc_aead_ascon_aad(areq);
+	lc_aead_ascon_aad(areq, vola_ctx);
 
 	ret = lc_kernel_aead_update(areq,
 				    areq->cryptlen - crypto_aead_authsize(aead),
-				    lc_aead_dec_update);
+				    vola_ctx, lc_aead_dec_update);
 	if (ret)
 		return ret;
 
-	return lc_aead_ascon_dec_final(areq);
+	return lc_aead_ascon_dec_final(areq, vola_ctx);
 }
 
 static int lc_aead_ascon_setkey(struct crypto_aead *aead, const u8 *key,
@@ -204,47 +206,148 @@ static int lc_aead_setauthsize(struct crypto_aead *aead, unsigned int authsize)
 }
 
 #ifdef LC_ASCON
+
 static int lc_aead_init_ascon128(struct crypto_aead *aead)
 {
 	struct lc_aead_ctx *ctx = crypto_aead_ctx(aead);
-	struct lc_ascon_cryptor *ascon_crypto;
 
-	LC_ASCON_SET_CTX(ctx, lc_ascon_128a, lc_ascon_aead);
-	ascon_crypto = ctx->aead_state;
+	LC_AEAD_CTX_NO_STATE(ctx, lc_ascon_aead);
+
+	return 0;
+}
+
+static int lc_aead_ascon_call_ascon128(
+	struct aead_request *areq,
+	int (*encdec)(struct aead_request *areq, struct lc_aead_ctx *vola_ctx))
+{
+	struct crypto_aead *aead = crypto_aead_reqtfm(areq);
+	struct lc_ascon_cryptor *ascon_crypto;
+	struct lc_aead_ctx *vola_ctx;
+	int ret;
+
+	vola_ctx = kmalloc(LC_AL_CTX_SIZE, GFP_KERNEL);
+	if (!vola_ctx)
+		return -ENOMEM;
+
+	/*
+	 * Note, lc_ascon_128a is used as it provides the proper round counts
+	 * for the sponge operation for Ascon-AEAD128. It is not used for
+	 * hashing.
+	 */
+	LC_ASCON_SET_CTX(vola_ctx, lc_ascon_128a, lc_ascon_aead);
+	ascon_crypto = vola_ctx->aead_state;
 	ascon_crypto->statesize = LC_ASCON_HASH_STATE_SIZE;
 	ascon_crypto->taglen = crypto_aead_maxauthsize(aead);
 
-	return 0;
+	ret = encdec(areq, vola_ctx);
+
+	lc_aead_zero(vola_ctx);
+	kfree(vola_ctx);
+	return ret;
+}
+
+static int lc_aead_ascon_enc_ascon128(struct aead_request *areq)
+{
+	return lc_aead_ascon_call_ascon128(areq, lc_aead_ascon_enc);
+}
+
+static int lc_aead_ascon_dec_ascon128(struct aead_request *areq)
+{
+	return lc_aead_ascon_call_ascon128(areq, lc_aead_ascon_dec);
 }
 
 #endif
 
 #ifdef LC_ASCON_KECCAK
+
 static int lc_aead_init_ascon_keccak256(struct crypto_aead *aead)
 {
 	struct lc_aead_ctx *ctx = crypto_aead_ctx(aead);
-	struct lc_ascon_cryptor *ascon_crypto;
 
-	LC_ASCON_SET_CTX(ctx, lc_sha3_256, lc_ascon_keccak_aead);
-	ascon_crypto = ctx->aead_state;
+	LC_AEAD_CTX_NO_STATE(ctx, lc_ascon_keccak_aead);
+
+	return 0;
+}
+
+static int lc_aead_ascon_call_keccak256(
+	struct aead_request *areq,
+	int (*encdec)(struct aead_request *areq, struct lc_aead_ctx *vola_ctx))
+{
+	struct crypto_aead *aead = crypto_aead_reqtfm(areq);
+	struct lc_ascon_cryptor *ascon_crypto;
+	struct lc_aead_ctx *vola_ctx;
+	int ret;
+
+	vola_ctx = kmalloc(LC_AK_CTX_SIZE, GFP_KERNEL);
+	if (!vola_ctx)
+		return -ENOMEM;
+
+	LC_ASCON_SET_CTX(vola_ctx, lc_sha3_256, lc_ascon_keccak_aead);
+	ascon_crypto = vola_ctx->aead_state;
 	ascon_crypto->statesize = LC_SHA3_STATE_SIZE;
 	ascon_crypto->taglen = crypto_aead_maxauthsize(aead);
 
-	return 0;
+	ret = encdec(areq, vola_ctx);
+
+	lc_aead_zero(vola_ctx);
+	kfree(vola_ctx);
+	return ret;
+}
+
+static int lc_aead_ascon_enc_keccak256(struct aead_request *areq)
+{
+	return lc_aead_ascon_call_keccak256(areq, lc_aead_ascon_enc);
+}
+
+static int lc_aead_ascon_dec_keccak256(struct aead_request *areq)
+{
+	return lc_aead_ascon_call_keccak256(areq, lc_aead_ascon_dec);
 }
 
 static int lc_aead_init_ascon_keccak512(struct crypto_aead *aead)
 {
 	struct lc_aead_ctx *ctx = crypto_aead_ctx(aead);
-	struct lc_ascon_cryptor *ascon_crypto;
 
-	LC_ASCON_SET_CTX(ctx, lc_sha3_512, lc_ascon_keccak_aead);
-	ascon_crypto = ctx->aead_state;
-	ascon_crypto->statesize = LC_SHA3_STATE_SIZE;
-	ascon_crypto->taglen = crypto_aead_maxauthsize(aead);
+	LC_AEAD_CTX_NO_STATE(ctx, lc_ascon_keccak_aead);
 
 	return 0;
 }
+
+static int lc_aead_ascon_call_keccak512(
+	struct aead_request *areq,
+	int (*encdec)(struct aead_request *areq, struct lc_aead_ctx *vola_ctx))
+{
+	struct crypto_aead *aead = crypto_aead_reqtfm(areq);
+	struct lc_ascon_cryptor *ascon_crypto;
+	struct lc_aead_ctx *vola_ctx;
+	int ret;
+
+	vola_ctx = kmalloc(LC_AK_CTX_SIZE, GFP_KERNEL);
+	if (!vola_ctx)
+		return -ENOMEM;
+
+	LC_ASCON_SET_CTX(vola_ctx, lc_sha3_512, lc_ascon_keccak_aead);
+	ascon_crypto = vola_ctx->aead_state;
+	ascon_crypto->statesize = LC_SHA3_STATE_SIZE;
+	ascon_crypto->taglen = crypto_aead_maxauthsize(aead);
+
+	ret = encdec(areq, vola_ctx);
+
+	lc_aead_zero(vola_ctx);
+	kfree(vola_ctx);
+	return ret;
+}
+
+static int lc_aead_ascon_enc_keccak512(struct aead_request *areq)
+{
+	return lc_aead_ascon_call_keccak512(areq, lc_aead_ascon_enc);
+}
+
+static int lc_aead_ascon_dec_keccak512(struct aead_request *areq)
+{
+	return lc_aead_ascon_call_keccak512(areq, lc_aead_ascon_dec);
+}
+
 #endif
 
 static void lc_aead_exit(struct crypto_aead *aead)
@@ -259,13 +362,13 @@ static struct aead_alg lc_aead_algs[] = {
 			.cra_driver_name = "ascon-aead-128-leancrypto",
 			.cra_priority = LC_KERNEL_DEFAULT_PRIO,
 			.cra_blocksize = 1,
-			.cra_ctxsize = LC_AL_CTX_SIZE,
+			.cra_ctxsize = sizeof(struct lc_aead_ctx),
 			.cra_module = THIS_MODULE,
 		},
 		.setkey = lc_aead_ascon_setkey,
 		.setauthsize = lc_aead_setauthsize,
-		.encrypt = lc_aead_ascon_enc,
-		.decrypt = lc_aead_ascon_dec,
+		.encrypt = lc_aead_ascon_enc_ascon128,
+		.decrypt = lc_aead_ascon_dec_ascon128,
 		.init = lc_aead_init_ascon128,
 		.exit = lc_aead_exit,
 		.ivsize = 16,
@@ -279,13 +382,13 @@ static struct aead_alg lc_aead_algs[] = {
 			.cra_driver_name = "ascon-aead-keccak256-leancrypto",
 			.cra_priority = LC_KERNEL_DEFAULT_PRIO,
 			.cra_blocksize = 1,
-			.cra_ctxsize = LC_AK_CTX_SIZE,
+			.cra_ctxsize = sizeof(struct lc_aead_ctx),
 			.cra_module = THIS_MODULE,
 		},
 		.setkey = lc_aead_ascon_setkey,
 		.setauthsize = lc_aead_setauthsize,
-		.encrypt = lc_aead_ascon_enc,
-		.decrypt = lc_aead_ascon_dec,
+		.encrypt = lc_aead_ascon_enc_keccak256,
+		.decrypt = lc_aead_ascon_dec_keccak256,
 		.init = lc_aead_init_ascon_keccak256,
 		.exit = lc_aead_exit,
 		.ivsize = 16,
@@ -296,13 +399,13 @@ static struct aead_alg lc_aead_algs[] = {
 			.cra_driver_name = "ascon-aead-keccak512-leancrypto",
 			.cra_priority = LC_KERNEL_DEFAULT_PRIO,
 			.cra_blocksize = 1,
-			.cra_ctxsize = LC_AK_CTX_SIZE,
+			.cra_ctxsize = sizeof(struct lc_aead_ctx),
 			.cra_module = THIS_MODULE,
 		},
 		.setkey = lc_aead_ascon_setkey,
 		.setauthsize = lc_aead_setauthsize,
-		.encrypt = lc_aead_ascon_enc,
-		.decrypt = lc_aead_ascon_dec,
+		.encrypt = lc_aead_ascon_enc_keccak512,
+		.decrypt = lc_aead_ascon_dec_keccak512,
 		.init = lc_aead_init_ascon_keccak512,
 		.exit = lc_aead_exit,
 		.ivsize = 16,
