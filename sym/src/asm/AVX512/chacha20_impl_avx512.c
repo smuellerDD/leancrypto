@@ -70,30 +70,32 @@ static inline void ChaCha20AddCounter(uint32_t *State32bits,
 }
 
 static inline void PartialXor(const __m512i val, const uint8_t *Src,
-			      uint8_t *Dest, uint64_t Size)
+			      uint8_t *Dest, uint64_t Size,
+			      uint8_t BuffForPartialOp[64])
 {
-	uint8_t BuffForPartialOp[64] __align(64);
-
-	if (Size > sizeof(BuffForPartialOp))
+	if (Size > sizeof(*BuffForPartialOp))
 		return;
 
 	memcpy(BuffForPartialOp, Src, Size);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
 	_mm512_storeu_si512(
 		(__m512i *)(BuffForPartialOp),
 		_mm512_xor_si512(
 			val,
 			_mm512_loadu_si512((const __m512i *)BuffForPartialOp)));
+#pragma GCC diagnostic pop
 	memcpy(Dest, BuffForPartialOp, Size);
-	lc_memset_secure(BuffForPartialOp, 0, sizeof(BuffForPartialOp));
 }
 
-static inline void PartialStore(const __m512i val, uint8_t *Dest, uint64_t Size)
+static inline void PartialStore(const __m512i val, uint8_t *Dest, uint64_t Size,
+				uint8_t BuffForPartialOp[64])
 {
-	uint8_t BuffForPartialOp[64] __align(64);
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
 	_mm512_storeu_si512((__m512i *)(BuffForPartialOp), val);
+#pragma GCC diagnostic pop
 	memcpy(Dest, BuffForPartialOp, Size);
-	lc_memset_secure(BuffForPartialOp, 0, sizeof(BuffForPartialOp));
 }
 
 #undef DISABLE_16_BLOCKS
@@ -102,6 +104,7 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 {
 #define LC_CC20_AVX512_STATE_OFFSET(x) (x / sizeof(uint32_t))
 	struct workspace {
+		uint8_t BuffForPartialOp[64];
 		__m512i state0, state1, state2, state3_0, state3_1, state3_2,
 			state3_3;
 		__m512i T1, T2, T3, T4; //temporary registers
@@ -775,7 +778,8 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 			if (in) {
 				if (RemainingBytes < 64) {
 					PartialXor(ws->X0_0, CurrentIn,
-						   CurrentOut, RemainingBytes);
+						   CurrentOut, RemainingBytes,
+						   ws->BuffForPartialOp);
 
 					/*
 					 * Timecop: output is not sensitive
@@ -812,7 +816,8 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 
 				if (RemainingBytes < 64) {
 					PartialXor(ws->X0_1, CurrentIn,
-						   CurrentOut, RemainingBytes);
+						   CurrentOut, RemainingBytes,
+						   ws->BuffForPartialOp);
 
 					/*
 					 * Timecop: output is not sensitive
@@ -848,7 +853,8 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 
 				if (RemainingBytes < 64) {
 					PartialXor(ws->X0_2, CurrentIn,
-						   CurrentOut, RemainingBytes);
+						   CurrentOut, RemainingBytes,
+						   ws->BuffForPartialOp);
 
 					/*
 					 * Timecop: output is not sensitive
@@ -880,7 +886,8 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 				}
 
 				PartialXor(ws->X0_3, CurrentIn, CurrentOut,
-					   RemainingBytes);
+					   RemainingBytes,
+					   ws->BuffForPartialOp);
 
 				/*
 				 * Timecop: output is not sensitive
@@ -894,7 +901,8 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 			} else {
 				if (RemainingBytes < 64) {
 					PartialStore(ws->X0_0, CurrentOut,
-						     RemainingBytes);
+						     RemainingBytes,
+						     ws->BuffForPartialOp);
 
 					/*
 					 * Timecop: output is not sensitive
@@ -926,7 +934,8 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 
 				if (RemainingBytes < 64) {
 					PartialStore(ws->X0_1, CurrentOut,
-						     RemainingBytes);
+						     RemainingBytes,
+						     ws->BuffForPartialOp);
 
 					/*
 					 * Timecop: output is not sensitive
@@ -958,7 +967,8 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 
 				if (RemainingBytes < 64) {
 					PartialStore(ws->X0_2, CurrentOut,
-						     RemainingBytes);
+						     RemainingBytes,
+						     ws->BuffForPartialOp);
 
 					/*
 					 * Timecop: output is not sensitive
@@ -989,7 +999,8 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 				CurrentOut += 64;
 
 				PartialStore(ws->X0_3, CurrentOut,
-					     RemainingBytes);
+					     RemainingBytes,
+					     ws->BuffForPartialOp);
 
 				/*
 				 * Timecop: output is not sensitive
