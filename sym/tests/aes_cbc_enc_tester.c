@@ -77,6 +77,60 @@ static const uint8_t out128[] = {
 	0x09, 0x12, 0x0e, 0xca, 0x30, 0x75, 0x86, 0xe1, 0xa7
 };
 
+static int test_encrypt_cbc_output_check(struct lc_sym_ctx *ctx)
+{
+	static const uint8_t key[] = {
+		0x06, 0xa9, 0x21, 0x40, 0x36, 0xb8, 0xa1, 0x5b, 0x51, 0x2e,
+		0x03, 0xd5, 0x34, 0x12, 0x00, 0x06
+	};
+	static const uint8_t iv[] = {
+		0x3d, 0xaf, 0xba, 0x42, 0x9d, 0x9e, 0xb4, 0x30, 0xb4, 0x22,
+		0xda, 0x80, 0x2c, 0x9f, 0xac, 0x41
+	};
+	static const uint8_t ivout[] = {
+		0xe3, 0x53, 0x77, 0x9c, 0x10, 0x79, 0xae, 0xb8, 0x27, 0x08,
+		0x94, 0x2d, 0xbe, 0x77, 0x18, 0x1a
+	};
+	static const char in[] = "Single block msg";
+	static const uint8_t out[] = {
+		0xe3, 0x53, 0x77, 0x9c, 0x10, 0x79, 0xae, 0xb8, 0x27, 0x08,
+		0x94, 0x2d, 0xbe, 0x77, 0x18, 0x1a
+	};
+	uint8_t act[sizeof(out)], extiv[sizeof(iv)], extiv2[sizeof(iv)];
+	int ret, rc;
+
+	/* Encrypt */
+	CKINT(lc_sym_init(ctx));
+	CKINT(lc_sym_setkey(ctx, key, sizeof(key)));
+	CKINT(lc_sym_setiv(ctx, iv, sizeof(iv)));
+	lc_sym_encrypt(ctx, (uint8_t *)in, act, sizeof(out));
+	lc_sym_getiv(ctx, extiv, sizeof(extiv));
+	rc = lc_compare(act, out, sizeof(out), "AES-CBC encrypt");
+	rc += lc_compare(extiv, ivout, sizeof(iv), "AES-CBC encrypt");
+
+	/* Encrypt with external IV */
+	memcpy(extiv2, iv, sizeof(iv));
+	CKINT(lc_sym_init_iv(ctx, extiv2, sizeof(extiv2)));
+	CKINT(lc_sym_encrypt_iv(ctx, (uint8_t *)in, act, sizeof(out), extiv2,
+				sizeof(extiv2)));
+	rc += lc_compare(act, out, sizeof(out), "AES-CBC external IV data");
+	unpoison(extiv, sizeof(extiv));
+	rc += lc_compare(extiv2, ivout, sizeof(extiv),
+			 "AES-CBC encrypt external IV");
+
+	/* Encrypt */
+	CKINT(lc_sym_init(ctx));
+	CKINT(lc_sym_setkey(ctx, key, sizeof(key)));
+	CKINT(lc_sym_setiv(ctx, iv, sizeof(iv)));
+	lc_sym_decrypt(ctx, out, act, sizeof(out));
+	lc_sym_getiv(ctx, extiv, sizeof(extiv));
+	rc = lc_compare(act, (uint8_t *)in, sizeof(out), "AES-CBC decrypt");
+	rc += lc_compare(extiv, ivout, sizeof(iv), "AES-CBC decrypt");
+
+out:
+	return ret ? !!ret : rc;
+}
+
 static int test_encrypt_cbc_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 				size_t keylen, const uint8_t *exp)
 {
@@ -157,6 +211,7 @@ static int test_encrypt_cbc_common(void)
 
 	unpoison(key256, sizeof(key256));
 	ret = test_encrypt_cbc_one(aes_cbc, key256, sizeof(key256), out256);
+	ret += test_encrypt_cbc_output_check(aes_cbc);
 	lc_sym_zero(aes_cbc);
 
 	return ret;
