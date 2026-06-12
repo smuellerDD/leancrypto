@@ -51,27 +51,29 @@ static inline void ChaCha20AddCounter(uint32_t *State32bits,
 }
 
 static inline void PartialXor(const __m256i val, const uint8_t *Src,
-			      uint8_t *Dest, uint64_t Size)
+			      uint8_t *Dest, uint64_t Size,
+			      uint8_t BuffForPartialOp[32])
 {
-	uint8_t BuffForPartialOp[32] __align(32);
-
 	memcpy(BuffForPartialOp, Src, Size);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
 	_mm256_storeu_si256(
 		(__m256i *)(BuffForPartialOp),
 		_mm256_xor_si256(
 			val,
 			_mm256_loadu_si256((const __m256i *)BuffForPartialOp)));
+#pragma GCC diagnostic pop
 	memcpy(Dest, BuffForPartialOp, Size);
-	lc_memset_secure(BuffForPartialOp, 0, sizeof(BuffForPartialOp));
 }
 
-static inline void PartialStore(const __m256i val, uint8_t *Dest, uint64_t Size)
+static inline void PartialStore(const __m256i val, uint8_t *Dest, uint64_t Size,
+				uint8_t BuffForPartialOp[32])
 {
-	uint8_t BuffForPartialOp[32] __align(32);
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
 	_mm256_storeu_si256((__m256i *)(BuffForPartialOp), val);
+#pragma GCC diagnostic pop
 	memcpy(Dest, BuffForPartialOp, Size);
-	lc_memset_secure(BuffForPartialOp, 0, sizeof(BuffForPartialOp));
 }
 
 static inline __m256i RotateLeft7(const __m256i val)
@@ -109,6 +111,7 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 {
 #define LC_CC20_AVX2_STATE_OFFSET(x) (x / sizeof(uint32_t))
 	struct workspace {
+		uint8_t BuffForPartialOp[32];
 		__m256i state0, state1, state2, state3;
 		__m256i CTR0, CTR1, CTR2, CTR3;
 		__m256i X0_0, X0_1, X0_2, X0_3;
@@ -777,7 +780,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 					ws->X0_0, ws->X0_1, 1 + (3 << 4));
 				if (RemainingBytes < 32) {
 					PartialXor(tmp, CurrentIn, CurrentOut,
-						   RemainingBytes);
+						   RemainingBytes,
+						   ws->BuffForPartialOp);
 
 					/*
 					 * Timecop: output is not sensitive
@@ -817,7 +821,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 					ws->X0_2, ws->X0_3, 1 + (3 << 4));
 				if (RemainingBytes < 32) {
 					PartialXor(tmp, CurrentIn, CurrentOut,
-						   RemainingBytes);
+						   RemainingBytes,
+						   ws->BuffForPartialOp);
 
 					/*
 					 * Timecop: output is not sensitive
@@ -856,7 +861,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 					ws->X0_0, ws->X0_1, 0 + (2 << 4));
 				if (RemainingBytes < 32) {
 					PartialXor(tmp, CurrentIn, CurrentOut,
-						   RemainingBytes);
+						   RemainingBytes,
+						   ws->BuffForPartialOp);
 
 					/*
 					 * Timecop: output is not sensitive
@@ -894,7 +900,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 				tmp = _mm256_permute2x128_si256(
 					ws->X0_2, ws->X0_3, 0 + (2 << 4));
 				PartialXor(tmp, CurrentIn, CurrentOut,
-					   RemainingBytes);
+					   RemainingBytes,
+					   ws->BuffForPartialOp);
 
 				/*
 				 * Timecop: output is not sensitive regarding
@@ -909,7 +916,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 					ws->X0_0, ws->X0_1, 1 + (3 << 4));
 				if (RemainingBytes < 32) {
 					PartialStore(tmp, CurrentOut,
-						     RemainingBytes);
+						     RemainingBytes,
+						     ws->BuffForPartialOp);
 
 					/*
 					 * Timecop: output is not sensitive
@@ -943,7 +951,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 
 				if (RemainingBytes < 32) {
 					PartialStore(tmp, CurrentOut,
-						     RemainingBytes);
+						     RemainingBytes,
+						     ws->BuffForPartialOp);
 
 					/*
 					 * Timecop: output is not sensitive
@@ -976,7 +985,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 					ws->X0_0, ws->X0_1, 0 + (2 << 4));
 				if (RemainingBytes < 32) {
 					PartialStore(tmp, CurrentOut,
-						     RemainingBytes);
+						     RemainingBytes,
+						     ws->BuffForPartialOp);
 
 					/*
 					 * Timecop: output is not sensitive
@@ -1007,7 +1017,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 
 				tmp = _mm256_permute2x128_si256(
 					ws->X0_2, ws->X0_3, 0 + (2 << 4));
-				PartialStore(tmp, CurrentOut, RemainingBytes);
+				PartialStore(tmp, CurrentOut, RemainingBytes,
+					     ws->BuffForPartialOp);
 
 				/*
 				 * Timecop: output is not sensitive regarding
