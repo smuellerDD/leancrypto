@@ -389,7 +389,7 @@ static int lc_rfc4106_aes_gcm_dec(struct aead_request *areq)
 	if (ret)
 		goto out;
 
-	return lc_aes_gcm_dec_final(areq, vola_ctx);
+	ret = lc_aes_gcm_dec_final(areq, vola_ctx);
 
 out:
 	lc_aead_zero(vola_ctx);
