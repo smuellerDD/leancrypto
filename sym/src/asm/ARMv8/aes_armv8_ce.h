@@ -53,10 +53,40 @@ void aes_v8_cbc_encrypt(const uint8_t *in, uint8_t *out, size_t length,
 			const struct aes_v8_block_ctx *aes_ctx, uint8_t *iv,
 			int enc);
 
+/**
+ * @brief XTS encryption operation
+ *
+ * @param [in] pt Plaintext to be encrypted
+ * @param [out] ct Ciphertext to be generated - can be the same buffer as \p pt
+ * @param [in] length Size of the \p pt and \p ct buffers
+ * @param [in] key1 AES encryption key
+ * @param [in] key2 XTS tweak encryption key - currently unused (see note below)
+ * @param [in] iv IV for the XTS operation (see note below)
+ *
+ * \note This implementation currently requires the IV to be already tweaked!
+ * I.e. it has to be encrypted with the tweak key already before calling this
+ * function. Therefore \p key2 is currently unused. You could re-enable the
+ * case where the ASM implementation tweaks the key by removing the
+ * unconditional jump at the beginning of the function.
+ */
 void aes_v8_xts_encrypt(const uint8_t *pt, uint8_t *ct, size_t length,
 			const struct aes_v8_block_ctx *key1,
 			const struct aes_v8_block_ctx *key2,
 			const uint8_t iv[16]);
+
+/**
+ * @brief XTS decryption operation
+ *
+ * @param [in] ct Ciphertext to be decrypted
+ * @param [out] pt Plaintext to be generated - can be the same buffer as \p ct
+ * @param [in] length Size of the \p pt and \p ct buffers
+ * @param [in] key1 AES encryption key
+ * @param [in] key2 XTS tweak encryption key - currently unused (see note below)
+ * @param [in] iv IV for the XTS operation (see note below)
+ *
+ * \note The note regarding the tweaked IV given for \p aes_v8_xts_encrypt
+ * applies here as well.
+ */
 void aes_v8_xts_decrypt(const uint8_t *ct, uint8_t *pt, size_t length,
 			const struct aes_v8_block_ctx *key1,
 			const struct aes_v8_block_ctx *key2,
