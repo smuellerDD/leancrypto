@@ -60,6 +60,8 @@ static inline int lc_aead_load_key(struct lc_aead_ctx *ctx,
 		return -EINVAL;
 	if (keylen > LC_AEAD_MAX_KEYSIZE)
 		return -EOVERFLOW;
+	if (keylen < LC_AEAD_MIN_KEYSIZE)
+		return -EINVAL;
 
 	memcpy(ctx->key, key, keylen);
 

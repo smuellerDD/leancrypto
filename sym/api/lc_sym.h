@@ -283,6 +283,10 @@ int lc_sym_decrypt(struct lc_sym_ctx *ctx, const uint8_t *in, uint8_t *out,
  *
  * \note The IV must be initialized with \p lc_sym_init_iv before the first use.
  *
+ * \note If the IV buffer is aligned at least at 64-bit the implementation will
+ * use a fast path which prevents 2 memcpy operations of the IV per invocation
+ * in some cases.
+ *
  * @return 0 on success, < 0 on error
  */
 int lc_sym_encrypt_iv(const struct lc_sym_ctx *ctx, const uint8_t *in,
@@ -314,6 +318,10 @@ int lc_sym_encrypt_iv(const struct lc_sym_ctx *ctx, const uint8_t *in,
  *    algorithms that allow it (e.g. XTS, CTR)
  *
  * \note The IV must be initialized with \p lc_sym_init_iv before the first use.
+ *
+ * \note If the IV buffer is aligned at least at 64-bit the implementation will
+ * use a fast path which prevents 2 memcpy operations of the IV per invocation
+ * in some cases.
  *
  * @return 0 on success, < 0 on error
  */

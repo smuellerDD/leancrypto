@@ -96,7 +96,7 @@ static int cc20_crypt_iv_avx512(const struct lc_sym_state *ctx,
 				const uint8_t *in, uint8_t *out, size_t len,
 				uint8_t *iv, size_t ivlen)
 {
-	struct lc_sym_state local_ctx;
+	struct lc_sym_state local_ctx = { 0 };
 	int ret;
 
 	CKNULL(ctx, -EINVAL);
@@ -106,6 +106,7 @@ static int cc20_crypt_iv_avx512(const struct lc_sym_state *ctx,
 	cc20_init_constants(&local_ctx);
 	CKINT(cc20_setiv(&local_ctx, iv, ivlen));
 	memcpy(local_ctx.key.b, ctx->key.b, sizeof(local_ctx.key));
+	cc20_resetkey(&local_ctx);
 
 	/* Encrypt local context */
 	CKINT(cc20_crypt_avx512(&local_ctx, in, out, len));

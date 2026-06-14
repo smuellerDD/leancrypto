@@ -135,7 +135,7 @@ static int lc_cc20p1305_enc(struct aead_request *areq)
 		assoclen -= 8;
 	}
 
-	vola_ctx = kmalloc(LC_CHACHA20_POLY1305_CTX_SIZE +
+	vola_ctx = kzalloc(LC_CHACHA20_POLY1305_CTX_SIZE +
 			   LC_MEM_COMMON_ALIGNMENT, GFP_KERNEL);
 	if (!vola_ctx)
 		return -ENOMEM;
@@ -198,7 +198,7 @@ static int lc_cc20p1305_dec(struct aead_request *areq)
 	if (areq->cryptlen < authsize)
 		return -EBADMSG;
 
-	vola_ctx = kmalloc(LC_CHACHA20_POLY1305_CTX_SIZE +
+	vola_ctx = kzalloc(LC_CHACHA20_POLY1305_CTX_SIZE +
 			   LC_MEM_COMMON_ALIGNMENT, GFP_KERNEL);
 	if (!vola_ctx)
 		return -ENOMEM;

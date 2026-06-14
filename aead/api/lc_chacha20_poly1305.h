@@ -35,12 +35,13 @@ struct lc_chacha20_poly1305_cryptor {
 	struct lc_poly1305_context poly1305_ctx;
 	size_t datalen;
 	size_t aadlen;
+	unsigned int aad_padded : 1;
 };
 
 #define LC_CHACHA20_POLY1305_STATE_SIZE                                        \
 	(LC_SYM_STATE_SIZE_LEN(LC_CC20_STATE_SIZE))
 #define LC_CHACHA20_POLY1305_CTX_SIZE                                          \
-	(sizeof(struct lc_aead) +                                              \
+	(sizeof(struct lc_aead_ctx) +                                          \
 	 sizeof(struct lc_chacha20_poly1305_cryptor) +                         \
 	 LC_CHACHA20_POLY1305_STATE_SIZE)
 
@@ -51,7 +52,8 @@ extern const struct lc_aead *lc_chacha20_poly1305_aead;
 	_LC_SYM_SET_CTX((&name->chacha20), lc_chacha20, name,                  \
 			(sizeof(struct lc_chacha20_poly1305_cryptor)));        \
 	(name)->datalen = 0;                                                   \
-	(name)->aadlen = 0
+	(name)->aadlen = 0;                                                    \
+	(name)->aad_padded = 0
 
 #define LC_CHACHA20_POLY1305_SET_CTX(name)                                     \
 	LC_AEAD_CTX(name, lc_chacha20_poly1305_aead);                          \

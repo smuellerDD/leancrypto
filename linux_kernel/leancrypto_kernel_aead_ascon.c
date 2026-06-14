@@ -225,7 +225,7 @@ static int lc_aead_ascon_call_ascon128(
 	struct lc_aead_ctx *vola_ctx;
 	int ret;
 
-	vola_ctx = kmalloc(LC_AL_CTX_SIZE, GFP_KERNEL);
+	vola_ctx = kzalloc(LC_AL_CTX_SIZE, GFP_KERNEL);
 	if (!vola_ctx)
 		return -ENOMEM;
 
@@ -278,7 +278,7 @@ static int lc_aead_ascon_call_keccak256(
 	struct lc_aead_ctx *vola_ctx;
 	int ret;
 
-	vola_ctx = kmalloc(LC_AK_CTX_SIZE, GFP_KERNEL);
+	vola_ctx = kzalloc(LC_AK_CTX_SIZE, GFP_KERNEL);
 	if (!vola_ctx)
 		return -ENOMEM;
 
@@ -322,7 +322,7 @@ static int lc_aead_ascon_call_keccak512(
 	struct lc_aead_ctx *vola_ctx;
 	int ret;
 
-	vola_ctx = kmalloc(LC_AK_CTX_SIZE, GFP_KERNEL);
+	vola_ctx = kzalloc(LC_AK_CTX_SIZE, GFP_KERNEL);
 	if (!vola_ctx)
 		return -ENOMEM;
 

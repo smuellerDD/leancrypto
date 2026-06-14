@@ -232,6 +232,7 @@ static int lc_chacha20_poly1305_setiv_internal(void *state, const uint8_t *iv,
 
 	cc20p1305->aadlen = 0;
 	cc20p1305->datalen = 0;
+	cc20p1305->aad_padded = 0;
 
 	cc20_resetkey(chacha20->sym_state);
 
@@ -297,8 +298,9 @@ lc_chacha20_poly1305_aad_pad(struct lc_chacha20_poly1305_cryptor *cc20p1305)
 	size_t padlen;
 
 	/* Allow multiple invocations of this function during a stream update */
-	if (cc20p1305->datalen)
+	if (cc20p1305->aad_padded)
 		return;
+	cc20p1305->aad_padded = 1;
 
 	padlen = cc20p1305->aadlen % 16;
 	if (!padlen)
@@ -502,6 +504,7 @@ static void lc_chacha20_poly1305_zero(void *state)
 			 sizeof(struct lc_poly1305_context));
 	cc20p1305->aadlen = 0;
 	cc20p1305->datalen = 0;
+	cc20p1305->aad_padded = 0;
 }
 
 static const struct lc_aead _lc_chacha20_poly1305_aead = {

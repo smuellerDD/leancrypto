@@ -30,8 +30,7 @@ int lc_kernel_aead_update(struct aead_request *areq, unsigned int nbytes,
 	struct scatter_walk src_walk, dst_walk;
 	int ret = 0;
 
-	if (!nbytes)
-		return 0;
+	/* Processing must take place even if datalen is zero */
 
 	src = scatterwalk_ffwd(sg_src, areq->src, areq->assoclen);
 	if (areq->src == areq->dst)

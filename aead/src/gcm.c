@@ -795,6 +795,11 @@ static int gcm_enc_final(void *state, uint8_t *tag, size_t tag_len)
 	struct lc_aes_gcm_cryptor *ctx = state;
 	struct lc_gcm_ctx *gcm_ctx;
 	uint64_t orig_len, orig_aad_len;
+	unsigned int min_taglen = 32 / 8;
+
+	/* The Linxu kernel wants 32 bit tag sizes */
+	if (fips140_mode_enabled())
+		min_taglen = 64 / 8;
 
 	/*
 	 * In FIPS mode, only the internal IV generation is allowed where the
@@ -802,7 +807,7 @@ static int gcm_enc_final(void *state, uint8_t *tag, size_t tag_len)
 	 *
 	 * Enforce minimum tag size of 64 bits.
 	 */
-	if (!ctx || (tag_len < 64 / 8 || tag_len > AES_BLOCKSIZE) ||
+	if (!ctx || (tag_len < min_taglen || tag_len > AES_BLOCKSIZE) ||
 	    (fips140_mode_enabled() && ctx->gcm_ctx.external_iv)) {
 		lc_memset_secure(tag, 0, tag_len);
 		return -EINVAL;

@@ -23,9 +23,9 @@
 
 - Add SLH-DSA-Ascon to Linux kernel
 
-- Linux kernel: x86 accelerated implementations of xts, chacha20, gcm(aes), rfc4106(gcm(aes)), rfc7539(chacha20,poly1305), rfc7539esp(chacha20,poly1305) do not pass the extended/full kernel self tests. The issue is that the the test harness creates SGLs which are not aligned to cra_blocksize. Thus I am not sure whether the test harness is broken or whether leancrypto should handle such very strange (and not real-life scenarios).
+- Linux kernel: implementations of chacha20, gcm(aes), rfc4106(gcm(aes)), rfc7539(chacha20,poly1305), rfc7539esp(chacha20,poly1305) do not pass the extended/full kernel self tests. The issue is that the the test harness creates SGLs which are not aligned to cra_blocksize. Thus I am not sure whether the test harness is broken or whether leancrypto should handle such very strange (and not real-life scenarios).
 
-- Add AES-GCM decryption support in FIPS mode (which requires an external IV to be set).
+- Linux kernel: the implementaiton of XTS sometimes fails with the extended/full self tests, because the harness expects an errno -2 whereas leancrypto returns -22. This is considered harmless and is ignored.
 
 - sbkeysync: develop proper tests and verify
 

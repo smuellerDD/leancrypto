@@ -60,16 +60,23 @@ static int lc_chacha20_common(struct skcipher_request *req,
 
 	err = skcipher_walk_virt(&walk, req, false);
 
-	while (walk.nbytes) {
+	while (walk.nbytes > 0) {
 		unsigned int nbytes = walk.nbytes;
 
+		/*
+		 * Ensure that only the last chunk (nbytes == walk.total) is
+		 * not a multiple of CHACHA_BLOCK_SIZE.
+		 */
 		if (nbytes < walk.total)
 			nbytes = round_down(nbytes, CHACHA_BLOCK_SIZE);
 
-		err = crypt_func(ctx, walk.src.virt.addr, walk.dst.virt.addr,
-				 nbytes, req->iv, CHACHA_IV_SIZE);
-		if (err)
-			return err;
+		if (nbytes) {
+			err = crypt_func(ctx, walk.src.virt.addr,
+					 walk.dst.virt.addr, nbytes, req->iv,
+					 CHACHA_IV_SIZE);
+			if (err)
+				return err;
+		}
 		err = skcipher_walk_done(&walk, walk.nbytes - nbytes);
 	}
 

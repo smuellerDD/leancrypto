@@ -59,7 +59,7 @@ struct lc_aes_gcm_cryptor {
 };
 
 #define LC_AES_GCM_CTX_COMMON_SIZE                                             \
-	(sizeof(struct lc_aead) + sizeof(struct lc_aes_gcm_cryptor))
+	(sizeof(struct lc_aead_ctx) + sizeof(struct lc_aes_gcm_cryptor))
 
 #define LC_AES_GCM_STATE_SIZE                                                  \
 	(LC_AES_GCM_CTX_SIZE_LEN(LC_AES_AESNI_MAX_BLOCK_SIZE))

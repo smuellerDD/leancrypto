@@ -102,7 +102,7 @@ static inline int cc20_crypt_iv_asm(
 	void (*chacha20_asm)(uint8_t *out, const uint8_t *in, size_t len,
 			     const uint32_t key[8], const uint32_t counter[4]))
 {
-	struct lc_sym_state local_ctx;
+	struct lc_sym_state local_ctx = { 0 };
 	int ret;
 
 	CKNULL(ctx, -EINVAL);
@@ -112,6 +112,7 @@ static inline int cc20_crypt_iv_asm(
 	cc20_init_constants(&local_ctx);
 	CKINT(cc20_setiv(&local_ctx, iv, ivlen));
 	memcpy(local_ctx.key.b, ctx->key.b, sizeof(local_ctx.key));
+	cc20_resetkey(&local_ctx);
 
 	/* Encrypt local context */
 	cc20_crypt_asm(&local_ctx, in, out, len, chacha20_asm);

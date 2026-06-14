@@ -51,6 +51,8 @@ struct lc_aead {
 };
 
 #define LC_AEAD_MAX_KEYSIZE 64
+#define LC_AEAD_MIN_KEYSIZE 16
+
 struct lc_aead_ctx {
 	uint8_t key[LC_AEAD_MAX_KEYSIZE];
 	uint8_t keylen;

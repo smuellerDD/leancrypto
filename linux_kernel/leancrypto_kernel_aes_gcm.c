@@ -30,7 +30,9 @@
 #include "aes_c.h"
 #include "aes_aesni.h"
 #include "aes_armce.h"
+#include "aes_internal.h"
 #include "aes_riscv64.h"
+#include "fips_mode.h"
 
 #include "leancrypto_kernel.h"
 #include "leancrypto_kernel_aead_helper.h"
@@ -107,7 +109,7 @@ static int lc_aes_gcm_enc(struct aead_request *areq)
 	struct lc_aead_ctx *vola_ctx = NULL;
 	int ret;
 
-	vola_ctx = kmalloc(LC_AES_GCM_CTX_SIZE_LEN(LC_AES_AESNI_MAX_BLOCK_SIZE),
+	vola_ctx = kzalloc(LC_AES_GCM_CTX_SIZE_LEN(LC_AES_AESNI_MAX_BLOCK_SIZE),
 			   GFP_KERNEL);
 	if (!vola_ctx)
 		return -ENOMEM;
@@ -168,7 +170,7 @@ static int lc_aes_gcm_dec(struct aead_request *areq)
 	if (areq->cryptlen < crypto_aead_authsize(aead))
 		return -EBADMSG;
 
-	vola_ctx = kmalloc(LC_AES_GCM_CTX_SIZE_LEN(LC_AES_AESNI_MAX_BLOCK_SIZE),
+	vola_ctx = kzalloc(LC_AES_GCM_CTX_SIZE_LEN(LC_AES_AESNI_MAX_BLOCK_SIZE),
 			   GFP_KERNEL);
 	if (!vola_ctx)
 		return -ENOMEM;
@@ -202,6 +204,16 @@ static int lc_aes_gcm_setkey(struct crypto_aead *aead, const u8 *key,
 			     unsigned int keylen)
 {
 	struct lc_aead_ctx *ctx = crypto_aead_ctx(aead);
+	int ret;
+
+	/*
+	 * Force the key check already here when it is retained in the context.
+	 * Of course, the key is checked when actually set with GCM, but
+	 * checking it here is a defense in depth.
+	 */
+	ret = aes_check_keylen(keylen);
+	if (ret)
+		return ret;
 
 	/* Set the key, but not the IV yet */
 	return lc_aead_setkey(ctx, key, keylen, NULL, 0);
@@ -211,6 +223,14 @@ static int lc_aes_gcm_setauthsize(struct crypto_aead *aead,
 				  unsigned int authsize)
 {
 	switch (authsize) {
+	case 4:
+		/*
+		 * In FIPS-mode, GCM will not pass the full test suite due to
+		 * this limit.
+		 */
+		if (fips140_mode_enabled())
+			return -EINVAL;
+		fallthrough;
 	case 8:
 	case 12:
 	case 13:
@@ -279,10 +299,20 @@ static int lc_rfc4106_aes_gcm_setkey(struct crypto_aead *aead, const u8 *key,
 {
 	struct lc_rfc4106_aes_gcm_ctx *rfc4106_ctx = crypto_aead_ctx(aead);
 	struct lc_aead_ctx *ctx = &rfc4106_ctx->ctx;
+	int ret;
 
-	if (keylen < LC_RFC4106_AES_GCM_IV_FIXED_FIELD_LEN)
+	if (keylen <  LC_RFC4106_AES_GCM_IV_FIXED_FIELD_LEN)
 		return -EINVAL;
 	keylen -= LC_RFC4106_AES_GCM_IV_FIXED_FIELD_LEN;
+
+	/*
+	 * Force the key check already here when it is retained in the context.
+	 * Of course, the key is checked when actually set with GCM, but
+	 * checking it here is a defense in depth.
+	 */
+	ret = aes_check_keylen(keylen);
+	if (ret)
+		return ret;
 
 	memcpy(rfc4106_ctx->iv, key + keylen,
 	       LC_RFC4106_AES_GCM_IV_FIXED_FIELD_LEN);
@@ -326,7 +356,7 @@ static int lc_rfc4106_aes_gcm_enc(struct aead_request *areq)
 		return -EINVAL;
 	assoclen -= LC_RFC4106_AES_GCM_IV_INVOCATION_FIELD_LEN;
 
-	vola_ctx = kmalloc(LC_AES_GCM_CTX_SIZE_LEN(LC_AES_AESNI_MAX_BLOCK_SIZE),
+	vola_ctx = kzalloc(LC_AES_GCM_CTX_SIZE_LEN(LC_AES_AESNI_MAX_BLOCK_SIZE),
 			   GFP_KERNEL);
 	if (!vola_ctx)
 		return -ENOMEM;
@@ -368,7 +398,7 @@ static int lc_rfc4106_aes_gcm_dec(struct aead_request *areq)
 		return -EINVAL;
 	assoclen -= LC_RFC4106_AES_GCM_IV_INVOCATION_FIELD_LEN;
 
-	vola_ctx = kmalloc(LC_AES_GCM_CTX_SIZE_LEN(LC_AES_AESNI_MAX_BLOCK_SIZE),
+	vola_ctx = kzalloc(LC_AES_GCM_CTX_SIZE_LEN(LC_AES_AESNI_MAX_BLOCK_SIZE),
 			   GFP_KERNEL);
 	if (!vola_ctx)
 		return -ENOMEM;

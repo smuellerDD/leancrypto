@@ -83,13 +83,19 @@ static noinline int lc_aes_xts_slowpath(
 	err = skcipher_walk_virt(&walk, req, false);
 
 	while (walk.nbytes) {
-		err = crypt_func(ctx, walk.src.virt.addr, walk.dst.virt.addr,
-				 walk.nbytes & ~(AES_BLOCK_SIZE - 1), req->iv,
-				 AES_BLOCK_SIZE);
-		if (err)
-			return err;
-		err = skcipher_walk_done(&walk,
-					 walk.nbytes & (AES_BLOCK_SIZE - 1));
+		unsigned int nbytes = walk.nbytes & ~(2 * AES_BLOCK_SIZE - 1);
+
+		if (nbytes) {
+			err = crypt_func(ctx, walk.src.virt.addr,
+					 walk.dst.virt.addr, nbytes, req->iv,
+					 AES_BLOCK_SIZE);
+			if (err)
+				return err;
+			err = skcipher_walk_done(
+				&walk, walk.nbytes & (2 * AES_BLOCK_SIZE - 1));
+		} else {
+			err = skcipher_walk_done(&walk, walk.nbytes);
+		}
 	}
 
 	if (err || !tail)
@@ -108,10 +114,12 @@ static noinline int lc_aes_xts_slowpath(
 	if (err)
 		return err;
 
-	err = crypt_func(ctx, walk.src.virt.addr, walk.dst.virt.addr,
-			 walk.nbytes, req->iv, AES_BLOCK_SIZE);
-	if (err)
-		return err;
+	if (walk.nbytes) {
+		err = crypt_func(ctx, walk.src.virt.addr, walk.dst.virt.addr,
+				 walk.nbytes, req->iv, AES_BLOCK_SIZE);
+		if (err)
+			return err;
+	}
 
 	return skcipher_walk_done(&walk, 0);
 }
