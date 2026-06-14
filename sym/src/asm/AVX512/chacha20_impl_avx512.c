@@ -77,24 +77,18 @@ static inline void PartialXor(const __m512i val, const uint8_t *Src,
 		return;
 
 	memcpy(BuffForPartialOp, Src, Size);
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
 	_mm512_storeu_si512(
-		(__m512i *)(BuffForPartialOp),
+		(__m512i_u *)(BuffForPartialOp),
 		_mm512_xor_si512(
 			val,
-			_mm512_loadu_si512((const __m512i *)BuffForPartialOp)));
-#pragma GCC diagnostic pop
+			_mm512_loadu_si512((const __m512i_u *)BuffForPartialOp)));
 	memcpy(Dest, BuffForPartialOp, Size);
 }
 
 static inline void PartialStore(const __m512i val, uint8_t *Dest, uint64_t Size,
 				uint8_t BuffForPartialOp[64])
 {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
-	_mm512_storeu_si512((__m512i *)(BuffForPartialOp), val);
-#pragma GCC diagnostic pop
+	_mm512_storeu_si512((__m512i_u *)(BuffForPartialOp), val);
 	memcpy(Dest, BuffForPartialOp, Size);
 }
 
@@ -132,13 +126,10 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 		_mm_set_epi32(1797285236, 2036477234, 857760878,
 			      1634760805)); //"expand 32-byte k"
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
 	ws->state1 = _mm512_broadcast_i32x4(
-		_mm_loadu_si128((const __m128i *)(state)));
+		_mm_loadu_si128((const __m128i_u *)(state)));
 	ws->state2 = _mm512_broadcast_i32x4(_mm_loadu_si128(
-		(const __m128i *)(state + LC_CC20_AVX512_STATE_OFFSET(16))));
-#pragma GCC diagnostic pop
+		(const __m128i_u *)(state + LC_CC20_AVX512_STATE_OFFSET(16))));
 
 	//permutation indexes for results
 	ws->P1 = _mm512_set_epi64(13, 12, 5, 4, 9, 8, 1, 0);
@@ -146,11 +137,8 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 	ws->P3 = _mm512_set_epi64(11, 10, 9, 8, 3, 2, 1, 0);
 	ws->P4 = _mm512_set_epi64(15, 14, 13, 12, 7, 6, 5, 4);
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
-	ws->T1 = _mm512_broadcast_i32x4(_mm_load_si128(
-		(const __m128i *)(state + LC_CC20_AVX512_STATE_OFFSET(32))));
-#pragma GCC diagnostic pop
+	ws->T1 = _mm512_broadcast_i32x4(_mm_loadu_si128(
+		(const __m128i_u *)(state + LC_CC20_AVX512_STATE_OFFSET(32))));
 	ws->T2 = _mm512_set_epi64(0, 3, 0, 2, 0, 1, 0, 0);
 
 	ws->state3_0 = _mm512_add_epi32(ws->T1, ws->T2);
@@ -463,17 +451,14 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 							     ws->T4);
 
 			if (in) {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
 				ws->T1 = _mm512_loadu_si512(
-					(const __m512i *)(CurrentIn + 0 * 64));
+					(const __m512i_u *)(CurrentIn + 0 * 64));
 				ws->T2 = _mm512_loadu_si512(
-					(const __m512i *)(CurrentIn + 1 * 64));
+					(const __m512i_u *)(CurrentIn + 1 * 64));
 				ws->T3 = _mm512_loadu_si512(
-					(const __m512i *)(CurrentIn + 2 * 64));
+					(const __m512i_u *)(CurrentIn + 2 * 64));
 				ws->T4 = _mm512_loadu_si512(
-					(const __m512i *)(CurrentIn + 3 * 64));
-#pragma GCC diagnostic pop
+					(const __m512i_u *)(CurrentIn + 3 * 64));
 
 				ws->T1 = _mm512_xor_si512(ws->T1, ws->X0_0);
 				ws->T2 = _mm512_xor_si512(ws->T2, ws->X0_1);
@@ -489,17 +474,14 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 				_mm512_storeu_si512(CurrentOut + 3 * 64,
 						    ws->T4);
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
 				ws->T1 = _mm512_loadu_si512(
-					(const __m512i *)(CurrentIn + 4 * 64));
+					(const __m512i_u *)(CurrentIn + 4 * 64));
 				ws->T2 = _mm512_loadu_si512(
-					(const __m512i *)(CurrentIn + 5 * 64));
+					(const __m512i_u *)(CurrentIn + 5 * 64));
 				ws->T3 = _mm512_loadu_si512(
-					(const __m512i *)(CurrentIn + 6 * 64));
+					(const __m512i_u *)(CurrentIn + 6 * 64));
 				ws->T4 = _mm512_loadu_si512(
-					(const __m512i *)(CurrentIn + 7 * 64));
-#pragma GCC diagnostic pop
+					(const __m512i_u *)(CurrentIn + 7 * 64));
 
 				ws->T1 = _mm512_xor_si512(ws->T1, ws->X1_0);
 				ws->T2 = _mm512_xor_si512(ws->T2, ws->X1_1);
@@ -515,17 +497,14 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 				_mm512_storeu_si512(CurrentOut + 7 * 64,
 						    ws->T4);
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
 				ws->T1 = _mm512_loadu_si512(
-					(const __m512i *)(CurrentIn + 8 * 64));
+					(const __m512i_u *)(CurrentIn + 8 * 64));
 				ws->T2 = _mm512_loadu_si512(
-					(const __m512i *)(CurrentIn + 9 * 64));
+					(const __m512i_u *)(CurrentIn + 9 * 64));
 				ws->T3 = _mm512_loadu_si512(
-					(const __m512i *)(CurrentIn + 10 * 64));
+					(const __m512i_u *)(CurrentIn + 10 * 64));
 				ws->T4 = _mm512_loadu_si512(
-					(const __m512i *)(CurrentIn + 11 * 64));
-#pragma GCC diagnostic pop
+					(const __m512i_u *)(CurrentIn + 11 * 64));
 
 				ws->T1 = _mm512_xor_si512(ws->T1, ws->X2_0);
 				ws->T2 = _mm512_xor_si512(ws->T2, ws->X2_1);
@@ -541,17 +520,14 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 				_mm512_storeu_si512(CurrentOut + 11 * 64,
 						    ws->T4);
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
 				ws->T1 = _mm512_loadu_si512(
-					(const __m512i *)(CurrentIn + 12 * 64));
+					(const __m512i_u *)(CurrentIn + 12 * 64));
 				ws->T2 = _mm512_loadu_si512(
-					(const __m512i *)(CurrentIn + 13 * 64));
+					(const __m512i_u *)(CurrentIn + 13 * 64));
 				ws->T3 = _mm512_loadu_si512(
-					(const __m512i *)(CurrentIn + 14 * 64));
+					(const __m512i_u *)(CurrentIn + 14 * 64));
 				ws->T4 = _mm512_loadu_si512(
-					(const __m512i *)(CurrentIn + 15 * 64));
-#pragma GCC diagnostic pop
+					(const __m512i_u *)(CurrentIn + 15 * 64));
 
 				ws->T1 = _mm512_xor_si512(ws->T1, ws->X3_0);
 				ws->T2 = _mm512_xor_si512(ws->T2, ws->X3_1);
@@ -720,17 +696,14 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 
 		if (RemainingBytes >= 256) {
 			if (in) {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
 				ws->T1 = _mm512_loadu_si512(
-					(const __m512i *)(CurrentIn + 0 * 64));
+					(const __m512i_u *)(CurrentIn + 0 * 64));
 				ws->T2 = _mm512_loadu_si512(
-					(const __m512i *)(CurrentIn + 1 * 64));
+					(const __m512i_u *)(CurrentIn + 1 * 64));
 				ws->T3 = _mm512_loadu_si512(
-					(const __m512i *)(CurrentIn + 2 * 64));
+					(const __m512i_u *)(CurrentIn + 2 * 64));
 				ws->T4 = _mm512_loadu_si512(
-					(const __m512i *)(CurrentIn + 3 * 64));
-#pragma GCC diagnostic pop
+					(const __m512i_u *)(CurrentIn + 3 * 64));
 
 				ws->T1 = _mm512_xor_si512(ws->T1, ws->X0_0);
 				ws->T2 = _mm512_xor_si512(ws->T2, ws->X0_1);
@@ -790,11 +763,8 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 					ChaCha20AddCounter(state, 1);
 					goto out;
 				}
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
 				ws->T1 = _mm512_loadu_si512(
-					(const __m512i *)(CurrentIn + 0 * 64));
-#pragma GCC diagnostic pop
+					(const __m512i_u *)(CurrentIn + 0 * 64));
 				ws->T1 = _mm512_xor_si512(ws->T1, ws->X0_0);
 				_mm512_storeu_si512(CurrentOut + 0 * 64,
 						    ws->T1);
@@ -828,11 +798,8 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 					ChaCha20AddCounter(state, 2);
 					goto out;
 				}
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
 				ws->T1 = _mm512_loadu_si512(
-					(const __m512i *)(CurrentIn));
-#pragma GCC diagnostic pop
+					(const __m512i_u *)(CurrentIn));
 				ws->T1 = _mm512_xor_si512(ws->T1, ws->X0_1);
 				_mm512_storeu_si512(CurrentOut, ws->T1);
 
@@ -865,11 +832,8 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 					ChaCha20AddCounter(state, 3);
 					goto out;
 				}
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
 				ws->T1 = _mm512_loadu_si512(
-					(const __m512i *)(CurrentIn));
-#pragma GCC diagnostic pop
+					(const __m512i_u *)(CurrentIn));
 				ws->T1 = _mm512_xor_si512(ws->T1, ws->X0_2);
 				_mm512_storeu_si512(CurrentOut, ws->T1);
 
@@ -913,11 +877,8 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 					ChaCha20AddCounter(state, 1);
 					goto out;
 				}
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
-				_mm512_storeu_si512((__m512i *)(CurrentOut),
+				_mm512_storeu_si512((__m512i_u *)(CurrentOut),
 						    ws->X0_0);
-#pragma GCC diagnostic pop
 
 				/*
 				 * Timecop: output is not sensitive
@@ -946,11 +907,8 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 					ChaCha20AddCounter(state, 2);
 					goto out;
 				}
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
-				_mm512_storeu_si512((__m512i *)(CurrentOut),
+				_mm512_storeu_si512((__m512i_u *)(CurrentOut),
 						    ws->X0_1);
-#pragma GCC diagnostic pop
 
 				/*
 				 * Timecop: output is not sensitive
@@ -979,11 +937,8 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 					ChaCha20AddCounter(state, 3);
 					goto out;
 				}
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
-				_mm512_storeu_si512((__m512i *)(CurrentOut),
+				_mm512_storeu_si512((__m512i_u *)(CurrentOut),
 						    ws->X0_2);
-#pragma GCC diagnostic pop
 
 				/*
 				 * Timecop: output is not sensitive

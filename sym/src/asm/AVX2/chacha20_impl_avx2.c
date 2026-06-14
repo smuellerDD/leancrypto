@@ -55,24 +55,18 @@ static inline void PartialXor(const __m256i val, const uint8_t *Src,
 			      uint8_t BuffForPartialOp[32])
 {
 	memcpy(BuffForPartialOp, Src, Size);
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
 	_mm256_storeu_si256(
-		(__m256i *)(BuffForPartialOp),
+		(__m256i_u *)(BuffForPartialOp),
 		_mm256_xor_si256(
 			val,
-			_mm256_loadu_si256((const __m256i *)BuffForPartialOp)));
-#pragma GCC diagnostic pop
+			_mm256_loadu_si256((const __m256i_u *)BuffForPartialOp)));
 	memcpy(Dest, BuffForPartialOp, Size);
 }
 
 static inline void PartialStore(const __m256i val, uint8_t *Dest, uint64_t Size,
 				uint8_t BuffForPartialOp[32])
 {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
-	_mm256_storeu_si256((__m256i *)(BuffForPartialOp), val);
-#pragma GCC diagnostic pop
+	_mm256_storeu_si256((__m256i_u *)(BuffForPartialOp), val);
 	memcpy(Dest, BuffForPartialOp, Size);
 }
 
@@ -132,13 +126,10 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 		_mm_set_epi32(1797285236, 2036477234, 857760878,
 			      1634760805)); //"expand 32-byte k"
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
 	ws->state1 = _mm256_broadcastsi128_si256(
-		_mm_load_si128((const __m128i *)(state)));
-	ws->state2 = _mm256_broadcastsi128_si256(_mm_load_si128(
-		(const __m128i *)(state + LC_CC20_AVX2_STATE_OFFSET(16))));
-#pragma GCC diagnostic pop
+		_mm_loadu_si128((const __m128i_u *)(state)));
+	ws->state2 = _mm256_broadcastsi128_si256(_mm_loadu_si128(
+		(const __m128i_u *)(state + LC_CC20_AVX2_STATE_OFFSET(16))));
 
 	ws->CTR0 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 4);
 	ws->CTR1 = _mm256_set_epi32(0, 0, 0, 1, 0, 0, 0, 5);
@@ -146,12 +137,9 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 	ws->CTR3 = _mm256_set_epi32(0, 0, 0, 3, 0, 0, 0, 7);
 
 	for (uint64_t n = 0; n < FullBlocksCount; n++) {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
-		ws->state3 = _mm256_broadcastsi128_si256(_mm_load_si128(
-			(const __m128i *)(state +
+		ws->state3 = _mm256_broadcastsi128_si256(_mm_loadu_si128(
+			(const __m128i_u *)(state +
 					  LC_CC20_AVX2_STATE_OFFSET(32))));
-#pragma GCC diagnostic pop
 
 		ws->X0_0 = ws->state0;
 		ws->X0_1 = ws->state1;
@@ -375,225 +363,222 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 		ws->X3_3 = _mm256_add_epi32(ws->X3_3, ws->state3);
 		ws->X3_3 = _mm256_add_epi32(ws->X3_3, ws->CTR3);
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
 		if (in) {
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 0 * 32),
+				(__m256i_u *)(CurrentOut + 0 * 32),
 				_mm256_xor_si256(_mm256_permute2x128_si256(
 							 ws->X0_0, ws->X0_1,
 							 1 + (3 << 4)),
 						 _mm256_loadu_si256(
-							 (__m256i *)(CurrentIn +
+							 (const __m256i_u *)(CurrentIn +
 								     0 * 32))));
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 1 * 32),
+				(__m256i_u *)(CurrentOut + 1 * 32),
 				_mm256_xor_si256(
 					_mm256_permute2x128_si256(ws->X0_2,
 								  ws->X0_3,
 								  1 + (3 << 4)),
 					_mm256_loadu_si256(
-						(const __m256i *)(CurrentIn +
+						(const __m256i_u *)(CurrentIn +
 								  1 * 32))));
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 2 * 32),
+				(__m256i_u *)(CurrentOut + 2 * 32),
 				_mm256_xor_si256(
 					_mm256_permute2x128_si256(ws->X1_0,
 								  ws->X1_1,
 								  1 + (3 << 4)),
 					_mm256_loadu_si256(
-						((const __m256i *)(CurrentIn +
+						((const __m256i_u *)(CurrentIn +
 								   2 * 32)))));
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 3 * 32),
+				(__m256i_u *)(CurrentOut + 3 * 32),
 				_mm256_xor_si256(
 					_mm256_permute2x128_si256(ws->X1_2,
 								  ws->X1_3,
 								  1 + (3 << 4)),
 					_mm256_loadu_si256(
-						(const __m256i *)(CurrentIn +
+						(const __m256i_u *)(CurrentIn +
 								  3 * 32))));
 
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 4 * 32),
+				(__m256i_u *)(CurrentOut + 4 * 32),
 				_mm256_xor_si256(
 					_mm256_permute2x128_si256(ws->X2_0,
 								  ws->X2_1,
 								  1 + (3 << 4)),
 					_mm256_loadu_si256(
-						(const __m256i *)(CurrentIn +
+						(const __m256i_u *)(CurrentIn +
 								  4 * 32))));
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 5 * 32),
+				(__m256i_u *)(CurrentOut + 5 * 32),
 				_mm256_xor_si256(
 					_mm256_permute2x128_si256(ws->X2_2,
 								  ws->X2_3,
 								  1 + (3 << 4)),
 					_mm256_loadu_si256(
-						(const __m256i *)(CurrentIn +
+						(const __m256i_u *)(CurrentIn +
 								  5 * 32))));
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 6 * 32),
+				(__m256i_u *)(CurrentOut + 6 * 32),
 				_mm256_xor_si256(
 					_mm256_permute2x128_si256(ws->X3_0,
 								  ws->X3_1,
 								  1 + (3 << 4)),
 					_mm256_loadu_si256(
-						(const __m256i *)(CurrentIn +
+						(const __m256i_u *)(CurrentIn +
 								  6 * 32))));
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 7 * 32),
+				(__m256i_u *)(CurrentOut + 7 * 32),
 				_mm256_xor_si256(
 					_mm256_permute2x128_si256(ws->X3_2,
 								  ws->X3_3,
 								  1 + (3 << 4)),
 					_mm256_loadu_si256(
-						(const __m256i *)(CurrentIn +
+						(const __m256i_u *)(CurrentIn +
 								  7 * 32))));
 
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 8 * 32),
+				(__m256i_u *)(CurrentOut + 8 * 32),
 				_mm256_xor_si256(
 					_mm256_permute2x128_si256(ws->X0_0,
 								  ws->X0_1,
 								  0 + (2 << 4)),
 					_mm256_loadu_si256(
-						(const __m256i *)(CurrentIn +
+						(const __m256i_u *)(CurrentIn +
 								  8 * 32))));
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 9 * 32),
+				(__m256i_u *)(CurrentOut + 9 * 32),
 				_mm256_xor_si256(
 					_mm256_permute2x128_si256(ws->X0_2,
 								  ws->X0_3,
 								  0 + (2 << 4)),
 					_mm256_loadu_si256(
-						(const __m256i *)(CurrentIn +
+						(const __m256i_u *)(CurrentIn +
 								  9 * 32))));
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 10 * 32),
+				(__m256i_u *)(CurrentOut + 10 * 32),
 				_mm256_xor_si256(
 					_mm256_permute2x128_si256(ws->X1_0,
 								  ws->X1_1,
 								  0 + (2 << 4)),
 					_mm256_loadu_si256(
-						(const __m256i *)(CurrentIn +
+						(const __m256i_u *)(CurrentIn +
 								  10 * 32))));
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 11 * 32),
+				(__m256i_u *)(CurrentOut + 11 * 32),
 				_mm256_xor_si256(
 					_mm256_permute2x128_si256(ws->X1_2,
 								  ws->X1_3,
 								  0 + (2 << 4)),
 					_mm256_loadu_si256(
-						(const __m256i *)(CurrentIn +
+						(const __m256i_u *)(CurrentIn +
 								  11 * 32))));
 
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 12 * 32),
+				(__m256i_u *)(CurrentOut + 12 * 32),
 				_mm256_xor_si256(
 					_mm256_permute2x128_si256(ws->X2_0,
 								  ws->X2_1,
 								  0 + (2 << 4)),
 					_mm256_loadu_si256(
-						(const __m256i *)(CurrentIn +
+						(const __m256i_u *)(CurrentIn +
 								  12 * 32))));
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 13 * 32),
+				(__m256i_u *)(CurrentOut + 13 * 32),
 				_mm256_xor_si256(
 					_mm256_permute2x128_si256(ws->X2_2,
 								  ws->X2_3,
 								  0 + (2 << 4)),
 					_mm256_loadu_si256(
-						(const __m256i *)(CurrentIn +
+						(const __m256i_u *)(CurrentIn +
 								  13 * 32))));
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 14 * 32),
+				(__m256i_u *)(CurrentOut + 14 * 32),
 				_mm256_xor_si256(
 					_mm256_permute2x128_si256(ws->X3_0,
 								  ws->X3_1,
 								  0 + (2 << 4)),
 					_mm256_loadu_si256(
-						(const __m256i *)(CurrentIn +
+						(const __m256i_u *)(CurrentIn +
 								  14 * 32))));
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 15 * 32),
+				(__m256i_u *)(CurrentOut + 15 * 32),
 				_mm256_xor_si256(
 					_mm256_permute2x128_si256(ws->X3_2,
 								  ws->X3_3,
 								  0 + (2 << 4)),
 					_mm256_loadu_si256(
-						(const __m256i *)(CurrentIn +
+						(const __m256i_u *)(CurrentIn +
 								  15 * 32))));
 		} else {
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 0 * 32),
+				(__m256i_u *)(CurrentOut + 0 * 32),
 				_mm256_permute2x128_si256(ws->X0_0, ws->X0_1,
 							  1 + (3 << 4)));
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 1 * 32),
+				(__m256i_u *)(CurrentOut + 1 * 32),
 				_mm256_permute2x128_si256(ws->X0_2, ws->X0_3,
 							  1 + (3 << 4)));
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 2 * 32),
+				(__m256i_u *)(CurrentOut + 2 * 32),
 				_mm256_permute2x128_si256(ws->X1_0, ws->X1_1,
 							  1 + (3 << 4)));
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 3 * 32),
+				(__m256i_u *)(CurrentOut + 3 * 32),
 				_mm256_permute2x128_si256(ws->X1_2, ws->X1_3,
 							  1 + (3 << 4)));
 
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 4 * 32),
+				(__m256i_u *)(CurrentOut + 4 * 32),
 				_mm256_permute2x128_si256(ws->X2_0, ws->X2_1,
 							  1 + (3 << 4)));
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 5 * 32),
+				(__m256i_u *)(CurrentOut + 5 * 32),
 				_mm256_permute2x128_si256(ws->X2_2, ws->X2_3,
 							  1 + (3 << 4)));
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 6 * 32),
+				(__m256i_u *)(CurrentOut + 6 * 32),
 				_mm256_permute2x128_si256(ws->X3_0, ws->X3_1,
 							  1 + (3 << 4)));
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 7 * 32),
+				(__m256i_u *)(CurrentOut + 7 * 32),
 				_mm256_permute2x128_si256(ws->X3_2, ws->X3_3,
 							  1 + (3 << 4)));
 
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 8 * 32),
+				(__m256i_u *)(CurrentOut + 8 * 32),
 				_mm256_permute2x128_si256(ws->X0_0, ws->X0_1,
 							  0 + (2 << 4)));
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 9 * 32),
+				(__m256i_u *)(CurrentOut + 9 * 32),
 				_mm256_permute2x128_si256(ws->X0_2, ws->X0_3,
 							  0 + (2 << 4)));
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 10 * 32),
+				(__m256i_u *)(CurrentOut + 10 * 32),
 				_mm256_permute2x128_si256(ws->X1_0, ws->X1_1,
 							  0 + (2 << 4)));
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 11 * 32),
+				(__m256i_u *)(CurrentOut + 11 * 32),
 				_mm256_permute2x128_si256(ws->X1_2, ws->X1_3,
 							  0 + (2 << 4)));
 
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 12 * 32),
+				(__m256i_u *)(CurrentOut + 12 * 32),
 				_mm256_permute2x128_si256(ws->X2_0, ws->X2_1,
 							  0 + (2 << 4)));
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 13 * 32),
+				(__m256i_u *)(CurrentOut + 13 * 32),
 				_mm256_permute2x128_si256(ws->X2_2, ws->X2_3,
 							  0 + (2 << 4)));
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 14 * 32),
+				(__m256i_u *)(CurrentOut + 14 * 32),
 				_mm256_permute2x128_si256(ws->X3_0, ws->X3_1,
 							  0 + (2 << 4)));
 			_mm256_storeu_si256(
-				(__m256i *)(CurrentOut + 15 * 32),
+				(__m256i_u *)(CurrentOut + 15 * 32),
 				_mm256_permute2x128_si256(ws->X3_2, ws->X3_3,
 							  0 + (2 << 4)));
 		}
-#pragma GCC diagnostic pop
 
 		/* Timecop: output is not sensitive regarding side-channels. */
 		unpoison(CurrentOut, 512);
@@ -610,12 +595,9 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 	ws->CTR0 = _mm256_set_epi32(0, 0, 0, 0, 0, 0, 0, 1);
 
 	while (1) {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
-		ws->state3 = _mm256_broadcastsi128_si256(_mm_load_si128(
-			(const __m128i *)(state +
+		ws->state3 = _mm256_broadcastsi128_si256(_mm_loadu_si128(
+			(const __m128i_u *)(state +
 					  LC_CC20_AVX2_STATE_OFFSET(32))));
-#pragma GCC diagnostic pop
 
 		ws->X0_0 = ws->state0;
 		ws->X0_1 = ws->state1;
@@ -693,72 +675,69 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 		ws->X0_3 = _mm256_add_epi32(ws->X0_3, ws->CTR0);
 
 		if (RemainingBytes >= 128) {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
 			if (in) {
 				_mm256_storeu_si256(
-					(__m256i *)(CurrentOut + 0 * 32),
+					(__m256i_u *)(CurrentOut + 0 * 32),
 					_mm256_xor_si256(
 						_mm256_permute2x128_si256(
 							ws->X0_0, ws->X0_1,
 							1 + (3 << 4)),
 						_mm256_loadu_si256(
-							(__m256i *)(CurrentIn +
+							(const __m256i_u *)(CurrentIn +
 								    0 * 32))));
 				_mm256_storeu_si256(
-					(__m256i *)(CurrentOut + 1 * 32),
+					(__m256i_u *)(CurrentOut + 1 * 32),
 					_mm256_xor_si256(
 						_mm256_permute2x128_si256(
 							ws->X0_2, ws->X0_3,
 							1 + (3 << 4)),
 						_mm256_loadu_si256(
-							(const __m256i
+							(const __m256i_u
 								 *)(CurrentIn +
 								    1 * 32))));
 				_mm256_storeu_si256(
-					(__m256i *)(CurrentOut + 2 * 32),
+					(__m256i_u *)(CurrentOut + 2 * 32),
 					_mm256_xor_si256(
 						_mm256_permute2x128_si256(
 							ws->X0_0, ws->X0_1,
 							0 + (2 << 4)),
 						_mm256_loadu_si256(
-							(const __m256i
+							(const __m256i_u
 								 *)(CurrentIn +
 								    2 * 32))));
 				_mm256_storeu_si256(
-					(__m256i *)(CurrentOut + 3 * 32),
+					(__m256i_u *)(CurrentOut + 3 * 32),
 					_mm256_xor_si256(
 						_mm256_permute2x128_si256(
 							ws->X0_2, ws->X0_3,
 							0 + (2 << 4)),
 						_mm256_loadu_si256(
-							(const __m256i
+							(const __m256i_u
 								 *)(CurrentIn +
 								    3 * 32))));
 
 			} else {
 				_mm256_storeu_si256(
-					(__m256i *)(CurrentOut + 0 * 32),
+					(__m256i_u *)(CurrentOut + 0 * 32),
 					_mm256_permute2x128_si256(
 						ws->X0_0, ws->X0_1,
 						1 + (3 << 4)));
 				_mm256_storeu_si256(
-					(__m256i *)(CurrentOut + 1 * 32),
+					(__m256i_u *)(CurrentOut + 1 * 32),
 					_mm256_permute2x128_si256(
 						ws->X0_2, ws->X0_3,
 						1 + (3 << 4)));
 				_mm256_storeu_si256(
-					(__m256i *)(CurrentOut + 2 * 32),
+					(__m256i_u *)(CurrentOut + 2 * 32),
 					_mm256_permute2x128_si256(
 						ws->X0_0, ws->X0_1,
 						0 + (2 << 4)));
 				_mm256_storeu_si256(
-					(__m256i *)(CurrentOut + 3 * 32),
+					(__m256i_u *)(CurrentOut + 3 * 32),
 					_mm256_permute2x128_si256(
 						ws->X0_2, ws->X0_3,
 						0 + (2 << 4)));
 			}
-#pragma GCC diagnostic pop
 			ChaCha20AddCounter(state, 2);
 
 			/* Timecop: output is not sensitive regarding side-channels. */
@@ -792,16 +771,13 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 					ChaCha20AddCounter(state, 1);
 					goto out;
 				}
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
 				_mm256_storeu_si256(
-					(__m256i *)(CurrentOut),
+					(__m256i_u *)(CurrentOut),
 					_mm256_xor_si256(
 						tmp,
 						_mm256_loadu_si256((
-							const __m256i
+							const __m256i_u
 								*)(CurrentIn))));
-#pragma GCC diagnostic pop
 				/*
 				 * Timecop: output is not sensitive regarding
 				 * side-channels.
@@ -833,16 +809,13 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 					ChaCha20AddCounter(state, 1);
 					goto out;
 				}
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
 				_mm256_storeu_si256(
-					(__m256i *)(CurrentOut),
+					(__m256i_u *)(CurrentOut),
 					_mm256_xor_si256(
 						tmp,
 						_mm256_loadu_si256((
-							const __m256i
+							const __m256i_u
 								*)(CurrentIn))));
-#pragma GCC diagnostic pop
 				/*
 				 * Timecop: output is not sensitive regarding
 				 * side-channels.
@@ -873,16 +846,13 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 					ChaCha20AddCounter(state, 2);
 					goto out;
 				}
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
 				_mm256_storeu_si256(
-					(__m256i *)(CurrentOut),
+					(__m256i_u *)(CurrentOut),
 					_mm256_xor_si256(
 						tmp,
 						_mm256_loadu_si256((
-							const __m256i
+							const __m256i_u
 								*)(CurrentIn))));
-#pragma GCC diagnostic pop
 				/*
 				 * Timecop: output is not sensitive regarding
 				 * side-channels.
@@ -928,11 +898,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 					ChaCha20AddCounter(state, 1);
 					goto out;
 				}
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
-				_mm256_storeu_si256((__m256i *)(CurrentOut),
+				_mm256_storeu_si256((__m256i_u *)(CurrentOut),
 						    tmp);
-#pragma GCC diagnostic pop
 				/*
 				 * Timecop: output is not sensitive regarding
 				 * side-channels.
@@ -963,11 +930,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 					ChaCha20AddCounter(state, 1);
 					goto out;
 				}
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
-				_mm256_storeu_si256((__m256i *)(CurrentOut),
+				_mm256_storeu_si256((__m256i_u *)(CurrentOut),
 						    tmp);
-#pragma GCC diagnostic pop
 				/*
 				 * Timecop: output is not sensitive regarding
 				 * side-channels.
@@ -997,11 +961,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 					ChaCha20AddCounter(state, 2);
 					goto out;
 				}
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
-				_mm256_storeu_si256((__m256i *)(CurrentOut),
+				_mm256_storeu_si256((__m256i_u *)(CurrentOut),
 						    tmp);
-#pragma GCC diagnostic pop
 				/*
 				 * Timecop: output is not sensitive regarding
 				 * side-channels.
