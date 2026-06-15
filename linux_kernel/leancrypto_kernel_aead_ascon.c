@@ -358,8 +358,8 @@ static struct aead_alg lc_aead_algs[] = {
 #ifdef LC_ASCON
 	{
 		.base = {
-			.cra_name = "ascon-aead-128",
-			.cra_driver_name = "ascon-aead-128-leancrypto",
+			.cra_name = "ascon-aead128",
+			.cra_driver_name = "ascon-aead128-leancrypto",
 			.cra_priority = LC_KERNEL_DEFAULT_PRIO,
 			.cra_blocksize = 1,
 			.cra_ctxsize = sizeof(struct lc_aead_ctx),

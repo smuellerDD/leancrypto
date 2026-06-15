@@ -347,7 +347,7 @@ static int aascon_tester_128(void)
 					   0x28, 0x9F, 0x23, 0x49, 0xD6, 0xA3,
 					   0xB4, 0x16, 0x03, 0x97 };
 	pr_info("Ascon lightweight 128 crypt\n");
-	return lc_aead_test("ascon-aead-128-leancrypto", pt, sizeof(pt), nonce,
+	return lc_aead_test("ascon-aead128-leancrypto", pt, sizeof(pt), nonce,
 			    sizeof(nonce), aad, sizeof(aad), key, sizeof(key),
 			    exp_ct, exp_tag, sizeof(exp_tag));
 }
