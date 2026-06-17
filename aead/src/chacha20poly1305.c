@@ -387,10 +387,11 @@ static int lc_chacha20_poly1305_encrypt(void *state, const uint8_t *plaintext,
 	struct lc_chacha20_poly1305_cryptor *cc20p1305 = state;
 	struct lc_poly1305_context *poly1305 = &cc20p1305->poly1305_ctx;
 	struct lc_sym_ctx *chacha20 = &cc20p1305->chacha20;
+	int ret;
 
 	lc_chacha20_poly1305_aad_pad(cc20p1305);
 
-	lc_sym_encrypt(chacha20, plaintext, ciphertext, datalen);
+	CKINT(lc_sym_encrypt(chacha20, plaintext, ciphertext, datalen));
 	cc20p1305->datalen += datalen;
 
 	/*
@@ -399,7 +400,8 @@ static int lc_chacha20_poly1305_encrypt(void *state, const uint8_t *plaintext,
 	 */
 	lc_poly1305_update(poly1305, ciphertext, datalen);
 
-	return 0;
+out:
+	return ret;
 }
 
 static int lc_chacha20_poly1305_decrypt(void *state, const uint8_t *ciphertext,
@@ -408,6 +410,7 @@ static int lc_chacha20_poly1305_decrypt(void *state, const uint8_t *ciphertext,
 	struct lc_chacha20_poly1305_cryptor *cc20p1305 = state;
 	struct lc_poly1305_context *poly1305 = &cc20p1305->poly1305_ctx;
 	struct lc_sym_ctx *chacha20 = &cc20p1305->chacha20;
+	int ret;
 
 	lc_chacha20_poly1305_aad_pad(cc20p1305);
 
@@ -416,10 +419,11 @@ static int lc_chacha20_poly1305_decrypt(void *state, const uint8_t *ciphertext,
 	 * Perform the reverse of an Encrypt-Then-MAC operation.
 	 */
 	lc_poly1305_update(poly1305, ciphertext, datalen);
-	lc_sym_decrypt(chacha20, ciphertext, plaintext, datalen);
+	CKINT(lc_sym_decrypt(chacha20, ciphertext, plaintext, datalen));
 	cc20p1305->datalen += datalen;
 
-	return 0;
+out:
+	return ret;
 }
 
 static int

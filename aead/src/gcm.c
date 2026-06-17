@@ -340,7 +340,7 @@ static int gcm_setkey(struct lc_aes_gcm_cryptor *ctx, const uint8_t *key,
 	 */
 	CKINT(lc_sym_init(&ctx->sym_ctx));
 	CKINT(lc_sym_setkey(&ctx->sym_ctx, key, keylen));
-	lc_sym_encrypt(&ctx->sym_ctx, h, h, sizeof(h));
+	CKINT(lc_sym_encrypt(&ctx->sym_ctx, h, h, sizeof(h)));
 
 	H[0] = ptr_to_be64(h);
 	H[1] = ptr_to_be64(h + 8);
@@ -470,10 +470,8 @@ static int gcm_setiv(struct lc_aes_gcm_cryptor *ctx, const uint8_t *iv,
 		gcm_mult(ctx, gcm_ctx->y, gcm_ctx->y);
 	}
 
-	lc_sym_encrypt(&ctx->sym_ctx, gcm_ctx->y, gcm_ctx->base_ectr,
-		       sizeof(gcm_ctx->y));
-
-	return 0;
+	return lc_sym_encrypt(&ctx->sym_ctx, gcm_ctx->y, gcm_ctx->base_ectr,
+			      sizeof(gcm_ctx->y));
 }
 
 static int gcm_set_key_iv_nocheck(void *state, const uint8_t *key,
@@ -589,6 +587,7 @@ static int gcm_enc_update(void *state, const uint8_t *plaintext,
 	struct lc_aes_gcm_cryptor *ctx = state;
 	struct lc_gcm_ctx *gcm_ctx;
 	uint8_t use_len, i, non_align, rem_aad;
+	int ret = 0;
 
 	/*
 	 * In FIPS mode, only the internal IV generation is allowed where the
@@ -658,8 +657,8 @@ static int gcm_enc_update(void *state, const uint8_t *plaintext,
 				break;
 
 		/* encrypt the context's 'y' vector under the established key */
-		lc_sym_encrypt(&ctx->sym_ctx, gcm_ctx->y, gcm_ctx->ectr,
-			       sizeof(gcm_ctx->y));
+		CKINT(lc_sym_encrypt(&ctx->sym_ctx, gcm_ctx->y, gcm_ctx->ectr,
+				     sizeof(gcm_ctx->y)));
 
 		/*
 		 * XOR the cipher's ouptut vector (ectr) with our plaintext
@@ -685,7 +684,8 @@ static int gcm_enc_update(void *state, const uint8_t *plaintext,
 		ciphertext += use_len; // bump our output pointer forward
 	}
 
-	return 0;
+out:
+	return ret;
 }
 
 static int gcm_dec_update(void *state, const uint8_t *ciphertext,
@@ -694,6 +694,7 @@ static int gcm_dec_update(void *state, const uint8_t *ciphertext,
 	struct lc_aes_gcm_cryptor *ctx = state;
 	struct lc_gcm_ctx *gcm_ctx;
 	uint8_t use_len, i, non_align, rem_aad;
+	int ret = 0;
 
 	if (!ctx) {
 		lc_memset_secure(plaintext, 0, datalen);
@@ -751,8 +752,8 @@ static int gcm_dec_update(void *state, const uint8_t *ciphertext,
 				break;
 
 		/* encrypt the context's 'y' vector under the established key */
-		lc_sym_encrypt(&ctx->sym_ctx, gcm_ctx->y, gcm_ctx->ectr,
-			       sizeof(gcm_ctx->y));
+		CKINT(lc_sym_encrypt(&ctx->sym_ctx, gcm_ctx->y, gcm_ctx->ectr,
+				     sizeof(gcm_ctx->y)));
 
 		/*
 		 * but if we're DEcrypting we XOR in the ciphertext
@@ -780,7 +781,8 @@ static int gcm_dec_update(void *state, const uint8_t *ciphertext,
 		plaintext += use_len; // bump our plaintext pointer forward
 	}
 
-	return 0;
+out:
+	return ret;
 }
 
 /*
