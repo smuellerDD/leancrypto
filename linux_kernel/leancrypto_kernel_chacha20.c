@@ -44,53 +44,92 @@ static int lc_chacha20_setkey(struct crypto_skcipher *tfm, const u8 *key,
 }
 
 static int lc_chacha20_common(struct skcipher_request *req,
-			      int (*crypt_func)(const struct lc_sym_ctx *ctx,
+			      int (*crypt_func)(struct lc_sym_ctx *ctx,
 						const uint8_t *in,
-						uint8_t *out, size_t len,
-						uint8_t *iv, size_t ivlen))
+						uint8_t *out, size_t len))
 {
 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
 	struct lc_sym_ctx *ctx = crypto_skcipher_ctx(tfm);
+	struct lc_sym_state *state = ctx->sym_state;
 	struct skcipher_walk walk;
+	struct lc_sym_ctx *vola_ctx;
+	unsigned int nbytes;
 	int err;
 
-	err = lc_sym_init_iv(ctx, req->iv, CHACHA_IV_SIZE);
+	/* Safety measure - should never happen */
+	if (!state)
+		return -EFAULT;
+
+	/*
+	 * We do not use the _iv API here, but create a local copy of the
+	 * ChaCha20 context. This avoids the setup of the ChaCha20 context with
+	 * each individual call to the _iv function and thus makes this code
+	 * more performant.
+	 */
+	vola_ctx = kzalloc(LC_SYM_CTX_SIZE_LEN(LC_CC20_STATE_SIZE), GFP_KERNEL);
+	if (!vola_ctx)
+		return -ENOMEM;
+
+	LC_SYM_SET_CTX(vola_ctx, lc_chacha20);
+
+	/* Set up local context */
+	err = lc_sym_init(vola_ctx);
 	if (err)
-		return err;
+		goto out;
+
+	/* Set key from current context */
+	err = lc_sym_setkey(vola_ctx, state->key.b, LC_CC20_KEY_SIZE);
+	if (err)
+		goto out;
+
+	/* Set IV */
+        err = lc_sym_setiv(vola_ctx, req->iv, CHACHA_IV_SIZE);
+	if (err)
+		goto out;
 
 	err = skcipher_walk_virt(&walk, req, false);
 
-	while (walk.nbytes > 0) {
-		unsigned int nbytes = walk.nbytes;
+	while ((nbytes = walk.nbytes) > 0) {
+		err = crypt_func(vola_ctx, walk.src.virt.addr,
+				 walk.dst.virt.addr,
+				 nbytes & (~(CHACHA_BLOCK_SIZE - 1)));
+		if (err)
+			goto out;
+		nbytes &= CHACHA_BLOCK_SIZE - 1;
 
-		/*
-		 * Ensure that only the last chunk (nbytes == walk.total) is
-		 * not a multiple of CHACHA_BLOCK_SIZE.
-		 */
-		if (nbytes < walk.total)
-			nbytes = round_down(nbytes, CHACHA_BLOCK_SIZE);
-
-		if (nbytes) {
-			err = crypt_func(ctx, walk.src.virt.addr,
-					 walk.dst.virt.addr, nbytes, req->iv,
-					 CHACHA_IV_SIZE);
+		if (walk.nbytes == walk.total && nbytes > 0) {
+			err = crypt_func(
+				vola_ctx,
+				walk.src.virt.addr + walk.nbytes - nbytes,
+				walk.dst.virt.addr + walk.nbytes - nbytes,
+				nbytes);
 			if (err)
-				return err;
+				goto out;
+			nbytes = 0;
 		}
-		err = skcipher_walk_done(&walk, walk.nbytes - nbytes);
+		err = skcipher_walk_done(&walk, nbytes);
 	}
 
+	if (err)
+		goto out;
+
+	/* Get the IV */
+	err = lc_sym_getiv(vola_ctx, req->iv, CHACHA_IV_SIZE);
+
+out:
+	lc_sym_zero(vola_ctx);
+        kfree(vola_ctx);
 	return err;
 }
 
 static int lc_chacha20_encrypt(struct skcipher_request *req)
 {
-	return lc_chacha20_common(req, lc_sym_encrypt_iv);
+	return lc_chacha20_common(req, lc_sym_encrypt);
 }
 
 static int lc_chacha20_decrypt(struct skcipher_request *req)
 {
-	return lc_chacha20_common(req, lc_sym_decrypt_iv);
+	return lc_chacha20_common(req, lc_sym_decrypt);
 }
 
 static int lc_chacha20_init(struct crypto_skcipher *tfm)
