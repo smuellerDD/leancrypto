@@ -226,7 +226,7 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 		,
 		(lc_aes_c == lc_aes_sbox) ? "C=SBox " : "C=CT ",
 		(lc_aes_aesni && lc_aes_aesni != lc_aes_c) ? "AESNI " : "",
-		(lc_aes_armce && lc_aes_armce != lc_aes_c) ? "ARMv8-CE " : "",
+		(lc_aes_armce && lc_aes_armce != lc_aes_c) ? "ARM-CE " : "",
 		(lc_aes_riscv64 && lc_aes_riscv64 != lc_aes_c) ? "RISCV64 " : ""
 #endif
 
@@ -301,7 +301,7 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 			"ARM-Neon " :
 			"",
 		(lc_sha3_256_arm_ce && lc_sha3_256_arm_ce != lc_sha3_256_c) ?
-			"ARMv8-CE " :
+			"ARM-CE " :
 			"",
 		(lc_sha3_256_arm_asm && lc_sha3_256_arm_asm != lc_sha3_256_c) ?
 			"ARMv8 ARMv8-2x " :
