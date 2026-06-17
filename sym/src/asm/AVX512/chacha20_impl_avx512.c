@@ -40,23 +40,22 @@ static inline void ChaCha20AddCounter(uint32_t *State32bits,
 	uint32_t lo = (uint32_t)value_to_add;
 
 	if (hi) {
-		unsigned int overflow =
-			(0 - hi) < State32bits[LC_CC20_KEY_SIZE_WORDS + 1];
-
 		State32bits[LC_CC20_KEY_SIZE_WORDS + 1] += hi;
-		if (overflow) {
+
+#if 0
+		if ((0 - hi) < State32bits[LC_CC20_KEY_SIZE_WORDS + 1]) {
 			State32bits[LC_CC20_KEY_SIZE_WORDS + 2]++;
 			if (State32bits[LC_CC20_KEY_SIZE_WORDS + 2] == 0)
 				State32bits[LC_CC20_KEY_SIZE_WORDS + 3]++;
 		}
+#endif
 	}
 
 	if (lo) {
-		unsigned int overflow =
-			(0 - lo) < State32bits[LC_CC20_KEY_SIZE_WORDS + 0];
-
 		State32bits[LC_CC20_KEY_SIZE_WORDS + 0] += lo;
-		if (overflow) {
+
+#if 0
+		if ((0 - lo) < State32bits[LC_CC20_KEY_SIZE_WORDS + 0]) {
 			State32bits[LC_CC20_KEY_SIZE_WORDS + 1]++;
 			if (State32bits[LC_CC20_KEY_SIZE_WORDS + 1] == 0) {
 				State32bits[LC_CC20_KEY_SIZE_WORDS + 2]++;
@@ -66,6 +65,7 @@ static inline void ChaCha20AddCounter(uint32_t *State32bits,
 						    3]++;
 			}
 		}
+#endif
 	}
 }
 

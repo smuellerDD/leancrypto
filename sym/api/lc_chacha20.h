@@ -28,7 +28,7 @@ extern "C" {
 
 extern const struct lc_sym *lc_chacha20;
 
-#define LC_CC20_STATE_SIZE (132)
+#define LC_CC20_STATE_SIZE (144)
 
 /**
  * @ingroup Symmetric

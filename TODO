@@ -23,8 +23,6 @@
 
 - Add SLH-DSA-Ascon to Linux kernel
 
-- Linux kernel: implementation of chacha20, do not pass the extended/full kernel self tests. The issue is that the the test harness creates SGLs which are split randomly. Thus I am not sure whether leancrypto should handle such very strange (and not real-life scenarios).
-
 - Linux kernel: the implementaiton of XTS sometimes fails with the extended/full self tests, because the harness expects an errno -2 whereas leancrypto returns -22. This is considered harmless and is ignored.
 
 - sbkeysync: develop proper tests and verify

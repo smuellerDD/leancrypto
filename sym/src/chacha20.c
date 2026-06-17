@@ -262,11 +262,17 @@ void cc20_crypt_remaining(struct lc_sym_state *ctx, const uint8_t **in,
 static int cc20_crypt(struct lc_sym_state *ctx, const uint8_t *in,
 		      uint8_t *out, size_t len)
 {
+	int ret;
+
 	if (!ctx)
 		return -EINVAL;
 
 	if (!len)
 		return -EINVAL;
+
+	ret = cc20_check_overflow(ctx, len);
+	if (ret)
+		return ret;
 
 	cc20_crypt_remaining(ctx, &in, &out, &len);
 
@@ -378,6 +384,20 @@ int cc20_init_iv(const struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen)
 	return 0;
 }
 
+int cc20_check_overflow(struct lc_sym_state *ctx, size_t datalen)
+{
+	/*
+	 * According to RFC7539, only the IV of 32 bits shall be incremented.
+	 * Therefore, a check is mandatory that at most 2^32 - 1 blocks are
+	 * en/decrypted as otherwise the counter will wrap and a catastrophic
+	 * reuse of the IV with the same key will happen.
+	 */
+	if (ctx->datalen + datalen > (((1ULL << 32) - 1) * LC_CC20_BLOCK_SIZE))
+		return -EOVERFLOW;
+
+	ctx->datalen += datalen;
+	return 0;
+}
 
 int cc20_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen)
 {
@@ -403,6 +423,7 @@ int cc20_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen)
 	}
 
 	ctx->keystream_ptr = 0;
+	ctx->datalen = 0;
 
 	return 0;
 }

@@ -95,6 +95,7 @@ static int lc_chacha20_common(struct skcipher_request *req,
 				 nbytes & (~(CHACHA_BLOCK_SIZE - 1)));
 		if (err)
 			goto out;
+
 		nbytes &= CHACHA_BLOCK_SIZE - 1;
 
 		if (walk.nbytes == walk.total && nbytes > 0) {

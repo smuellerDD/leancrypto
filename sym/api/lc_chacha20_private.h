@@ -56,6 +56,7 @@ struct __attribute__((aligned(4))) lc_sym_state {
 		uint8_t b[LC_CC20_BLOCK_SIZE];
 	} keystream;
 	uint8_t keystream_ptr;
+	uint64_t datalen; // cipher data length processed so far
 };
 
 #define LC_CC20_STATE_SIZE_PRIVATE (sizeof(struct lc_sym_state))
@@ -74,6 +75,7 @@ static inline void cc20_init_constants(struct lc_sym_state *ctx)
 
 static inline void cc20_counter_overflow(struct lc_sym_state *ctx)
 {
+#if 0
 	if (ctx->counter[0] == 0) {
 		ctx->counter[1]++;
 		if (ctx->counter[1] == 0) {
@@ -82,6 +84,9 @@ static inline void cc20_counter_overflow(struct lc_sym_state *ctx)
 				ctx->counter[3]++;
 		}
 	}
+#else
+	(void)ctx;
+#endif
 }
 
 static inline void cc20_inc_counter(struct lc_sym_state *ctx)

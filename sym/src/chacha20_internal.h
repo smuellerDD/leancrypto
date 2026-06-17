@@ -35,18 +35,23 @@ extern "C" {
 void cc20_selftest(void);
 int cc20_setkey(struct lc_sym_state *ctx, const uint8_t *key, size_t keylen);
 int cc20_init_iv(const struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen);
+int cc20_check_overflow(struct lc_sym_state *ctx, size_t datalen);
 int cc20_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen);
 int cc20_getiv(const struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen);
 int cc20_init(struct lc_sym_state *ctx);
 void cc20_crypt_remaining(struct lc_sym_state *ctx, const uint8_t **in,
 			  uint8_t **out, size_t *len);
 
-static inline void cc20_crypt_asm(
+static inline int cc20_crypt_asm(
 	struct lc_sym_state *ctx, const uint8_t *in, uint8_t *out, size_t len,
 	void (*chacha20_asm)(uint8_t *out, const uint8_t *in, size_t len,
 			     const uint32_t key[8], const uint32_t counter[4]))
 {
 	size_t origlen = len;
+	int ret = cc20_check_overflow(ctx, len);
+
+	if (ret)
+		return ret;
 
 	/* Sanity check */
 	BUILD_BUG_ON(sizeof(struct lc_sym_state) != LC_CC20_STATE_SIZE);
@@ -94,6 +99,8 @@ static inline void cc20_crypt_asm(
 	/* Timecop: output is not sensitive regarding side-channels. */
 	(void)origlen;
 	unpoison(out, origlen);
+
+	return 0;
 }
 
 static inline int cc20_crypt_iv_asm(
@@ -115,7 +122,7 @@ static inline int cc20_crypt_iv_asm(
 	cc20_resetkey(&local_ctx);
 
 	/* Encrypt local context */
-	cc20_crypt_asm(&local_ctx, in, out, len, chacha20_asm);
+	CKINT(cc20_crypt_asm(&local_ctx, in, out, len, chacha20_asm));
 
 	/* Get the IV */
 	CKINT(cc20_getiv(&local_ctx, iv, ivlen));

@@ -45,6 +45,8 @@ Changes 1.8.0-prerelease
 
 * AEAD / Symmetric ciphers; add support for parallel use of cipher contexts - this fixes issues with the AES symmetric support in the Linux kernel
 
+* ChaCha20: increment only the 32 bit counter to be 100% compliant with RFC7539 - but that implies that for one given setiv only 2^32 - 1 bytes are allowed to be en/decrypted
+
 Changes 1.7.2
 * Fix RDSEED counter
 

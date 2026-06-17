@@ -35,22 +35,26 @@
 static int cc20_crypt_neon(struct lc_sym_state *ctx, const uint8_t *in,
 			   uint8_t *out, size_t len)
 {
+	int ret;
+
 	LC_NEON_ENABLE;
-	cc20_crypt_asm(ctx, in, out, len, ChaCha20_neon);
+	ret = cc20_crypt_asm(ctx, in, out, len, ChaCha20_neon);
 	LC_NEON_DISABLE;
 
-	return 0;
+	return ret;
 }
 
 static int cc20_crypt_iv_neon(const struct lc_sym_state *ctx, const uint8_t *in,
 			      uint8_t *out, size_t len, uint8_t *iv,
 			      size_t ivlen)
 {
+	int ret;
+
 	LC_NEON_ENABLE;
-	cc20_crypt_iv_asm(ctx, in, out, len, iv, ivlen, ChaCha20_neon);
+	ret = cc20_crypt_iv_asm(ctx, in, out, len, iv, ivlen, ChaCha20_neon);
 	LC_NEON_DISABLE;
 
-	return 0;
+	return ret;
 }
 
 static const struct lc_sym _lc_chacha20_neon = {

@@ -36,11 +36,10 @@
 static inline void ChaCha20AddCounter(uint32_t *State32bits,
 				      const uint32_t value_to_add)
 {
-	unsigned int overflow =
-		(0 - value_to_add) < State32bits[LC_CC20_KEY_SIZE_WORDS + 0];
-
 	State32bits[LC_CC20_KEY_SIZE_WORDS + 0] += value_to_add;
-	if (overflow) {
+
+#if 0
+	if ((0 - value_to_add) < State32bits[LC_CC20_KEY_SIZE_WORDS + 0]) {
 		State32bits[LC_CC20_KEY_SIZE_WORDS + 1]++;
 		if (State32bits[LC_CC20_KEY_SIZE_WORDS + 1] == 0) {
 			State32bits[LC_CC20_KEY_SIZE_WORDS + 2]++;
@@ -48,6 +47,7 @@ static inline void ChaCha20AddCounter(uint32_t *State32bits,
 				State32bits[LC_CC20_KEY_SIZE_WORDS + 3]++;
 		}
 	}
+#endif
 }
 
 static inline void PartialXor(const __m256i val, const uint8_t *Src,

@@ -32,14 +32,16 @@
 static int cc20_crypt_avx2(struct lc_sym_state *ctx, const uint8_t *in,
 			   uint8_t *out, size_t len)
 {
-	int ret;
+	int ret = cc20_check_overflow(ctx, len);
+
+	if (ret)
+		return ret;
 
 	/*
 	 * cc20_crypt_bytes_avx2 can handle the partial blocks, but we
 	 * deliberately handle partial blocks here as we want to keep the
 	 * unused keystream.
 	 */
-
 	cc20_crypt_remaining(ctx, &in, &out, &len);
 
 	while (len > LC_CC20_BLOCK_SIZE) {
