@@ -150,8 +150,7 @@ static int lc_cc20p1305_enc(struct aead_request *areq)
 	if (ret)
 		goto out;
 
-	ret = lc_kernel_aead_update(areq, areq->cryptlen, vola_ctx,
-				    lc_aead_enc_update);
+	ret = lc_kernel_aead_update(areq, vola_ctx, 1, lc_aead_enc_update);
 	if (ret)
 		goto out;
 
@@ -213,8 +212,7 @@ static int lc_cc20p1305_dec(struct aead_request *areq)
 	if (ret)
 		goto out;
 
-	ret = lc_kernel_aead_update(areq, areq->cryptlen - authsize,
-				    vola_ctx, lc_aead_dec_update);
+	ret = lc_kernel_aead_update(areq, vola_ctx, 0, lc_aead_dec_update);
 	if (ret)
 		goto out;
 

@@ -126,8 +126,7 @@ static int lc_aead_ascon_enc(struct aead_request *areq,
 
 	lc_aead_ascon_aad(areq, vola_ctx);
 
-	ret = lc_kernel_aead_update(areq, areq->cryptlen, vola_ctx,
-				    lc_aead_enc_update);
+	ret = lc_kernel_aead_update(areq, vola_ctx, 1, lc_aead_enc_update);
 	if (ret)
 		return ret;
 
@@ -168,9 +167,7 @@ static int lc_aead_ascon_dec(struct aead_request *areq,
 
 	lc_aead_ascon_aad(areq, vola_ctx);
 
-	ret = lc_kernel_aead_update(areq,
-				    areq->cryptlen - crypto_aead_authsize(aead),
-				    vola_ctx, lc_aead_dec_update);
+	ret = lc_kernel_aead_update(areq, vola_ctx, 0, lc_aead_dec_update);
 	if (ret)
 		return ret;
 

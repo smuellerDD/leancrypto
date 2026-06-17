@@ -30,8 +30,8 @@
 extern "C" {
 #endif
 
-int lc_kernel_aead_update(struct aead_request *areq, unsigned int nbytes,
-			  struct lc_aead_ctx *vola_ctx,
+int lc_kernel_aead_update(struct aead_request *areq,
+			  struct lc_aead_ctx *vola_ctx, int enc,
 			  int (*process)(struct lc_aead_ctx *ctx,
 					 const uint8_t *in, uint8_t *out,
 					 size_t datalen));

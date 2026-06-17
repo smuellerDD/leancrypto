@@ -17,17 +17,22 @@
  * DAMAGE.
  */
 
+#include <crypto/aes.h>
+#include <crypto/internal/skcipher.h>
+#include <linux/math.h>
+
 #include "leancrypto_kernel_aead_helper.h"
 
-int lc_kernel_aead_update(struct aead_request *areq, unsigned int nbytes,
-			  struct lc_aead_ctx *vola_ctx,
+int lc_kernel_aead_update(struct aead_request *areq,
+			  struct lc_aead_ctx *vola_ctx, int enc,
 			  int (*process)(struct lc_aead_ctx *ctx,
 					 const uint8_t *in, uint8_t *out,
 					 size_t datalen))
 {
 	struct scatterlist sg_src[2], sg_dst[2];
 	struct scatterlist *src, *dst;
-	struct scatter_walk src_walk, dst_walk;
+	struct skcipher_walk walk;
+	unsigned int nbytes;
 	int ret = 0;
 
 	/* Processing must take place even if datalen is zero */
@@ -38,63 +43,35 @@ int lc_kernel_aead_update(struct aead_request *areq, unsigned int nbytes,
 	else
 		dst = scatterwalk_ffwd(sg_dst, areq->dst, areq->assoclen);
 
-	scatterwalk_start(&src_walk, src);
-	scatterwalk_start(&dst_walk, dst);
+	if (enc)
+		ret = skcipher_walk_aead_encrypt(&walk, areq, false);
+	else
+		ret = skcipher_walk_aead_decrypt(&walk, areq, false);
+	if (ret)
+		return ret;
 
-	while (nbytes) {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 15, 0)
-
-		unsigned int stodo = scatterwalk_next(&src_walk, nbytes);
-		unsigned int dtodo = scatterwalk_next(&dst_walk, nbytes);
-		unsigned int todo = min(stodo, dtodo);
-
-		u8 *src_vaddr = src_walk.addr;
-		u8 *dst_vaddr = dst_walk.addr;
-
-		if (!todo)
-			return -EINVAL;
+	while (unlikely((nbytes = walk.nbytes) < walk.total)) {
+		/*
+		 * Non-last segment, multiple of AES_BLOCK_SIZE
+		 */
+		nbytes = round_down(nbytes, AES_BLOCK_SIZE);
 
 		/* Perform the work */
-		ret = process(vola_ctx, src_vaddr, dst_vaddr, todo);
-
-		scatterwalk_done_dst(&dst_walk, todo);
-		scatterwalk_done_src(&src_walk, todo);
-		if (ret)
-			return ret;
-
-		nbytes -= todo;
-
-#else
-		unsigned int todo =
-			min_t(unsigned int, scatterwalk_pagelen(&src_walk),
-			      scatterwalk_pagelen(&dst_walk));
-		u8 *src_vaddr, *dst_vaddr;
-		todo = min_t(unsigned int, nbytes, todo);
-
-		if (!todo)
-			return -EINVAL;
-
-		src_vaddr = scatterwalk_map(&src_walk);
-		dst_vaddr = scatterwalk_map(&dst_walk);
-
-		/* Perform the work */
-		ret = process(vola_ctx, src_vaddr, dst_vaddr, todo);
-
-		scatterwalk_unmap(src_vaddr);
-		scatterwalk_unmap(dst_vaddr);
+		ret = process(vola_ctx, walk.src.virt.addr, walk.dst.virt.addr,
+			      nbytes);
 
 		if (ret)
 			return ret;
-
-		scatterwalk_advance(&src_walk, todo);
-		scatterwalk_advance(&dst_walk, todo);
-		nbytes -= todo;
-
-		scatterwalk_pagedone(&src_walk, 0, nbytes);
-		scatterwalk_pagedone(&dst_walk, 1, nbytes);
-
-#endif
+		ret = skcipher_walk_done(&walk, walk.nbytes - nbytes);
+		if (ret)
+			return ret;
 	}
 
-	return ret;
+	/* Last segment: process all remaining data. */
+	ret = process(vola_ctx, walk.src.virt.addr, walk.dst.virt.addr,
+		      nbytes);
+	if (ret)
+		return ret;
+
+	return skcipher_walk_done(&walk, 0);
 }

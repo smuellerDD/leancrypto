@@ -125,8 +125,7 @@ static int lc_aes_gcm_enc(struct aead_request *areq)
 	if (ret)
 		goto out;
 
-	ret = lc_kernel_aead_update(areq, areq->cryptlen, vola_ctx,
-				    lc_aead_enc_update);
+	ret = lc_kernel_aead_update(areq, vola_ctx, 1, lc_aead_enc_update);
 	if (ret)
 		goto out;
 
@@ -186,9 +185,7 @@ static int lc_aes_gcm_dec(struct aead_request *areq)
 	if (ret)
 		goto out;
 
-	ret = lc_kernel_aead_update(areq,
-				    areq->cryptlen - crypto_aead_authsize(aead),
-				    vola_ctx, lc_aead_dec_update);
+	ret = lc_kernel_aead_update(areq, vola_ctx, 0, lc_aead_dec_update);
 	if (ret)
 		goto out;
 
@@ -371,8 +368,7 @@ static int lc_rfc4106_aes_gcm_enc(struct aead_request *areq)
 	if (ret)
 		goto out;
 
-	ret = lc_kernel_aead_update(areq, areq->cryptlen, vola_ctx,
-				    lc_aead_enc_update);
+	ret = lc_kernel_aead_update(areq, vola_ctx, 1, lc_aead_enc_update);
 	if (ret)
 		goto out;
 
@@ -413,9 +409,7 @@ static int lc_rfc4106_aes_gcm_dec(struct aead_request *areq)
 	if (ret)
 		goto out;
 
-	ret = lc_kernel_aead_update(areq,
-				    areq->cryptlen - crypto_aead_authsize(aead),
-				    vola_ctx, lc_aead_dec_update);
+	ret = lc_kernel_aead_update(areq, vola_ctx, 0, lc_aead_dec_update);
 	if (ret)
 		goto out;
 
