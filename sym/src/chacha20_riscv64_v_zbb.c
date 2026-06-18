@@ -47,10 +47,10 @@ static int cc20_crypt_iv_riscv64_v_zbb(const struct lc_sym_state *ctx,
 {
 	int ret;
 
-	LC_NEON_ENABLE;
+	LC_VECTOR_ENABLE;
 	ret = cc20_crypt_iv_asm(ctx, in, out, len, iv, ivlen,
 				ChaCha20_riscv64_v_zbb);
-	LC_NEON_DISABLE;
+	LC_VECTOR_DISABLE;
 
 	return ret;
 }

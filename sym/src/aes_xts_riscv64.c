@@ -53,7 +53,7 @@ static int aes_riscv64_xts_encrypt_iv(const struct lc_sym_state *ctx,
 static int aes_riscv64_xts_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 				   uint8_t *out, size_t len)
 {
-	lc_mode_xts_c->decrypt(&ctx->xts_state, in, out, len);
+	return lc_mode_xts_c->decrypt(&ctx->xts_state, in, out, len);
 }
 
 static int aes_riscv64_xts_decrypt_iv(const struct lc_sym_state *ctx,
