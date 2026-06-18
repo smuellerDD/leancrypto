@@ -89,17 +89,8 @@ int lc_ascon_setkey_int(void *state, const uint8_t *key, size_t keylen,
 	    !hash->sponge_rate)
 		return -EOPNOTSUPP;
 
-	/*
-	 * If we receive a NULL key, assume it was loaded before with
-	 * lc_ascon_load_key.
-	 */
-	if (!key) {
-		lc_ascon_zero_ex_key(ascon);
-		key = ascon->key;
-		keylen = ascon->keylen;
-	} else {
-		lc_ascon_zero(ascon);
-	}
+	CKNULL(key, -ENOKEY);
+	lc_ascon_zero(ascon);
 
 	if (noncelen < 16 || noncelen > keylen)
 		return -EINVAL;

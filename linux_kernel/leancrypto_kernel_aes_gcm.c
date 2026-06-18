@@ -125,7 +125,8 @@ static int lc_aes_gcm_enc(struct aead_request *areq)
 	if (ret)
 		goto out;
 
-	ret = lc_kernel_aead_update(areq, vola_ctx, 1, lc_aead_enc_update);
+	ret = lc_kernel_aead_update(areq, vola_ctx, 1, AES_BLOCKLEN,
+				    lc_aead_enc_update);
 	if (ret)
 		goto out;
 
@@ -185,7 +186,8 @@ static int lc_aes_gcm_dec(struct aead_request *areq)
 	if (ret)
 		goto out;
 
-	ret = lc_kernel_aead_update(areq, vola_ctx, 0, lc_aead_dec_update);
+	ret = lc_kernel_aead_update(areq, vola_ctx, 0, AES_BLOCKLEN,
+				    lc_aead_dec_update);
 	if (ret)
 		goto out;
 
@@ -368,7 +370,8 @@ static int lc_rfc4106_aes_gcm_enc(struct aead_request *areq)
 	if (ret)
 		goto out;
 
-	ret = lc_kernel_aead_update(areq, vola_ctx, 1, lc_aead_enc_update);
+	ret = lc_kernel_aead_update(areq, vola_ctx, 1, AES_BLOCKLEN,
+				    lc_aead_enc_update);
 	if (ret)
 		goto out;
 
@@ -409,7 +412,8 @@ static int lc_rfc4106_aes_gcm_dec(struct aead_request *areq)
 	if (ret)
 		goto out;
 
-	ret = lc_kernel_aead_update(areq, vola_ctx, 0, lc_aead_dec_update);
+	ret = lc_kernel_aead_update(areq, vola_ctx, 0, AES_BLOCKLEN,
+				    lc_aead_dec_update);
 	if (ret)
 		goto out;
 
@@ -442,6 +446,7 @@ static struct aead_alg lc_aes_gcm_algs[] = {
 		.exit = lc_aes_gcm_exit,
 		.ivsize = 12,
 		.maxauthsize = 16,
+		.chunksize = AES_BLOCKLEN,
 	}, {
 		.base = {
 			.cra_name = "rfc4106(gcm(aes))",
@@ -460,6 +465,7 @@ static struct aead_alg lc_aes_gcm_algs[] = {
 		.exit = lc_aes_gcm_exit,
 		.ivsize = LC_RFC4106_AES_GCM_IV_INVOCATION_FIELD_LEN,
 		.maxauthsize = 16,
+		.chunksize = AES_BLOCKLEN,
 	},
 };
 

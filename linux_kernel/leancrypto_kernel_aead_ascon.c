@@ -30,6 +30,13 @@
 #include "leancrypto_kernel.h"
 #include "leancrypto_kernel_aead_helper.h"
 
+/*
+ * Define a block size - considering that Ascon AEAD operates Sponge-rate-wise
+ * where the Sponge itself does not operate on blocks, this value is rather
+ * superficial, but it makes the kernel crypto API happy.
+ */
+#define LC_ASCON_AEAD_BLOCKSIZE (16)
+
 /* Re-implement lc_ascon_aad */
 static void lc_aead_ascon_aad(struct aead_request *areq,
 			      struct lc_aead_ctx *vola_ctx)
@@ -126,7 +133,8 @@ static int lc_aead_ascon_enc(struct aead_request *areq,
 
 	lc_aead_ascon_aad(areq, vola_ctx);
 
-	ret = lc_kernel_aead_update(areq, vola_ctx, 1, lc_aead_enc_update);
+	ret = lc_kernel_aead_update(areq, vola_ctx, 1, LC_ASCON_AEAD_BLOCKSIZE,
+				    lc_aead_enc_update);
 	if (ret)
 		return ret;
 
@@ -167,7 +175,8 @@ static int lc_aead_ascon_dec(struct aead_request *areq,
 
 	lc_aead_ascon_aad(areq, vola_ctx);
 
-	ret = lc_kernel_aead_update(areq, vola_ctx, 0, lc_aead_dec_update);
+	ret = lc_kernel_aead_update(areq, vola_ctx, 0, LC_ASCON_AEAD_BLOCKSIZE,
+				    lc_aead_dec_update);
 	if (ret)
 		return ret;
 
@@ -178,27 +187,14 @@ static int lc_aead_ascon_setkey(struct crypto_aead *aead, const u8 *key,
 				unsigned int keylen)
 {
 	struct lc_aead_ctx *ctx = crypto_aead_ctx(aead);
-	struct lc_ascon_cryptor *ascon = ctx->aead_state;
 
-	/*
-	 * Only load the key, but do not initialize the Ascon state yet. It
-	 * will be initialized at the time the actual cipher operation will
-	 * be performed. The goal is to allow the setting of the authsize (i.e.
-	 * the tag length) after the setkey API is called.
-	 */
-	return lc_ascon_load_key(ascon, key, keylen);
+	return lc_aead_setkey(ctx, key, keylen, NULL, 0);
 }
 
 static int lc_aead_setauthsize(struct crypto_aead *aead, unsigned int authsize)
 {
-	struct lc_aead_ctx *ctx = crypto_aead_ctx(aead);
-	struct lc_ascon_cryptor *ascon = ctx->aead_state;
-
 	if (authsize < 16)
 		return -EINVAL;
-
-	ascon->taglen = authsize;
-
 	return 0;
 }
 
@@ -234,7 +230,9 @@ static int lc_aead_ascon_call_ascon128(
 	LC_ASCON_SET_CTX(vola_ctx, lc_ascon_128a, lc_ascon_aead);
 	ascon_crypto = vola_ctx->aead_state;
 	ascon_crypto->statesize = LC_ASCON_HASH_STATE_SIZE;
-	ascon_crypto->taglen = crypto_aead_maxauthsize(aead);
+	ascon_crypto->taglen = crypto_aead_authsize(aead);
+	if (!ascon_crypto->taglen)
+		crypto_aead_maxauthsize(aead);
 
 	ret = encdec(areq, vola_ctx);
 
@@ -282,7 +280,9 @@ static int lc_aead_ascon_call_keccak256(
 	LC_ASCON_SET_CTX(vola_ctx, lc_sha3_256, lc_ascon_keccak_aead);
 	ascon_crypto = vola_ctx->aead_state;
 	ascon_crypto->statesize = LC_SHA3_STATE_SIZE;
-	ascon_crypto->taglen = crypto_aead_maxauthsize(aead);
+	ascon_crypto->taglen = crypto_aead_authsize(aead);
+	if (!ascon_crypto->taglen)
+		crypto_aead_maxauthsize(aead);
 
 	ret = encdec(areq, vola_ctx);
 
@@ -326,7 +326,9 @@ static int lc_aead_ascon_call_keccak512(
 	LC_ASCON_SET_CTX(vola_ctx, lc_sha3_512, lc_ascon_keccak_aead);
 	ascon_crypto = vola_ctx->aead_state;
 	ascon_crypto->statesize = LC_SHA3_STATE_SIZE;
-	ascon_crypto->taglen = crypto_aead_maxauthsize(aead);
+	ascon_crypto->taglen = crypto_aead_authsize(aead);
+	if (!ascon_crypto->taglen)
+		crypto_aead_maxauthsize(aead);
 
 	ret = encdec(areq, vola_ctx);
 
@@ -370,6 +372,7 @@ static struct aead_alg lc_aead_algs[] = {
 		.exit = lc_aead_exit,
 		.ivsize = 16,
 		.maxauthsize = 16,
+		.chunksize = LC_ASCON_AEAD_BLOCKSIZE,
 	},
 #endif
 #ifdef LC_ASCON_KECCAK
@@ -390,6 +393,7 @@ static struct aead_alg lc_aead_algs[] = {
 		.exit = lc_aead_exit,
 		.ivsize = 16,
 		.maxauthsize = 32,
+		.chunksize = LC_ASCON_AEAD_BLOCKSIZE,
 	}, {
 		.base = {
 			.cra_name = "ascon-aead-keccak512",
@@ -407,6 +411,7 @@ static struct aead_alg lc_aead_algs[] = {
 		.exit = lc_aead_exit,
 		.ivsize = 16,
 		.maxauthsize = 64,
+		.chunksize = LC_ASCON_AEAD_BLOCKSIZE,
 	}
 #endif
 };

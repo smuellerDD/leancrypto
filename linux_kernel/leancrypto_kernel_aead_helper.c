@@ -25,23 +25,14 @@
 
 int lc_kernel_aead_update(struct aead_request *areq,
 			  struct lc_aead_ctx *vola_ctx, int enc,
+			  unsigned int blocksize,
 			  int (*process)(struct lc_aead_ctx *ctx,
 					 const uint8_t *in, uint8_t *out,
 					 size_t datalen))
 {
-	struct scatterlist sg_src[2], sg_dst[2];
-	struct scatterlist *src, *dst;
 	struct skcipher_walk walk;
 	unsigned int nbytes;
 	int ret = 0;
-
-	/* Processing must take place even if datalen is zero */
-
-	src = scatterwalk_ffwd(sg_src, areq->src, areq->assoclen);
-	if (areq->src == areq->dst)
-		dst = src;
-	else
-		dst = scatterwalk_ffwd(sg_dst, areq->dst, areq->assoclen);
 
 	if (enc)
 		ret = skcipher_walk_aead_encrypt(&walk, areq, false);
@@ -52,9 +43,9 @@ int lc_kernel_aead_update(struct aead_request *areq,
 
 	while (unlikely((nbytes = walk.nbytes) < walk.total)) {
 		/*
-		 * Non-last segment, multiple of AES_BLOCK_SIZE
+		 * Non-last segment, multiple of blocksize
 		 */
-		nbytes = round_down(nbytes, AES_BLOCK_SIZE);
+		nbytes &= ~(blocksize - 1);
 
 		/* Perform the work */
 		ret = process(vola_ctx, walk.src.virt.addr, walk.dst.virt.addr,
@@ -68,10 +59,12 @@ int lc_kernel_aead_update(struct aead_request *areq,
 	}
 
 	/* Last segment: process all remaining data. */
-	ret = process(vola_ctx, walk.src.virt.addr, walk.dst.virt.addr,
-		      nbytes);
+	ret = process(vola_ctx, walk.src.virt.addr, walk.dst.virt.addr, nbytes);
 	if (ret)
 		return ret;
 
-	return skcipher_walk_done(&walk, 0);
+	if (nbytes)
+		ret = skcipher_walk_done(&walk, 0);
+
+	return ret;
 }

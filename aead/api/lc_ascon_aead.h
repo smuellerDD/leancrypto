@@ -53,18 +53,6 @@ struct lc_ascon_cryptor {
 			  hashname,                                            \
 			  ((struct lc_ascon_cryptor *)name->aead_state),       \
 			  (sizeof(struct lc_ascon_cryptor)))
-
-static inline int lc_ascon_load_key(struct lc_ascon_cryptor *ascon,
-				    const uint8_t *key, size_t keylen)
-{
-	if (ascon && keylen < LC_ASCON_MAX_KEYSIZE) {
-		memcpy(ascon->key, key, keylen);
-		ascon->keylen = (uint8_t)keylen;
-		return 0;
-	}
-	return -EINVAL;
-}
-
 /*
  * This function adds the padding byte with which the AAD as well as the
  * plaintext is appended with.

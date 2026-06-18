@@ -150,7 +150,7 @@ static int lc_cc20p1305_enc(struct aead_request *areq)
 	if (ret)
 		goto out;
 
-	ret = lc_kernel_aead_update(areq, vola_ctx, 1, lc_aead_enc_update);
+	ret = lc_kernel_aead_update(areq, vola_ctx, 1, CHACHA_BLOCK_SIZE, lc_aead_enc_update);
 	if (ret)
 		goto out;
 
@@ -212,7 +212,7 @@ static int lc_cc20p1305_dec(struct aead_request *areq)
 	if (ret)
 		goto out;
 
-	ret = lc_kernel_aead_update(areq, vola_ctx, 0, lc_aead_dec_update);
+	ret = lc_kernel_aead_update(areq, vola_ctx, 0, CHACHA_BLOCK_SIZE, lc_aead_dec_update);
 	if (ret)
 		goto out;
 
@@ -287,6 +287,7 @@ static struct aead_alg lc_cc20p1305_algs[] = {
 		.exit = lc_cc20p1305_exit,
 		.ivsize = CHACHAPOLY_IV_SIZE,
 		.maxauthsize = POLY1305_DIGEST_SIZE,
+		.chunksize = CHACHA_BLOCK_SIZE,
 	}, {
 		.base = {
 			.cra_name = "rfc7539esp(chacha20,poly1305)",
@@ -305,6 +306,7 @@ static struct aead_alg lc_cc20p1305_algs[] = {
 		.exit = lc_cc20p1305_exit,
 		.ivsize = CHACHAPOLY_IV_SIZE - LC_RFC7539ESP_CC20P1305_SALT_LEN,
 		.maxauthsize = POLY1305_DIGEST_SIZE,
+		.chunksize = CHACHA_BLOCK_SIZE,
 	},
 };
 
