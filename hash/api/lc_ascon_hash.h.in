@@ -53,7 +53,7 @@ struct lc_ascon_hash {
 };
 
 #define LC_ASCON_STATE_SIZE (sizeof(struct lc_ascon_hash))
-#define LC_ASCON_CTX_SIZE (sizeof(struct lc_hash) + LC_ASCON_STATE_SIZE)
+#define LC_ASCON_CTX_SIZE (LC_HASH_CTX_SIZE)
 
 #define LC_ASCON_CTX(name, ascon)                                              \
 	LC_HASH_SET_CTX(name, ascon);                                          \
@@ -63,7 +63,7 @@ struct lc_ascon_hash {
 	_Pragma("GCC diagnostic push")                                              \
 		_Pragma("GCC diagnostic ignored \"-Wdeclaration-after-statement\"") \
 		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")                  \
-			LC_ALIGNED_BUFFER(name##_ctx_buf, LC_HASH_CTX_SIZE,         \
+			LC_ALIGNED_BUFFER(name##_ctx_buf, LC_ASCON_CTX_SIZE,        \
 					  LC_HASH_COMMON_ALIGNMENT);                \
 	struct lc_hash_ctx *name = (struct lc_hash_ctx *)name##_ctx_buf;            \
 	LC_ASCON_CTX(name, ascon);                                                  \
