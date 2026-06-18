@@ -83,7 +83,7 @@ static noinline int lc_aes_xts_slowpath(
 	err = skcipher_walk_virt(&walk, req, false);
 
 	while (walk.nbytes) {
-		unsigned int nbytes = walk.nbytes & ~(2 * AES_BLOCK_SIZE - 1);
+		unsigned int nbytes = walk.nbytes & ~(AES_BLOCK_SIZE - 1);
 
 		if (nbytes) {
 			err = crypt_func(ctx, walk.src.virt.addr,
@@ -92,7 +92,7 @@ static noinline int lc_aes_xts_slowpath(
 			if (err)
 				return err;
 			err = skcipher_walk_done(
-				&walk, walk.nbytes & (2 * AES_BLOCK_SIZE - 1));
+				&walk, walk.nbytes & (AES_BLOCK_SIZE - 1));
 		} else {
 			err = skcipher_walk_done(&walk, walk.nbytes);
 		}
@@ -193,7 +193,7 @@ static struct skcipher_alg lc_aes_xts_skciphers[] = {
 		.min_keysize = 2 * AES_MIN_KEY_SIZE,
 		.max_keysize = 2 * AES_MAX_KEY_SIZE,
 		.ivsize	 = AES_BLOCK_SIZE,
-		.walksize = 2 * AES_BLOCK_SIZE,
+		.chunksize = 2 * AES_BLOCK_SIZE,
 		.setkey = lc_aes_xts_setkey,
 		.encrypt = lc_aes_xts_encrypt,
 		.decrypt = lc_aes_xts_decrypt,

@@ -500,7 +500,7 @@ static int mode_xts_init_iv(const struct lc_mode_state *ctx, uint8_t *iv,
 		return -EINVAL;
 
 	wrapped_cipher = ctx->wrapped_cipher;
-	if (!wrapped_cipher)
+	if (!wrapped_cipher || !ctx->tweak_cipher_ctx)
 		return -EINVAL;
 	return wrapped_cipher->encrypt(ctx->tweak_cipher_ctx, iv, iv,
 				       AES_BLOCKLEN);
@@ -521,7 +521,7 @@ static int mode_xts_setiv(struct lc_mode_state *ctx, const uint8_t *iv,
 	 * be set with the setkey call.
 	 */
 	wrapped_cipher = ctx->wrapped_cipher;
-	if (!wrapped_cipher)
+	if (!wrapped_cipher || !ctx->tweak_cipher_ctx)
 		return -EINVAL;
 	return wrapped_cipher->encrypt(ctx->tweak_cipher_ctx, ctx->tweak.b,
 				       ctx->tweak.b, AES_BLOCKLEN);
