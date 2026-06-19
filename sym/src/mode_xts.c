@@ -169,22 +169,23 @@ out2:
 }
 
 static void xts_enc_block(const struct lc_mode_state *ctx,
-			  uint8_t block[AES_BLOCKLEN],
-			  union lc_xts_tweak *tweak)
+			  uint8_t out[AES_BLOCKLEN],
+			  const uint8_t in[AES_BLOCKLEN],
+			  const union lc_xts_tweak *tweak)
 {
 	const struct lc_sym *wrapped_cipher = ctx->wrapped_cipher;
 
-	xor_64(block, tweak->b, AES_BLOCKLEN);
+	xor_64_3(out, in, tweak->b, AES_BLOCKLEN);
 
 	/*
 	 * Timecop: C implementation of AES has side channel problems as
 	 * outlined in aes_block.c:aes_setkey
 	 */
-	unpoison(block, AES_BLOCKLEN);
+	unpoison(out, AES_BLOCKLEN);
 
-	wrapped_cipher->encrypt(ctx->wrapped_cipher_ctx, block, block,
+	wrapped_cipher->encrypt(ctx->wrapped_cipher_ctx, out, out,
 				AES_BLOCKLEN);
-	xor_64(block, tweak->b, AES_BLOCKLEN);
+	xor_64(out, tweak->b, AES_BLOCKLEN);
 }
 
 static int mode_xts_encrypt_iv_internal(const struct lc_mode_state *ctx,
@@ -200,14 +201,11 @@ static int mode_xts_encrypt_iv_internal(const struct lc_mode_state *ctx,
 	if (rounded_len < AES_BLOCKLEN)
 		return -EINVAL;
 
-	if (in != out)
-		memcpy(out, in, len);
-
 	/* Encryption of all AES blocks except the last two */
 	for (i = 0; i < rounded_len - AES_BLOCKLEN;
-	     i += AES_BLOCKLEN, out += AES_BLOCKLEN) {
+	     i += AES_BLOCKLEN, out += AES_BLOCKLEN, in += AES_BLOCKLEN) {
 		/* Encrypt */
-		xts_enc_block(ctx, out, tweak);
+		xts_enc_block(ctx, out, in, tweak);
 		/* Increment the tweak */
 		gfmul_alpha(tweak);
 	}
@@ -217,7 +215,7 @@ static int mode_xts_encrypt_iv_internal(const struct lc_mode_state *ctx,
 		 * Encrypt the last block, out already points to the right
 		 * memory location
 		 */
-		xts_enc_block(ctx, out, tweak);
+		xts_enc_block(ctx, out, in, tweak);
 
 		/* Update the tweak to allow stream mode operation */
 		gfmul_alpha(tweak);
@@ -230,18 +228,16 @@ static int mode_xts_encrypt_iv_internal(const struct lc_mode_state *ctx,
 		uint8_t CC[AES_BLOCKLEN] __align(sizeof(uint64_t)),
 			PP[AES_BLOCKLEN] __align(sizeof(uint64_t));
 
-		/* Get last full block */
-		memcpy(CC, out, AES_BLOCKLEN);
-		/* Encrypt */
-		xts_enc_block(ctx, CC, tweak);
+		/* Encrypt last full block */
+		xts_enc_block(ctx, CC, in, tweak);
 		gfmul_alpha(tweak);
 
 		/* Get the final partial block */
-		memcpy(PP, out + AES_BLOCKLEN, b);
+		memcpy(PP, in + AES_BLOCKLEN, b);
 		/* Add the ciphertext from the last full block */
 		memcpy(PP + b, CC + b, AES_BLOCKLEN - b);
 		/* Encrypt */
-		xts_enc_block(ctx, PP, tweak);
+		xts_enc_block(ctx, PP, PP, tweak);
 		/*
 		 * Final tweak increment not needed any more - when we reach
 		 * this code, we got the final block. Thus, a stream mode
@@ -297,22 +293,23 @@ static int mode_xts_encrypt(struct lc_mode_state *ctx, const uint8_t *in,
 }
 
 static void xts_dec_block(const struct lc_mode_state *ctx,
-			  uint8_t block[AES_BLOCKLEN],
-			  union lc_xts_tweak *tweak)
+			  uint8_t out[AES_BLOCKLEN],
+			  const uint8_t in[AES_BLOCKLEN],
+			  const union lc_xts_tweak *tweak)
 {
 	const struct lc_sym *wrapped_cipher = ctx->wrapped_cipher;
 
-	xor_64(block, tweak->b, AES_BLOCKLEN);
+	xor_64_3(out, in, tweak->b, AES_BLOCKLEN);
 
 	/*
 	 * Timecop: C implementation of AES has side channel problems as
 	 * outlined in aes_block.c:aes_setkey
 	 */
-	unpoison(block, AES_BLOCKLEN);
+	unpoison(out, AES_BLOCKLEN);
 
-	wrapped_cipher->decrypt(ctx->wrapped_cipher_ctx, block, block,
+	wrapped_cipher->decrypt(ctx->wrapped_cipher_ctx, out, out,
 				AES_BLOCKLEN);
-	xor_64(block, tweak->b, AES_BLOCKLEN);
+	xor_64(out, tweak->b, AES_BLOCKLEN);
 }
 
 static int mode_xts_decrypt_iv_internal(const struct lc_mode_state *ctx,
@@ -328,14 +325,11 @@ static int mode_xts_decrypt_iv_internal(const struct lc_mode_state *ctx,
 	if (rounded_len < AES_BLOCKLEN)
 		return -EINVAL;
 
-	if (in != out)
-		memcpy(out, in, len);
-
 	/* Decryption of all AES blocks except the last two */
 	for (i = 0; i < rounded_len - AES_BLOCKLEN;
-	     i += AES_BLOCKLEN, out += AES_BLOCKLEN) {
+	     i += AES_BLOCKLEN, out += AES_BLOCKLEN, in += AES_BLOCKLEN) {
 		/* Decrypt */
-		xts_dec_block(ctx, out, tweak);
+		xts_dec_block(ctx, out, in, tweak);
 		/* Update the tweak */
 		gfmul_alpha(tweak);
 	}
@@ -345,7 +339,7 @@ static int mode_xts_decrypt_iv_internal(const struct lc_mode_state *ctx,
 		 * Decrypt the last block, out already points to the right
 		 * memory location
 		 */
-		xts_dec_block(ctx, out, tweak);
+		xts_dec_block(ctx, out, in, tweak);
 
 		/* Update the tweak to allow stream mode operation */
 		gfmul_alpha(tweak);
@@ -357,19 +351,17 @@ static int mode_xts_decrypt_iv_internal(const struct lc_mode_state *ctx,
 
 		memcpy(tweak_local.b, tweak->b, AES_BLOCKLEN);
 
-		/* Get last full block */
-		memcpy(PP, out, AES_BLOCKLEN);
 		/* We need the tweak of the last iteration for the decryption */
 		gfmul_alpha(&tweak_local);
-		/* Decryption using the last tweak */
-		xts_dec_block(ctx, PP, &tweak_local);
+		/* Decryption using the last tweak and the last full block */
+		xts_dec_block(ctx, PP, in, &tweak_local);
 
 		/* Get the final partial block */
-		memcpy(CC, out + AES_BLOCKLEN, b);
+		memcpy(CC, in + AES_BLOCKLEN, b);
 		/* Add the plaintext from the last full block */
 		memcpy(CC + b, PP + b, AES_BLOCKLEN - b);
 		/* Decryption using the last but one tweak */
-		xts_dec_block(ctx, CC, tweak);
+		xts_dec_block(ctx, CC, CC, tweak);
 		/*
 		 * Final tweak increment not needed any more - when we reach
 		 * this code, we got the final block. Thus, a stream mode
