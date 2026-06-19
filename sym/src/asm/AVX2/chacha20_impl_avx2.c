@@ -57,9 +57,9 @@ static inline void PartialXor(const __m256i val, const uint8_t *Src,
 	memcpy(BuffForPartialOp, Src, Size);
 	_mm256_storeu_si256(
 		(__m256i_u *)(BuffForPartialOp),
-		_mm256_xor_si256(
-			val,
-			_mm256_loadu_si256((const __m256i_u *)BuffForPartialOp)));
+		_mm256_xor_si256(val,
+				 _mm256_loadu_si256(
+					 (const __m256i_u *)BuffForPartialOp)));
 	memcpy(Dest, BuffForPartialOp, Size);
 }
 
@@ -139,7 +139,7 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 	for (uint64_t n = 0; n < FullBlocksCount; n++) {
 		ws->state3 = _mm256_broadcastsi128_si256(_mm_loadu_si128(
 			(const __m128i_u *)(state +
-					  LC_CC20_AVX2_STATE_OFFSET(32))));
+					    LC_CC20_AVX2_STATE_OFFSET(32))));
 
 		ws->X0_0 = ws->state0;
 		ws->X0_1 = ws->state1;
@@ -366,12 +366,13 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 		if (in) {
 			_mm256_storeu_si256(
 				(__m256i_u *)(CurrentOut + 0 * 32),
-				_mm256_xor_si256(_mm256_permute2x128_si256(
-							 ws->X0_0, ws->X0_1,
-							 1 + (3 << 4)),
-						 _mm256_loadu_si256(
-							 (const __m256i_u *)(CurrentIn +
-								     0 * 32))));
+				_mm256_xor_si256(
+					_mm256_permute2x128_si256(ws->X0_0,
+								  ws->X0_1,
+								  1 + (3 << 4)),
+					_mm256_loadu_si256(
+						(const __m256i_u *)(CurrentIn +
+								    0 * 32))));
 			_mm256_storeu_si256(
 				(__m256i_u *)(CurrentOut + 1 * 32),
 				_mm256_xor_si256(
@@ -380,16 +381,16 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 								  1 + (3 << 4)),
 					_mm256_loadu_si256(
 						(const __m256i_u *)(CurrentIn +
-								  1 * 32))));
+								    1 * 32))));
 			_mm256_storeu_si256(
 				(__m256i_u *)(CurrentOut + 2 * 32),
 				_mm256_xor_si256(
 					_mm256_permute2x128_si256(ws->X1_0,
 								  ws->X1_1,
 								  1 + (3 << 4)),
-					_mm256_loadu_si256(
-						((const __m256i_u *)(CurrentIn +
-								   2 * 32)))));
+					_mm256_loadu_si256((
+						(const __m256i_u *)(CurrentIn +
+								    2 * 32)))));
 			_mm256_storeu_si256(
 				(__m256i_u *)(CurrentOut + 3 * 32),
 				_mm256_xor_si256(
@@ -398,7 +399,7 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 								  1 + (3 << 4)),
 					_mm256_loadu_si256(
 						(const __m256i_u *)(CurrentIn +
-								  3 * 32))));
+								    3 * 32))));
 
 			_mm256_storeu_si256(
 				(__m256i_u *)(CurrentOut + 4 * 32),
@@ -408,7 +409,7 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 								  1 + (3 << 4)),
 					_mm256_loadu_si256(
 						(const __m256i_u *)(CurrentIn +
-								  4 * 32))));
+								    4 * 32))));
 			_mm256_storeu_si256(
 				(__m256i_u *)(CurrentOut + 5 * 32),
 				_mm256_xor_si256(
@@ -417,7 +418,7 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 								  1 + (3 << 4)),
 					_mm256_loadu_si256(
 						(const __m256i_u *)(CurrentIn +
-								  5 * 32))));
+								    5 * 32))));
 			_mm256_storeu_si256(
 				(__m256i_u *)(CurrentOut + 6 * 32),
 				_mm256_xor_si256(
@@ -426,7 +427,7 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 								  1 + (3 << 4)),
 					_mm256_loadu_si256(
 						(const __m256i_u *)(CurrentIn +
-								  6 * 32))));
+								    6 * 32))));
 			_mm256_storeu_si256(
 				(__m256i_u *)(CurrentOut + 7 * 32),
 				_mm256_xor_si256(
@@ -435,7 +436,7 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 								  1 + (3 << 4)),
 					_mm256_loadu_si256(
 						(const __m256i_u *)(CurrentIn +
-								  7 * 32))));
+								    7 * 32))));
 
 			_mm256_storeu_si256(
 				(__m256i_u *)(CurrentOut + 8 * 32),
@@ -445,7 +446,7 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 								  0 + (2 << 4)),
 					_mm256_loadu_si256(
 						(const __m256i_u *)(CurrentIn +
-								  8 * 32))));
+								    8 * 32))));
 			_mm256_storeu_si256(
 				(__m256i_u *)(CurrentOut + 9 * 32),
 				_mm256_xor_si256(
@@ -454,7 +455,7 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 								  0 + (2 << 4)),
 					_mm256_loadu_si256(
 						(const __m256i_u *)(CurrentIn +
-								  9 * 32))));
+								    9 * 32))));
 			_mm256_storeu_si256(
 				(__m256i_u *)(CurrentOut + 10 * 32),
 				_mm256_xor_si256(
@@ -463,7 +464,7 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 								  0 + (2 << 4)),
 					_mm256_loadu_si256(
 						(const __m256i_u *)(CurrentIn +
-								  10 * 32))));
+								    10 * 32))));
 			_mm256_storeu_si256(
 				(__m256i_u *)(CurrentOut + 11 * 32),
 				_mm256_xor_si256(
@@ -472,7 +473,7 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 								  0 + (2 << 4)),
 					_mm256_loadu_si256(
 						(const __m256i_u *)(CurrentIn +
-								  11 * 32))));
+								    11 * 32))));
 
 			_mm256_storeu_si256(
 				(__m256i_u *)(CurrentOut + 12 * 32),
@@ -482,7 +483,7 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 								  0 + (2 << 4)),
 					_mm256_loadu_si256(
 						(const __m256i_u *)(CurrentIn +
-								  12 * 32))));
+								    12 * 32))));
 			_mm256_storeu_si256(
 				(__m256i_u *)(CurrentOut + 13 * 32),
 				_mm256_xor_si256(
@@ -491,7 +492,7 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 								  0 + (2 << 4)),
 					_mm256_loadu_si256(
 						(const __m256i_u *)(CurrentIn +
-								  13 * 32))));
+								    13 * 32))));
 			_mm256_storeu_si256(
 				(__m256i_u *)(CurrentOut + 14 * 32),
 				_mm256_xor_si256(
@@ -500,7 +501,7 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 								  0 + (2 << 4)),
 					_mm256_loadu_si256(
 						(const __m256i_u *)(CurrentIn +
-								  14 * 32))));
+								    14 * 32))));
 			_mm256_storeu_si256(
 				(__m256i_u *)(CurrentOut + 15 * 32),
 				_mm256_xor_si256(
@@ -509,7 +510,7 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 								  0 + (2 << 4)),
 					_mm256_loadu_si256(
 						(const __m256i_u *)(CurrentIn +
-								  15 * 32))));
+								    15 * 32))));
 		} else {
 			_mm256_storeu_si256(
 				(__m256i_u *)(CurrentOut + 0 * 32),
@@ -597,7 +598,7 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 	while (1) {
 		ws->state3 = _mm256_broadcastsi128_si256(_mm_loadu_si128(
 			(const __m128i_u *)(state +
-					  LC_CC20_AVX2_STATE_OFFSET(32))));
+					    LC_CC20_AVX2_STATE_OFFSET(32))));
 
 		ws->X0_0 = ws->state0;
 		ws->X0_1 = ws->state1;
@@ -683,7 +684,8 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 							ws->X0_0, ws->X0_1,
 							1 + (3 << 4)),
 						_mm256_loadu_si256(
-							(const __m256i_u *)(CurrentIn +
+							(const __m256i_u
+								 *)(CurrentIn +
 								    0 * 32))));
 				_mm256_storeu_si256(
 					(__m256i_u *)(CurrentOut + 1 * 32),

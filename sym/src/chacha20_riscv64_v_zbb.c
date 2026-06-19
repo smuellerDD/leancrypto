@@ -28,9 +28,8 @@
 
 #include "asm/riscv64/chacha20_asm_riscv64_v_zbb.h"
 
-static int cc20_crypt_riscv64_v_zbb(struct lc_sym_state *ctx,
-				    const uint8_t *in, uint8_t *out,
-				    size_t len)
+static int cc20_crypt_riscv64_v_zbb(struct lc_sym_state *ctx, const uint8_t *in,
+				    uint8_t *out, size_t len)
 {
 	int ret;
 

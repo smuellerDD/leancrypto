@@ -234,14 +234,18 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 #ifdef LC_CHACHA20
 		,
 		(lc_chacha20_neon && lc_chacha20_neon != lc_chacha20_c) ?
-			"Neon " : "",
+			"Neon " :
+			"",
 		(lc_chacha20_avx512 && lc_chacha20_avx512 != lc_chacha20_c) ?
-			"AVX512 " : "",
+			"AVX512 " :
+			"",
 		(lc_chacha20_avx2 && lc_chacha20_avx2 != lc_chacha20_c) ?
-			"AVX2 " : "",
+			"AVX2 " :
+			"",
 		(lc_chacha20_riscv64_v_zbb &&
-		 lc_chacha20_riscv64_v_zbb != lc_chacha20_c) ? "RISCV64-Zbb " :
-							       ""
+		 lc_chacha20_riscv64_v_zbb != lc_chacha20_c) ?
+			"RISCV64-Zbb " :
+			""
 #endif
 
 	/* SHA2-256 */

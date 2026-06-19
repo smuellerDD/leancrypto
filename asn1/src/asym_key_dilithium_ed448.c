@@ -334,9 +334,8 @@ int public_key_verify_signature_dilithium_ed448(
 	}
 	CKINT(lc_dilithium_ed448_verify_update(&ws->sign_ctx, data_ptr,
 					       data_len));
-	CKINT_HARDENED(lc_dilithium_ed448_verify_final(&ws->dilithium_sig,
-						       &ws->sign_ctx,
-						       &ws->dilithium_pk));
+	CKINT_HARDENED(lc_dilithium_ed448_verify_final(
+		&ws->dilithium_sig, &ws->sign_ctx, &ws->dilithium_pk));
 
 out:
 	LC_RELEASE_MEM(ws);

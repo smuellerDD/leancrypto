@@ -631,7 +631,7 @@ out:
 }
 
 static int lc_cc_encrypt(void *state, const uint8_t *plaintext,
-			  uint8_t *ciphertext, size_t datalen)
+			 uint8_t *ciphertext, size_t datalen)
 {
 	struct lc_cc_cryptor *cc = state;
 	struct lc_cshake_ctx *auth_ctx;
@@ -751,8 +751,8 @@ static void lc_cc_zero(void *state)
 	lc_hash_zero(&cc->cshake);
 	lc_cshake_ctx_zero(&cc->auth_ctx);
 	cc->keystream_ptr = 0;
-	lc_memset_secure(cc->keystream, 0, LC_CSHAKE_CRYPT_ALIGNMENT +
-					   LC_CC_KEYSTREAM_BLOCK);
+	lc_memset_secure(cc->keystream, 0,
+			 LC_CSHAKE_CRYPT_ALIGNMENT + LC_CC_KEYSTREAM_BLOCK);
 }
 
 static const struct lc_aead _lc_cshake_aead = {

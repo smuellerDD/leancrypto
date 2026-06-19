@@ -114,7 +114,7 @@ int lc_sphincs_verify_ctx_nocheck(const struct lc_sphincs_sig *sig,
 				  size_t mlen, const struct lc_sphincs_pk *pk)
 {
 	struct workspace {
-		uint8_t pk_aligned[sizeof(pk->pk)]__align(sizeof(uint64_t));
+		uint8_t pk_aligned[sizeof(pk->pk)] __align(sizeof(uint64_t));
 		uint64_t tree;
 		uint32_t idx_leaf;
 		uint32_t wots_addr[8];
@@ -127,7 +127,8 @@ int lc_sphincs_verify_ctx_nocheck(const struct lc_sphincs_sig *sig,
 	};
 	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
 	unsigned int i;
-	const struct lc_sphincs_sigver_func_ctx *f_ctx = lc_sphincs_sigver_get_ctx();
+	const struct lc_sphincs_sigver_func_ctx *f_ctx =
+		lc_sphincs_sigver_get_ctx();
 	spx_ctx ctx_int;
 	const uint8_t *pub_root = pk->pk + LC_SPX_N;
 	const uint8_t *wots_sig = sig->sight;
@@ -138,7 +139,7 @@ int lc_sphincs_verify_ctx_nocheck(const struct lc_sphincs_sig *sig,
 	CKNULL(pk, -EINVAL);
 
 	ctx_int.pub_seed = pk->pk;
-	if (aligned(pk->pk, sizeof(uint64_t) - 1 )) {
+	if (aligned(pk->pk, sizeof(uint64_t) - 1)) {
 		ctx_int.pub_seed = pk->pk;
 	} else {
 		lc_memcpy_secure(ws->pk_aligned, sizeof(ws->pk_aligned), pk,
@@ -199,7 +200,8 @@ int lc_sphincs_verify_ctx_nocheck(const struct lc_sphincs_sig *sig,
 
 	/* Check if the root node equals the root node in the public key. */
 	CKRET_HARDENED(lc_memcmp_secure(ws->root, sizeof(ws->root), pub_root,
-					LC_SPX_N), -EBADMSG);
+					LC_SPX_N),
+		       -EBADMSG);
 
 out:
 	LC_RELEASE_MEM(ws);

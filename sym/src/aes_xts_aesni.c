@@ -41,8 +41,8 @@ struct lc_sym_state {
 #define LC_AES_AESNI_XTS_BLOCK_SIZE sizeof(struct lc_sym_state)
 
 static int aes_aesni_xts_encrypt_iv(const struct lc_sym_state *ctx,
-				    const uint8_t *in, uint8_t *out,
-				    size_t len, uint8_t *iv, size_t ivlen)
+				    const uint8_t *in, uint8_t *out, size_t len,
+				    uint8_t *iv, size_t ivlen)
 {
 	size_t rounded_len = len & ~(AES_BLOCKLEN - 1);
 
@@ -64,16 +64,16 @@ static int aes_aesni_xts_encrypt_iv(const struct lc_sym_state *ctx,
 	return 0;
 }
 
-static int aes_aesni_xts_encrypt(struct lc_sym_state *ctx,
-				 const uint8_t *in, uint8_t *out, size_t len)
+static int aes_aesni_xts_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
+				 uint8_t *out, size_t len)
 {
 	return aes_aesni_xts_encrypt_iv(ctx, in, out, len, ctx->iv,
 					sizeof(ctx->iv));
 }
 
 static int aes_aesni_xts_decrypt_iv(const struct lc_sym_state *ctx,
-				    const uint8_t *in, uint8_t *out,
-				    size_t len, uint8_t *iv, size_t ivlen)
+				    const uint8_t *in, uint8_t *out, size_t len,
+				    uint8_t *iv, size_t ivlen)
 {
 	size_t rounded_len = len & ~(AES_BLOCKLEN - 1);
 

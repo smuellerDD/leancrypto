@@ -639,14 +639,14 @@ int lc_x509_akid_note_serial_enc(void *context, uint8_t *data,
 	(void)tag;
 
 	if (ctx->akid_raw_issuer) {
-	//TODO ctx->akid_raw_issuer is not accessible from the API
+		//TODO ctx->akid_raw_issuer is not accessible from the API
 		CKINT(lc_x509_sufficient_size(avail_datalen,
-					ctx->akid_raw_issuer_size));
+					      ctx->akid_raw_issuer_size));
 
 		memcpy(data, ctx->akid_raw_issuer, ctx->akid_raw_issuer_size);
 		*avail_datalen -= ctx->akid_raw_issuer_size;
-		bin2print_debug(ctx->akid_raw_issuer, ctx->akid_raw_issuer_size, stdout,
-				"AKID (issuer)");
+		bin2print_debug(ctx->akid_raw_issuer, ctx->akid_raw_issuer_size,
+				stdout, "AKID (issuer)");
 	}
 
 	ctx->akid_serial_processed = 1;

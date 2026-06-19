@@ -61,7 +61,7 @@ LC_CONSTRUCTOR(ascon_fastest_impl, LC_INIT_PRIO_ALGO)
 		LC_FILL_DFLT_IMPL(avx512)
 	} else
 #endif
-	if (feat & LC_CPU_FEATURE_ARM_NEON) {
+		if (feat & LC_CPU_FEATURE_ARM_NEON) {
 		LC_FILL_DFLT_IMPL(arm_neon)
 	} else {
 		/* do nothing as the C definitions are used automatically */

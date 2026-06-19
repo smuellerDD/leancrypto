@@ -259,8 +259,8 @@ void cc20_crypt_remaining(struct lc_sym_state *ctx, const uint8_t **in,
 	}
 }
 
-static int cc20_crypt(struct lc_sym_state *ctx, const uint8_t *in,
-		      uint8_t *out, size_t len)
+static int cc20_crypt(struct lc_sym_state *ctx, const uint8_t *in, uint8_t *out,
+		      size_t len)
 {
 	int ret;
 
@@ -298,7 +298,7 @@ static int cc20_crypt(struct lc_sym_state *ctx, const uint8_t *in,
 }
 
 static int cc20_crypt_iv(const struct lc_sym_state *ctx, const uint8_t *in,
-		         uint8_t *out, size_t len, uint8_t *iv, size_t ivlen)
+			 uint8_t *out, size_t len, uint8_t *iv, size_t ivlen)
 {
 	struct lc_sym_state local_ctx = { 0 };
 	int ret;

@@ -88,8 +88,8 @@ int lc_public_key_verify_signature(const struct lc_public_key *pkey,
 	case LC_SIG_DILITHIUM_44:
 	case LC_SIG_DILITHIUM_65:
 	case LC_SIG_DILITHIUM_87:
-		CKINT_HARDENED(public_key_verify_signature_dilithium(pkey,
-								     sig));
+		CKINT_HARDENED(
+			public_key_verify_signature_dilithium(pkey, sig));
 		break;
 	case LC_SIG_DILITHIUM_44_ED25519:
 	case LC_SIG_DILITHIUM_65_ED25519:
@@ -100,20 +100,20 @@ int lc_public_key_verify_signature(const struct lc_public_key *pkey,
 	case LC_SIG_DILITHIUM_44_ED448:
 	case LC_SIG_DILITHIUM_65_ED448:
 	case LC_SIG_DILITHIUM_87_ED448:
-		CKINT_HARDENED(public_key_verify_signature_dilithium_ed448(
-			pkey, sig));
+		CKINT_HARDENED(
+			public_key_verify_signature_dilithium_ed448(pkey, sig));
 		break;
 	case LC_SIG_SPHINCS_SHAKE_128F:
 	case LC_SIG_SPHINCS_SHAKE_192F:
 	case LC_SIG_SPHINCS_SHAKE_256F:
-		CKINT_HARDENED(public_key_verify_signature_sphincs(pkey, sig,
-								   1));
+		CKINT_HARDENED(
+			public_key_verify_signature_sphincs(pkey, sig, 1));
 		break;
 	case LC_SIG_SPHINCS_SHAKE_128S:
 	case LC_SIG_SPHINCS_SHAKE_192S:
 	case LC_SIG_SPHINCS_SHAKE_256S:
-		CKINT_HARDENED(public_key_verify_signature_sphincs(pkey, sig,
-								   0));
+		CKINT_HARDENED(
+			public_key_verify_signature_sphincs(pkey, sig, 0));
 		break;
 
 	case LC_SIG_ED25519:

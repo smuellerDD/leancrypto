@@ -37,7 +37,6 @@ static int cc20_crypt_avx512(struct lc_sym_state *ctx, const uint8_t *in,
 	if (ret)
 		return ret;
 
-
 	/*
 	 * cc20_crypt_bytes_avx512 can handle the partial blocks, but we
 	 * deliberately handle partial blocks here as we want to keep the

@@ -216,8 +216,7 @@ static int test_encrypt_xts_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 	/* Encrypt with external IV */
 	memcpy(extiv, iv, ivlen);
 	CKINT(lc_sym_init_iv(ctx, extiv, sizeof(extiv)));
-	CKINT(lc_sym_encrypt_iv(ctx, pt, out, ptlen, extiv,
-				sizeof(extiv)));
+	CKINT(lc_sym_encrypt_iv(ctx, pt, out, ptlen, extiv, sizeof(extiv)));
 	rc += lc_compare(out, ct, ptlen,
 			 "AES-XTS encrypt external IV ciphertext");
 	unpoison(extiv, sizeof(extiv));
@@ -237,8 +236,7 @@ static int test_encrypt_xts_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 	/* Decrypt with external IV */
 	memcpy(extiv, iv, ivlen);
 	CKINT(lc_sym_init_iv(ctx, extiv, sizeof(extiv)));
-	CKINT(lc_sym_decrypt_iv(ctx, out, out2, ptlen, extiv,
-				sizeof(extiv)));
+	CKINT(lc_sym_decrypt_iv(ctx, out, out2, ptlen, extiv, sizeof(extiv)));
 	rc += lc_compare(out2, pt, ptlen,
 			 "AES-XTS external IV decrypt plaintext");
 	unpoison(extiv, sizeof(extiv));

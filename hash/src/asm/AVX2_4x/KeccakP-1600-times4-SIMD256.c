@@ -317,9 +317,9 @@ void KeccakP1600times4_OverwriteWithZeroes(void *states,
 	}
 
 	if (sizeLeft > 0) {
-		lc_memset_secure(&statesAsLanes[laneIndex(instanceIndex,
-							  lanePosition)],
-				 0, sizeLeft);
+		lc_memset_secure(
+			&statesAsLanes[laneIndex(instanceIndex, lanePosition)],
+			0, sizeLeft);
 	}
 }
 

@@ -300,7 +300,7 @@ static int lc_rfc4106_aes_gcm_setkey(struct crypto_aead *aead, const u8 *key,
 	struct lc_aead_ctx *ctx = &rfc4106_ctx->ctx;
 	int ret;
 
-	if (keylen <  LC_RFC4106_AES_GCM_IV_FIXED_FIELD_LEN)
+	if (keylen < LC_RFC4106_AES_GCM_IV_FIXED_FIELD_LEN)
 		return -EINVAL;
 	keylen -= LC_RFC4106_AES_GCM_IV_FIXED_FIELD_LEN;
 

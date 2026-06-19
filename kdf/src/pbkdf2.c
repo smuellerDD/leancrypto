@@ -191,7 +191,7 @@ LC_INTERFACE_FUNCTION(int, lc_pbkdf2, const struct lc_hash *hash,
 	CKRET(fips140_mode_enabled() && count < 1000, -EOPNOTSUPP);
 
 	CKINT(lc_pbkdf2_nocheck(hash, pw, pwlen, salt, saltlen, count, key,
-			        keylen));
+				keylen));
 
 out:
 	return ret;

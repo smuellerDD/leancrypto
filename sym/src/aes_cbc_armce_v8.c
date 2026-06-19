@@ -38,8 +38,8 @@ struct lc_sym_state {
 #define LC_AES_ARMV8_CBC_BLOCK_SIZE sizeof(struct lc_sym_state)
 
 static int aes_armce_cbc_encrypt_iv(const struct lc_sym_state *ctx,
-				    const uint8_t *in, uint8_t *out,
-				    size_t len, uint8_t *iv, size_t ivlen)
+				    const uint8_t *in, uint8_t *out, size_t len,
+				    uint8_t *iv, size_t ivlen)
 {
 	size_t round_len = len & ~(AES_BLOCKLEN - 1);
 

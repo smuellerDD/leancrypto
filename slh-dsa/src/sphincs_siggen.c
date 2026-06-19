@@ -115,8 +115,9 @@ int lc_sphincs_sign_ctx_nocheck(struct lc_sphincs_sig *sig,
 				struct lc_rng_ctx *rng_ctx)
 {
 	struct workspace {
-		uint8_t sk_seed_aligned[sizeof(sk->sk_seed)] __align(sizeof(uint64_t));
-		uint8_t pk_aligned[sizeof(sk->pk)]__align(sizeof(uint64_t));
+		uint8_t sk_seed_aligned[sizeof(sk->sk_seed)] __align(
+			sizeof(uint64_t));
+		uint8_t pk_aligned[sizeof(sk->pk)] __align(sizeof(uint64_t));
 		uint64_t tree;
 		uint32_t idx_leaf;
 		uint32_t wots_addr[8];
@@ -126,7 +127,8 @@ int lc_sphincs_sign_ctx_nocheck(struct lc_sphincs_sig *sig,
 		uint8_t mhash[LC_SPX_FORS_MSG_BYTES];
 	};
 	uint32_t i;
-	const struct lc_sphincs_siggen_func_ctx *f_ctx = lc_sphincs_siggen_get_ctx();
+	const struct lc_sphincs_siggen_func_ctx *f_ctx =
+		lc_sphincs_siggen_get_ctx();
 	spx_ctx ctx_int;
 	const uint8_t *sk_prf = sk->sk_prf;
 	const uint8_t *pk = sk->pk;
@@ -146,7 +148,7 @@ int lc_sphincs_sign_ctx_nocheck(struct lc_sphincs_sig *sig,
 	 * When using the ctx in the AVX2 code path, it is type-casted into
 	 * a 64 bit integer.
 	 */
-	if (aligned(sk->sk_seed, sizeof(uint64_t) - 1 )) {
+	if (aligned(sk->sk_seed, sizeof(uint64_t) - 1)) {
 		ctx_int.sk_seed = sk->sk_seed;
 	} else {
 		lc_memcpy_secure(ws->sk_seed_aligned,
@@ -155,7 +157,7 @@ int lc_sphincs_sign_ctx_nocheck(struct lc_sphincs_sig *sig,
 		ctx_int.sk_seed = ws->sk_seed_aligned;
 	}
 
-	if (aligned(pk, sizeof(uint64_t) - 1 )) {
+	if (aligned(pk, sizeof(uint64_t) - 1)) {
 		ctx_int.pub_seed = pk;
 	} else {
 		lc_memcpy_secure(ws->pk_aligned, sizeof(ws->pk_aligned), pk,

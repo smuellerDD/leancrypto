@@ -53,8 +53,8 @@ LC_INTERFACE_FUNCTION(void, lc_aead_zero_free, struct lc_aead_ctx *ctx)
 	lc_free(ctx);
 }
 
-static inline int lc_aead_load_key(struct lc_aead_ctx *ctx,
-				   const uint8_t *key, size_t keylen)
+static inline int lc_aead_load_key(struct lc_aead_ctx *ctx, const uint8_t *key,
+				   size_t keylen)
 {
 	if (!ctx)
 		return -EINVAL;
@@ -130,8 +130,8 @@ out:
 }
 
 LC_INTERFACE_FUNCTION(int, lc_aead_setkey_from_ctx, struct lc_aead_ctx *ctx,
-		      const struct lc_aead_ctx *key_ctx,
-		      const uint8_t *iv, size_t ivlen)
+		      const struct lc_aead_ctx *key_ctx, const uint8_t *iv,
+		      size_t ivlen)
 {
 	const struct lc_aead *aead;
 	void *aead_state;

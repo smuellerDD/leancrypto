@@ -249,9 +249,9 @@ static int lc_ascon_enc_final(struct lc_ascon_cryptor *ascon, uint8_t *tag,
 }
 
 /* Complete one-shot encryption */
-int lc_ascon_encrypt(void *state, const uint8_t *plaintext,
-		     uint8_t *ciphertext, size_t datalen, const uint8_t *aad,
-		     size_t aadlen, uint8_t *tag, size_t taglen)
+int lc_ascon_encrypt(void *state, const uint8_t *plaintext, uint8_t *ciphertext,
+		     size_t datalen, const uint8_t *aad, size_t aadlen,
+		     uint8_t *tag, size_t taglen)
 {
 	struct lc_ascon_cryptor *ascon = state;
 	int ret;

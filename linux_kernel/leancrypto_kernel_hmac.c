@@ -131,7 +131,7 @@ static int lc_kernel_hmac_sha3_513_setkey(struct crypto_shash *tfm,
 #endif
 
 static int lc_kernel_hmac_update(struct shash_desc *desc, const u8 *data,
-				    unsigned int len)
+				 unsigned int len)
 {
 	struct lc_hmac_ctx *sctx =
 		LC_HASH_GET_ALIGNED_CTX(shash_desc_ctx(desc));
@@ -246,8 +246,7 @@ static struct shash_alg lc_hmac_algs[] = {
 
 int __init lc_kernel_hmac_init(void)
 {
-	return crypto_register_shashes(lc_hmac_algs,
-				       ARRAY_SIZE(lc_hmac_algs));
+	return crypto_register_shashes(lc_hmac_algs, ARRAY_SIZE(lc_hmac_algs));
 }
 
 void lc_kernel_hmac_exit(void)

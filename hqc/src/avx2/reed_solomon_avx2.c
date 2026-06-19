@@ -1266,8 +1266,8 @@ void reed_solomon_encode_avx2(uint64_t *cdw, const uint64_t *msg)
 		/* Nothing */
 #elif (LC_HQC_TYPE == 192)
 		for (size_t j = 32; j < LC_HQC_PARAM_G; ++j) {
-			tmp.arr16[j] =
-				gf_mul_avx2(gate_value, params256_u.param16[j & 31]);
+			tmp.arr16[j] = gf_mul_avx2(gate_value,
+						   params256_u.param16[j & 31]);
 		}
 #elif (LC_HQC_TYPE == 256)
 		tmp256[2] = gf_mul_vect_avx2(gate256, params256_u.param256[2]);

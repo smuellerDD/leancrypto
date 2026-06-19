@@ -82,7 +82,7 @@ static int lc_dilithium_verify_avx2_internal(const struct lc_dilithium_sig *sig,
 	for (i = 0; i < LC_DILITHIUM_L; i++) {
 		polyz_unpack_avx(&ws->z.vec[i],
 				 signature +
-				 i * LC_DILITHIUM_POLYZ_PACKEDBYTES);
+					 i * LC_DILITHIUM_POLYZ_PACKEDBYTES);
 
 		/* Apply inifity norm check */
 		poly_reduce_avx(&ws->z.vec[i]);
@@ -175,7 +175,8 @@ static int lc_dilithium_verify_avx2_internal(const struct lc_dilithium_sig *sig,
 	/* Signature verification operation */
 	CKRET_HARDENED(lc_memcmp_secure(ws->buf.coeffs,
 					LC_DILITHIUM_CTILDE_BYTES, sig->sig,
-					LC_DILITHIUM_CTILDE_BYTES), -EBADMSG);
+					LC_DILITHIUM_CTILDE_BYTES),
+		       -EBADMSG);
 
 out:
 	LC_RELEASE_MEM(ws);

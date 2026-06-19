@@ -106,8 +106,9 @@ static int lc_sphincs_keypair_from_seed_internal(struct lc_sphincs_pk *pk,
 						 struct lc_sphincs_sk *sk)
 {
 	struct workspace {
-		uint8_t sk_seed_aligned[sizeof(sk->sk_seed)] __align(sizeof(uint64_t));
-		uint8_t pk_aligned[sizeof(pk->pk)]__align(sizeof(uint64_t));
+		uint8_t sk_seed_aligned[sizeof(sk->sk_seed)] __align(
+			sizeof(uint64_t));
+		uint8_t pk_aligned[sizeof(pk->pk)] __align(sizeof(uint64_t));
 	};
 	const struct lc_sphincs_keygen_func_ctx *f_ctx =
 		lc_sphincs_keygen_get_ctx();
@@ -127,7 +128,7 @@ static int lc_sphincs_keypair_from_seed_internal(struct lc_sphincs_pk *pk,
 	 * When using the ctx in the AVX2 code path, it is type-casted into
 	 * a 64 bit integer.
 	 */
-	if (aligned(sk->sk_seed, sizeof(uint64_t) - 1 )) {
+	if (aligned(sk->sk_seed, sizeof(uint64_t) - 1)) {
 		ctx.sk_seed = sk->sk_seed;
 	} else {
 		lc_memcpy_secure(ws->sk_seed_aligned,
@@ -136,7 +137,7 @@ static int lc_sphincs_keypair_from_seed_internal(struct lc_sphincs_pk *pk,
 		ctx.sk_seed = ws->sk_seed_aligned;
 	}
 
-	if (aligned(pk->pk, sizeof(uint64_t) - 1 )) {
+	if (aligned(pk->pk, sizeof(uint64_t) - 1)) {
 		ctx.pub_seed = pk->pk;
 	} else {
 		lc_memcpy_secure(ws->pk_aligned, sizeof(ws->pk_aligned), pk,

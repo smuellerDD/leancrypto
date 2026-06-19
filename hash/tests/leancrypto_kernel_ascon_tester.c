@@ -111,8 +111,8 @@ static int lc_hash_ascon_256(void)
 	u8 digest[sizeof(exp)];
 	int ret;
 
-	ret = lc_test_hash("ascon-hash256-leancrypto", msg, sizeof(msg), NULL, 0,
-			   digest, sizeof(digest));
+	ret = lc_test_hash("ascon-hash256-leancrypto", msg, sizeof(msg), NULL,
+			   0, digest, sizeof(digest));
 	if (ret)
 		return ret;
 

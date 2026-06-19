@@ -45,8 +45,7 @@ static int aes_ctr_crypt(struct lc_sym_state *ctx, const uint8_t *in,
 }
 
 static int aes_ctr_crypt_iv(const struct lc_sym_state *ctx, const uint8_t *in,
-			    uint8_t *out, size_t len, uint8_t *iv,
-			    size_t ivlen)
+			    uint8_t *out, size_t len, uint8_t *iv, size_t ivlen)
 {
 	return lc_mode_ctr_c->encrypt_iv(&ctx->ctr_state, in, out, len, iv,
 					 ivlen);

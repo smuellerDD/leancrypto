@@ -86,7 +86,7 @@ static int aes_cbc_setkey(struct lc_sym_state *ctx, const uint8_t *key,
 }
 
 static int aes_cbc_init_iv(const struct lc_sym_state *ctx, uint8_t *iv,
-			  size_t ivlen)
+			   size_t ivlen)
 {
 	return lc_mode_cbc_c->init_iv(&ctx->cbc_state, iv, ivlen);
 }

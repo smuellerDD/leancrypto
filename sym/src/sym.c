@@ -134,7 +134,6 @@ LC_INTERFACE_FUNCTION(int, lc_sym_init_iv, const struct lc_sym_ctx *ctx,
 	return sym->init_iv(ctx->sym_state, iv, ivlen);
 }
 
-
 LC_INTERFACE_FUNCTION(void, lc_sym_zero, struct lc_sym_ctx *ctx)
 {
 	const struct lc_sym *sym;

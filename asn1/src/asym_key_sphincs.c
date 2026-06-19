@@ -123,10 +123,9 @@ int public_key_verify_signature_sphincs(
 		/*
 		 * Verify the signature of raw data
 		 */
-		CKINT_HARDENED(lc_sphincs_verify_ctx(&ws->sphincs_sig, ctx,
-						     sig->raw_data,
-						     sig->raw_data_len,
-						     &ws->sphincs_pk));
+		CKINT_HARDENED(lc_sphincs_verify_ctx(
+			&ws->sphincs_sig, ctx, sig->raw_data, sig->raw_data_len,
+			&ws->sphincs_pk));
 	}
 
 out:

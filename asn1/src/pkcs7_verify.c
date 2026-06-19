@@ -396,8 +396,8 @@ int lc_pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 			 * provided root certificate to verify and accept it
 			 * as trust anchor.
 			 */
-			CKINT_HARDENED(lc_x509_policy_verify_cert(&p->pub, x509,
-								  0));
+			CKINT_HARDENED(
+				lc_x509_policy_verify_cert(&p->pub, x509, 0));
 			return 0;
 		}
 

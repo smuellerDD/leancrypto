@@ -196,8 +196,8 @@ static int mode_kw_encrypt_iv_internal(const struct lc_mode_state *ctx,
 }
 
 static int mode_kw_encrypt_iv(const struct lc_mode_state *ctx,
-				       const uint8_t *in, uint8_t *out,
-				       size_t len, uint8_t *iv, size_t ivlen)
+			      const uint8_t *in, uint8_t *out, size_t len,
+			      uint8_t *iv, size_t ivlen)
 {
 	uint64_t tag;
 	int ret;

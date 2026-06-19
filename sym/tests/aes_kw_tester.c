@@ -89,8 +89,7 @@ static int test_encrypt_kw_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 	/* Encrypt with external IV */
 	memset(extiv, 0, sizeof(extiv));
 	CKINT(lc_sym_init_iv(ctx, extiv, sizeof(extiv)));
-	CKINT(lc_sym_encrypt_iv(ctx, pt, out + 8, ptlen, extiv,
-				sizeof(extiv)));
+	CKINT(lc_sym_encrypt_iv(ctx, pt, out + 8, ptlen, extiv, sizeof(extiv)));
 	rc += lc_compare(out + 8, ct, ptlen,
 			 "AES-KW encrypt external IV ciphertext");
 	rc += lc_compare(extiv, iv, sizeof(extiv),

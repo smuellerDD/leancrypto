@@ -45,8 +45,8 @@ static int lc_chacha20_setkey(struct crypto_skcipher *tfm, const u8 *key,
 
 static int lc_chacha20_common(struct skcipher_request *req,
 			      int (*crypt_func)(struct lc_sym_ctx *ctx,
-						const uint8_t *in,
-						uint8_t *out, size_t len))
+						const uint8_t *in, uint8_t *out,
+						size_t len))
 {
 	struct crypto_skcipher *tfm = crypto_skcipher_reqtfm(req);
 	struct lc_sym_ctx *ctx = crypto_skcipher_ctx(tfm);
@@ -83,7 +83,7 @@ static int lc_chacha20_common(struct skcipher_request *req,
 		goto out;
 
 	/* Set IV */
-        err = lc_sym_setiv(vola_ctx, req->iv, CHACHA_IV_SIZE);
+	err = lc_sym_setiv(vola_ctx, req->iv, CHACHA_IV_SIZE);
 	if (err)
 		goto out;
 
@@ -119,7 +119,7 @@ static int lc_chacha20_common(struct skcipher_request *req,
 
 out:
 	lc_sym_zero(vola_ctx);
-        kfree(vola_ctx);
+	kfree(vola_ctx);
 	return err;
 }
 
