@@ -99,9 +99,10 @@ enum lc_alg_status_val lc_kdf_ctr_alg_status(const struct lc_hash *hash);
 
 /// \cond DO_NOT_DOCUMENT
 struct lc_kdf_ctr_ctx {
+	struct lc_hmac_ctx hmac_ctx;
+	struct lc_hmac_key key;
 	uint32_t counter;
 	uint8_t rng_initialized : 1;
-	struct lc_hmac_ctx hmac_ctx;
 };
 
 #define LC_CTR_KDF_STATE_SIZE (LC_HMAC_CTX_SIZE)
@@ -109,7 +110,7 @@ struct lc_kdf_ctr_ctx {
 	(sizeof(struct lc_kdf_ctr_ctx) + LC_CTR_KDF_STATE_SIZE)
 
 #define _LC_CTR_KDF_SET_CTX(name, hashname, ctx, offset)                       \
-	_LC_HMAC_SET_CTX((&(name)->hmac_ctx), hashname, ctx, offset)
+	LC_HMAC_SET_CTX((&(name)->hmac_ctx), hashname)
 
 #define LC_CTR_KDF_SET_CTX(name, hashname)                                     \
 	_LC_CTR_KDF_SET_CTX(name, hashname, name, sizeof(struct lc_kdf_ctr_ctx))
@@ -118,13 +119,14 @@ struct lc_kdf_ctr_ctx {
 extern const struct lc_rng *lc_kdf_ctr_rng;
 
 #define LC_CTR_KDF_DRNG_CTX_SIZE                                               \
-	(sizeof(struct lc_rng_ctx) + LC_CTR_KDF_CTX_SIZE)
+	(sizeof(struct lc_rng_ctx) +                                           \
+	 LC_HASH_STATE_SIZE_ALIGN(LC_CTR_KDF_CTX_SIZE))
 
 #define LC_CTR_KDF_DRNG_SET_CTX(name, hashname)                                \
 	LC_CTR_KDF_SET_CTX(name, hashname)
 
 #define LC_CTR_KDF_RNG_CTX(name, hashname)                                     \
-	LC_RNG_CTX(name, lc_kdf_ctr_rng);                                      \
+	LC_RNG_CTX(name, lc_kdf_ctr_rng, LC_HASH_COMMON_ALIGNMENT);            \
 	LC_CTR_KDF_DRNG_SET_CTX(((struct lc_kdf_ctr_ctx *)(name->rng_state)),  \
 				hashname);                                     \
 	lc_rng_zero(name)

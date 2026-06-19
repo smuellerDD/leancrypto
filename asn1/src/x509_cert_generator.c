@@ -634,18 +634,20 @@ int lc_x509_akid_note_serial_enc(void *context, uint8_t *data,
 				 size_t *avail_datalen, uint8_t *tag)
 {
 	struct x509_generate_context *ctx = context;
-	int ret;
+	int ret = 0;
 
 	(void)tag;
 
+	if (ctx->akid_raw_issuer) {
 	//TODO ctx->akid_raw_issuer is not accessible from the API
-	CKINT(lc_x509_sufficient_size(avail_datalen,
-				      ctx->akid_raw_issuer_size));
+		CKINT(lc_x509_sufficient_size(avail_datalen,
+					ctx->akid_raw_issuer_size));
 
-	memcpy(data, ctx->akid_raw_issuer, ctx->akid_raw_issuer_size);
-	*avail_datalen -= ctx->akid_raw_issuer_size;
-	bin2print_debug(ctx->akid_raw_issuer, ctx->akid_raw_issuer_size, stdout,
-			"AKID (issuer)");
+		memcpy(data, ctx->akid_raw_issuer, ctx->akid_raw_issuer_size);
+		*avail_datalen -= ctx->akid_raw_issuer_size;
+		bin2print_debug(ctx->akid_raw_issuer, ctx->akid_raw_issuer_size, stdout,
+				"AKID (issuer)");
+	}
 
 	ctx->akid_serial_processed = 1;
 

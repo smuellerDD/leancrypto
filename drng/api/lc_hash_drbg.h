@@ -46,7 +46,8 @@ struct lc_drbg_hash_state {
 
 #define LC_DRBG_HASH_STATE_SIZE (sizeof(struct lc_drbg_hash_state))
 #define LC_DRBG_HASH_CTX_SIZE                                                  \
-	((unsigned long)(LC_DRBG_HASH_STATE_SIZE + sizeof(struct lc_rng_ctx)))
+	((unsigned long)(LC_DRBG_HASH_STATE_SIZE + LC_HASH_COMMON_ALIGNMENT +  \
+			 sizeof(struct lc_rng_ctx)))
 
 #define _LC_DRBG_HASH_SET_CTX(name, ctx, offset)                               \
 	LC_SHA512_CTX((&(name)->hash_ctx));                                    \
@@ -59,7 +60,7 @@ struct lc_drbg_hash_state {
 extern const struct lc_rng *lc_hash_drbg;
 
 #define LC_DRBG_HASH_RNG_CTX(name)                                             \
-	LC_RNG_CTX((name), lc_hash_drbg);                                      \
+	LC_RNG_CTX((name), lc_hash_drbg, LC_HASH_COMMON_ALIGNMENT);            \
 	LC_DRBG_HASH_SET_CTX((struct lc_drbg_hash_state *)name->rng_state);    \
 	lc_rng_zero(name)
 /// \endcond

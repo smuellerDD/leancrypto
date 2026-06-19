@@ -52,6 +52,7 @@ Linux Kernel Space    | GitHub                | [![Build Status Linux Kernel Spa
 macOS User Space      | GitHub                | [![Build Status macOS User Space](https://github.com/smuellerDD/leancrypto/actions/workflows/macos-test.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/macos-test.yml)
 Small Stack           | GitHub                | [![Build Status Small Stack](https://github.com/smuellerDD/leancrypto/actions/workflows/small-stack-test.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/small-stack-test.yml)
 ASAN Address Check    | GitHub                | [![Build Status ASAN Address](https://github.com/smuellerDD/leancrypto/actions/workflows/asan-address-test.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/asan-address-test.yml)
+UBSAN Undefined Check | GitHub                | [![Build Status UBSAN](https://github.com/smuellerDD/leancrypto/actions/workflows/ubsan-test.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/ubsan-test.yml)
 Codacy Scan           | GitHub                | [![Codacy](https://github.com/smuellerDD/leancrypto/actions/workflows/codacy.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/codacy.yml)
 Windows User Space    | GitHub                | [![Windows user space CI](https://github.com/smuellerDD/leancrypto/actions/workflows/windows-test.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/windows-test.yml)
 Side-Channel Analysis | GitHub                | [![Side-Channels](https://github.com/smuellerDD/leancrypto/actions/workflows/timecop.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/timecop.yml)
@@ -419,6 +420,14 @@ execution.
 Using ASAN address testing with the help of meson, no issues were identified.
 
 Similarly, KASAN can be used for the same type of testing inside the Linux
+kernel where no issues were identified.
+
+## UBSAN Testing
+
+Using UBSAN undefined operation testing with the help of meson, no issues were
+identified.
+
+Similarly, UASAN can be used for the same type of testing inside the Linux
 kernel where no issues were identified.
 
 ## Clang Static Code Analysis

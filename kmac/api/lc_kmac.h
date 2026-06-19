@@ -340,12 +340,13 @@ int lc_kmac_xof(const struct lc_hash *hash, const uint8_t *key, size_t keylen,
 extern const struct lc_rng *lc_kmac_rng;
 
 /// \cond DO_NOT_DOCUMENT
-#define LC_KMAC_KDF_DRNG_CTX_SIZE (sizeof(struct lc_rng_ctx) + LC_KMAC_CTX_SIZE)
+#define LC_KMAC_KDF_DRNG_CTX_SIZE                                              \
+	(sizeof(struct lc_rng_ctx) + LC_HASH_STATE_SIZE_ALIGN(LC_KMAC_CTX_SIZE))
 
 #define LC_KMAC_KDF_DRNG_SET_CTX(name, hashname) LC_KMAC_SET_CTX(name, hashname)
 
 #define LC_KMAC_KDF_RNG_CTX(name, hashname)                                    \
-	LC_RNG_CTX(name, lc_kmac_rng);                                         \
+	LC_RNG_CTX(name, lc_kmac_rng, LC_HASH_COMMON_ALIGNMENT);               \
 	LC_KMAC_KDF_DRNG_SET_CTX(((struct lc_kmac_ctx *)(name->rng_state)),    \
 				 hashname);                                    \
 	lc_rng_zero(name)

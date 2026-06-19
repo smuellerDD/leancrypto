@@ -38,13 +38,13 @@ struct lc_kmac256_drng_state {
 #define LC_KMAC256_DRNG_MAX_CHUNK (LC_SHA3_256_SIZE_BLOCK * 2)
 #define LC_KMAC256_DRNG_STATE_SIZE (sizeof(struct lc_kmac256_drng_state))
 #define LC_KMAC256_DRNG_CTX_SIZE                                               \
-	(sizeof(struct lc_rng) + LC_KMAC256_DRNG_STATE_SIZE)
+	(sizeof(struct lc_rng_ctx) + LC_KMAC256_DRNG_STATE_SIZE)
 
 /* KMAC256-based DRNG */
 extern const struct lc_rng *lc_kmac256_drng;
 
 #define LC_KMAC256_RNG_CTX(name)                                               \
-	LC_RNG_CTX(name, lc_kmac256_drng);                                     \
+	LC_RNG_CTX(name, lc_kmac256_drng, 1);                                  \
 	lc_kmac256_drng->zero(name->rng_state)
 /// \endcond
 

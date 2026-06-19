@@ -91,10 +91,10 @@ extern const struct lc_rng *lc_xdrbg512_drng;
 #define LC_XDRBG256_DRNG_STATE_SIZE                                            \
 	(sizeof(struct lc_xdrbg_drng_state) + LC_XDRBG256_DRNG_KEYSIZE)
 #define LC_XDRBG256_DRNG_CTX_SIZE                                              \
-	(sizeof(struct lc_rng) + LC_XDRBG256_DRNG_STATE_SIZE)
+	(sizeof(struct lc_rng_ctx) + LC_XDRBG256_DRNG_STATE_SIZE)
 
 #define LC_XDRBG256_RNG_CTX(name)                                              \
-	LC_RNG_CTX(name, lc_xdrbg256_drng);                                    \
+	LC_RNG_CTX(name, lc_xdrbg256_drng, 1);                                 \
 	struct lc_xdrbg_drng_state *__name = name->rng_state;                  \
 	__name->status = lc_xdrbg_keysize_xdrbg256;                            \
 	__name->xof = lc_shake256;                                             \
@@ -152,10 +152,10 @@ int lc_xdrbg256_drng_alloc(struct lc_rng_ctx **state);
 #define LC_XDRBG512_DRNG_STATE_SIZE                                            \
 	(sizeof(struct lc_xdrbg_drng_state) + LC_XDRBG512_DRNG_KEYSIZE)
 #define LC_XDRBG512_DRNG_CTX_SIZE                                              \
-	(sizeof(struct lc_rng) + LC_XDRBG512_DRNG_STATE_SIZE)
+	(sizeof(struct lc_rng_ctx) + LC_XDRBG512_DRNG_STATE_SIZE)
 
 #define LC_XDRBG512_RNG_CTX(name)                                              \
-	LC_RNG_CTX(name, lc_xdrbg512_drng);                                    \
+	LC_RNG_CTX(name, lc_xdrbg512_drng, 1);                                 \
 	struct lc_xdrbg_drng_state *__name = name->rng_state;                  \
 	__name->status = lc_xdrbg_keysize_xdrbg512;                            \
 	__name->xof = lc_shake512;                                             \
@@ -217,10 +217,10 @@ extern const struct lc_rng *lc_xdrbg128_drng;
 #define LC_XDRBG128_DRNG_STATE_SIZE                                            \
 	(sizeof(struct lc_xdrbg_drng_state) + LC_XDRBG128_DRNG_KEYSIZE)
 #define LC_XDRBG128_DRNG_CTX_SIZE                                              \
-	(sizeof(struct lc_rng) + LC_XDRBG128_DRNG_STATE_SIZE)
+	(sizeof(struct lc_rng_ctx) + LC_XDRBG128_DRNG_STATE_SIZE)
 
 #define LC_XDRBG128_RNG_CTX(name)                                              \
-	LC_RNG_CTX(name, lc_xdrbg128_drng);                                    \
+	LC_RNG_CTX(name, lc_xdrbg128_drng, 1);                                 \
 	struct lc_xdrbg_drng_state *__name = name->rng_state;                  \
 	__name->status = lc_xdrbg_keysize_xdrbg128;                            \
 	__name->xof = lc_ascon_xof;                                            \

@@ -141,7 +141,9 @@ static int x509_gen_cert(struct x509_checker_options *opts)
 		       gcert->san_dns_len, ws->pcert.san_dns_len);
 		ret = -EINVAL;
 	} else {
-		if (memcmp(ws->pcert.san_dns, gcert->san_dns,
+		if (!ws->pcert.san_dns || !gcert->san_dns) {
+			;
+		} else if (memcmp(ws->pcert.san_dns, gcert->san_dns,
 			   gcert->san_dns_len)) {
 			printf("SAN DNS name mismatch (original %s, received %s)\n",
 			       gcert->san_dns, ws->pcert.san_dns);
@@ -156,7 +158,9 @@ static int x509_gen_cert(struct x509_checker_options *opts)
 		       gcert->san_ip_len, ws->pcert.san_ip_len);
 		ret = -EINVAL;
 	} else {
-		if (memcmp(ws->pcert.san_ip, gcert->san_ip,
+		if (!ws->pcert.san_ip || !gcert->san_ip) {
+			;
+		} else if (memcmp(ws->pcert.san_ip, gcert->san_ip,
 			   gcert->san_ip_len)) {
 			bin2print(gcert->san_ip, gcert->san_ip_len, stdout,
 				  "SAN IP mismatch original");
@@ -176,7 +180,9 @@ static int x509_gen_cert(struct x509_checker_options *opts)
 		       gcert->raw_skid_size, ws->pcert.raw_skid_size);
 		ret = -EINVAL;
 	} else {
-		if (memcmp(ws->pcert.raw_skid, gcert->raw_skid,
+		if (!ws->pcert.raw_skid || !gcert->raw_skid) {
+			;
+		} else if (memcmp(ws->pcert.raw_skid, gcert->raw_skid,
 			   gcert->raw_skid_size)) {
 			bin2print(gcert->raw_skid, gcert->raw_skid_size, stdout,
 				  "SKID mismatch original");
@@ -193,7 +199,9 @@ static int x509_gen_cert(struct x509_checker_options *opts)
 		       gcert->raw_akid_size, ws->pcert.raw_akid_size);
 		ret = -EINVAL;
 	} else {
-		if (memcmp(ws->pcert.raw_akid, gcert->raw_akid,
+		if (!ws->pcert.raw_akid || !gcert->raw_akid) {
+			;
+		} else if (memcmp(ws->pcert.raw_akid, gcert->raw_akid,
 			   gcert->raw_akid_size)) {
 			bin2print(gcert->raw_akid, gcert->raw_akid_size, stdout,
 				  "AKID mismatch original");
@@ -230,7 +238,10 @@ static int x509_gen_cert(struct x509_checker_options *opts)
 		       ws->pcert.issuer_segments.cn.size);
 		ret = -EINVAL;
 	} else {
-		if (memcmp(ws->pcert.issuer_segments.cn.value,
+		if (!ws->pcert.issuer_segments.cn.value ||
+		    ! gcert->issuer_segments.cn.value) {
+			;
+		} else if (memcmp(ws->pcert.issuer_segments.cn.value,
 			   gcert->issuer_segments.cn.value,
 			   gcert->issuer_segments.cn.size)) {
 			char buf[20];
@@ -257,7 +268,10 @@ static int x509_gen_cert(struct x509_checker_options *opts)
 		       ws->pcert.subject_segments.cn.size);
 		ret = -EINVAL;
 	} else {
-		if (memcmp(ws->pcert.subject_segments.cn.value,
+		if (!ws->pcert.subject_segments.cn.value ||
+		    !gcert->subject_segments.cn.value) {
+			;
+		} else if (memcmp(ws->pcert.subject_segments.cn.value,
 			   gcert->subject_segments.cn.value,
 			   gcert->subject_segments.cn.size)) {
 			char buf[20];
@@ -282,7 +296,9 @@ static int x509_gen_cert(struct x509_checker_options *opts)
 		       gcert->raw_serial_size, ws->pcert.raw_serial_size);
 		ret = -EINVAL;
 	} else {
-		if (memcmp(ws->pcert.raw_serial, gcert->raw_serial,
+		if (!ws->pcert.raw_serial || !gcert->raw_serial) {
+			;
+		} else if (memcmp(ws->pcert.raw_serial, gcert->raw_serial,
 			   gcert->raw_serial_size)) {
 			bin2print(gcert->raw_serial, gcert->raw_serial_size,
 				  stdout, "Serial mismatch original");

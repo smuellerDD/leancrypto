@@ -53,19 +53,28 @@ LC_CONSTRUCTOR(ascon_fastest_impl, LC_INIT_PRIO_ALGO)
 
 	/*
 	 * Set accelerated modes: The fastest implementations are at the top
+	 * The Linux kernel only supports alignment up to 32 bytes (see
+	 * lc_hash.h.awk) - thus we disable the AVX512 support in kernel space.
 	 */
+#ifndef LINUX_KERNEL
 	if (feat & LC_CPU_FEATURE_INTEL_AVX512) {
 		LC_FILL_DFLT_IMPL(avx512)
-	} else if (feat & LC_CPU_FEATURE_ARM_NEON) {
+	} else
+#endif
+	if (feat & LC_CPU_FEATURE_ARM_NEON) {
 		LC_FILL_DFLT_IMPL(arm_neon)
 	} else {
 		/* do nothing as the C definitions are used automatically */
 	}
 
 	/* Unset accelerated modes to C if CPU does not provide support */
+#ifdef LINUX_KERNEL
+	LC_FILL_ACCEL_WITH_C(avx512)
+#else
 	if (!(feat & LC_CPU_FEATURE_INTEL_AVX512)) {
 		LC_FILL_ACCEL_WITH_C(avx512)
 	}
+#endif
 	if (!(feat & LC_CPU_FEATURE_ARM_NEON)) {
 		LC_FILL_ACCEL_WITH_C(arm_neon)
 	}

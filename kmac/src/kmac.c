@@ -294,7 +294,7 @@ LC_INTERFACE_FUNCTION(int, lc_kmac_alloc, const struct lc_hash *hash,
 	memsize = (flags & LC_KMAC_FLAGS_SUPPORT_REINIT) ?
 			  LC_KMAC_CTX_SIZE_REINIT :
 			  LC_KMAC_CTX_SIZE;
-	ret = lc_alloc_aligned((void **)&out_ctx, LC_MEM_COMMON_ALIGNMENT,
+	ret = lc_alloc_aligned((void **)&out_ctx, LC_HASH_COMMON_ALIGNMENT,
 			       memsize);
 
 	if (ret)

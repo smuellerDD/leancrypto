@@ -23,7 +23,6 @@
 #include "lc_memset_secure.h"
 #include "visibility.h"
 
-#define LC_MEM_DEF_ALIGNED_OFFSET 32
 struct lc_mem_def {
 	size_t size;
 	unsigned int secure : 1;

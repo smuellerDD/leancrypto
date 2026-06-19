@@ -24,12 +24,14 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
+#include "alignment.h"
 #include "build_bug_on.h"
 #include "compare.h"
 #include "cpufeatures.h"
 #include "helper.h"
 #include "lc_rng.h"
 #include "lc_memcmp_secure.h"
+#include "lc_memcpy_secure.h"
 #include "signature_domain_separation.h"
 #include "small_stack_support.h"
 #include "sphincs_type.h"
@@ -112,6 +114,7 @@ int lc_sphincs_verify_ctx_nocheck(const struct lc_sphincs_sig *sig,
 				  size_t mlen, const struct lc_sphincs_pk *pk)
 {
 	struct workspace {
+		uint8_t pk_aligned[sizeof(pk->pk)]__align(sizeof(uint64_t));
 		uint64_t tree;
 		uint32_t idx_leaf;
 		uint32_t wots_addr[8];
@@ -119,7 +122,7 @@ int lc_sphincs_verify_ctx_nocheck(const struct lc_sphincs_sig *sig,
 		uint32_t wots_pk_addr[8];
 		uint8_t root[LC_SPX_N];
 		uint8_t leaf[LC_SPX_N];
-		uint8_t wots_pk[LC_SPX_WOTS_BYTES];
+		uint8_t wots_pk[LC_SPX_WOTS_BYTES] __align(sizeof(uint64_t));
 		uint8_t mhash[LC_SPX_FORS_MSG_BYTES];
 	};
 	LC_HASH_CTX_ON_STACK(hash_ctx, LC_SPHINCS_HASH_TYPE);
@@ -135,6 +138,13 @@ int lc_sphincs_verify_ctx_nocheck(const struct lc_sphincs_sig *sig,
 	CKNULL(pk, -EINVAL);
 
 	ctx_int.pub_seed = pk->pk;
+	if (aligned(pk->pk, sizeof(uint64_t) - 1 )) {
+		ctx_int.pub_seed = pk->pk;
+	} else {
+		lc_memcpy_secure(ws->pk_aligned, sizeof(ws->pk_aligned), pk,
+				 sizeof(pk->pk));
+		ctx_int.pub_seed = ws->pk_aligned;
+	}
 
 	set_type(ws->wots_addr, LC_SPX_ADDR_TYPE_WOTS);
 	set_type(ws->tree_addr, LC_SPX_ADDR_TYPE_HASHTREE);

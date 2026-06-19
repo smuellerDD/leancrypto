@@ -5,10 +5,12 @@
  * Copyright (C) 2022 - 2026, Stephan Mueller <smueller@chronox.de>
  */
 
+#include "build_bug_on.h"
 #include "ext_headers_internal.h"
 #include "hash_common.h"
 #include "lc_ascon_hash.h"
 #include "lc_hash.h"
+#include "lc_memory_support.h"
 #include "lc_sha256.h"
 #include "lc_sha3.h"
 #include "lc_sha512.h"
@@ -170,6 +172,7 @@ LC_INTERFACE_FUNCTION(int, lc_hash_alloc, const struct lc_hash *hash,
 	if (!hash_ctx)
 		return -EINVAL;
 
+	BUILD_BUG_ON(LC_MEM_DEF_ALIGNED_OFFSET < LC_HASH_COMMON_ALIGNMENT);
 	ret = lc_alloc_aligned((void **)&out_ctx, LC_HASH_COMMON_ALIGNMENT,
 			       LC_HASH_CTX_SIZE);
 	if (ret)

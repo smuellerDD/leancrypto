@@ -38,11 +38,12 @@
 static int lc_kernel_hmac_init_alg(struct shash_desc *desc,
 				   const struct lc_hash *hash)
 {
-	struct lc_hmac_ctx *sctx = shash_desc_ctx(desc);
+	struct lc_hmac_ctx *sctx =
+		LC_HASH_GET_ALIGNED_CTX(shash_desc_ctx(desc));
 	struct crypto_shash *tfm = desc->tfm;
 	struct lc_hmac_key *hmac_key = crypto_shash_ctx(tfm);
 
-	LC_HMAC_SET_CTX(sctx, hash);
+	_LC_HASH_SET_CTX((&sctx->hash_ctx), hash);
 	sctx->key = NULL;
 
 	return lc_hmac_init_with_hmac_key(sctx, hmac_key);
@@ -132,7 +133,8 @@ static int lc_kernel_hmac_sha3_513_setkey(struct crypto_shash *tfm,
 static int lc_kernel_hmac_update(struct shash_desc *desc, const u8 *data,
 				    unsigned int len)
 {
-	struct lc_hmac_ctx *sctx = shash_desc_ctx(desc);
+	struct lc_hmac_ctx *sctx =
+		LC_HASH_GET_ALIGNED_CTX(shash_desc_ctx(desc));
 
 	lc_hmac_update(sctx, data, len);
 
@@ -141,7 +143,8 @@ static int lc_kernel_hmac_update(struct shash_desc *desc, const u8 *data,
 
 static int lc_kernel_hmac_final(struct shash_desc *desc, u8 *out)
 {
-	struct lc_hmac_ctx *sctx = shash_desc_ctx(desc);
+	struct lc_hmac_ctx *sctx =
+		LC_HASH_GET_ALIGNED_CTX(shash_desc_ctx(desc));
 
 	lc_hmac_final(sctx, out);
 

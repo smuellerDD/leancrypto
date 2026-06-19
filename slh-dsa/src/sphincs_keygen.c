@@ -24,12 +24,14 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
+#include "alignment.h"
 #include "build_bug_on.h"
 #include "compare.h"
 #include "cpufeatures.h"
 #include "helper.h"
 #include "lc_rng.h"
 #include "lc_memcmp_secure.h"
+#include "lc_memcpy_secure.h"
 #include "signature_domain_separation.h"
 #include "small_stack_support.h"
 #include "sphincs_type.h"
@@ -103,10 +105,15 @@ static const struct lc_sphincs_keygen_func_ctx *lc_sphincs_keygen_get_ctx(void)
 static int lc_sphincs_keypair_from_seed_internal(struct lc_sphincs_pk *pk,
 						 struct lc_sphincs_sk *sk)
 {
+	struct workspace {
+		uint8_t sk_seed_aligned[sizeof(sk->sk_seed)] __align(sizeof(uint64_t));
+		uint8_t pk_aligned[sizeof(pk->pk)]__align(sizeof(uint64_t));
+	};
 	const struct lc_sphincs_keygen_func_ctx *f_ctx =
 		lc_sphincs_keygen_get_ctx();
 	spx_ctx ctx;
 	int ret;
+	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	/*
 	 * Timecop: The SLH-DSA seed is sensitive.
@@ -116,8 +123,26 @@ static int lc_sphincs_keypair_from_seed_internal(struct lc_sphincs_pk *pk,
 	/* Initialize PUB_SEED of PK from SK . */
 	memcpy(pk, sk->pk, LC_SPX_N);
 
-	ctx.pub_seed = pk->pk;
-	ctx.sk_seed = sk->sk_seed;
+	/*
+	 * When using the ctx in the AVX2 code path, it is type-casted into
+	 * a 64 bit integer.
+	 */
+	if (aligned(sk->sk_seed, sizeof(uint64_t) - 1 )) {
+		ctx.sk_seed = sk->sk_seed;
+	} else {
+		lc_memcpy_secure(ws->sk_seed_aligned,
+				 sizeof(ws->sk_seed_aligned), sk->sk_seed,
+				 sizeof(sk->sk_seed));
+		ctx.sk_seed = ws->sk_seed_aligned;
+	}
+
+	if (aligned(pk->pk, sizeof(uint64_t) - 1 )) {
+		ctx.pub_seed = pk->pk;
+	} else {
+		lc_memcpy_secure(ws->pk_aligned, sizeof(ws->pk_aligned), pk,
+				 sizeof(sk->pk));
+		ctx.pub_seed = ws->pk_aligned;
+	}
 
 	/* Compute root node of the top-most subtree. */
 	CKINT(f_ctx->merkle_gen_root(sk->pk + LC_SPX_N, &ctx));
@@ -133,6 +158,7 @@ static int lc_sphincs_keypair_from_seed_internal(struct lc_sphincs_pk *pk,
 	CKINT(lc_sphincs_pct_fips(pk, sk));
 
 out:
+	LC_RELEASE_MEM(ws);
 	return ret;
 }
 

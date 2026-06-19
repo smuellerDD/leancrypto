@@ -24,6 +24,7 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
+#include "alignment.h"
 #include "small_stack_support.h"
 #include "sphincs_type.h"
 #include "sphincs_address.h"
@@ -46,7 +47,7 @@ int sphincs_merkle_sign_avx2(uint8_t *sig, unsigned char *root,
 		struct leaf_info_x4 info;
 		uint32_t tree_addrx4[4 * 8];
 		unsigned int steps[LC_SPX_WOTS_LEN];
-		uint8_t wots_gen_leafx4_buf[4 * LC_SPX_WOTS_BYTES];
+		uint8_t wots_gen_leafx4_buf[4 * LC_SPX_WOTS_BYTES] __align(sizeof(uint64_t));
 #if 1
 		uint8_t thash_buf[LC_THASHX4_BUFLEN * 4];
 #else

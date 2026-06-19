@@ -116,7 +116,7 @@ int public_key_verify_signature_ed25519(
 	const uint8_t *data_ptr;
 	size_t data_len;
 	int ret, authattrs_tag;
-	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+	LC_DECLARE_MEM(ws, struct workspace, 64);
 
 	/* A signature verification does not work with a private key */
 	if (pkey->key_is_private)

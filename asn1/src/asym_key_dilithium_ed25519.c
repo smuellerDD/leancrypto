@@ -276,7 +276,7 @@ int public_key_verify_signature_dilithium_ed25519(
 	const uint8_t *dilithium_src, *ed25519_src, *data_ptr;
 	size_t dilithium_src_len, ed25519_src_len, data_len;
 	int ret, authattrs_tag;
-	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+	LC_DECLARE_MEM(ws, struct workspace, 64);
 
 	/* A signature verification does not work with a private key */
 	if (pkey->key_is_private)

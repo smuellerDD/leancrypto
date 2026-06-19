@@ -372,7 +372,7 @@ LC_INTERFACE_FUNCTION(int, lc_kh_alloc, const struct lc_sym *sym,
 	struct lc_aead_ctx *tmp = NULL;
 	int ret;
 
-	ret = lc_alloc_aligned((void **)&tmp, LC_MEM_COMMON_ALIGNMENT,
+	ret = lc_alloc_aligned((void **)&tmp, LC_HASH_COMMON_ALIGNMENT,
 			       LC_KH_CTX_SIZE);
 	if (ret)
 		return ret;

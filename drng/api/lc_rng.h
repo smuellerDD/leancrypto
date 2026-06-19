@@ -42,9 +42,11 @@ struct lc_rng_ctx {
 	void *rng_state;
 };
 
-#define LC_RNG_CTX(name, cb)                                                   \
+#define LC_RNG_CTX(name, cb, alignment)                                        \
 	name->rng = cb;                                                        \
-	name->rng_state = (uint8_t *)(name) + sizeof(struct lc_rng_ctx)
+	name->rng_state =                                                      \
+		LC_ALIGN_PTR_8((uint8_t *)(name) + sizeof(struct lc_rng_ctx),  \
+			       LC_ALIGNMENT_MASK(alignment))
 /// \endcond
 
 /** @defgroup RNGs Random Number Generation

@@ -88,6 +88,8 @@ struct lc_hash_ctx {
 
 #define LC_ALIGN_HASH_MASK(p)                                                  \
 	LC_ALIGN_PTR_64(p, LC_ALIGNMENT_MASK(LC_HASH_COMMON_ALIGNMENT))
+#define LC_ALIGN_HASH_MASK_TYPE(type, p)                                       \
+	LC_ALIGN_PTR_TYPE(type, p, LC_ALIGNMENT_MASK(LC_HASH_COMMON_ALIGNMENT))
 
 #define LC_SHA_MAX_SIZE_DIGEST 64
 

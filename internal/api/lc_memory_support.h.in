@@ -28,6 +28,7 @@ extern "C" {
 
 /* Default memory alignment */
 #define LC_MEM_COMMON_ALIGNMENT (8)
+#define LC_MEM_DEF_ALIGNED_OFFSET (64)
 
 /**
  * @brief Allocate aligned stack memory
@@ -48,12 +49,21 @@ extern "C" {
 #define LC_ALIGN(x, a) LC_ALIGN_APPLY((x), (uintptr_t)(a))
 
 /**
+ * @brief Align pointer interpreted with given type
+ *
+ * @param type type
+ * @param p pointer
+ * @param a alignment
+ */
+#define LC_ALIGN_PTR_TYPE(type, p, a) ((type *)LC_ALIGN((uintptr_t)(p), (a)))
+
+/**
  * @brief Align pointer interpreted as 64 bit variable
  *
  * @param p pointer
  * @param a alignment
  */
-#define LC_ALIGN_PTR_64(p, a) ((uint64_t *)LC_ALIGN((uintptr_t)(p), (a)));
+#define LC_ALIGN_PTR_64(p, a) ((uint64_t *)LC_ALIGN((uintptr_t)(p), (a)))
 
 /**
  * @brief Align pointer interpreted as 32 bit variable

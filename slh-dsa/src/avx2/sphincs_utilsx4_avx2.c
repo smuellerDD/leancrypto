@@ -24,6 +24,7 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
+#include "alignment.h"
 #include "sidechannel_resistance.h"
 #include "sphincs_type.h"
 #include "sphincs_address.h"
@@ -87,7 +88,7 @@ void treehashx4(
 
 	for (idx = 0;; idx++) {
 		/* Current logical node */
-		uint8_t current_idx[4 * LC_SPX_N];
+		uint8_t current_idx[4 * LC_SPX_N] __align(sizeof(uint64_t));
 
 		gen_leafx4(current_idx, ctx, 4 * idx + idx_offset, info, ws_buf,
 			   thash_buf);

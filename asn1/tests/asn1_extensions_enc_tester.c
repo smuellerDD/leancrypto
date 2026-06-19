@@ -138,7 +138,9 @@ static int x509_gen_cert_extensions(struct x509_checker_options *opts)
 		       gcert->san_email_len, ws->pcert.san_email_len);
 		ret = -EINVAL;
 	} else {
-		if (memcmp(ws->pcert.san_email, gcert->san_email,
+		if (!ws->pcert.san_email || !gcert->san_email) {
+			;
+		} else if (memcmp(ws->pcert.san_email, gcert->san_email,
 			   gcert->san_email_len)) {
 			printf("SAN email name mismatch (original %s, received %s)\n",
 			       gcert->san_email, ws->pcert.san_email);
@@ -153,7 +155,9 @@ static int x509_gen_cert_extensions(struct x509_checker_options *opts)
 		       gcert->san_dns_len, ws->pcert.san_dns_len);
 		ret = -EINVAL;
 	} else {
-		if (memcmp(ws->pcert.san_dns, gcert->san_dns,
+		if (!ws->pcert.san_dns || !gcert->san_dns) {
+			;
+		} else if (memcmp(ws->pcert.san_dns, gcert->san_dns,
 			   gcert->san_dns_len)) {
 			printf("SAN DNS name mismatch (original %s, received %s)\n",
 			       gcert->san_dns, ws->pcert.san_dns);
@@ -168,7 +172,9 @@ static int x509_gen_cert_extensions(struct x509_checker_options *opts)
 		       gcert->san_ip_len, ws->pcert.san_ip_len);
 		ret = -EINVAL;
 	} else {
-		if (memcmp(ws->pcert.san_ip, gcert->san_ip,
+		if (!ws->pcert.san_ip || !gcert->san_ip) {
+			;
+		} else if (memcmp(ws->pcert.san_ip, gcert->san_ip,
 			   gcert->san_ip_len)) {
 			bin2print(gcert->san_ip, gcert->san_ip_len, stdout,
 				  "SAN IP mismatch original");
@@ -188,7 +194,9 @@ static int x509_gen_cert_extensions(struct x509_checker_options *opts)
 		       gcert->raw_skid_size, ws->pcert.raw_skid_size);
 		ret = -EINVAL;
 	} else {
-		if (memcmp(ws->pcert.raw_skid, gcert->raw_skid,
+		if (!ws->pcert.raw_skid || !gcert->raw_skid) {
+			;
+		} else if (memcmp(ws->pcert.raw_skid, gcert->raw_skid,
 			   gcert->raw_skid_size)) {
 			bin2print(gcert->raw_skid, gcert->raw_skid_size, stdout,
 				  "SKID mismatch original");
@@ -205,7 +213,9 @@ static int x509_gen_cert_extensions(struct x509_checker_options *opts)
 		       gcert->raw_akid_size, ws->pcert.raw_akid_size);
 		ret = -EINVAL;
 	} else {
-		if (memcmp(ws->pcert.raw_akid, gcert->raw_akid,
+		if (!ws->pcert.raw_akid || !gcert->raw_akid) {
+			;
+		} else if (memcmp(ws->pcert.raw_akid, gcert->raw_akid,
 			   gcert->raw_akid_size)) {
 			bin2print(gcert->raw_akid, gcert->raw_akid_size, stdout,
 				  "AKID mismatch original");

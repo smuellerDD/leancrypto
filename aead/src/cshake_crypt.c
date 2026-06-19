@@ -608,7 +608,7 @@ static int lc_cc_decrypt_authenticate(void *state, const uint8_t *tag,
 
 	if (taglen > sizeof(calctag)) {
 		ret = lc_alloc_aligned((void **)&calctag_p,
-				       LC_MEM_COMMON_ALIGNMENT, taglen);
+				       LC_HASH_COMMON_ALIGNMENT, taglen);
 		if (ret)
 			return ret;
 	}

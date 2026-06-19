@@ -30,14 +30,15 @@ extern "C" {
 
 #define LC_SELFTEST_DRNG_STATE_SIZE (LC_SHAKE_128_CTX_SIZE)
 #define LC_SELFTEST_DRNG_CTX_SIZE                                              \
-	(sizeof(struct lc_rng_ctx) + LC_SELFTEST_DRNG_STATE_SIZE)
+	(sizeof(struct lc_rng_ctx) +                                           \
+	 LC_HASH_STATE_SIZE_ALIGN(LC_SELFTEST_DRNG_STATE_SIZE))
 
 extern const struct lc_rng *lc_selftest_drng;
 
 #define LC_SELFTEST_HASH_SET_CTX(name) LC_SHAKE_128_CTX((name))
 
 #define LC_SELFTEST_RNG_CTX(name)                                              \
-	LC_RNG_CTX(name, lc_selftest_drng);                                    \
+	LC_RNG_CTX(name, lc_selftest_drng, LC_HASH_COMMON_ALIGNMENT);          \
 	LC_SELFTEST_HASH_SET_CTX((struct lc_hash_ctx *)name->rng_state);       \
 	CKINT(lc_hash_init(name->rng_state))
 

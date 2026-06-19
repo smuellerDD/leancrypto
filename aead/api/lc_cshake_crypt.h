@@ -60,10 +60,11 @@ struct lc_cc_cryptor {
  * State:
  * - key stream + alignment
  * - cSHAKE reinit shadow context + alignment
+ * - state alignment in lc_aead_ctx
  */
 #define LC_CC_STATE_SIZE                                                       \
 	(LC_CC_KEYSTREAM_BLOCK + LC_CSHAKE_CRYPT_ALIGNMENT +                   \
-	 LC_HASH_STATE_SIZE + LC_HASH_COMMON_ALIGNMENT)
+	 LC_HASH_STATE_SIZE + 2 * LC_HASH_COMMON_ALIGNMENT)
 #define LC_CC_CTX_SIZE                                                         \
 	(sizeof(struct lc_aead_ctx) + sizeof(struct lc_cc_cryptor) +           \
 	 LC_CC_STATE_SIZE)
@@ -81,7 +82,7 @@ extern const struct lc_aead *lc_cshake_aead;
 					       LC_HASH_STATE_SIZE)))
 
 #define LC_CC_SET_CTX(name, hashname)                                          \
-	LC_AEAD_CTX(name, lc_cshake_aead);                                     \
+	LC_AEAD_HASH_ALIGN_CTX(name, lc_cshake_aead);                          \
 	_LC_CC_SET_CTX(((struct lc_cc_cryptor *)name->aead_state), hashname)
 /// \endcond
 

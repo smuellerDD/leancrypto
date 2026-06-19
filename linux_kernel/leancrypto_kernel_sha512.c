@@ -29,7 +29,8 @@
 
 static int lc_kernel_sha384_init(struct shash_desc *desc)
 {
-	struct lc_hash_ctx *sctx = shash_desc_ctx(desc);
+	struct lc_hash_ctx *sctx =
+		LC_HASH_GET_ALIGNED_CTX(shash_desc_ctx(desc));
 
 	LC_SHA384_CTX(sctx);
 	return lc_hash_init(sctx);
@@ -37,7 +38,8 @@ static int lc_kernel_sha384_init(struct shash_desc *desc)
 
 static int lc_kernel_sha512_hash_init(struct shash_desc *desc)
 {
-	struct lc_hash_ctx *sctx = shash_desc_ctx(desc);
+	struct lc_hash_ctx *sctx =
+		LC_HASH_GET_ALIGNED_CTX(shash_desc_ctx(desc));
 
 	LC_SHA512_CTX(sctx);
 	return lc_hash_init(sctx);
@@ -46,7 +48,8 @@ static int lc_kernel_sha512_hash_init(struct shash_desc *desc)
 static int lc_kernel_sha512_update(struct shash_desc *desc, const u8 *data,
 				   unsigned int len)
 {
-	struct lc_hash_ctx *sctx = shash_desc_ctx(desc);
+	struct lc_hash_ctx *sctx =
+		LC_HASH_GET_ALIGNED_CTX(shash_desc_ctx(desc));
 
 	lc_hash_update(sctx, data, len);
 
@@ -55,7 +58,8 @@ static int lc_kernel_sha512_update(struct shash_desc *desc, const u8 *data,
 
 static int lc_kernel_sha512_final(struct shash_desc *desc, u8 *out)
 {
-	struct lc_hash_ctx *sctx = shash_desc_ctx(desc);
+	struct lc_hash_ctx *sctx =
+		LC_HASH_GET_ALIGNED_CTX(shash_desc_ctx(desc));
 
 	lc_hash_final(sctx, out);
 

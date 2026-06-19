@@ -17,6 +17,7 @@
  * DAMAGE.
  */
 
+#include "build_bug_on.h"
 #include "ext_headers_internal.h"
 #include "lc_aes.h"
 #include "lc_sym.h"
@@ -154,6 +155,7 @@ LC_INTERFACE_FUNCTION(int, lc_sym_alloc, const struct lc_sym *sym,
 	if (!ctx || !sym)
 		return -EINVAL;
 
+	BUILD_BUG_ON(LC_MEM_DEF_ALIGNED_OFFSET < LC_SYM_COMMON_ALIGNMENT);
 	ret = lc_alloc_aligned((void **)&out_ctx, LC_SYM_COMMON_ALIGNMENT,
 			       LC_SYM_CTX_SIZE);
 

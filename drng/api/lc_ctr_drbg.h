@@ -70,12 +70,14 @@ struct lc_drbg_ctr_state {
 #define LC_DRBG_CTR_STATE_SIZE_USE_DF                                          \
 	(sizeof(struct lc_drbg_ctr_state) + LC_DRBG_CTR_SCRATCHPAD_USE_DF)
 #define LC_DRBG_CTR_CTX_SIZE_USE_DF                                            \
-	((unsigned long)(LC_DRBG_CTR_STATE_SIZE_USE_DF + sizeof(struct lc_rng)))
+	((unsigned long)(LC_DRBG_CTR_STATE_SIZE_USE_DF +                       \
+			 sizeof(struct lc_rng_ctx)))
 
 #define LC_DRBG_CTR_STATE_SIZE_NO_DF                                           \
 	(sizeof(struct lc_drbg_ctr_state) + LC_DRBG_CTR_SCRATCHPAD_NO_DF)
 #define LC_DRBG_CTR_CTX_SIZE_NO_DF                                             \
-	((unsigned long)(LC_DRBG_CTR_STATE_SIZE_NO_DF + sizeof(struct lc_rng)))
+	((unsigned long)(LC_DRBG_CTR_STATE_SIZE_NO_DF +                        \
+			 sizeof(struct lc_rng_ctx)))
 
 #define _LC_DRBG_CTR_SET_CTX(name, ctx, offset, _use_df, _scratchpad_size)     \
 	LC_SYM_SET_CTX((&(name)->ctr_ctx), lc_aes_ctr);                        \
@@ -94,7 +96,7 @@ struct lc_drbg_ctr_state {
 extern const struct lc_rng *lc_ctr_drbg;
 
 #define LC_DRBG_CTR_RNG_CTX(name, _use_df, _scratchpad_size)                   \
-	LC_RNG_CTX(name, lc_ctr_drbg);                                         \
+	LC_RNG_CTX(name, lc_ctr_drbg, 1);                                      \
 	LC_DRBG_CTR_SET_CTX((struct lc_drbg_ctr_state *)name->rng_state,       \
 			    _use_df, _scratchpad_size);                        \
 	lc_ctr_drbg->zero(name->rng_state)

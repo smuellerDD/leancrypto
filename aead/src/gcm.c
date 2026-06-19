@@ -921,7 +921,7 @@ LC_INTERFACE_FUNCTION(int, lc_aes_gcm_alloc, struct lc_aead_ctx **ctx)
 	struct lc_aead_ctx *tmp = NULL;
 	int ret;
 
-	ret = lc_alloc_aligned((void **)&tmp, LC_MEM_COMMON_ALIGNMENT,
+	ret = lc_alloc_aligned((void **)&tmp, LC_SYM_COMMON_ALIGNMENT,
 			       LC_AES_GCM_CTX_SIZE);
 	if (ret)
 		return ret;

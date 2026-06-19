@@ -32,21 +32,22 @@ extern "C" {
 
 /// \cond DO_NOT_DOCUMENT
 struct lc_hkdf_ctx {
+	struct lc_hmac_ctx hmac_ctx;
+	struct lc_hmac_key key;
 	uint8_t partial[LC_SHA_MAX_SIZE_DIGEST];
 	size_t partial_ptr;
 	uint8_t ctr;
 	uint8_t rng_initialized : 1;
-	struct lc_hmac_ctx hmac_ctx;
 };
 
-#define LC_HKDF_STATE_SIZE (LC_HMAC_CTX_SIZE)
-#define LC_HKDF_CTX_SIZE (sizeof(struct lc_hkdf_ctx) + LC_HKDF_STATE_SIZE)
+#define LC_HKDF_CTX_SIZE (sizeof(struct lc_hkdf_ctx))
 
 #define _LC_HKDF_SET_CTX(name, hashname, ctx, offset)                          \
-	_LC_HMAC_SET_CTX((&(name)->hmac_ctx), hashname, ctx, offset)
+	LC_HMAC_SET_CTX((&(name)->hmac_ctx), hashname)
 
 #define LC_HKDF_SET_CTX(name, hashname)                                        \
 	_LC_HKDF_SET_CTX(name, hashname, name, sizeof(struct lc_hkdf_ctx))
+
 /// \endcond
 
 /**
@@ -242,12 +243,13 @@ enum lc_alg_status_val lc_hkdf_alg_status(const struct lc_hash *hash);
 extern const struct lc_rng *lc_hkdf_rng;
 
 /// \cond DO_NOT_DOCUMENT
-#define LC_HKDF_DRNG_CTX_SIZE (sizeof(struct lc_rng_ctx) + LC_HKDF_CTX_SIZE)
+#define LC_HKDF_DRNG_CTX_SIZE                                                  \
+	(sizeof(struct lc_rng_ctx) + LC_HASH_STATE_SIZE_ALIGN(LC_HKDF_CTX_SIZE))
 
 #define LC_HKDF_DRNG_SET_CTX(name, hashname) LC_HKDF_SET_CTX(name, hashname)
 
 #define LC_HKDF_RNG_CTX(name, hashname)                                        \
-	LC_RNG_CTX(name, lc_hkdf_rng);                                         \
+	LC_RNG_CTX(name, lc_hkdf_rng, LC_HASH_COMMON_ALIGNMENT);               \
 	LC_HKDF_DRNG_SET_CTX(((struct lc_hkdf_ctx *)(name->rng_state)),        \
 			     hashname);                                        \
 	lc_rng_zero(name)

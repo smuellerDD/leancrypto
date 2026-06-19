@@ -24,6 +24,7 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
+#include "alignment.h"
 #include "sidechannel_resistance.h"
 #include "small_stack_support.h"
 #include "sphincs_type.h"
@@ -51,7 +52,7 @@ static void gen_chains(uint8_t *out, const uint8_t *in,
 	uint16_t counts[LC_SPX_WOTS_W] = { 0 };
 	uint16_t idxs[LC_SPX_WOTS_LEN];
 	uint16_t i, total, newTotal;
-	uint8_t empty[LC_SPX_N];
+	uint8_t empty[LC_SPX_N] __align(sizeof(uint64_t));
 	uint8_t *bufs[4];
 
 	/* set addrs = {addr, addr, addr, addr} */

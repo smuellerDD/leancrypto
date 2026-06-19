@@ -45,7 +45,7 @@ struct lc_drbg_hmac_state {
 #define LC_DRBG_HMAC_STATE_SIZE (2 * LC_DRBG_HMAC_STATELEN)
 #define LC_DRBG_HMAC_CTX_SIZE                                                  \
 	(LC_DRBG_HMAC_STATE_SIZE + sizeof(struct lc_drbg_hmac_state) +         \
-	 sizeof(struct lc_rng))
+	 sizeof(struct lc_rng_ctx) + LC_HASH_COMMON_ALIGNMENT)
 
 #define _LC_DRBG_HMAC_SET_CTX(name, ctx, offset)                               \
 	_LC_HMAC_SET_CTX((&(name)->hmac_ctx), LC_DRBG_HMAC_CORE,               \
@@ -61,7 +61,7 @@ struct lc_drbg_hmac_state {
 extern const struct lc_rng *lc_hmac_drbg;
 
 #define LC_DRBG_HMAC_RNG_CTX(name)                                             \
-	LC_RNG_CTX(name, lc_hmac_drbg);                                        \
+	LC_RNG_CTX(name, lc_hmac_drbg, LC_HASH_COMMON_ALIGNMENT);              \
 	LC_DRBG_HMAC_SET_CTX((struct lc_drbg_hmac_state *)name->rng_state);    \
 	lc_hmac_drbg->zero(name->rng_state)
 /// \endcond

@@ -1,0 +1,25 @@
+name: ASAN address CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install meson
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y meson gnu-efi libubsan1
+    - name: Meson setup build
+      run: meson setup build -Db_sanitize=undefined -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled -Dsbsigntools=enabled
+    - name: Meson compile
+      run: meson compile -C build
+    - name: Meson test
+      run: UBSAN_OPTIONS="print_stacktrace=1" meson test -C build --suite regression

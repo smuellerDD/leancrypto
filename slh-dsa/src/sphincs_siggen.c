@@ -24,12 +24,14 @@
  * (https://creativecommons.org/share-your-work/public-domain/cc0/).
  */
 
+#include "alignment.h"
 #include "build_bug_on.h"
 #include "compare.h"
 #include "cpufeatures.h"
 #include "helper.h"
 #include "lc_rng.h"
 #include "lc_memcmp_secure.h"
+#include "lc_memcpy_secure.h"
 #include "signature_domain_separation.h"
 #include "small_stack_support.h"
 #include "sphincs_type.h"
@@ -113,6 +115,8 @@ int lc_sphincs_sign_ctx_nocheck(struct lc_sphincs_sig *sig,
 				struct lc_rng_ctx *rng_ctx)
 {
 	struct workspace {
+		uint8_t sk_seed_aligned[sizeof(sk->sk_seed)] __align(sizeof(uint64_t));
+		uint8_t pk_aligned[sizeof(sk->pk)]__align(sizeof(uint64_t));
 		uint64_t tree;
 		uint32_t idx_leaf;
 		uint32_t wots_addr[8];
@@ -138,8 +142,26 @@ int lc_sphincs_sign_ctx_nocheck(struct lc_sphincs_sig *sig,
 	 */
 	poison(sk, 2 * LC_SPX_N);
 
-	ctx_int.sk_seed = sk->sk_seed;
-	ctx_int.pub_seed = pk;
+	/*
+	 * When using the ctx in the AVX2 code path, it is type-casted into
+	 * a 64 bit integer.
+	 */
+	if (aligned(sk->sk_seed, sizeof(uint64_t) - 1 )) {
+		ctx_int.sk_seed = sk->sk_seed;
+	} else {
+		lc_memcpy_secure(ws->sk_seed_aligned,
+				 sizeof(ws->sk_seed_aligned), sk->sk_seed,
+				 sizeof(sk->sk_seed));
+		ctx_int.sk_seed = ws->sk_seed_aligned;
+	}
+
+	if (aligned(pk, sizeof(uint64_t) - 1 )) {
+		ctx_int.pub_seed = pk;
+	} else {
+		lc_memcpy_secure(ws->pk_aligned, sizeof(ws->pk_aligned), pk,
+				 sizeof(sk->pk));
+		ctx_int.pub_seed = ws->pk_aligned;
+	}
 
 	set_type(ws->wots_addr, LC_SPX_ADDR_TYPE_WOTS);
 	set_type(ws->tree_addr, LC_SPX_ADDR_TYPE_HASHTREE);
