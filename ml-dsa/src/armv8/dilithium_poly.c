@@ -127,7 +127,7 @@ void poly_uniformx2(poly *a0, poly *a1,
 {
 #define LC_POLY_UNIFORMX2_BUF (POLY_UNIFORM_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK)
 	unsigned int ctr0, ctr1;
-	uint8_t *buf0 = ws_buf, *buf1 = buf0 + (LC_POLY_UNIFORMX2_BUF + 2);
+	uint8_t *buf0 = ws_buf, *buf1 = buf0 + (LC_POLY_UNIFORMX2_BUF + 8);
 	keccakx2_state statex2;
 
 	dilithium_shake128x2_stream_init(&statex2, seed, nonce0, nonce1,

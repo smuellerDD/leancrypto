@@ -49,7 +49,7 @@ extern "C" {
 #endif
 
 #define _WS_POLY_UNIFORM_BUF_SIZE                                              \
-	(POLY_UNIFORM_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK + 2)
+	(POLY_UNIFORM_NBLOCKS * LC_SHAKE_128_SIZE_BLOCK + 8)
 
 #ifndef LC_POLY_UNIFOR_BUF_SIZE_MULTIPLIER
 #error "LC_POLY_UNIFOR_BUF_SIZE_MULTIPLIER is not defined"
@@ -60,6 +60,11 @@ extern "C" {
 
 struct keygen_workspace {
 	union {
+		poly polyvecl_pointwise_acc_montgomery_buf;
+		uint8_t poly_uniform_buf[WS_POLY_UNIFORM_BUF_SIZE];
+		uint8_t poly_uniform_eta_buf[POLY_UNIFORM_ETA_BYTES];
+	} tmp __align(sizeof(uint64_t));
+	union {
 		polyvecl s1, s1hat;
 	} s1;
 	union {
@@ -68,11 +73,6 @@ struct keygen_workspace {
 	} matrix;
 	polyveck s2, t1;
 	uint8_t seedbuf[2 * LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_CRHBYTES];
-	union {
-		poly polyvecl_pointwise_acc_montgomery_buf;
-		uint8_t poly_uniform_buf[WS_POLY_UNIFORM_BUF_SIZE];
-		uint8_t poly_uniform_eta_buf[POLY_UNIFORM_ETA_BYTES];
-	} tmp;
 };
 
 static void lc_dilithium_pk_sk_from_rho_s1_s2(uint8_t *pubkey, uint8_t *seckey,
