@@ -1,4 +1,4 @@
-name: ASAN address CI
+name: UBSAN CI
 
 on:
   push:
