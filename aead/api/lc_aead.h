@@ -146,7 +146,7 @@ void lc_aead_zero_free(struct lc_aead_ctx *ctx);
  * The algorithm supports a key of arbitrary size. The only requirement is that
  * the same key is used for decryption as for encryption.
  *
- * \oote The key / IV are allowed to be unset with the following result:
+ * \note The key / IV are allowed to be unset with the following result:
  * * If key and IV are set: AEAD context is initialized and ready for use with
  *   encrypt or decrypt.
  * * If neither key nor IV are given, an error is returned as this is invalid.
