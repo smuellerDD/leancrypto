@@ -65,7 +65,7 @@ int k_sqr_port(pad_r_t *c, const pad_r_t *a, const size_t l_param)
 			size_t pos_bit = pos & 7;
 			uint8_t bit = (a->val.raw[pos_byte] >> pos_bit) & 1;
 
-			c->val.raw[i] |= (bit << j);
+			c->val.raw[i] |= (uint8_t)(bit << j);
 		}
 	}
 	c->val.raw[LC_BIKE_R_BYTES - 1] &= LC_BIKE_LAST_R_BYTE_MASK;

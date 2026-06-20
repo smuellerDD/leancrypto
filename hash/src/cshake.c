@@ -37,7 +37,7 @@ static int lc_cshake_init_impl(struct lc_hash_ctx *ctx, const uint8_t *n,
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t bytepad_val128[] = { 0x01,
 						  LC_SHAKE_128_SIZE_BLOCK };
-	uint8_t buf[sizeof(nlen) + 1];
+	uint8_t buf[sizeof(nlen) + 2];
 	size_t len;
 	/* 2 bytes for the bytepad_val that gets inserted */
 	size_t added = 2;

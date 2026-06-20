@@ -128,7 +128,7 @@ int crypto_scalarmult_curve25519_c(uint8_t *q, const uint8_t *n,
 
 	swap = 0;
 	for (pos = 254; pos >= 0; --pos) {
-		bit = t[pos / 8] >> (pos & 7);
+		bit = (unsigned int)(t[pos / 8] >> (pos & 7));
 		bit &= 1;
 		swap ^= bit;
 		fe25519_cswap(x2, x3, swap);

@@ -82,7 +82,7 @@ static uint16_t gf_reduce(uint64_t x, size_t deg_x)
 			dist = z2 - z1;
 			mod <<= dist;
 			x ^= mod;
-			rmdr ^= 1 << z2;
+			rmdr ^= (uint16_t)(1 << z2);
 			z1 = z2;
 		}
 	}
@@ -136,13 +136,13 @@ static void gf_carryless_mul(uint8_t c[2], uint8_t a, uint8_t b)
 						     31)))));
 		}
 
-		l ^= g << i;
-		h ^= g >> (8 - i);
+		l ^= (uint16_t)(g << i);
+		h ^= (uint16_t)(g >> (8 - i));
 	}
 
 	mask = (uint16_t)(uint16_t)(-((b >> 7) & 1));
-	l ^= ((a << 7) & mask);
-	h ^= ((a >> 1) & mask);
+	l ^= (uint16_t)((a << 7) & mask);
+	h ^= (uint16_t)((a >> 1) & mask);
 
 	c[0] = (uint8_t)l;
 	c[1] = (uint8_t)h;

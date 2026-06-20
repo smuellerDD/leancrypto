@@ -135,7 +135,7 @@ static int lc_kmac_init_nocheck(struct lc_kmac_ctx *kmac_ctx,
 	LC_FIPS_RODATA_SECTION
 	static const uint8_t bytepad_val128[] = { 0x01,
 						  LC_SHAKE_128_SIZE_BLOCK };
-	uint8_t buf[sizeof(klen) + 1];
+	uint8_t buf[sizeof(klen) + 2];
 	size_t len;
 	/* 2 bytes for the bytepad_val that gets inserted */
 	size_t added = 2;
