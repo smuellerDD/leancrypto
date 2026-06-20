@@ -31,7 +31,7 @@ extern "C" {
 #define LC_KERNEL_DEFAULT_PRIO 5000
 
 #define LC_HASH_GET_ALIGNED_CTX(ptr)                                           \
-	PTR_ALIGN(ptr, +LC_HASH_COMMON_ALIGNMENT - 1)
+	PTR_ALIGN(ptr, LC_HASH_COMMON_ALIGNMENT - 1)
 
 /*
  * kzfree was renamed to kfree_sensitive in 5.9

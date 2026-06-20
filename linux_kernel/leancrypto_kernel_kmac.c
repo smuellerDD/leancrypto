@@ -32,10 +32,12 @@
 
 static int lc_kernel_kmac256_init_alg(struct shash_desc *desc)
 {
-	struct lc_kmac_ctx *sctx = shash_desc_ctx(desc);
+	struct lc_kmac_ctx *sctx =
+		LC_HASH_GET_ALIGNED_CTX(shash_desc_ctx(desc));
 	struct lc_hash_ctx *shash_ctx = &sctx->hash_ctx;
 	struct crypto_shash *tfm = desc->tfm;
-	struct lc_kmac_ctx *pctx = crypto_shash_ctx(tfm);
+	struct lc_kmac_ctx *pctx =
+		LC_HASH_GET_ALIGNED_CTX(crypto_shash_ctx(tfm));
 	struct lc_hash_ctx *phash_ctx = &pctx->hash_ctx;
 	int ret;
 
@@ -54,7 +56,8 @@ out:
 static int lc_kernel_kmac256_setkey(struct crypto_shash *tfm, const u8 *key,
 				    unsigned int keylen)
 {
-	struct lc_kmac_ctx *sctx = crypto_shash_ctx(tfm);
+	struct lc_kmac_ctx *sctx =
+		LC_HASH_GET_ALIGNED_CTX(crypto_shash_ctx(tfm));
 
 	LC_KMAC_SET_CTX(sctx, lc_cshake256);
 
@@ -64,7 +67,8 @@ static int lc_kernel_kmac256_setkey(struct crypto_shash *tfm, const u8 *key,
 static int lc_kernel_kmac256_update(struct shash_desc *desc, const u8 *data,
 				    unsigned int len)
 {
-	struct lc_kmac_ctx *sctx = shash_desc_ctx(desc);
+	struct lc_kmac_ctx *sctx =
+		LC_HASH_GET_ALIGNED_CTX(shash_desc_ctx(desc));
 
 	lc_kmac_update(sctx, data, len);
 
@@ -73,7 +77,8 @@ static int lc_kernel_kmac256_update(struct shash_desc *desc, const u8 *data,
 
 static int lc_kernel_kmac256_final(struct shash_desc *desc, u8 *out)
 {
-	struct lc_kmac_ctx *sctx = shash_desc_ctx(desc);
+	struct lc_kmac_ctx *sctx =
+		LC_HASH_GET_ALIGNED_CTX(shash_desc_ctx(desc));
 	unsigned int maclen = crypto_shash_digestsize(desc->tfm);
 
 	lc_kmac_final(sctx, out, maclen);
@@ -83,7 +88,8 @@ static int lc_kernel_kmac256_final(struct shash_desc *desc, u8 *out)
 
 static int lc_kernel_kmac256_final_xof(struct shash_desc *desc, u8 *out)
 {
-	struct lc_kmac_ctx *sctx = shash_desc_ctx(desc);
+	struct lc_kmac_ctx *sctx =
+		LC_HASH_GET_ALIGNED_CTX(shash_desc_ctx(desc));
 	unsigned int maclen = crypto_shash_digestsize(desc->tfm);
 
 	lc_kmac_final_xof(sctx, out, maclen);

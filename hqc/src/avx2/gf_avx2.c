@@ -93,9 +93,9 @@ static uint16_t gf_reduce(uint64_t x, size_t deg_x)
 		for (j = LC_HQC_PARAM_GF_POLY_WT - 2; j; --j) {
 			z2 = __tzcnt_u16(rmdr);
 			dist = (uint16_t)(z2 - z1);
-			mod <<= dist;
+			mod <<= (dist & 63);
 			x ^= mod;
-			rmdr ^= 1 << z2;
+			rmdr ^= (uint16_t)(1 << (z2 & 15));
 			z1 = z2;
 		}
 	}

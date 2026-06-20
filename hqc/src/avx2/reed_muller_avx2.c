@@ -106,7 +106,7 @@ static inline void expand_and_sum(expandedCodeword *dst, codeword src[])
 		for (size_t part = 0; part < 8; part++) {
 			for (size_t i = 0; i < 16; ++i) {
 				dst->i16[(part << 4) + i] +=
-					src[copy].u16[part] >> i & 1;
+					(int16_t)(src[copy].u16[part] >> i & 1);
 			}
 		}
 	}
@@ -245,7 +245,7 @@ static inline uint8_t find_peaks(struct reed_muller_decode_ws *ws)
 	// get the column number of the vector element
 	ws->peak_mask.mm = _mm256_cmpgt_epi16(ws->active_row, ws->bound);
 	for (size_t i = 0; i < 16; ++i) {
-		ws->peak_mask.u16[i] &= 1 << i;
+		ws->peak_mask.u16[i] &= (uint16_t)(1 << i);
 	}
 
 	for (int32_t i = 0; i < 3; i++) {
