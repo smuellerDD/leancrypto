@@ -317,6 +317,7 @@ composite_ml_dsa_oids="1.3.6.1.5.5.7.6.39 1.3.6.1.5.5.7.6.48 1.3.6.1.5.5.7.6.51"
 slh_dsa_oids="2.16.840.1.101.3.4.3.26 2.16.840.1.101.3.4.3.27 2.16.840.1.101.3.4.3.28 2.16.840.1.101.3.4.3.29 2.16.840.1.101.3.4.3.30 2.16.840.1.101.3.4.3.31"
 
 bc_test() {
+	local subdir="artifacts"
 	local oids="$ml_dsa_oids $slh_dsa_oids"
 	#local oids="$ml_dsa_oids $composite_ml_dsa_oids $slh_dsa_oids"
 	local file=""
@@ -324,7 +325,7 @@ bc_test() {
 	extract_files "bc/artifacts_certs_r5.zip"
 	for i in $oids
 	do
-		file=$TMPDIR/*$i*_ta.der
+		file=$TMPDIR/$subdir/*$i*_ta.der
 		for j in $file
 		do
 			echo $j | grep -q "catalyst" && continue
@@ -393,7 +394,7 @@ cryptonext_test() {
 }
 
 entrust_test() {
-	local subdir="artifacts"
+	local subdir="artifacts_certs_r5"
 	local oids="$ml_dsa_oids $composite_ml_dsa_oids $slh_dsa_oids"
 
 	extract_files "entrust/artifacts_certs_r5.zip"
@@ -440,7 +441,7 @@ seventhsense_test() {
 	#local oids="$ml_dsa_oids $composite_ml_dsa_oids $slh_dsa_oids"
 	local oids="$ml_dsa_oids $slh_dsa_oids"
 
-	extract_files "seventhsense.ai/artifact_certs_r4.zip"
+	extract_files "seventhsense.ai/artifacts_certs_r5.zip"
 	for i in $oids
 	do
 		check_one $TMPDIR/*$i*_ta.der 0 $i
