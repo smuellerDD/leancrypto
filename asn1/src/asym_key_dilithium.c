@@ -477,8 +477,25 @@ int private_key_decode_dilithium(struct lc_x509_key_data *keys,
 {
 	int ret;
 
-	CKINT(lc_asn1_ber_decoder(&lc_x509_mldsa_privkey_decoder, keys, data,
-				  datalen));
+	/*
+	 * Apply some leniency:
+	 *
+	 * *  first, attempt to parse the private key
+	 *    following the specifications in the RFC.
+	 * *  If that fails, let us try tp parse the data as private key
+	 *     (which fails immediately when the input data is not of expected
+	 *     size).
+	 * * And as a last resort, we try to parse the data as full key.
+	 */
+	ret = lc_asn1_ber_decoder(&lc_x509_mldsa_privkey_decoder, keys, data,
+				  datalen);
+	if (ret) {
+		ret = lc_x509_mldsa_private_key_seed(keys, 0, 0, data, datalen);
+		if (ret)
+			CKINT(lc_x509_mldsa_private_key_expanded(keys, 0, 0,
+								 data,
+								 datalen));
+	}
 
 out:
 	return ret;
