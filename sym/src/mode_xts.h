@@ -20,6 +20,7 @@
 #ifndef MODE_XTS_H
 #define MODE_XTS_H
 
+#include "conv_be_le.h"
 #include "lc_sym.h"
 
 #ifdef __cplusplus
@@ -28,7 +29,6 @@ extern "C" {
 
 union lc_xts_tweak {
 	uint64_t qw[2];
-	uint32_t dw[4];
 	uint8_t b[AES_BLOCKLEN];
 };
 
@@ -45,7 +45,7 @@ struct lc_mode_state {
  * in section 5.2 of "The XTS-AES Tweakable Block Cipher An Extract from IEEE
  * Std 1619-2007"
  */
-#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#if 0 //__BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 static inline void gfmul_alpha(union lc_xts_tweak *t)
 {
 	/*
@@ -68,12 +68,12 @@ static inline void gfmul_alpha(union lc_xts_tweak *t)
 
 static inline void gfmul_alpha(union lc_xts_tweak *t)
 {
-	unsigned int carry, res;
+	uint64_t zero = le_bswap64(t->qw[0]);
+	uint64_t one = le_bswap64(t->qw[1]);
+	uint64_t res = 0x87 & ((int64_t)one >> 63);
 
-	res = 0x87 & (((int)t->dw[3]) >> 31);
-	carry = (unsigned int)(t->qw[0] >> 63);
-	t->qw[0] = (t->qw[0] << 1) ^ res;
-	t->qw[1] = (t->qw[1] << 1) | carry;
+	t->qw[0] = le_bswap64((zero << 1) ^ res);
+	t->qw[1] = le_bswap64((one << 1) | (zero >> 63));
 }
 #endif /* __ORDER_BIG_ENDIAN__ */
 
