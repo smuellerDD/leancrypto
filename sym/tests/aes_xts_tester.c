@@ -220,7 +220,7 @@ static int test_encrypt_xts_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 		       ptlen - 3 * AES_BLOCKLEN);
 	lc_sym_getiv(ctx, ivout, sizeof(ivout));
 	rc = lc_compare(out, ct, ptlen, "AES-XTS encrypt ciphertext");
-	rc = lc_compare(ivout, expiv, ivlen, "AES-XTS encrypt IV");
+	rc += lc_compare(ivout, expiv, ivlen, "AES-XTS encrypt IV");
 
 	/* Encrypt with external IV */
 	memcpy(extiv, iv, ivlen);
@@ -256,7 +256,7 @@ static int test_encrypt_xts_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 		       ptlen - AES_BLOCKLEN);
 	lc_sym_getiv(ctx, ivout, sizeof(ivout));
 	rc += lc_compare(out2, pt, ptlen, "AES-XTS decrypt plaintext");
-	rc = lc_compare(expiv, ivout, ivlen, "AES-XTS decrypt IV");
+	rc += lc_compare(expiv, ivout, ivlen, "AES-XTS decrypt IV");
 
 	/* Decrypt with external IV */
 	memcpy(extiv, iv, ivlen);
