@@ -243,7 +243,10 @@ static int mode_xts_encrypt_iv_internal(const struct lc_mode_state *ctx,
 		 * this code, we got the final block. Thus, a stream mode
 		 * invocation must take care that the initial data is always
 		 * a multiple of 16 bytes.
+		 *
+		 * But the caller may rely on the updated tweak.
 		 */
+		gfmul_alpha(tweak);
 
 		/* Copy PP as last full block */
 		memcpy(out, PP, AES_BLOCKLEN);
@@ -352,22 +355,25 @@ static int mode_xts_decrypt_iv_internal(const struct lc_mode_state *ctx,
 		memcpy(tweak_local.b, tweak->b, AES_BLOCKLEN);
 
 		/* We need the tweak of the last iteration for the decryption */
-		gfmul_alpha(&tweak_local);
+		gfmul_alpha(tweak);
 		/* Decryption using the last tweak and the last full block */
-		xts_dec_block(ctx, PP, in, &tweak_local);
+		xts_dec_block(ctx, PP, in, tweak);
 
 		/* Get the final partial block */
 		memcpy(CC, in + AES_BLOCKLEN, b);
 		/* Add the plaintext from the last full block */
 		memcpy(CC + b, PP + b, AES_BLOCKLEN - b);
 		/* Decryption using the last but one tweak */
-		xts_dec_block(ctx, CC, CC, tweak);
+		xts_dec_block(ctx, CC, CC, &tweak_local);
 		/*
 		 * Final tweak increment not needed any more - when we reach
 		 * this code, we got the final block. Thus, a stream mode
 		 * invocation must take care that the initial data is always
 		 * a multiple of 16 bytes.
+		 *
+		 * But the caller may rely on the updated tweak.
 		 */
+		gfmul_alpha(tweak);
 
 		/* Copy PP as last full block */
 		memcpy(out, CC, AES_BLOCKLEN);

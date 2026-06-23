@@ -2627,6 +2627,15 @@ Loop_final_enc:
 	eor	v26.16b,v26.16b,v6.16b
 	st1	{v26.16b},[x1]
 
+	/*
+	 * Update the last tweak. Even though it may not be needed as we
+	 * reached the end of the XTS operation, the caller may rely on the
+	 * updated tweak.
+	 */
+	load_gfmul_macro
+	fmov	d6,x9			// Store the updated tweak
+	fmov	v6.d[1],x10		// Store the updated tweak
+
 Lxts_abort:
 	ldp	x19,x20,[sp,#64]
 	ldp	x21,x22,[sp,#48]
@@ -3279,7 +3288,7 @@ Loop_final_2nd_dec:
 	aesimc	v26.16b,v26.16b
 	ld1	{v0.4s},[x3]
 	aesd	v26.16b,v1.16b
-	eor	v26.16b,v26.16b,v0.16b
+	eor	v26.16b,v26.16b,v0.16b		// XORing the tweak
 	eor	v26.16b,v26.16b,v8.16b
 	st1	{v26.16b},[x1]
 
@@ -3321,6 +3330,20 @@ Loop_final_dec:
 	eor	v26.16b,v26.16b,v0.16b
 	eor	v26.16b,v26.16b,v6.16b
 	st1	{v26.16b},[x1]
+
+	/*
+	 * Perform the tweak multiplication of the last tweak used for
+	 * the final partial block. The tweak is in w8.16b. Even though
+	 * it is not needed, we calculate it to return to the caller in case
+	 * he needs it.
+	 */
+	fmov	x9,d8
+	fmov	x10,v8.d[1]
+	mov	w19,#0x87
+	gfmul_macro
+	fmov	d6,x9			// Store the updated tweak
+	fmov	v6.d[1],x10		// Store the updated tweak
+
 
 Lxts_dec_abort:
 	ldp	x19,x20,[sp,#64]

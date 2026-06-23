@@ -23,8 +23,6 @@
 
 - Add SLH-DSA-Ascon to Linux kernel
 
-- Linux kernel: the implementaiton of XTS sometimes fails with the extended/full self tests, because the harness expects an errno -2 whereas leancrypto returns -22. This is considered harmless and is ignored.
-
 - sbkeysync: develop proper tests and verify
 
 - HQC: add lc_hqc_pk_from_sk

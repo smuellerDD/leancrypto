@@ -29,7 +29,7 @@ extern "C" {
 
 union lc_xts_tweak {
 	uint64_t qw[2];
-	uint8_t b[AES_BLOCKLEN];
+	uint8_t b[16];
 };
 
 struct lc_mode_state {

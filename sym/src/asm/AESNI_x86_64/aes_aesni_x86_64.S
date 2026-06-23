@@ -2119,6 +2119,19 @@ SYM_FUNC_ENTER(aesni_xts_encrypt)
 	xorps	%xmm10,%xmm2
 	movups	%xmm2,-16(%rsi)
 
+	/*
+	 * Update the last tweak. Even though it may not be needed as we
+	 * reached the end of the XTS operation, the caller may rely on the
+	 * updated tweak.
+	 *
+	 * Mask in %xmm8
+	 */
+	pshufd	$0x5f,%xmm10,%xmm0
+	psrad	$31,%xmm0
+	paddq	%xmm10,%xmm10
+	pand	%xmm8,%xmm0
+	pxor	%xmm0,%xmm10
+
 .Lxts_enc_ret:
 	movups	%xmm10,(%r14) #xmm10 contains IV - write it back
 	xorps	%xmm0,%xmm0
@@ -2208,6 +2221,7 @@ SYM_FUNC_ENTER(aesni_xts_decrypt)
 	movups	16(%rcx,%r10,1),%xmm1
 
 	movdqu	.Lxts_magic(%rip),%xmm8
+
 	movdqa	%xmm2,%xmm15
 	pshufd	$0x5f,%xmm2,%xmm9
 	pxor	%xmm0,%xmm1
@@ -2260,6 +2274,7 @@ SYM_FUNC_ENTER(aesni_xts_decrypt)
 	movups	16(%rbp),%xmm1
 	movq	%rax,%r10
 	leaq	.Lxts_magic(%rip),%r8
+
 	jmp	.Lxts_dec_grandloop
 
 .align	32
@@ -2440,7 +2455,6 @@ SYM_FUNC_ENTER(aesni_xts_decrypt)
 	shrl	$4,%eax
 
 .Lxts_dec_short:
-
 	movl	%eax,%r10d
 	pxor	%xmm0,%xmm10
 	pxor	%xmm0,%xmm11
@@ -2474,6 +2488,7 @@ SYM_FUNC_ENTER(aesni_xts_decrypt)
 	call	_aesni_decrypt6
 
 	xorps	%xmm10,%xmm2
+	movdqa	%xmm15,%xmm10
 	xorps	%xmm11,%xmm3
 	xorps	%xmm12,%xmm4
 	movdqu	%xmm2,(%rsi)
@@ -2645,6 +2660,21 @@ SYM_FUNC_ENTER(aesni_xts_decrypt)
 	aesdeclast	%xmm1,%xmm2
 	xorps	%xmm10,%xmm2
 	movups	%xmm2,(%rsi)
+
+	/*
+	 * Perform the tweak multiplication of the last tweak used for
+	 * the final partial block. The tweak is in w8.16b. Even though
+	 * it is not needed, we calculate it to return to the caller in case
+	 * he needs it.
+	 *
+	 * Mask is in %xmm8
+	 */
+	pshufd	$0x5f,%xmm11,%xmm1
+	psrad	$31,%xmm1
+	paddq	%xmm11,%xmm11
+	pand	%xmm8,%xmm1
+	pxor	%xmm1,%xmm11
+	movdqa	%xmm11,%xmm10
 
 .Lxts_dec_ret:
 	movups	%xmm10,(%r14) #xmm10 contains IV - write it back

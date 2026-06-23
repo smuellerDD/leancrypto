@@ -140,6 +140,10 @@ static const uint8_t iv256[] = {
 	0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
+static const uint8_t expected_iv[] = {
+	0xd7, 0xcf, 0x75, 0x24, 0x5c, 0x26, 0x75, 0x77,
+	0xa9, 0x0c, 0xaa, 0xd6, 0xae, 0x98, 0x8e, 0x22
+};
 
 /*
  * XTS test where the last block is not a full AES block - i.e. ciphertext
@@ -178,16 +182,20 @@ static const uint8_t ct256_2[] = {
 static const uint8_t iv256_2[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 				   0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 				   0x00, 0x00, 0x00, 0x00 };
+static const uint8_t expiv_2[] = { 0x4e, 0xc6, 0x0b, 0x35, 0x9f, 0xe0, 0x7b,
+				   0x7a, 0x80, 0xae, 0xb1, 0x0f, 0x4a, 0x3e,
+				   0x17, 0x05 };
 
 static int test_encrypt_xts_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 				size_t keylen, const uint8_t *pt, size_t ptlen,
 				const uint8_t *ct, const uint8_t *iv,
-				size_t ivlen)
+				const uint8_t *expiv, size_t ivlen)
 {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wvla"
 	uint8_t out[ptlen], out2[ptlen], ivout[ivlen], extiv[ivlen];
 #pragma GCC diagnostic pop
+	size_t cutlen;
 	int ret, rc;
 
 	/*
@@ -212,11 +220,27 @@ static int test_encrypt_xts_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 		       ptlen - 3 * AES_BLOCKLEN);
 	lc_sym_getiv(ctx, ivout, sizeof(ivout));
 	rc = lc_compare(out, ct, ptlen, "AES-XTS encrypt ciphertext");
+	rc = lc_compare(ivout, expiv, ivlen, "AES-XTS encrypt IV");
 
 	/* Encrypt with external IV */
 	memcpy(extiv, iv, ivlen);
 	CKINT(lc_sym_init_iv(ctx, extiv, sizeof(extiv)));
-	CKINT(lc_sym_encrypt_iv(ctx, pt, out, ptlen, extiv, sizeof(extiv)));
+	cutlen = ptlen & (AES_BLOCKLEN - 1);
+	if (cutlen) {
+		cutlen += AES_BLOCKLEN;
+		CKINT(lc_sym_encrypt_iv(ctx, pt, out, ptlen - cutlen, extiv,
+					sizeof(extiv)));
+		CKINT(lc_sym_encrypt_iv(ctx, pt + ptlen - cutlen,
+					out + ptlen - cutlen, cutlen, extiv,
+					sizeof(extiv)));
+	} else {
+		CKINT(lc_sym_encrypt_iv(ctx, pt, out, AES_BLOCKLEN, extiv,
+					sizeof(extiv)));
+		CKINT(lc_sym_encrypt_iv(ctx, pt + AES_BLOCKLEN,
+					out + AES_BLOCKLEN,
+					ptlen - AES_BLOCKLEN, extiv,
+					sizeof(extiv)));
+	}
 	rc += lc_compare(out, ct, ptlen,
 			 "AES-XTS encrypt external IV ciphertext");
 	unpoison(extiv, sizeof(extiv));
@@ -232,15 +256,31 @@ static int test_encrypt_xts_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 		       ptlen - AES_BLOCKLEN);
 	lc_sym_getiv(ctx, ivout, sizeof(ivout));
 	rc += lc_compare(out2, pt, ptlen, "AES-XTS decrypt plaintext");
+	rc = lc_compare(expiv, ivout, ivlen, "AES-XTS decrypt IV");
 
 	/* Decrypt with external IV */
 	memcpy(extiv, iv, ivlen);
 	CKINT(lc_sym_init_iv(ctx, extiv, sizeof(extiv)));
-	CKINT(lc_sym_decrypt_iv(ctx, out, out2, ptlen, extiv, sizeof(extiv)));
+	cutlen = ptlen & (AES_BLOCKLEN - 1);
+	if (cutlen) {
+		cutlen += AES_BLOCKLEN;
+		CKINT(lc_sym_decrypt_iv(ctx, out, out2, ptlen - cutlen, extiv,
+					sizeof(extiv)));
+		CKINT(lc_sym_decrypt_iv(ctx, out + ptlen - cutlen,
+					out2 + ptlen - cutlen, cutlen, extiv,
+					sizeof(extiv)));
+	} else {
+		CKINT(lc_sym_decrypt_iv(ctx, out, out2, AES_BLOCKLEN, extiv,
+					sizeof(extiv)));
+		CKINT(lc_sym_decrypt_iv(ctx, out + AES_BLOCKLEN,
+					out2 + AES_BLOCKLEN,
+					ptlen - AES_BLOCKLEN, extiv,
+					sizeof(extiv)));
+	}
 	rc += lc_compare(out2, pt, ptlen,
 			 "AES-XTS external IV decrypt plaintext");
 	unpoison(extiv, sizeof(extiv));
-	rc += lc_compare(ivout, extiv, sizeof(extiv),
+	rc += lc_compare(extiv, expiv, sizeof(extiv),
 			 "AES-XTS decrypt external IV");
 
 out:
@@ -257,11 +297,12 @@ static int test_xts(const struct lc_sym *aes, const char *name)
 	       (unsigned int)LC_SYM_CTX_SIZE);
 
 	ret += test_encrypt_xts_one(aes_xts, key256, sizeof(key256), pt256,
-				    sizeof(pt256), ct256, iv256, sizeof(iv256));
+				    sizeof(pt256), ct256, iv256, expected_iv,
+				    sizeof(iv256));
 
 	ret += test_encrypt_xts_one(aes_xts, key256_2, sizeof(key256_2),
 				    pt256_2, sizeof(pt256_2), ct256_2, iv256_2,
-				    sizeof(iv256_2));
+				    expiv_2, sizeof(iv256_2));
 
 	lc_sym_zero(aes_xts);
 
@@ -274,11 +315,12 @@ static int test_xts_common(void)
 	LC_AES_XTS_CTX_ON_STACK(aes_xts);
 
 	ret += test_encrypt_xts_one(aes_xts, key256, sizeof(key256), pt256,
-				    sizeof(pt256), ct256, iv256, sizeof(iv256));
+				    sizeof(pt256), ct256, iv256, expected_iv,
+				    sizeof(iv256));
 
 	ret += test_encrypt_xts_one(aes_xts, key256_2, sizeof(key256_2),
 				    pt256_2, sizeof(pt256_2), ct256_2, iv256_2,
-				    sizeof(iv256_2));
+				    expiv_2, sizeof(iv256_2));
 
 	lc_sym_zero(aes_xts);
 
@@ -299,6 +341,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_EXEC_ONE_TEST(lc_aes_xts_aesni);
 	LC_EXEC_ONE_TEST(lc_aes_xts_armce);
 	LC_EXEC_ONE_TEST(lc_aes_xts_riscv64);
+
 	ret += test_xts_common();
 
 	if (!(lc_sym_alg_status(lc_aes_xts) &

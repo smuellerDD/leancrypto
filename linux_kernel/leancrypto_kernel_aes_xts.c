@@ -44,7 +44,12 @@ static int lc_aes_xts_setkey(struct crypto_skcipher *tfm, const u8 *key,
 	if (err)
 		return err;
 
-	return lc_sym_setkey(ctx, key, keylen);
+	err = lc_sym_setkey(ctx, key, keylen);
+
+	/* The Linux kernel enhanced tester wants this */
+	if (err == -EINVAL)
+		err = -ENOENT;
+	return err;
 }
 
 /* This handles cases where the source and/or destination span pages. */
@@ -62,6 +67,9 @@ static noinline int lc_aes_xts_slowpath(
 	struct scatterlist *src, *dst;
 	int err;
 
+	if (req->cryptlen < AES_BLOCK_SIZE)
+		return -EINVAL;
+
 	/*
 	 * If the message length isn't divisible by the AES block size, then
 	 * separate off the last full block and the partial block.  This ensures
@@ -69,13 +77,15 @@ static noinline int lc_aes_xts_slowpath(
 	 * which is required for ciphertext stealing.
 	 */
 	if (tail) {
+		unsigned int xts_blocks = DIV_ROUND_UP(req->cryptlen,
+						       AES_BLOCK_SIZE) - 2;
 		skcipher_request_set_tfm(&subreq, tfm);
 		skcipher_request_set_callback(
 			&subreq, skcipher_request_flags(req), NULL, NULL);
 
-		skcipher_request_set_crypt(
-			&subreq, req->src, req->dst,
-			req->cryptlen - tail - AES_BLOCK_SIZE, req->iv);
+		skcipher_request_set_crypt(&subreq, req->src, req->dst,
+					   xts_blocks * AES_BLOCK_SIZE,
+					   req->iv);
 
 		req = &subreq;
 	}
@@ -85,17 +95,12 @@ static noinline int lc_aes_xts_slowpath(
 	while (walk.nbytes) {
 		unsigned int nbytes = walk.nbytes & ~(AES_BLOCK_SIZE - 1);
 
-		if (nbytes) {
-			err = crypt_func(ctx, walk.src.virt.addr,
-					 walk.dst.virt.addr, nbytes, req->iv,
-					 AES_BLOCK_SIZE);
-			if (err)
-				return err;
-			err = skcipher_walk_done(
-				&walk, walk.nbytes & (AES_BLOCK_SIZE - 1));
-		} else {
-			err = skcipher_walk_done(&walk, walk.nbytes);
-		}
+		err = crypt_func(ctx, walk.src.virt.addr, walk.dst.virt.addr,
+				 nbytes, walk.iv, AES_BLOCK_SIZE);
+		if (err)
+			goto out;
+		err = skcipher_walk_done(&walk,
+					 walk.nbytes & (AES_BLOCK_SIZE - 1));
 	}
 
 	if (err || !tail)
@@ -112,16 +117,17 @@ static noinline int lc_aes_xts_slowpath(
 
 	err = skcipher_walk_virt(&walk, req, false);
 	if (err)
-		return err;
+		goto out;
 
-	if (walk.nbytes) {
-		err = crypt_func(ctx, walk.src.virt.addr, walk.dst.virt.addr,
-				 walk.nbytes, req->iv, AES_BLOCK_SIZE);
-		if (err)
-			return err;
-	}
+	err = crypt_func(ctx, walk.src.virt.addr, walk.dst.virt.addr,
+			 walk.nbytes, walk.iv, AES_BLOCK_SIZE);
 
-	return skcipher_walk_done(&walk, 0);
+out:
+	if (err)
+		skcipher_walk_done(&walk, 0);
+	else
+		err = skcipher_walk_done(&walk, 0);
+	return err;
 }
 
 static int lc_aes_xts_common(struct skcipher_request *req,
