@@ -1685,9 +1685,33 @@ SYM_FUNC_ENTER(aesni_xts_encrypt)
 	movl	240(%r8),%eax
 
 	movq	%r9,%r14	# Store pointer to IV for later retrieval
-	//cmpb	$0,16(%r9)	# Was IV already tweaked?
-	//jne	.Ltweaked_enc	# If yes, skip tweaking
-	jmp	.Ltweaked_enc	# IV must have already been tweaked
+
+#if 0
+	#
+	# The following code implements an automatic tweaking of the provided
+	# IV. If you want to enable this code, ensure that the function
+	# declaration is as follows:
+	# void SYSV_ABI aesni_xts_encrypt(const uint8_t *pt, uint8_t *ct,
+	#				  size_t length,
+	#				  const struct aes_aesni_block_ctx *key1,
+	#				  const struct aes_aesni_block_ctx *key2,
+	#				  const uint8_t iv[17]);
+	#
+	# Mind the one-byte larger IV. That trailing byte in the IV defines the
+	# flag whether the IV was tweaked or not
+	# iv[16] == 0 -> not tweaked
+	# iv[16] == 1 -> tweaked
+	#
+	# The caller to this function must now:
+	# 1. Invoke aesni_xts_encrypt with iv[16] == 0 for the first XTS call
+	# 2. set iv[16] = 1
+	# 3. Perform all subsequent invocation to aesni_xts_encrypt
+	#
+	# NOTE: Without this code, the parameter key2 is actually not used. But
+	# it is left in case we want to immediately reactivate this logic.
+	#
+	cmpb	$0,16(%r9)	# Was IV already tweaked?
+	jne	.Ltweaked_enc	# If yes, skip tweaking
 
 	movups	(%r8),%xmm0
 	movups	16(%r8),%xmm1
@@ -1700,6 +1724,8 @@ SYM_FUNC_ENTER(aesni_xts_encrypt)
 	leaq	16(%r8),%r8
 	jnz	.Loop_enc1_8
 	aesenclast	%xmm1,%xmm2
+#endif
+
 .Ltweaked_enc:
 	movl	240(%rcx),%r10d
 	movups	(%rcx),%xmm0
@@ -2188,9 +2214,33 @@ SYM_FUNC_ENTER(aesni_xts_decrypt)
 	movl	240(%r8),%eax
 
 	movq	%r9,%r14	# Store pointer to IV for later retrieval
-	//cmpb	$0,16(%r9)	# Was IV already tweaked?
-	//jne	.Ltweaked_dec	# If yes, skip tweaking
-	jmp	.Ltweaked_dec	# IV must have already been tweaked
+
+#if 0
+	#
+	# The following code implements an automatic tweaking of the provided
+	# IV. If you want to enable this code, ensure that the function
+	# declaration is as follows:
+	# void SYSV_ABI aesni_xts_decrypt(const uint8_t *ct, uint8_t *pt,
+	#				  size_t length,
+	#				  const struct aes_aesni_block_ctx *key1,
+	#				  const struct aes_aesni_block_ctx *key2,
+	#				  const uint8_t iv[17]);
+	#
+	# Mind the one-byte larger IV. That trailing byte in the IV defines the
+	# flag whether the IV was tweaked or not
+	# iv[16] == 0 -> not tweaked
+	# iv[16] == 1 -> tweaked
+	#
+	# The caller to this function must now:
+	# 1. Invoke aesni_xts_decrypt with iv[16] == 0 for the first XTS call
+	# 2. set iv[16] = 1
+	# 3. Perform all subsequent invocation to aesni_xts_decrypt
+	#
+	# NOTE: Without this code, the parameter key2 is actually not used. But
+	# it is left in case we want to immediately reactivate this logic.
+	#
+	cmpb	$0,16(%r9)	# Was IV already tweaked?
+	jne	.Ltweaked_dec	# If yes, skip tweaking
 
 	movups	(%r8),%xmm0
 	movups	16(%r8),%xmm1
@@ -2203,6 +2253,8 @@ SYM_FUNC_ENTER(aesni_xts_decrypt)
 	leaq	16(%r8),%r8
 	jnz	.Loop_enc1_11
 	aesenclast	%xmm1,%xmm2
+#endif
+
 .Ltweaked_dec:
 	movl	240(%rcx),%r10d
 	xorl	%eax,%eax

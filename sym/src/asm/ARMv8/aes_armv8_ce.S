@@ -2031,9 +2031,34 @@ SYM_FUNC_ENTER(aes_v8_xts_encrypt)
 	b.ne	Lxts_enc_big_size
 
 	ld1	{v6.16b},[x5],#16	// Load the IV
-	//cmp	x6,#0			// Was the IV tweaked?
-	//b.ne	Ltweaked_enc
-	b	Ltweaked_enc		// IV must have been tweaked
+
+#if 0
+	#
+	# The following code implements an automatic tweaking of the provided
+	# IV. If you want to enable this code, ensure that the function
+	# declaration is as follows:
+	# void aes_v8_xts_encrypt(const uint8_t *pt, uint8_t *ct,
+	#			  size_t length,
+	#			  const struct aes_v8_block_ctx *key1,
+	#			  const struct aes_v8_block_ctx *key2,
+	#			  const uint8_t iv[16],
+	#			  unsigned int tweaked);
+	#
+	# The `tweaked` parameter defines the flag whether the IV was tweaked or
+	# not
+	# tweaked == 0 -> not tweaked
+	# tweaked == 1 -> tweaked
+	#
+	# The caller to this function must now:
+	# 1. Invoke aes_v8_xts_encrypt with tweaked == 0 for the first XTS call
+	# 2. set tweaked = 1
+	# 3. Perform all subsequent invocation to aes_v8_xts_encrypt
+	#
+	# NOTE: Without this code, the parameter key2 is actually not used. But
+	# it is left in case we want to immediately reactivate this logic.
+	#
+	cmp	x6,#0			// Was the IV tweaked?
+	b.ne	Ltweaked_enc
 
 	// Encrypt the iv with key2, as the first XEX iv.
 	ldr	w6,[x4,#240]
@@ -2056,6 +2081,7 @@ Loop_enc_iv_enc:
 	ld1	{v0.4s},[x4]
 	aese	v6.16b,v1.16b
 	eor	v6.16b,v6.16b,v0.16b
+#endif
 
 Ltweaked_enc:
 	ld1	{v0.16b},[x0]
@@ -2689,9 +2715,34 @@ SYM_FUNC_ENTER(aes_v8_xts_decrypt)
 	b.ne	Lxts_dec_big_size
 
 	ld1	{v6.16b},[x5],#16	// Load the IV
-	//cmp	x6,#0			// Was the IV tweaked?
-	//b.ne	Ltweaked_dec		// IV must have been tweaked
-	b	Ltweaked_dec
+
+#if 0
+	#
+	# The following code implements an automatic tweaking of the provided
+	# IV. If you want to enable this code, ensure that the function
+	# declaration is as follows:
+	# void aes_v8_xts_decrypt(const uint8_t *ct, uint8_t *pt,
+	#			  size_t length,
+	#			  const struct aes_v8_block_ctx *key1,
+	#			  const struct aes_v8_block_ctx *key2,
+	#			  const uint8_t iv[16],
+	#			  unsigned int tweaked);
+	#
+	# The `tweaked` parameter defines the flag whether the IV was tweaked or
+	# not
+	# tweaked == 0 -> not tweaked
+	# tweaked == 1 -> tweaked
+	#
+	# The caller to this function must now:
+	# 1. Invoke aes_v8_xts_decrypt with tweaked == 0 for the first XTS call
+	# 2. set tweaked = 1
+	# 3. Perform all subsequent invocation to aes_v8_xts_decrypt
+	#
+	# NOTE: Without this code, the parameter key2 is actually not used. But
+	# it is left in case we want to immediately reactivate this logic.
+	#
+	cmp	x6,#0			// Was the IV tweaked?
+	b.ne	Ltweaked_dec		// IV must have been tweaked
 
 	// Encrypt the iv with key2, as the first XEX iv.
 	ldr	w6,[x4,#240]
@@ -2714,6 +2765,7 @@ Loop_dec_small_iv_enc:
 	ld1	{v0.4s},[x4]
 	aese	v6.16b,v1.16b
 	eor	v6.16b,v6.16b,v0.16b
+#endif
 
 Ltweaked_dec:
 	ld1	{v0.16b},[x0]
