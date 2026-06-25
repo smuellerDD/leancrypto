@@ -77,8 +77,8 @@ static noinline int lc_aes_xts_slowpath(
 	 * which is required for ciphertext stealing.
 	 */
 	if (tail) {
-		unsigned int xts_blocks = DIV_ROUND_UP(req->cryptlen,
-						       AES_BLOCK_SIZE) - 2;
+		unsigned int xts_blocks =
+			DIV_ROUND_UP(req->cryptlen, AES_BLOCK_SIZE) - 2;
 		skcipher_request_set_tfm(&subreq, tfm);
 		skcipher_request_set_callback(
 			&subreq, skcipher_request_flags(req), NULL, NULL);

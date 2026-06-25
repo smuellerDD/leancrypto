@@ -22,6 +22,10 @@ then
 	echo "clang-format configuration file $CLANGCONF not found"
 	exit 1
 fi
+if [ ! -f "$CLANGFORMAT" ]
+then
+	CLANGFORMAT="$CLANGFORMAT-22"
+fi
 
 for i in $EXCLUDE
 do

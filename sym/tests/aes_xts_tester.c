@@ -140,10 +140,9 @@ static const uint8_t iv256[] = {
 	0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
 };
-static const uint8_t expected_iv[] = {
-	0xd7, 0xcf, 0x75, 0x24, 0x5c, 0x26, 0x75, 0x77,
-	0xa9, 0x0c, 0xaa, 0xd6, 0xae, 0x98, 0x8e, 0x22
-};
+static const uint8_t expected_iv[] = { 0xd7, 0xcf, 0x75, 0x24, 0x5c, 0x26,
+				       0x75, 0x77, 0xa9, 0x0c, 0xaa, 0xd6,
+				       0xae, 0x98, 0x8e, 0x22 };
 
 /*
  * XTS test where the last block is not a full AES block - i.e. ciphertext
@@ -182,9 +181,9 @@ static const uint8_t ct256_2[] = {
 static const uint8_t iv256_2[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 				   0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 				   0x00, 0x00, 0x00, 0x00 };
-static const uint8_t expiv_2[] = { 0x4e, 0xc6, 0x0b, 0x35, 0x9f, 0xe0, 0x7b,
-				   0x7a, 0x80, 0xae, 0xb1, 0x0f, 0x4a, 0x3e,
-				   0x17, 0x05 };
+static const uint8_t expiv_2[] = { 0x4e, 0xc6, 0x0b, 0x35, 0x9f, 0xe0,
+				   0x7b, 0x7a, 0x80, 0xae, 0xb1, 0x0f,
+				   0x4a, 0x3e, 0x17, 0x05 };
 
 static int test_encrypt_xts_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 				size_t keylen, const uint8_t *pt, size_t ptlen,
@@ -236,10 +235,9 @@ static int test_encrypt_xts_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 	} else {
 		CKINT(lc_sym_encrypt_iv(ctx, pt, out, AES_BLOCKLEN, extiv,
 					sizeof(extiv)));
-		CKINT(lc_sym_encrypt_iv(ctx, pt + AES_BLOCKLEN,
-					out + AES_BLOCKLEN,
-					ptlen - AES_BLOCKLEN, extiv,
-					sizeof(extiv)));
+		CKINT(lc_sym_encrypt_iv(
+			ctx, pt + AES_BLOCKLEN, out + AES_BLOCKLEN,
+			ptlen - AES_BLOCKLEN, extiv, sizeof(extiv)));
 	}
 	rc += lc_compare(out, ct, ptlen,
 			 "AES-XTS encrypt external IV ciphertext");
@@ -272,10 +270,9 @@ static int test_encrypt_xts_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 	} else {
 		CKINT(lc_sym_decrypt_iv(ctx, out, out2, AES_BLOCKLEN, extiv,
 					sizeof(extiv)));
-		CKINT(lc_sym_decrypt_iv(ctx, out + AES_BLOCKLEN,
-					out2 + AES_BLOCKLEN,
-					ptlen - AES_BLOCKLEN, extiv,
-					sizeof(extiv)));
+		CKINT(lc_sym_decrypt_iv(
+			ctx, out + AES_BLOCKLEN, out2 + AES_BLOCKLEN,
+			ptlen - AES_BLOCKLEN, extiv, sizeof(extiv)));
 	}
 	rc += lc_compare(out2, pt, ptlen,
 			 "AES-XTS external IV decrypt plaintext");

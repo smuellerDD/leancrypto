@@ -492,9 +492,8 @@ int private_key_decode_dilithium(struct lc_x509_key_data *keys,
 	if (ret) {
 		ret = lc_x509_mldsa_private_key_seed(keys, 0, 0, data, datalen);
 		if (ret)
-			CKINT(lc_x509_mldsa_private_key_expanded(keys, 0, 0,
-								 data,
-								 datalen));
+			CKINT(lc_x509_mldsa_private_key_expanded(
+				keys, 0, 0, data, datalen));
 	}
 
 out:
