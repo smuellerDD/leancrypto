@@ -66,6 +66,9 @@
 #ifdef CONFIG_LEANCRYPTO_HMAC_DRBG
 #define LC_DRNG_HMAC_DRBG
 #endif
+#ifdef CONFIG_LEANCRYPTO_CTR_DRBG
+#define LC_DRNG_CTR_DRBG
+#endif
 #endif
 
 #ifdef LC_DRNG_XDRBG256

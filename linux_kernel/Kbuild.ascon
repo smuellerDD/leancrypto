@@ -1,5 +1,10 @@
 ################################################################################
 # Hash implementation: Ascon
+
+ifndef CONFIG_LEANCRYPTO_ASCON_HASH
+leancrypto-y			+= ../hash/src/ascon_null.o
+endif
+
 leancrypto-$(CONFIG_LEANCRYPTO_ASCON_HASH)				       \
 				+= ../hash/src/ascon_c.o		       \
 				   ../hash/src/ascon_hash_common.o	       \

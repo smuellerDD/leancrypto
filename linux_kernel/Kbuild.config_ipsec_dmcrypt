@@ -1,0 +1,453 @@
+#
+# leancrypto Kernel module configuration options
+#
+# This configuration file is streamlined to only include the algorithms used
+# by IPSec and dm-crypt, namely
+#
+# - AES: GCM, CBC, CTR, XTS
+# - ChaCha20 Poly1305
+# - SHA2
+# - DRBG
+#
+
+############################## Basic Configuration #############################
+
+#
+# Enable Leancrypto compilation
+# Dependencies: N/A
+# The option can either be either 'y' for static linking into the Linux kernel
+# (only applicable when compiling as part of the Linux kernel compilation) or
+# 'm' for compiling as a kernel module.
+#
+CONFIG_LEANCRYPTO=m
+
+#
+# Enable test kernel modules to be built
+# Dependencies: N/A
+# The option can either be either commented out or 'm'.
+#
+# NOTE: When enabling this options, the resulting kernel modules are intended
+# solely for testing. They are not useful in production environments.
+#
+# CONFIG_LEANCRYPTO_TEST_MODULES=m
+
+########################### Message Digest Algorithms ##########################
+
+#
+# Enable SHA2-256 support
+# Dependencies: N/A
+#
+CONFIG_LEANCRYPTO_SHA2_256=y
+
+#
+# Enable SHA2-512 support
+# Dependencies: N/A
+#
+CONFIG_LEANCRYPTO_SHA2_512=y
+
+#
+# Enable SHA-3 support including all its variants (SHAKE, cSHAKE)
+# Dependencies: N/A
+#
+# CONFIG_LEANCRYPTO_SHA3=y
+
+#
+# Enable Ascon hashing support including all its variants (XOF)
+# Dependencies: N/A
+#
+# CONFIG_LEANCRYPTO_ASCON_HASH=y
+
+####################### Keyed Message Digest Algorithms ########################
+
+#
+# Enable FIPS 198 HMAC support
+# Dependencies: CONFIG_LEANCRYPTO_SHA2_256 or CONFIG_LEANCRYPTO_SHA2_512 or
+#		CONFIG_LEANCRYPTO_SHA3
+#
+CONFIG_LEANCRYPTO_HMAC=y
+
+#
+# Enable SP800-185 KMAC support
+# Dependencies: CONFIG_LEANCRYPTO_SHA3
+#
+# CONFIG_LEANCRYPTO_KMAC=y
+
+####################### Symmetric Encryption Algorithms ########################
+
+#
+# Enable ChaCha20 stream cipher algorithm
+# Dependencies: N/A
+#
+CONFIG_LEANCRYPTO_CHACHA20=y
+
+#
+# Enable AES block algorithm
+# Dependencies: N/A
+#
+CONFIG_LEANCRYPTO_AES=y
+
+#
+# Enable AES CBC algorithm
+# Dependencies: CONFIG_LEANCRYPTO_AES
+#
+CONFIG_LEANCRYPTO_AES_CBC=y
+
+#
+# Enable AES CTR algorithm
+# Dependencies: CONFIG_LEANCRYPTO_AES
+#
+CONFIG_LEANCRYPTO_AES_CTR=y
+
+#
+# Enable AES KW algorithm
+# Dependencies: CONFIG_LEANCRYPTO_AES
+#
+# CONFIG_LEANCRYPTO_AES_KW=y
+
+#
+# Enable AES XTS algorithm
+# Dependencies: CONFIG_LEANCRYPTO_AES
+#
+CONFIG_LEANCRYPTO_AES_XTS=y
+
+####### Authenticated Encryption with Additional Data (AEAD) Algorithms ########
+
+#
+# Enable AEAD stream cipher algorithm based on SHA2-512
+# Dependencies: CONFIG_LEANCRYPTO_SHA2_512 and CONFIG_LEANCRYPTO_HASH_DRBG
+#
+# CONFIG_LEANCRYPTO_HASH_CRYPT=y
+
+#
+# Enable AEAD stream cipher algorithm based on cSHAKE
+# Dependencies: CONFIG_LEANCRYPTO_SHA3
+#
+# CONFIG_LEANCRYPTO_CSHAKE_CRYPT=y
+
+#
+# Enable AEAD stream cipher algorithm based on KMAC
+# Dependencies: CONFIG_LEANCRYPTO_KMAC
+#
+# CONFIG_LEANCRYPTO_KMAC_CRYPT=y
+
+#
+# Enable AEAD cipher implementing the Ascon algorithm allowing both, the Ascon
+# as well as the Keccak Sponge
+# Dependencies: CONFIG_LEANCRYPTO_SHA3 (in case the Keccak sponge is to be used)
+#               or CONFIG_LEANCRYPTO_ASCON_HASH (in case the Ascon sponge is to
+#               be used)
+#
+# CONFIG_LEANCRYPTO_ASCON_CRYPT=y
+
+#
+# Enable AEAD stream cipher algorithm based on symmetric algorithm and HMAC
+# Dependencies: CONFIG_LEANCRYPTO_HMAC and at least one of
+#		CONFIG_LEANCRYPTO_AES_*
+#
+# CONFIG_LEANCRYPTO_SYMHMAC_CRYPT=y
+
+#
+# Enable AEAD stream cipher algorithm based on symmetric algorithm and KMAC
+# Dependencies: CONFIG_LEANCRYPTO_KMAC and at least one of
+#		CONFIG_LEANCRYPTO_AES_*
+#
+# CONFIG_LEANCRYPTO_SYMKMAC_CRYPT=y
+
+#
+# Enable AEAD stream cipher algorithm of ChaCha20 Poly 1305
+# Dependencies: CONFIG_LEANCRYPTO_CHACHA20
+#
+CONFIG_LEANCRYPTO_CHACHA20_POLY1305=y
+
+#
+# Enable AEAD stream cipher algorithm of AES GCM
+# Dependencies: CONFIG_LEANCRYPTO_AES
+#
+CONFIG_LEANCRYPTO_AES_GCM=y
+
+#################### Deterministic Random Number Generator #####################
+
+#
+# Enable ChaCha20-based deterministic random number generator
+# Dependencies: CONFIG_LEANCRYPTO_CHACHA20
+#
+# CONFIG_LEANCRYPTO_CHACHA20_DRNG=y
+
+#
+# Enable SP800-90A Hash DRBG
+# Dependencies: CONFIG_LEANCRYPTO_SHA2_512
+#
+# CONFIG_LEANCRYPTO_HASH_DRBG=y
+
+#
+# Enable SP800-90A HMAC DRBG
+# Dependencies: CONFIG_LEANCRYPTO_SHA2_512 and CONFIG_LEANCRYPTO_HMAC
+#
+# CONFIG_LEANCRYPTO_HMAC_DRBG=y
+
+#
+# Enable SP800-90A Hash DRBG
+# Dependencies: CONFIG_LEANCRYPTO_AES_CTR
+#
+CONFIG_LEANCRYPTO_CTR_DRBG=y
+
+#
+# Enable KMAC-based DRNG
+# Dependencies: CONFIG_LEANCRYPTO_KMAC
+#
+# CONFIG_LEANCRYPTO_KMAC_DRNG=y
+
+#
+# Enable cSHAKE-based DRNG
+# Dependencies: CONFIG_LEANCRYPTO_SHA3
+#
+# CONFIG_LEANCRYPTO_CSHAKE_DRNG=y
+
+#
+# Enable XDRBG
+# Dependencies: CONFIG_LEANCRYPTO_SHA3 (in case SHAKE-256 is to be used) or
+#		CONFIG_LEANCRYPTO_ASCON_HASH (in case Ascon 128 is to be used)
+#
+# CONFIG_LEANCRYPTO_XDRBG_DRNG=y
+
+########################### Key Derivation Functions ###########################
+
+#
+# Enable HKDF (RFC5869)
+# Dependencies: CONFIG_LEANCRYPTO_SHA2_256
+#
+# CONFIG_LEANCRYPTO_HKDF=y
+
+#
+# Enable SP800-108 counter KDF
+# Dependencies: CONFIG_LEANCRYPTO_SHA2_256
+#
+# CONFIG_LEANCRYPTO_KDF_CTR=y
+
+#
+# Enable SP800-108 double pipeline KDF
+# Dependencies: CONFIG_LEANCRYPTO_SHA2_256
+#
+# CONFIG_LEANCRYPTO_KDF_DPI=y
+
+#
+# Enable SP800-108 feedback KDF
+# Dependencies: CONFIG_LEANCRYPTO_SHA2_256
+#
+# CONFIG_LEANCRYPTO_KDF_FB=y
+
+#
+# Enable SP800-132 Password-Based Key Derivation Function (PBKDF2)
+# Dependencies: CONFIG_LEANCRYPTO_SHA2_256
+#
+# CONFIG_LEANCRYPTO_PBKDF2=y
+
+########################### Key Encapsulation Method ###########################
+
+#
+# Enable Key Encapsulation Mechanism provided by Kyber-1024
+# Dependencies: CONFIG_LEANCRYPTO_SHA3
+#
+# CONFIG_LEANCRYPTO_KEM_KYBER_1024=y
+
+#
+# Enable Key Encapsulation Mechanism provided by Kyber-768
+# Dependencies: CONFIG_LEANCRYPTO_SHA3
+#
+# CONFIG_LEANCRYPTO_KEM_KYBER_768=y
+
+#
+# Enable Key Encapsulation Mechanism provided by Kyber-512
+# Dependencies: CONFIG_LEANCRYPTO_SHA3
+#
+# CONFIG_LEANCRYPTO_KEM_KYBER_512=y
+
+#
+# Enable Key Encapsulation Mechanism provided by Kyber in collaboration with
+# X25519
+# Dependencies: One of CONFIG_LEANCRYPTO_KEM_KYBER_*
+#
+# Note: When disabling this option, lc_kyber.awk needs to be changed at the
+#	marked location.
+#
+# CONFIG_LEANCRYPTO_KEM_X25519=y
+
+#
+# Enable Key Encapsulation Mechanism provided by Kyber in collaboration with
+# X448
+# Dependencies: One of CONFIG_LEANCRYPTO_KEM_KYBER_*
+#
+# Note: When disabling this option, lc_kyber.awk needs to be changed at the
+#	marked location.
+#
+# CONFIG_LEANCRYPTO_KEM_X448=y
+
+#
+# Enable Key Encapsulation Mechanism provided by BIKE-5
+# Dependencies: CONFIG_LEANCRYPTO_SHA3
+#
+# CONFIG_LEANCRYPTO_KEM_BIKE_5=y
+
+#
+# Enable Key Encapsulation Mechanism provided by BIKE-3
+# Dependencies: CONFIG_LEANCRYPTO_SHA3
+#
+# CONFIG_LEANCRYPTO_KEM_BIKE_3=y
+
+#
+# Enable Key Encapsulation Mechanism provided by BIKE-1
+# Dependencies: CONFIG_LEANCRYPTO_SHA3
+#
+# CONFIG_LEANCRYPTO_KEM_BIKE_1=y
+
+#
+# Enable Key Encapsulation Mechanism provided by HQC-256
+# Dependencies: CONFIG_LEANCRYPTO_SHA3
+#
+# CONFIG_LEANCRYPTO_KEM_HQC_256=y
+
+#
+# Enable Key Encapsulation Mechanism provided by HQC-192
+# Dependencies: CONFIG_LEANCRYPTO_SHA3
+#
+# CONFIG_LEANCRYPTO_KEM_HQC_192=y
+
+#
+# Enable Key Encapsulation Mechanism provided by HQC-128
+# Dependencies: CONFIG_LEANCRYPTO_SHA3
+#
+# CONFIG_LEANCRYPTO_KEM_HQC_128=y
+
+############################## Digital Signatures ##############################
+
+#
+# Enable Key Encapsulation Mechanism provided by Dilithium-87
+# Dependencies: CONFIG_LEANCRYPTO_SHA3 and CONFIG_LEANCRYPTO_KMAC
+#
+# CONFIG_LEANCRYPTO_DILITHIUM_87=y
+
+#
+# Enable Key Encapsulation Mechanism provided by Dilithium-65
+# Dependencies: CONFIG_LEANCRYPTO_SHA3 and CONFIG_LEANCRYPTO_KMAC
+#
+# CONFIG_LEANCRYPTO_DILITHIUM_65=y
+
+#
+# Enable Key Encapsulation Mechanism provided by Dilithium-44
+# Dependencies: CONFIG_LEANCRYPTO_SHA3 and CONFIG_LEANCRYPTO_KMAC
+#
+# CONFIG_LEANCRYPTO_DILITHIUM_44=y
+
+#
+# Enable Dilithium Digital Signature Mechanism in collaboration with
+# EDDSA with ED25519
+# Dependencies: One of CONFIG_LEANCRYPTO_DILITHIUM_*
+#
+# Note: When disabling this option, lc_dilithium.awk needs to be changed at the
+#	marked location.
+#
+# CONFIG_LEANCRYPTO_DILITHIUM_ED25519=y
+
+#
+# Enable Dilithium Digital Signature Mechanism in collaboration with
+# EDDSA with ED448
+# Dependencies: One of CONFIG_LEANCRYPTO_DILITHIUM_*
+#
+# Note: When disabling this option, lc_dilithium.awk needs to be changed at the
+#	marked location.
+#
+# CONFIG_LEANCRYPTO_DILITHIUM_ED448=y
+
+#
+# Enable Key Encapsulation Mechanism provided by Sphincs SHAKE 256s
+# Dependencies: CONFIG_LEANCRYPTO_SHA3
+#
+# CONFIG_LEANCRYPTO_SPHINCS_256s=y
+
+#
+# Enable Key Encapsulation Mechanism provided by Sphincs SHAKE 256f
+# Dependencies: CONFIG_LEANCRYPTO_SHA3
+#
+# CONFIG_LEANCRYPTO_SPHINCS_256f=y
+
+#
+# Enable Key Encapsulation Mechanism provided by Sphincs SHAKE 192s
+# Dependencies: CONFIG_LEANCRYPTO_SHA3
+#
+# CONFIG_LEANCRYPTO_SPHINCS_192s=y
+
+#
+# Enable Key Encapsulation Mechanism provided by Sphincs SHAKE 192f
+# Dependencies: CONFIG_LEANCRYPTO_SHA3
+#
+# CONFIG_LEANCRYPTO_SPHINCS_192f=y
+
+#
+# Enable Key Encapsulation Mechanism provided by Sphincs SHAKE 128s
+# Dependencies: CONFIG_LEANCRYPTO_SHA3
+#
+# CONFIG_LEANCRYPTO_SPHINCS_128s=y
+
+#
+# Enable Key Encapsulation Mechanism provided by Sphincs SHAKE 128f
+# Dependencies: CONFIG_LEANCRYPTO_SHA3
+#
+# CONFIG_LEANCRYPTO_SPHINCS_128f=y
+
+############################ Power-Up Health Tests #############################
+
+#
+# Enable Power-Up health test for all algorithms
+# Dependencies: none
+#
+CONFIG_LEANCRYPTO_HEALTH_TEST=y
+
+############################# ASN.1 Functionality ##############################
+
+#
+# Enable X.509 Parser
+# Dependencies: CONFIG_LEANCRYPTO_SPHINCS_* or CONFIG_LEANCRYPTO_DILITHIUM*
+#
+# CONFIG_LEANCRYPTO_X509_PARSER=y
+
+#
+# Enable X.509 Generator
+# Dependencies: CONFIG_LEANCRYPTO_X509_PARSER
+#
+# CONFIG_LEANCRYPTO_X509_GENERATOR=y
+
+#
+# Enable X.509 CSR Parser
+# Dependencies: CONFIG_LEANCRYPTO_X509_PARSER
+#
+# CONFIG_LEANCRYPTO_X509_CSR_PARSER=y
+
+#
+# Enable X.509 CSR Generator
+# Dependencies: CONFIG_LEANCRYPTO_X509_GENERATOR
+#
+# CONFIG_LEANCRYPTO_X509_CSR_GENERATOR=y
+
+#
+# Enable PKCS7 Parser
+# Dependencies: CONFIG_LEANCRYPTO_X509_PARSER
+#
+# CONFIG_LEANCRYPTO_PKCS7_PARSER=y
+
+#
+# Enable PKCS7 Generator
+# Dependencies: CONFIG_LEANCRYPTO_PKCS7_PARSER
+#
+# CONFIG_LEANCRYPTO_PKCS7_GENERATOR=y
+
+#
+# Enable PKCS8 Parser
+# Dependencies: CONFIG_LEANCRYPTO_X509_PARSER
+#
+# CONFIG_LEANCRYPTO_PKCS8_PARSER=y
+
+#
+# Enable PKCS8 Generator
+# Dependencies: CONFIG_LEANCRYPTO_PKCS8_PARSER
+#
+# CONFIG_LEANCRYPTO_PKCS8_GENERATOR=y

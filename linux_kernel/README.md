@@ -166,3 +166,14 @@ comment out the respective symbols that are not desired to be present. The
 `Kbuild.config` file contains a description of each option including its
 dependencies, if any. You MUST adhere to the specified dependencies as
 otherwise the compilation will fail due to missing symbols.
+
+### Example Configurations
+
+The following example configurations exist to highlight the possibilities and
+at the same time provide a template for continuing the exploration of options.
+To use these configurations, copy the mentioned file over `Kbuild.config`.
+
+* `Kbuild.config_ipsec_dmcrypt`: This configuration file provides only the
+  algorithm required to support DM-Crypt and IPSec (symmetric algorithms,
+  hashes, and a seeded DRNG). The configuration provides a FIPS-compliant
+  mechanism by using an approved CTR-DRBG.

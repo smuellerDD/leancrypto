@@ -182,11 +182,13 @@ static const struct alg_status_show alg_status_show_aead[] = {
 { .flag = LC_ALG_STATUS_HASH_CRYPT, .alg_name = "Hash-Crypt", .strlen = 10 },
 { .flag = LC_ALG_STATUS_KMAC_CRYPT, .alg_name = "KMAC-Crypt", .strlen = 10 },
 #endif
-#if (((defined(LC_AES_CBC) || defined(LC_AES_CTR)) && defined(LC_SHA2_512)) || \
+#if (((defined(LC_AES_CBC) || defined(LC_AES_CTR)) &&                          \
+      defined(LC_SHA2_512) && !defined(LINUX_KERNEL)) ||                       \
      defined(CONFIG_LEANCRYPTO_SYMHMAC_CRYPT))
 { .flag = LC_ALG_STATUS_SYM_HMAC | LC_ALG_STATUS_FIPS, .alg_name = "Sym-HMAC", .strlen = 8 },
 #endif
-#if (((defined(LC_AES_CBC) || defined(LC_AES_CTR)) && defined(LC_KMAC)) ||     \
+#if (((defined(LC_AES_CBC) || defined(LC_AES_CTR)) &&                          \
+      defined(LC_KMAC) && !defined(LINUX_KERNEL)) ||                           \
      defined(CONFIG_LEANCRYPTO_SYMKMAC_CRYPT))
 { .flag = LC_ALG_STATUS_SYM_KMAC | LC_ALG_STATUS_FIPS, .alg_name = "Sym-KMAC", .strlen = 8 },
 #endif

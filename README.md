@@ -76,7 +76,9 @@ build system:
 
 4. Install: `meson install -C build`
 
-## Library Build for Linux Kernel - Without DKMS
+## Linux Kernel Builds
+
+### Without DKMS
 
 The leancrypto library can also be built as an independent Linux kernel module.
 This kernel module offers the same APIs and functions as the user space version
@@ -108,9 +110,40 @@ needs to be set.
 
 For more details, see `linux_kernel/README.md`.
 
-## Library Build for Linux Kernel - With DKMS
+### With DKMS
 
 Please read the steps outlined in `dkms.conf` found in the root directory.
+
+### In-Tree Statically Bound into Linux Kernel
+
+When the use of leancrypto as a kernel module is insufficient, e.g. when its
+services is required during boot time such as for kernel module integrity
+verification, it can be compiled statically into the kernel binary. To do that,
+the following steps have to be taken:
+
+Copy the entire leancrypto tree into the Linux kernel source tree into the
+directory leancrypto:
+
+cp -av leancrypto-<version> linux-<version>/leancrypto
+
+Tell the Linux kernel build system to also use leancrypto by editing the file
+Kbuild found in the root of the Linux kernel tree and add the following line at
+the end of that file:
+
+obj-y += leancrypto/linux_kernel/
+
+Tell leancrypto to be compiled statically into the kernel by editing the file
+leancrypto/linux_kernel/Kbuild.config and modify the option CONFIG_LEANCRYPTO to
+y.
+
+At this point, leancrypto will now be built statically into the Linux kernel
+when compiling it. Naturally, all Linux kernel options can be set as leancrypto
+does not depend on specific kernel options.
+
+You may want to consider the option CONFIG_LEANCRYPTO_TEST_MODULES found in
+leancrypto/linux_kernel/Kbuild.config. When setting this option, all test kernel
+modules are built which is usually only desired during development or validation
+of the library. None of these kernel modules are relevant or used in production.
 
 ## Library Build for EFI Environment
 

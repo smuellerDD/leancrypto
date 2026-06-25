@@ -97,11 +97,9 @@ $(obj)/lc_dilithium_44.h: $(src)/../ml-dsa/api/lc_dilithium_size.h.in FORCE
 
 # Ascon Hash
 
-ifdef CONFIG_LEANCRYPTO_ASCON_HASH
 $(obj)/leancrypto_kernel.o: $(obj)/lc_ascon_hash.h
 targets += lc_ascon_hash.h
 clean-files += $(obj)/lc_ascon_hash.h
-endif
 
 
 quiet_cmd_build_lc_ascon_hash = GEN     $@

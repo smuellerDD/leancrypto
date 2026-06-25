@@ -23,7 +23,7 @@
 #include <linux/module.h>
 #include <linux/types.h>
 
-#include "lc_xdrbg.h"
+#include "lc_rng.h"
 
 #include "leancrypto_kernel.h"
 
@@ -31,6 +31,32 @@ struct lc_kernel_rng_state {
 	struct mutex rng_mutex; /* lock around DRBG */
 	struct lc_rng_ctx *rng_ctx;
 };
+
+#if (defined(CONFIG_LEANCRYPTO_XDRBG_DRNG) && defined(CONFIG_LEANCRYPTO_SHA3))
+
+#include "lc_xdrbg.h"
+
+static int lc_kernel_xdrbg256_init(struct crypto_tfm *tfm)
+{
+	struct lc_kernel_rng_state *xdrbg = crypto_tfm_ctx(tfm);
+
+	mutex_init(&xdrbg->rng_mutex);
+	xdrbg->rng_ctx =
+		(struct lc_rng_ctx *)((uint8_t *)xdrbg +
+				      sizeof(struct lc_kernel_rng_state));
+	LC_XDRBG256_RNG_CTX(xdrbg->rng_ctx);
+
+	return 0;
+}
+
+static void lc_kernel_xdrbg256_cleanup(struct crypto_tfm *tfm)
+{
+	struct lc_kernel_rng_state *xdrbg = crypto_tfm_ctx(tfm);
+	struct lc_rng_ctx *rng_ctx = xdrbg->rng_ctx;
+
+	lc_rng_zero(rng_ctx);
+}
+#endif
 
 static int lc_kernel_rng_generate(struct crypto_rng *tfm, const u8 *src,
 				  unsigned int slen, u8 *dst, unsigned int dlen)
@@ -60,27 +86,6 @@ static int lc_kernel_rng_seed(struct crypto_rng *tfm, const u8 *seed,
 	return ret;
 }
 
-static int lc_kernel_xdrbg256_init(struct crypto_tfm *tfm)
-{
-	struct lc_kernel_rng_state *xdrbg = crypto_tfm_ctx(tfm);
-
-	mutex_init(&xdrbg->rng_mutex);
-	xdrbg->rng_ctx =
-		(struct lc_rng_ctx *)((uint8_t *)xdrbg +
-				      sizeof(struct lc_kernel_rng_state));
-	LC_XDRBG256_RNG_CTX(xdrbg->rng_ctx);
-
-	return 0;
-}
-
-static void lc_kernel_xdrbg256_cleanup(struct crypto_tfm *tfm)
-{
-	struct lc_kernel_rng_state *xdrbg = crypto_tfm_ctx(tfm);
-	struct lc_rng_ctx *rng_ctx = xdrbg->rng_ctx;
-
-	lc_rng_zero(rng_ctx);
-}
-
 static int lc_kernel_seeded_init(struct crypto_tfm *tfm)
 {
 	struct lc_kernel_rng_state *seeded = crypto_tfm_ctx(tfm);
@@ -101,6 +106,7 @@ static void lc_kernel_seeded_cleanup(struct crypto_tfm *tfm)
 }
 
 static struct rng_alg lc_rng_algs[] = {
+#if (defined(CONFIG_LEANCRYPTO_XDRBG_DRNG) && defined(CONFIG_LEANCRYPTO_SHA3))
 	{ .generate = lc_kernel_rng_generate,
 	  .seed = lc_kernel_rng_seed,
 	  .seedsize = 256,
@@ -112,6 +118,7 @@ static struct rng_alg lc_rng_algs[] = {
 	  .base.cra_priority = LC_KERNEL_DEFAULT_PRIO,
 	  .base.cra_init = lc_kernel_xdrbg256_init,
 	  .base.cra_exit = lc_kernel_xdrbg256_cleanup },
+#endif
 	{ .generate = lc_kernel_rng_generate,
 	  .seed = lc_kernel_rng_seed,
 	  .seedsize = 0,

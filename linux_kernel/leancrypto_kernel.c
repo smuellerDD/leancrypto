@@ -21,14 +21,8 @@
 #include <linux/module.h>
 
 #include "compare.h"
-#include "kyber_type.h"
-#include "lc_ed25519.h"
 #include "lc_init.h"
-#include "lc_status.h"
-#include "kyber_internal.h"
-#include "kyber_kem.h"
 #include "seeded_rng.h"
-#include "lc_x25519.h"
 #include "x25519_scalarmult.h"
 #include "x25519_scalarmult_c.h"
 
