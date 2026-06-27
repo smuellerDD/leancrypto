@@ -46,8 +46,7 @@ extern const struct lc_rng *lc_cc20_drng;
 	(LC_CC20_DRNG_SYM_STATE_SIZE + sizeof(struct lc_chacha20_drng_ctx))
 #define LC_CC20_DRNG_CTX_SIZE                                                  \
 	(sizeof(struct lc_rng_ctx) +                                           \
-	 ((LC_CC20_DRNG_STATE_SIZE + LC_SYM_ALIGNMASK(lc_cc20_drng)) &         \
-	  (unsigned long)(~(LC_SYM_ALIGNMASK(lc_cc20_drng)))))
+	 ((LC_CC20_DRNG_STATE_SIZE + LC_SYM_ALIGNMASK(lc_cc20_drng))))
 
 #define _LC_CC20_DRNG_SET_CTX(name, ctx, offset)                               \
 	_LC_SYM_SET_CTX((&name->cc20), lc_chacha20, ctx, offset)
