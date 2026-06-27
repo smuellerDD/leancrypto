@@ -82,7 +82,7 @@ static int lc_dilithium_sign_internal_ahat(struct lc_dilithium_sig *sig,
 	};
 	unsigned int n, i;
 	uint8_t *key, *mu, *rhoprime, *rnd;
-	const polyvecl *mat = ctx->ahat;
+	const polyvecl *ahat = ctx->ahat;
 	const uint8_t *seckey;
 	polyvecl *z, *s1, *y;
 	polyveck *w0, *w1, *h, *s2, *t0;
@@ -93,7 +93,7 @@ static int lc_dilithium_sign_internal_ahat(struct lc_dilithium_sig *sig,
 	LC_DECLARE_MEM(ws, struct workspace_sign, sizeof(uint64_t));
 
 	/* AHat must be present at this time */
-	CKNULL(mat, -EINVAL);
+	CKNULL(ahat, -EINVAL);
 
 	w0 = &ws->w0;
 	w1 = &ws->w1;
@@ -152,6 +152,7 @@ static int lc_dilithium_sign_internal_ahat(struct lc_dilithium_sig *sig,
 	unpoison(rhoprime, LC_DILITHIUM_CRHBYTES);
 
 	s1 = &ws->s1;
+	/* Algorithm 7: step 2 - generate s1 */
 	seckey = sk->sk + 2 * LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_TRBYTES;
 	for (i = 0; i < LC_DILITHIUM_L; ++i) {
 		polyeta_unpack(&s1->vec[i],
@@ -163,6 +164,7 @@ static int lc_dilithium_sign_internal_ahat(struct lc_dilithium_sig *sig,
 	}
 
 	s2 = &ws->s2;
+	/* Algorithm 7: step 2 - generate s1 */
 	seckey = sk->sk + 2 * LC_DILITHIUM_SEEDBYTES + LC_DILITHIUM_TRBYTES +
 		 LC_DILITHIUM_L * LC_DILITHIUM_POLYETA_PACKEDBYTES;
 	for (i = 0; i < LC_DILITHIUM_K; ++i) {
@@ -189,7 +191,7 @@ static int lc_dilithium_sign_internal_ahat(struct lc_dilithium_sig *sig,
 	h = &ws->h;
 
 rej:
-	/* Sample intermediate vector y */
+	/* Algorithm 7 step 11 - Sample intermediate vector y */
 	polyvecl_uniform_gamma1(&ws->y, rhoprime, nonce++,
 				ws->tmp.poly_uniform_gamma1_buf);
 
@@ -198,18 +200,29 @@ rej:
 
 	/* Matrix-vector multiplication */
 	ws->z = ws->y;
+	/* Algorithm 7: step 12 NTT(y) */
 	polyvecl_ntt(&ws->z);
 
 	for (i = 0; i < LC_DILITHIUM_K; ++i) {
 		/*
 		 * Use the cp for this operation as it is not used here so far.
 		 */
-		polyvecl_pointwise_acc_montgomery(&w1->vec[i], &mat[i], &ws->z,
+		/* Algorithm 7: step 12 ahat multiply with NTT(y) */
+		polyvecl_pointwise_acc_montgomery(&w1->vec[i], &ahat[i], &ws->z,
 						  &ws->cp);
+		/* Reduction before inverse */
 		poly_reduce(&w1->vec[i]);
+		/* Algorithm 7: step 12 NTT-1 of previous call */
 		poly_invntt_tomont(&w1->vec[i]);
 
-		/* Decompose w and call the random oracle */
+		/*
+		 * Algorithm 7: step 13 - Decompose w
+		 *
+		 * The decompose is optimixed which assumes the input is already
+		 * canonical non-negative which requires the caddq to restore
+		 * w to [0,Q). Note, the NTT-1 can produce negative
+		 * values.
+		 */
 		poly_caddq(&w1->vec[i]);
 		poly_decompose(&w1->vec[i], &w0->vec[i], &w1->vec[i]);
 
@@ -218,32 +231,42 @@ rej:
 		 * more.
 		 */
 		unpoison(&w1->vec[i], sizeof(poly));
+
+		/* Algorithm 7: step 15 w1Encode(w1) */
 		polyw1_pack(&sig->sig[i * LC_DILITHIUM_POLYW1_PACKEDBYTES],
 			    &w1->vec[i]);
 	}
 
+	/* Algorithm 7: step 15 hash - call the random oracle */
 	CKINT(lc_hash_init(hash_ctx));
 	lc_hash_update(hash_ctx, mu, LC_DILITHIUM_CRHBYTES);
 	lc_hash_update(hash_ctx, sig->sig,
 		       LC_DILITHIUM_K * LC_DILITHIUM_POLYW1_PACKEDBYTES);
 	CKINT(lc_hash_set_digestsize(hash_ctx, LC_DILITHIUM_CTILDE_BYTES));
+	/* Algorithm 7: step 15 - ctilde is generated */
 	lc_hash_final(hash_ctx, sig->sig);
 	lc_hash_zero(hash_ctx);
 
+	/* Algorithm 7: step 16 - SampleInBall */
 	poly_challenge(&ws->cp, sig->sig, ws->tmp.poly_challenge_buf);
+	/* Algorithm 7: step 17 - NTT(c) */
 	poly_ntt(&ws->cp);
 
 	/* Compute z, reject if it reveals secret */
 	for (i = 0; i < LC_DILITHIUM_L; ++i) {
+		/* Algorithm 7: step 18 - chat multiply with s1 */
 		poly_pointwise_montgomery(&z->vec[i], &ws->cp, &s1->vec[i]);
+		/* Algorithm 7: step 18 - NTT-1 */
 		poly_invntt_tomont(&z->vec[i]);
+		/* Algorithm 7: steps 20 + 21 */
 		poly_add(&z->vec[i], &z->vec[i], &y->vec[i]);
+		/* Reduction of z, the result of previous call */
 		poly_reduce(&z->vec[i]);
 
 		/* Timecop: the signature component z is not sensitive any more. */
 		unpoison(&z->vec[i], sizeof(poly));
 
-		/* Siggen - z rejection */
+		/* Algorithm 7: step 23 - z rejection */
 		if (poly_chknorm(&z->vec[i],
 				 LC_DILITHIUM_GAMMA1 - LC_DILITHIUM_BETA)) {
 			rej_total |= 1 << 0;
@@ -256,15 +279,19 @@ rej:
 	 * bits do not reveal secret information.
 	 */
 	for (i = 0; i < LC_DILITHIUM_K; ++i) {
+		/* Algorithm 7: step 19 - chat multiply with s2 */
 		poly_pointwise_montgomery(&h->vec[i], &ws->cp, &s2->vec[i]);
+		/* Algorithm 7: step 19 - NTT-1 */
 		poly_invntt_tomont(&h->vec[i]);
+		/* Algorithm 7: step 21 */
 		poly_sub(&w0->vec[i], &w0->vec[i], &h->vec[i]);
+		/* Reduction of r0, the result of previous call */
 		poly_reduce(&w0->vec[i]);
 
 		/* Timecop: verification data w0 is not sensitive any more. */
 		unpoison(&w0->vec[i], sizeof(poly));
 
-		/* Siggen - r0 rejection */
+		/* Algorithm 7: step 23 - r0 rejection */
 		if (poly_chknorm(&w0->vec[i],
 				 LC_DILITHIUM_GAMMA2 - LC_DILITHIUM_BETA)) {
 			rej_total |= 1 << 1;
@@ -272,8 +299,11 @@ rej:
 		}
 
 		/* Compute hints for w1 */
+		/* Algorithm 7: step 25 - chat multiply that */
 		poly_pointwise_montgomery(&h->vec[i], &ws->cp, &t0->vec[i]);
+		/* Algorithm 7: step 25 - NTT-1 */
 		poly_invntt_tomont(&h->vec[i]);
+		/* Reduction of h */
 		poly_reduce(&h->vec[i]);
 
 		/*
@@ -281,7 +311,7 @@ rej:
 		 */
 		unpoison(&h->vec[i], sizeof(poly));
 
-		/* Siggen - ct0 rejection */
+		/* Algorithm 7: step 28 - ct0 rejection */
 		if (poly_chknorm(&h->vec[i], LC_DILITHIUM_GAMMA2)) {
 			rej_total |= 1 << 2;
 			goto rej;
@@ -290,6 +320,7 @@ rej:
 		poly_add(&w0->vec[i], &w0->vec[i], &h->vec[i]);
 	}
 
+	/* Algorithm 7: step 26 */
 	n = polyveck_make_hint(&ws->h, &ws->w0, &ws->w1);
 	if (n > LC_DILITHIUM_OMEGA) {
 		rej_total |= 1 << 3;
@@ -322,6 +353,7 @@ static int lc_dilithium_sign_internal_noahat(struct lc_dilithium_sig *sig,
 	int ret = 0;
 	LC_DECLARE_MEM(ws, struct workspace_sign, LC_DILITHIUM_AHAT_ALIGNMENT);
 
+	/* Algorithm 7: Step 5 - ExpandA */
 	polyvec_matrix_expand(ws->mat, rho, ws->poly_uniform_buf);
 
 	/* Temporarily set the pointer */
