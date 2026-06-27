@@ -956,13 +956,11 @@ int lc_x509_note_serial_enc(void *context, uint8_t *data, size_t *avail_datalen,
 {
 	struct x509_generate_context *ctx = context;
 	const struct lc_x509_certificate *cert = ctx->cert;
-	size_t serial_size = cert->raw_serial_size;
 	int ret = 0;
-	uint8_t add_sign = 0;
 
 	(void)tag;
 
-	if (!serial_size) {
+	if (!cert->raw_serial_size) {
 		CKINT(lc_x509_sufficient_size(avail_datalen,
 					      LC_X509_SERIAL_MAX_SIZE));
 		lc_memset_secure(data, 0xff, LC_X509_SERIAL_MAX_SIZE);
@@ -971,42 +969,19 @@ int lc_x509_note_serial_enc(void *context, uint8_t *data, size_t *avail_datalen,
 		return 0;
 	}
 
+	CKINT(lc_x509_sufficient_size(avail_datalen, cert->raw_serial_size));
+
 	/*
 	 * From RFC5280 appendix B:
 	 *
 	 * CAs MUST force the serialNumber to be a non-negative integer, that
 	 * is, the sign bit in the DER encoding of the INTEGER value MUST be
 	 * zero.
-	 *
-	 * We could also simply eliminate the high bit via
-	 * cert->raw_serial[0] &= ~0x80, but this would either require a
-	 * modification of a caller-providd data, duplication of the serial
-	 * number or modification on the fly. None of these options are desired
-	 * as the resulting certificate would then show a different serial
-	 * than set by the caller. As this is absolutely non-transparent, we
-	 * simply add a leading zero in case the high bit is set.
-	 *
-	 * Yes, in the worst case, this would imply that the serial number
-	 * is in total 21 bytes long considering lc_x509_cert_set_serial: 20
-	 * bytes of the value and 21st byte holding the zero as sign
-	 * information. The RFC is not clear whether the 20 bytes are including
-	 * or excluding the sign information.
 	 */
-	if (cert->raw_serial[0] & 0x80) {
-		serial_size++;
-		add_sign = 1;
-	}
-
-	CKINT(lc_x509_sufficient_size(avail_datalen, serial_size));
-
-	if (add_sign) {
-		data[0] = 0;
-		data++;
-	}
 	memcpy(data, cert->raw_serial, cert->raw_serial_size);
-	*avail_datalen -= serial_size;
-	bin2print_debug(cert->raw_serial, cert->raw_serial_size, stdout,
-			"Serial");
+	data[0] &= (uint8_t)(~0x80);
+	*avail_datalen -= cert->raw_serial_size;
+	bin2print_debug(data, cert->raw_serial_size, stdout, "Serial");
 
 out:
 	return ret;
