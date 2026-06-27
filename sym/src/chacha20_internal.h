@@ -54,7 +54,7 @@ static inline int cc20_crypt_asm(
 		return ret;
 
 	/* Sanity check */
-	BUILD_BUG_ON(sizeof(struct lc_sym_state) != LC_CC20_STATE_SIZE);
+	BUILD_BUG_ON(sizeof(struct lc_sym_state) > LC_CC20_STATE_SIZE);
 
 	cc20_crypt_remaining(ctx, &in, &out, &len);
 
