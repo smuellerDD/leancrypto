@@ -790,7 +790,8 @@ curveed448_verify(const uint8_t signature[LC_ED448_SIGBYTES],
 	CKINT(curve448_base_double_scalarmul_non_secret(
 		pk_point, response_scalar, pk_point, challenge_scalar));
 
-	CKRET_HARDENED(!curve448_point_eq(pk_point, r_point), -EBADMSG);
+	CKRET_HARDENED(curve448_point_eq(pk_point, r_point) != C448_TRUE,
+		       -EBADMSG);
 
 out:
 	lc_memset_secure(challenge, 0, sizeof(challenge));

@@ -90,6 +90,9 @@ pub mod lcr_kbkdf;
 /// Leancrypto wrapper for lc_ed25519
 pub mod lcr_ed25519;
 
+/// Leancrypto wrapper for lc_ed448
+pub mod lcr_ed448;
+
 /// Leancrypto wrapper for X.509 API
 pub mod lcr_x509;
 
