@@ -83,7 +83,7 @@ fn lc_rust_x448() {
 }
 
 #[test]
-fn x448() {
+fn wycheproof_x448() {
     let test_set = TestSet::load(TestName::X448).unwrap();
     for test_group in &test_set.test_groups {
         for test in &test_group.tests {

@@ -83,7 +83,7 @@ fn lc_rust_x25519() {
 }
 
 #[test]
-fn x25519() {
+fn wycheproof_x25519() {
     let test_set = TestSet::load(TestName::X25519).unwrap();
     for test_group in &test_set.test_groups {
         for test in &test_group.tests {

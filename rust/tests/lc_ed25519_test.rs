@@ -18,6 +18,10 @@
  */
 
 use leancrypto_sys::lcr_ed25519::lcr_ed25519;
+use wycheproof::{
+    eddsa::{TestName, TestSet},
+    TestResult,
+};
 
 #[test]
 fn lc_rust_ed25519_verify_kat() {
@@ -121,4 +125,35 @@ fn lc_rust_ed25519_sign_kat() {
     let result = ed25519.keypair();
     assert_eq!(result, Ok(()));
     assert_ne!(ed25519.get_sk().expect("get_sk"), &sk[..]);
+}
+
+#[test]
+fn wycheproof_ed25519_verify() {
+    let test_set = TestSet::load(TestName::Ed25519).unwrap();
+    for test_group in &test_set.test_groups {
+        let mut ed25519 = leancrypto_sys::lcr_ed25519::lcr_ed25519::new();
+        let result = ed25519.enable();
+        assert_eq!(result, Ok(()));
+
+        let result = ed25519.pk_load(&test_group.key.pk);
+        assert_eq!(result, Ok(()));
+
+        for test in &test_group.tests {
+            println!("Test case {}: {}", test.tc_id, test.comment);
+
+            let mut result = ed25519.sig_load(&test.sig);
+            if result == Ok(()) {
+                result = ed25519.verify(&test.msg);
+            }
+
+            match &test.result {
+                TestResult::Invalid => {
+                    assert!(result.is_err());
+                }
+                TestResult::Valid | TestResult::Acceptable => {
+                    assert_eq!(result, Ok(()));
+                }
+            }
+        }
+    }
 }
