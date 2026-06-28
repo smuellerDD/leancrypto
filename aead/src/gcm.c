@@ -410,8 +410,6 @@ static int gcm_setiv(struct lc_aes_gcm_cryptor *ctx, const uint8_t *iv,
 {
 	struct lc_gcm_ctx *gcm_ctx = &ctx->gcm_ctx;
 	const uint8_t *p; /* general purpose array pointer */
-	/* XOR source built from provided IV if len != AES_BLOCKSIZE */
-	uint8_t work_buf[AES_BLOCKSIZE];
 	uint8_t use_len =
 		0; /* byte count to process, up to AES_BLOCKSIZE bytes */
 
@@ -421,6 +419,9 @@ static int gcm_setiv(struct lc_aes_gcm_cryptor *ctx, const uint8_t *iv,
 	 */
 	if (!iv)
 		return 0;
+
+	if (iv_len < 4)
+		return -EINVAL;
 
 	/*
 	 * When a new IV is set, we start with a new encryption, thus set the
@@ -443,13 +444,16 @@ static int gcm_setiv(struct lc_aes_gcm_cryptor *ctx, const uint8_t *iv,
 		/* start "counting" from 1 (not 0) */
 		gcm_ctx->y[15] = 1;
 	} else {
+		/* XOR source built from provided IV if len != AES_BLOCKSIZE */
+		uint8_t work_buf[AES_BLOCKSIZE];
+
 		/*
 		 * if we don't have a 12-byte IV, we GHASH whatever we've been
 		 * given
 		 */
 
 		/* clear the working buffer */
-		memset(work_buf, 0, AES_BLOCKSIZE);
+		memset(work_buf, 0, 12);
 
 		be32_to_ptr(work_buf + 12, (uint32_t)(iv_len * 8));
 
@@ -465,9 +469,11 @@ static int gcm_setiv(struct lc_aes_gcm_cryptor *ctx, const uint8_t *iv,
 			p += use_len;
 		}
 
-		xor_64(gcm_ctx->y, work_buf, use_len);
+		xor_64(gcm_ctx->y, work_buf, sizeof(work_buf));
 
 		gcm_mult(ctx, gcm_ctx->y, gcm_ctx->y);
+
+		lc_memset_secure(work_buf, 0, sizeof(work_buf));
 	}
 
 	return lc_sym_encrypt(&ctx->sym_ctx, gcm_ctx->y, gcm_ctx->base_ectr,
