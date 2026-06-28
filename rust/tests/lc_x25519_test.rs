@@ -18,6 +18,7 @@
  */
 
 use leancrypto_sys::lcr_x25519::lcr_x25519;
+use wycheproof::xdh::{TestName, TestSet};
 
 fn lc_rust_x25519_one() {
     let mut x25519_local = lcr_x25519::new();
@@ -76,4 +77,39 @@ fn lc_rust_x25519_one() {
 #[test]
 fn lc_rust_x25519() {
     lc_rust_x25519_one();
+}
+
+#[test]
+fn x25519() {
+    let test_set = TestSet::load(TestName::X25519).unwrap();
+    for test_group in &test_set.test_groups {
+        for test in &test_group.tests {
+            let mut x25519 = leancrypto_sys::lcr_x25519::lcr_x25519::new();
+            let result = x25519.enable();
+            assert_eq!(result, Ok(()));
+
+            let result = x25519.sk_load(&test.private_key);
+            assert_eq!(result, Ok(()));
+            let result = x25519.pk_remote_load(&test.public_key);
+            assert_eq!(result, Ok(()));
+
+            let result = x25519.shared_secret();
+
+            match result {
+                Ok(()) => {
+                    let ss_slice = x25519.get_ss().expect("get_ss");
+                    assert_eq!(result, Ok(()));
+                    assert_eq!(
+                        ss_slice[..],
+                        test.shared_secret[..],
+                        "Derived incorrect secret: {:?}",
+                        test
+                    );
+                }
+                Err(e) => {
+                    panic!("Test failed: {:?}. Error {:?}", test, e);
+                }
+            }
+        }
+    }
 }
