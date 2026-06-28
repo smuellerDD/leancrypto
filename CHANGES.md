@@ -5,7 +5,7 @@ Changes 1.8.0-prerelease
 
 * Curve448: Fix AVX2 ABI issue
 
-* Rust: add X25519 API to support rustls
+* Rust: add X25519 / X448 API to support rustls
 
 * Rust: add HKDF API
 

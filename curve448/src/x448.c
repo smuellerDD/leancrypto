@@ -311,3 +311,66 @@ LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_x448_alg_status,
 	}
 	return lc_alg_status_unknown;
 }
+
+LC_INTERFACE_FUNCTION(int, lc_x448_sk_ptr, uint8_t **x448_key,
+		      size_t *x448_key_len, struct lc_x448_sk *sk)
+{
+	if (!sk || !x448_key || !x448_key_len)
+		return -EINVAL;
+
+	*x448_key = sk->sk;
+	*x448_key_len = sizeof(sk->sk);
+	return 0;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x448_pk_ptr, uint8_t **x448_key,
+		      size_t *x448_key_len, struct lc_x448_pk *pk)
+{
+	if (!pk || !x448_key || !x448_key_len)
+		return -EINVAL;
+
+	*x448_key = pk->pk;
+	*x448_key_len = sizeof(pk->pk);
+	return 0;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x448_ss_ptr, uint8_t **x448_ss,
+		      size_t *x448_ss_len, struct lc_x448_ss *ss)
+{
+	if (!ss || !x448_ss || !x448_ss_len)
+		return -EINVAL;
+
+	*x448_ss = ss->ss;
+	*x448_ss_len = sizeof(ss->ss);
+	return 0;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x448_sk_load, struct lc_x448_sk *sk,
+		      const uint8_t *src_key, size_t src_key_len)
+{
+	if (!sk || !src_key || src_key_len != sizeof(sk->sk))
+		return -EINVAL;
+
+	memcpy(sk->sk, src_key, src_key_len);
+	return 0;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x448_pk_load, struct lc_x448_pk *pk,
+		      const uint8_t *src_key, size_t src_key_len)
+{
+	if (!pk || !src_key || src_key_len != sizeof(pk->pk))
+		return -EINVAL;
+
+	memcpy(pk->pk, src_key, src_key_len);
+	return 0;
+}
+
+LC_INTERFACE_FUNCTION(int, lc_x448_ss_load, struct lc_x448_ss *ss,
+		      const uint8_t *src_ss, size_t src_ss_len)
+{
+	if (!ss || !src_ss || src_ss_len != sizeof(ss->ss))
+		return -EINVAL;
+
+	memcpy(ss->ss, src_ss, src_ss_len);
+	return 0;
+}

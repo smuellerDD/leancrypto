@@ -75,6 +75,9 @@ pub mod lcr_sym;
 /// Leancrypto wrapper for lc_x25519
 pub mod lcr_x25519;
 
+/// Leancrypto wrapper for lc_x448
+pub mod lcr_x448;
+
 /// Leancrypto wrapper for lc_hkdf
 pub mod lcr_hkdf;
 

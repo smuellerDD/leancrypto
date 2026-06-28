@@ -228,6 +228,34 @@ impl std::fmt::Display for X25519Error {
 }
 
 #[derive(Debug, PartialEq)]
+pub enum X448Error {
+    AllocationError,
+    UninitializedContext,
+    ProcessingError,
+}
+
+impl std::error::Error for X448Error {}
+
+impl std::fmt::Display for X448Error {
+    fn fmt(
+        &self,
+        f: &mut std::fmt::Formatter<'_>,
+    ) -> std::fmt::Result {
+        match self {
+            X448Error::AllocationError => {
+                write!(f, "failed to allocate XDH context")
+            }
+            X448Error::UninitializedContext => {
+                write!(f, "XDH context is not initialized")
+            }
+            X448Error::ProcessingError => {
+                write!(f, "XDH processing error occurred")
+            }
+        }
+    }
+}
+
+#[derive(Debug, PartialEq)]
 pub enum KdfError {
     AllocationError,
     UninitializedContext,

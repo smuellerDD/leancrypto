@@ -48,6 +48,18 @@ int lc_x448_keypair(struct lc_x448_pk *pk, struct lc_x448_sk *sk,
 int lc_x448_pk_from_sk(struct lc_x448_pk *pk, const struct lc_x448_sk *sk);
 int lc_x448_ss(struct lc_x448_ss *ss, const struct lc_x448_pk *pk,
 	       const struct lc_x448_sk *sk);
+int lc_x448_sk_ptr(uint8_t **x448_key, size_t *x448_key_len,
+		   struct lc_x448_sk *sk);
+int lc_x448_pk_ptr(uint8_t **x448_key, size_t *x448_key_len,
+		   struct lc_x448_pk *pk);
+int lc_x448_ss_ptr(uint8_t **x448_ss, size_t *x448_ss_len,
+		   struct lc_x448_ss *ss);
+int lc_x448_sk_load(struct lc_x448_sk *sk, const uint8_t *src_key,
+		    size_t src_key_len);
+int lc_x448_pk_load(struct lc_x448_pk *pk, const uint8_t *src_key,
+		    size_t src_key_len);
+int lc_x448_ss_load(struct lc_x448_ss *ss, const uint8_t *src_sig,
+		    size_t src_sig_len);
 
 enum lc_x448_alg_operation {
 	/** Unknown operation */
