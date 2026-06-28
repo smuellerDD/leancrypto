@@ -91,6 +91,8 @@ int lc_x509_set_digestsize(size_t *digestsize, struct lc_hash_ctx *hash_ctx);
 int lc_x509_get_sig_params(struct lc_x509_certificate *cert);
 int lc_x509_check_for_self_signed(struct lc_x509_certificate *cert);
 
+int lc_x509_check_serial(const uint8_t *serial, size_t seriallen);
+
 #ifdef __cplusplus
 }
 #endif

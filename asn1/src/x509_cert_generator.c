@@ -963,7 +963,8 @@ int lc_x509_note_serial_enc(void *context, uint8_t *data, size_t *avail_datalen,
 	if (!cert->raw_serial_size) {
 		CKINT(lc_x509_sufficient_size(avail_datalen,
 					      LC_X509_SERIAL_MAX_SIZE));
-		lc_memset_secure(data, 0xff, LC_X509_SERIAL_MAX_SIZE);
+		data[0] = 0x7f;
+		lc_memset_secure(data + 1, 0xff, LC_X509_SERIAL_MAX_SIZE - 1);
 		*avail_datalen -= LC_X509_SERIAL_MAX_SIZE;
 		printf_debug("Added serial number placeholder\n");
 		return 0;
@@ -981,6 +982,7 @@ int lc_x509_note_serial_enc(void *context, uint8_t *data, size_t *avail_datalen,
 	memcpy(data, cert->raw_serial, cert->raw_serial_size);
 	data[0] &= (uint8_t)(~0x80);
 	*avail_datalen -= cert->raw_serial_size;
+	CKINT(lc_x509_check_serial(data, cert->raw_serial_size));
 	bin2print_debug(data, cert->raw_serial_size, stdout, "Serial");
 
 out:
@@ -1421,7 +1423,8 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_encode,
 	 * following algorithm is applied:
 	 *
 	 * 1. SHA3-256 of the DER of the certificate where the value for the
-	 *    serial is 20 bytes 0xff and the entire signature space is 0xff.
+	 *    serial is 0x7f followed by 19 bytes 0xff and the entire signature
+	 *    space is 0xff.
 	 * 2. Ensure that most significant bit is not set to ensure it is a
 	 *    positive value.
 	 * 3. Copy the first 20 bytes of the digest into the target certificate.
@@ -1437,6 +1440,9 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_encode,
 		/* unconstify harmless as parsed_x509 belongs to our function */
 		memcpy((uint8_t *)ws->parsed_x509.raw_serial, ws->der_digest,
 		       LC_X509_SERIAL_MAX_SIZE);
+
+		CKINT(lc_x509_check_serial(ws->parsed_x509.raw_serial,
+					   LC_X509_SERIAL_MAX_SIZE));
 	}
 
 	/*

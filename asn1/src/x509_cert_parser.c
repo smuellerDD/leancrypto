@@ -189,6 +189,26 @@ int lc_x509_signature_algorithm(void *context, size_t hdrlen, unsigned char tag,
 	return 0;
 }
 
+int lc_x509_check_serial(const uint8_t *serial, size_t seriallen)
+{
+	int ret = 0;
+
+	/* RFC5280 requires the serial to be not longer than 20 bytes. */
+	CKRET(seriallen > LC_X509_SERIAL_MAX_SIZE, -EINVAL);
+
+	/*
+	 * From RFC5280 appendix B:
+	 *
+	 * CAs MUST force the serialNumber to be a non-negative integer, that
+	 * is, the sign bit in the DER encoding of the INTEGER value MUST be
+	 * zero.
+	 */
+	CKRET(seriallen && serial[0] & 0x80, -EINVAL);
+
+out:
+	return ret;
+}
+
 /*
  * Note the certificate serial number
  */
@@ -197,20 +217,20 @@ int lc_x509_note_serial(void *context, size_t hdrlen, unsigned char tag,
 {
 	struct x509_parse_context *ctx = context;
 	struct lc_x509_certificate *cert = ctx->cert;
+	int ret;
 
 	(void)hdrlen;
 	(void)tag;
 
-	/* RFC5280 requires the serial to be not longer than 20 bytes. */
-	if (vlen > LC_X509_SERIAL_MAX_SIZE)
-		return -EINVAL;
+	CKINT(lc_x509_check_serial(value, vlen));
 
 	cert->raw_serial = value;
 	cert->raw_serial_size = vlen;
 	bin2print_debug(cert->raw_serial, cert->raw_serial_size, stdout,
 			"Serial");
 
-	return 0;
+out:
+	return ret;
 }
 
 int lc_x509_extract_name_segment(void *context, size_t hdrlen,
