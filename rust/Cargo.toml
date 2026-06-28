@@ -20,3 +20,10 @@ zeroize = "1.8.2"
 [build-dependencies]
 bindgen = { version = "0.69.1", features = ["experimental"] }
 pkg-config = { version = "0.3.30", optional = true }
+
+[dev-dependencies]
+wycheproof = { version = "0.6.0", default-features = false, features = [
+    "aead",
+    "hkdf",
+    "xdh",
+] }
