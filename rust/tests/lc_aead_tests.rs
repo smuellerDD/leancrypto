@@ -602,3 +602,9 @@ fn wycheproof_test_chacha64() {
     let mut aead = lcr_aead::new(lcr_aead_type::lcr_chacha20_poly1305);
     wycheproof_test_aead(&mut aead, 64, TestName::ChaCha20Poly1305);
 }
+
+// #[test]
+// fn wycheproof_test_ascon128() {
+//     let mut aead = lcr_aead::new(lcr_aead_type::lcr_ascon_128);
+//     wycheproof_test_aead(&mut aead, 128, TestName::Ascon128);
+// }

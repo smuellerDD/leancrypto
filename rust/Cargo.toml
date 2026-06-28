@@ -24,6 +24,8 @@ pkg-config = { version = "0.3.30", optional = true }
 [dev-dependencies]
 wycheproof = { version = "0.6.0", default-features = false, features = [
     "aead",
+    "cipher",
     "hkdf",
+    "keywrap",
     "xdh",
 ] }
