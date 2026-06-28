@@ -19,6 +19,7 @@
 
 use leancrypto_sys::lcr_hash::lcr_hash_type;
 use leancrypto_sys::lcr_hkdf::lcr_hkdf;
+use wycheproof::{hkdf::TestName, TestResult};
 
 #[test]
 fn lc_rust_hkdf_tester() {
@@ -58,4 +59,57 @@ fn lc_rust_hkdf_tester() {
     assert_eq!(result, Ok(()));
 
     assert_eq!(act, &exp[..]);
+}
+
+fn test_hkdf(
+    hkdf: &mut lcr_hkdf,
+    test_name: TestName,
+) {
+    let test_set = wycheproof::hkdf::TestSet::load(test_name).unwrap();
+
+    for test_group in test_set.test_groups {
+        for test in test_group.tests {
+            dbg!(&test);
+
+            let result = hkdf.extract(&test.ikm, &test.salt);
+            assert_eq!(result, Ok(()));
+
+            let mut okm = vec![0; test.size];
+            let result = hkdf.expand(&test.info, &mut okm);
+
+            match &test.result {
+                TestResult::Acceptable | TestResult::Valid => {
+                    assert!(result.is_ok());
+                    assert_eq!(
+                        okm[..],
+                        test.okm[..],
+                        "Failed test: {}",
+                        test.comment
+                    );
+                }
+                TestResult::Invalid => {
+                    dbg!(&result);
+                    assert!(result.is_err(), "Failed test: {}", test.comment)
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn wycheproof_hkdf_sha256() {
+    let mut hkdf = lcr_hkdf::new(lcr_hash_type::lcr_sha2_256);
+    test_hkdf(&mut hkdf, TestName::HkdfSha256);
+}
+
+#[test]
+fn wycheproof_hkdf_sha384() {
+    let mut hkdf = lcr_hkdf::new(lcr_hash_type::lcr_sha2_384);
+    test_hkdf(&mut hkdf, TestName::HkdfSha384);
+}
+
+#[test]
+fn wycheproof_hkdf_sha512() {
+    let mut hkdf = lcr_hkdf::new(lcr_hash_type::lcr_sha2_512);
+    test_hkdf(&mut hkdf, TestName::HkdfSha512);
 }

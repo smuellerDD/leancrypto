@@ -49,6 +49,8 @@ Changes 1.8.0-prerelease
 
 - All production and test code is now subject to regular UBSAN tests
 
+- Add Wycheproof compliance testing using Rust interface
+
 Changes 1.7.2
 * Fix RDSEED counter
 
