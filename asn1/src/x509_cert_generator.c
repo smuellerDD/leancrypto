@@ -948,6 +948,31 @@ out:
 	return ret;
 }
 
+static int lc_x509_serial_adjust(uint8_t *serial, size_t seriallen)
+{
+	if (!seriallen)
+		return 0;
+
+	/*
+	 * From RFC5280 appendix B:
+	 *
+	 * CAs MUST force the serialNumber to be a non-negative integer, that
+	 * is, the sign bit in the DER encoding of the INTEGER value MUST be
+	 * zero.
+	 */
+	serial[0] &= (uint8_t)(~0x80);
+
+	/*
+	 * Prevent that the serial number is treated as padding data. Especially
+	 * OpenSSL does not like it: crypto/asn1/a_int.c:c2i_ibuf would
+	 * flag it as wrong padding and reject the whole X.509 certificate.
+	 */
+	if (serial[0] == 0x0)
+		serial[0] |= 0x01;
+
+	return 0;
+}
+
 /*
  * Note the certificate serial number
  */
@@ -961,6 +986,10 @@ int lc_x509_note_serial_enc(void *context, uint8_t *data, size_t *avail_datalen,
 	(void)tag;
 
 	if (!cert->raw_serial_size) {
+		/*
+		 * Add placeholder serial number that is updated with an
+		 * auto-generated serial number in lc_x509_cert_encode.
+		 */
 		CKINT(lc_x509_sufficient_size(avail_datalen,
 					      LC_X509_SERIAL_MAX_SIZE));
 		data[0] = 0x7f;
@@ -972,16 +1001,10 @@ int lc_x509_note_serial_enc(void *context, uint8_t *data, size_t *avail_datalen,
 
 	CKINT(lc_x509_sufficient_size(avail_datalen, cert->raw_serial_size));
 
-	/*
-	 * From RFC5280 appendix B:
-	 *
-	 * CAs MUST force the serialNumber to be a non-negative integer, that
-	 * is, the sign bit in the DER encoding of the INTEGER value MUST be
-	 * zero.
-	 */
 	memcpy(data, cert->raw_serial, cert->raw_serial_size);
-	data[0] &= (uint8_t)(~0x80);
 	*avail_datalen -= cert->raw_serial_size;
+
+	CKINT(lc_x509_serial_adjust(data, cert->raw_serial_size));
 	CKINT(lc_x509_check_serial(data, cert->raw_serial_size));
 	bin2print_debug(data, cert->raw_serial_size, stdout, "Serial");
 
@@ -1436,6 +1459,8 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_encode,
 		lc_hash(LC_X509_SERIAL_DEFAULT_HASH, data, datalen,
 			ws->der_digest);
 		ws->der_digest[0] &= (uint8_t)(~0x80);
+		CKINT(lc_x509_serial_adjust(ws->der_digest,
+					    LC_X509_SERIAL_MAX_SIZE));
 
 		/* unconstify harmless as parsed_x509 belongs to our function */
 		memcpy((uint8_t *)ws->parsed_x509.raw_serial, ws->der_digest,
