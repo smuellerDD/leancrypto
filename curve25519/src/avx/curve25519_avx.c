@@ -60,9 +60,6 @@ int crypto_scalarmult_curve25519_avx2(unsigned char *q, const unsigned char *n,
 	fe51 z_51;
 	int ret = 0;
 
-	if (has_small_order(p))
-		return -1;
-
 	memcpy(t, n, sizeof(t));
 	t[0] &= 248;
 	t[31] &= 127;

@@ -111,9 +111,6 @@ int crypto_scalarmult_curve25519_c(uint8_t *q, const uint8_t *n,
 	unsigned int i, swap, bit;
 	int pos, ret = 0;
 
-	if (has_small_order(p)) {
-		return -1;
-	}
 	for (i = 0; i < 32; i++) {
 		t[i] = n[i];
 	}

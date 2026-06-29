@@ -111,7 +111,10 @@ impl lcr_x25519 {
         let result = unsafe {
             leancrypto::lc_x25519_ss(&mut self.ss, &self.pk_remote, &self.sk)
         };
-
+        println!("ret {}", result);
+        if result == -1 * (leancrypto::EKEYREJECTED as i32) {
+            return Err(X25519Error::KeyRejectedError);
+        }
         if result < 0 {
             return Err(X25519Error::ProcessingError);
         }

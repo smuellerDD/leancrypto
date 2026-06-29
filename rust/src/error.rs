@@ -204,6 +204,7 @@ pub enum X25519Error {
     AllocationError,
     UninitializedContext,
     ProcessingError,
+    KeyRejectedError,
 }
 
 impl std::error::Error for X25519Error {}
@@ -222,6 +223,9 @@ impl std::fmt::Display for X25519Error {
             }
             X25519Error::ProcessingError => {
                 write!(f, "XDH processing error occurred")
+            }
+            X25519Error::KeyRejectedError => {
+                write!(f, "XDH key rejected error occurred")
             }
         }
     }

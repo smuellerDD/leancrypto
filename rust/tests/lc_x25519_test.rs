@@ -17,7 +17,7 @@
  * DAMAGE.
  */
 
-use leancrypto_sys::lcr_x25519::lcr_x25519;
+use leancrypto_sys::{lcr_x25519::lcr_x25519, error::X25519Error};
 use wycheproof::{
     xdh::{TestName, TestSet},
     TestResult,
@@ -93,6 +93,8 @@ fn wycheproof_x25519() {
             let result = x25519.enable();
             assert_eq!(result, Ok(()));
 
+            println!("{:?}", test.public_key);
+
             let result = x25519.sk_load(&test.private_key);
             assert_eq!(result, Ok(()));
             let result = x25519.pk_remote_load(&test.public_key);
@@ -105,8 +107,17 @@ fn wycheproof_x25519() {
                     assert!(result.is_err());
                 }
                 TestResult::Valid | TestResult::Acceptable => {
-                    let ss_slice = x25519.get_ss().expect("get_ss");
+                    /*
+                     * Wycheproof provides some keys as acceptable that our
+                     * implementation simply rejects as they have small orders
+                     * (see has_small_order). We ignore them here.
+                     */
+                    if result == Err(X25519Error::KeyRejectedError) {
+                        continue;
+                    }
+
                     assert_eq!(result, Ok(()));
+                    let ss_slice = x25519.get_ss().expect("get_ss");
                     assert_eq!(
                         ss_slice[..],
                         test.shared_secret[..],

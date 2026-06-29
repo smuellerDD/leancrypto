@@ -26,6 +26,7 @@
 #include "visibility.h"
 #include "x25519_internal.h"
 #include "x25519_scalarmult.h"
+#include "x25519_scalarmult_c.h"
 
 static void lc_x25519_keypair_selftest(void)
 {
@@ -191,7 +192,7 @@ int lc_x25519_ss_internal(struct lc_x25519_ss *ss,
 			  const struct lc_x25519_pk *pk,
 			  const struct lc_x25519_sk *sk)
 {
-	int ret;
+	int ret = 0;
 
 	CKNULL(sk, -EINVAL);
 	CKNULL(pk, -EINVAL);
@@ -202,6 +203,8 @@ int lc_x25519_ss_internal(struct lc_x25519_ss *ss,
 
 	/* Timecop: mark the secret key as sensitive */
 	poison(sk->sk, sizeof(sk->sk));
+
+	CKRET(has_small_order(pk->pk), -EKEYREJECTED);
 
 	CKINT(crypto_scalarmult_curve25519(ss->ss, sk->sk, pk->pk));
 

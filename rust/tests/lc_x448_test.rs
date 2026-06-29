@@ -106,8 +106,8 @@ fn wycheproof_x448() {
                     assert!(result.is_err());
                 }
                 TestResult::Valid | TestResult::Acceptable => {
-                    let ss_slice = x448.get_ss().expect("get_ss");
                     assert_eq!(result, Ok(()));
+                    let ss_slice = x448.get_ss().expect("get_ss");
                     assert_eq!(
                         ss_slice[..],
                         test.shared_secret[..],
