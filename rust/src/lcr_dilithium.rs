@@ -19,6 +19,7 @@
 
 use crate::error::SignatureError;
 use crate::ffi::leancrypto;
+use crate::lcr_hash::{lcr_hash_type, lcr_hash_type_mapping};
 use std::ptr;
 use std::sync::atomic;
 
@@ -41,6 +42,10 @@ pub struct lcr_dilithium {
     /// Dilithium signature
     sig: leancrypto::lc_dilithium_sig,
 
+    ctx: *mut leancrypto::lc_dilithium_ctx,
+    userctx: Vec<u8>,
+    external_mu: Vec<u8>,
+
     pk_set: bool,
     sk_set: bool,
     sig_set: bool,
@@ -54,6 +59,11 @@ impl lcr_dilithium {
             pk: unsafe { std::mem::zeroed() },
             sk: unsafe { std::mem::zeroed() },
             sig: unsafe { std::mem::zeroed() },
+
+            ctx: ptr::null_mut(),
+            userctx: Vec::new(),
+            external_mu: Vec::new(),
+
             pk_set: false,
             sk_set: false,
             sig_set: false,
@@ -226,15 +236,30 @@ impl lcr_dilithium {
             return Err(SignatureError::UninitializedContext);
         }
 
-        let result = unsafe {
-            leancrypto::lc_dilithium_sign(
-                &mut self.sig,
-                msg.as_ptr(),
-                msg.len(),
-                &self.sk,
-                leancrypto::lc_seeded_rng,
-            )
+        let result;
+        if self.ctx.is_null() {
+            result = unsafe {
+                leancrypto::lc_dilithium_sign(
+                    &mut self.sig,
+                    msg.as_ptr(),
+                    msg.len(),
+                    &self.sk,
+                    leancrypto::lc_seeded_rng,
+                )
+            };
+        } else {
+            result = unsafe {
+                leancrypto::lc_dilithium_sign_ctx(
+                    &mut self.sig,
+                    self.ctx,
+                    msg.as_ptr(),
+                    msg.len(),
+                    &self.sk,
+                    leancrypto::lc_seeded_rng,
+                )
+            };
         };
+
         if result < 0 {
             return Err(SignatureError::ProcessingError);
         }
@@ -264,15 +289,29 @@ impl lcr_dilithium {
             return Err(SignatureError::UninitializedContext);
         }
 
-        let result = unsafe {
-            leancrypto::lc_dilithium_sign(
-                &mut self.sig,
-                msg.as_ptr(),
-                msg.len(),
-                &self.sk,
-                ptr::null_mut(),
-            )
-        };
+        let result;
+        if self.ctx.is_null() {
+            result = unsafe {
+                leancrypto::lc_dilithium_sign(
+                    &mut self.sig,
+                    msg.as_ptr(),
+                    msg.len(),
+                    &self.sk,
+                    ptr::null_mut(),
+                )
+            };
+        } else {
+            result = unsafe {
+                leancrypto::lc_dilithium_sign_ctx(
+                    &mut self.sig,
+                    self.ctx,
+                    msg.as_ptr(),
+                    msg.len(),
+                    &self.sk,
+                    ptr::null_mut(),
+                )
+            };
+        }
         if result < 0 {
             return Err(SignatureError::ProcessingError);
         }
@@ -301,14 +340,27 @@ impl lcr_dilithium {
             return Err(SignatureError::UninitializedContext);
         }
 
-        let result = unsafe {
-            leancrypto::lc_dilithium_verify(
-                &mut self.sig,
-                msg.as_ptr(),
-                msg.len(),
-                &self.pk,
-            )
-        };
+        let result;
+        if self.ctx.is_null() {
+            result = unsafe {
+                leancrypto::lc_dilithium_verify(
+                    &mut self.sig,
+                    msg.as_ptr(),
+                    msg.len(),
+                    &self.pk,
+                )
+            };
+        } else {
+            result = unsafe {
+                leancrypto::lc_dilithium_verify_ctx(
+                    &mut self.sig,
+                    self.ctx,
+                    msg.as_ptr(),
+                    msg.len(),
+                    &self.pk,
+                )
+            };
+        }
         if result == -1 * (leancrypto::EBADMSG as i32) {
             return Err(SignatureError::VerificationError);
         }
@@ -393,6 +445,135 @@ impl lcr_dilithium {
 
         Ok(&slice)
     }
+
+    fn alloc_ctx(&mut self) -> Result<(), SignatureError> {
+        if self.ctx.is_null() {
+            let result =
+                unsafe { leancrypto::lc_dilithium_ctx_alloc(&mut self.ctx) };
+            if result < 0 || self.ctx == ptr::null_mut() {
+                return Err(SignatureError::ProcessingError);
+            }
+        }
+        Ok(())
+    }
+
+    /// Method setting user context data with the ML-DSA context
+    ///
+    /// # Arguments
+    ///
+    /// * `userctx` Optional user context string to be applied with the
+    ///             Dilithium signature operation.
+    ///
+    /// # Returns
+    ///
+    /// * Returns Ok() with the public key on success or SignatureError on error
+    pub fn set_userctx(
+        &mut self,
+        userctx: &[u8],
+    ) -> Result<(), SignatureError> {
+        if userctx.len() == 0 {
+            return Err(SignatureError::ProcessingError);
+        }
+
+        self.alloc_ctx()?;
+
+        self.userctx.clear();
+        self.userctx.extend_from_slice(userctx);
+        unsafe {
+            leancrypto::lc_dilithium_ctx_userctx(
+                self.ctx,
+                self.userctx.as_ptr(),
+                self.userctx.len(),
+            )
+        };
+
+        Ok(())
+    }
+
+    /// Method setting hash type for HashML-DSA with the ML-DSA context
+    ///
+    /// # Arguments
+    ///
+    /// * `hash` Hash type that was used for pre-hashing the message. The
+    ///          message digest is used with the HashML-DSA. The message digest
+    ///          is to be provided via the message pointer in the sign/verify
+    ///          APIs.
+    ///
+    /// # Returns
+    ///
+    /// * Returns Ok() with the public key on success or SignatureError on error
+    pub fn set_hashtype(
+        &mut self,
+        hash: lcr_hash_type,
+    ) -> Result<(), SignatureError> {
+        self.alloc_ctx()?;
+
+        unsafe {
+            leancrypto::lc_dilithium_ctx_hash(
+                self.ctx,
+                lcr_hash_type_mapping(hash),
+            )
+        };
+        Ok(())
+    }
+
+    /// Method setting external Mu with the ML-DSA context
+    ///
+    /// NOTE: If the external mu is specified, the signature generation /
+    /// verification APIs do not require a message. In this case, the message buffer
+    /// can be set to NULL.
+    ///
+    /// NOTE If both a message and an external mu are provided, the external mu
+    /// takes precedence.
+    ///
+    /// # Arguments
+    ///
+    /// * `external_mu` Hash type that was used for pre-hashing the message. The
+    ///          message digest is used with the HashML-DSA. The message digest
+    ///          is to be provided via the message pointer in the sign/verify
+    ///          APIs.
+    ///
+    /// # Returns
+    ///
+    /// * Returns Ok() with the public key on success or SignatureError on error
+    pub fn set_external_mu(
+        &mut self,
+        external_mu: &[u8],
+    ) -> Result<(), SignatureError> {
+        if external_mu.len() == 0 {
+            return Err(SignatureError::ProcessingError);
+        }
+
+        self.alloc_ctx()?;
+
+        self.external_mu.clear();
+        self.external_mu.extend_from_slice(external_mu);
+
+        unsafe {
+            leancrypto::lc_dilithium_ctx_external_mu(
+                self.ctx,
+                self.external_mu.as_ptr(),
+                self.external_mu.len(),
+            )
+        };
+        Ok(())
+    }
+
+    /// Method to zero the context
+    ///
+    /// # Returns
+    ///
+    /// * Returns Ok() with the public key on success or SignatureError on error
+    pub fn ctx_zero(&mut self) -> Result<(), SignatureError> {
+        if !self.ctx.is_null() {
+            unsafe {
+                leancrypto::lc_dilithium_ctx_zero_free(self.ctx);
+            }
+            self.ctx = ptr::null_mut();
+        };
+
+        Ok(())
+    }
 }
 
 /// This ensures the sensitive buffers are always zeroized
@@ -403,5 +584,12 @@ impl Drop for lcr_dilithium {
 
         unsafe { std::ptr::write_volatile(&mut self.sk, sk) };
         atomic::compiler_fence(atomic::Ordering::SeqCst);
+
+        if !self.ctx.is_null() {
+            unsafe {
+                leancrypto::lc_dilithium_ctx_zero_free(self.ctx);
+            }
+            self.ctx = ptr::null_mut();
+        }
     }
 }
