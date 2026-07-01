@@ -1154,7 +1154,7 @@ fn wycheproof_dilithium_verify(test_name: TestName) {
             let ctx = &test.ctx;
             if let Some(ctx) = ctx {
                 if ctx.len() > 0 {
-                    let result = dilithium.set_userctx(&ctx.to_vec());
+                    let result = dilithium.ctx_userctx(&ctx.to_vec());
                     assert_eq!(result, Ok(()));
                 }
             }

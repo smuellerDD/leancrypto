@@ -115,33 +115,43 @@ fn lc_rust_ed448_sign_kat() {
 cation fails, but with the current data, it passes
  * What is the error in test case 76?
  */
-// #[test]
-// fn wycheproof_ed448_verify() {
-//     let test_set = TestSet::load(TestName::Ed448).unwrap();
-//     for test_group in &test_set.test_groups {
-//         let mut ed448 = leancrypto_sys::lcr_ed448::lcr_ed448::new();
-//         let result = ed448.enable();
-//         assert_eq!(result, Ok(()));
-//
-//         let result = ed448.pk_load(&test_group.key.pk);
-//         assert_eq!(result, Ok(()));
-//
-//         for test in &test_group.tests {
-//             println!("Test case {}: {}", test.tc_id, test.comment);
-//
-//             let mut result = ed448.sig_load(&test.sig);
-//             if result == Ok(()) {
-//                 result = ed448.verify(&test.msg);
-//             }
-//
-//             match &test.result {
-//                 TestResult::Invalid => {
-//                     assert!(result.is_err());
-//                 }
-//                 TestResult::Valid | TestResult::Acceptable => {
-//                     assert_eq!(result, Ok(()));
-//                 }
-//             }
-//         }
-//     }
-// }
+#[test]
+fn wycheproof_ed448_verify() {
+    let test_set = TestSet::load(TestName::Ed448).unwrap();
+    for test_group in &test_set.test_groups {
+        let mut ed448 = leancrypto_sys::lcr_ed448::lcr_ed448::new();
+        let result = ed448.enable();
+        assert_eq!(result, Ok(()));
+
+        let result = ed448.pk_load(&test_group.key.pk);
+        assert_eq!(result, Ok(()));
+
+        for test in &test_group.tests {
+            /*
+             * Under discussion at
+             * https://github.com/bleichenbacher-daniel/Rooterberg/issues/6
+             */
+            match test.tc_id {
+                63..66 => continue,
+                76 => continue,
+                _ => (),
+            }
+
+            println!("Test case {}: {}", test.tc_id, test.comment);
+
+            let mut result = ed448.sig_load(&test.sig);
+            if result == Ok(()) {
+                result = ed448.verify(&test.msg);
+            }
+
+            match &test.result {
+                TestResult::Invalid => {
+                    assert!(result.is_err());
+                }
+                TestResult::Valid | TestResult::Acceptable => {
+                    assert_eq!(result, Ok(()));
+                }
+            }
+        }
+    }
+}

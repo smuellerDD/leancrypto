@@ -312,6 +312,7 @@ impl lcr_dilithium {
                 )
             };
         }
+
         if result < 0 {
             return Err(SignatureError::ProcessingError);
         }
@@ -387,6 +388,7 @@ impl lcr_dilithium {
         let result = unsafe {
             leancrypto::lc_dilithium_sig_ptr(&mut ptr, &mut len, &mut self.sig)
         };
+
         if result < 0 || ptr == ptr::null_mut() {
             return Err(SignatureError::ProcessingError);
         }
@@ -467,7 +469,7 @@ impl lcr_dilithium {
     /// # Returns
     ///
     /// * Returns Ok() with the public key on success or SignatureError on error
-    pub fn set_userctx(
+    pub fn ctx_userctx(
         &mut self,
         userctx: &[u8],
     ) -> Result<(), SignatureError> {
@@ -502,7 +504,7 @@ impl lcr_dilithium {
     /// # Returns
     ///
     /// * Returns Ok() with the public key on success or SignatureError on error
-    pub fn set_hashtype(
+    pub fn ctx_hashtype(
         &mut self,
         hash: lcr_hash_type,
     ) -> Result<(), SignatureError> {
@@ -536,7 +538,7 @@ impl lcr_dilithium {
     /// # Returns
     ///
     /// * Returns Ok() with the public key on success or SignatureError on error
-    pub fn set_external_mu(
+    pub fn ctx_external_mu(
         &mut self,
         external_mu: &[u8],
     ) -> Result<(), SignatureError> {
