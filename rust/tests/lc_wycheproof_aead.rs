@@ -72,14 +72,14 @@ fn wycheproof_test_aead(
                     assert_eq!(
                         actual_ciphertext[..],
                         test.ct[..],
-                        "Test case failed {}: {}",
+                        "Test case failed on ciphertext {}: {}",
                         test.tc_id,
                         test.comment
                     );
                     assert_eq!(
                         tag[..],
                         test.tag[..],
-                        "Test case failed {}: {}",
+                        "Test case failed on tag {}: {}",
                         test.tc_id,
                         test.comment
                     );

@@ -197,6 +197,24 @@ static int ascon_tester_128_null_aad(void)
 				sizeof(exp_tag));
 }
 
+static int ascon_tester_128_null_auth_only(void)
+{
+	/* From NIST ACVP */
+	static const uint8_t nonce[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+					 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+					 0x00, 0x00, 0x00, 0x00 };
+	static const uint8_t key[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+				       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+				       0x00, 0x00 };
+	static const uint8_t exp_tag[] = { 0xf1, 0xe8, 0xda, 0x91, 0xf9, 0xfb,
+					   0xf0, 0x90, 0xca, 0xf3, 0xe3, 0x7c,
+					   0xca, 0xd9, 0x1b, 0xae };
+
+	return ascon_tester_one(NULL, 0, nonce, sizeof(nonce), NULL, 0,
+				key, sizeof(key), NULL, exp_tag,
+				sizeof(exp_tag));
+}
+
 static int ascon_tester_128_null_pt(void)
 {
 	/* From NIST ACVP */
@@ -239,6 +257,7 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	(void)argc;
 	(void)argv;
 
+	ret += ascon_tester_128_null_auth_only();
 	ret += ascon_tester_128();
 	ret += ascon_tester_128_non_aligned();
 	ret += ascon_tester_128_null_aad();
