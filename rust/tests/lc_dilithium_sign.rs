@@ -17,13 +17,16 @@
  * DAMAGE.
  */
 
-use leancrypto_sys::lcr_dilithium::lcr_dilithium;
+use leancrypto_sys::lcr_dilithium::{lcr_dilithium, lcr_dilithium_type};
 use wycheproof::{
     mldsa_sign::{TestName, TestSet},
     TestResult,
 };
 
-fn wycheproof_dilithium_sign_noseed(test_name: TestName) {
+fn wycheproof_dilithium_sign_noseed(
+    dilithium_type: lcr_dilithium_type,
+    test_name: TestName,
+) {
     let test_set = TestSet::load(test_name).unwrap();
     for test_group in &test_set.test_groups {
         let mut dilithium = lcr_dilithium::new();
@@ -33,6 +36,21 @@ fn wycheproof_dilithium_sign_noseed(test_name: TestName) {
             let result = dilithium.sk_load(&privkey);
             if result.is_err() {
                 /* The test vector may give us strange keys which we reject */
+                println!(
+                    "Test vector with key that cannot be imported, ignore"
+                );
+                continue;
+            }
+        }
+
+        let privseed = &test_group.privseed;
+        if let Some(privseed) = privseed {
+            let result = dilithium.sk_seed_load(&privseed, dilithium_type);
+            if result.is_err() {
+                /* The test vector may give us strange keys which we reject */
+                println!(
+                    "Test vector with key that cannot be imported, ignore"
+                );
                 continue;
             }
         }
@@ -42,6 +60,9 @@ fn wycheproof_dilithium_sign_noseed(test_name: TestName) {
             let result = dilithium.pk_load(&pubkey);
             if result.is_err() {
                 /* The test vector may give us strange keys which we reject */
+                println!(
+                    "Test vector with key that cannot be imported, ignore"
+                );
                 continue;
             }
         }
@@ -131,15 +152,48 @@ fn wycheproof_dilithium_sign_noseed(test_name: TestName) {
 
 #[test]
 fn wycheproof_dilithium_sign_noseed_44() {
-    wycheproof_dilithium_sign_noseed(TestName::MlDsa44SignNoSeed)
+    wycheproof_dilithium_sign_noseed(
+        lcr_dilithium_type::lcr_dilithium_44,
+        TestName::MlDsa44SignNoSeed,
+    )
+}
+
+#[test]
+fn wycheproof_dilithium_sign_seed_44() {
+    wycheproof_dilithium_sign_noseed(
+        lcr_dilithium_type::lcr_dilithium_44,
+        TestName::MlDsa44SignSeed,
+    )
 }
 
 #[test]
 fn wycheproof_dilithium_sign_noseed_65() {
-    wycheproof_dilithium_sign_noseed(TestName::MlDsa65SignNoSeed)
+    wycheproof_dilithium_sign_noseed(
+        lcr_dilithium_type::lcr_dilithium_65,
+        TestName::MlDsa65SignNoSeed,
+    )
+}
+
+#[test]
+fn wycheproof_dilithium_sign_seed_65() {
+    wycheproof_dilithium_sign_noseed(
+        lcr_dilithium_type::lcr_dilithium_65,
+        TestName::MlDsa65SignSeed,
+    )
 }
 
 #[test]
 fn wycheproof_dilithium_sign_noseed_87() {
-    wycheproof_dilithium_sign_noseed(TestName::MlDsa87SignNoSeed)
+    wycheproof_dilithium_sign_noseed(
+        lcr_dilithium_type::lcr_dilithium_87,
+        TestName::MlDsa87SignNoSeed,
+    )
+}
+
+#[test]
+fn wycheproof_dilithium_sign_seed_87() {
+    wycheproof_dilithium_sign_noseed(
+        lcr_dilithium_type::lcr_dilithium_87,
+        TestName::MlDsa87SignSeed,
+    )
 }
