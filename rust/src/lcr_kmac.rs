@@ -21,6 +21,7 @@ use crate::error::HashError;
 use crate::ffi::leancrypto;
 use std::ptr;
 
+#[derive(Debug, Copy, Clone)]
 pub enum lcr_kmac_type {
     lcr_kmac_128,
     lcr_kmac_256,

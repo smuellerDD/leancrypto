@@ -23,6 +23,7 @@ use crate::lcr_hash::{lcr_hash_type, lcr_hash_type_mapping};
 use std::ptr;
 use std::sync::atomic;
 
+#[derive(Debug, Copy, Clone)]
 pub enum lcr_dilithium_type {
     lcr_dilithium_44,
     lcr_dilithium_65,
@@ -91,6 +92,41 @@ impl lcr_dilithium {
                 &mut self.sk,
                 sk_buf.as_ptr(),
                 sk_buf.len(),
+            )
+        };
+        if result < 0 {
+            return Err(SignatureError::ProcessingError);
+        }
+
+        self.sk_set = true;
+
+        Ok(())
+    }
+
+    /// Load secret key seed for using with leancrypto
+    ///
+    /// # Arguments
+    ///
+    /// * `sk_seed_buf` buffer with raw secret key seed
+    ///
+    /// # Returns
+    ///
+    /// * Returns Ok() on success or SignatureError on error
+    pub fn sk_seed_load(
+        &mut self,
+        sk_seed_buf: &[u8],
+        dilithium_type: lcr_dilithium_type,
+    ) -> Result<(), SignatureError> {
+        // No check for self.sk_set == false as we allow overwriting
+        // of existing key.
+
+        let result = unsafe {
+            leancrypto::lc_dilithium_keypair_from_seed(
+                &mut self.pk,
+                &mut self.sk,
+                sk_seed_buf.as_ptr(),
+                sk_seed_buf.len(),
+                Self::lcr_dilithium_type_mapping(dilithium_type),
             )
         };
         if result < 0 {

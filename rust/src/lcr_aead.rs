@@ -21,6 +21,7 @@ use crate::error::AeadError;
 use crate::ffi::leancrypto;
 use std::ptr;
 
+#[derive(Debug, Copy, Clone)]
 pub enum lcr_aead_type {
     lcr_ascon_128,
     lcr_ascon_keccak_256,

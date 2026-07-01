@@ -22,6 +22,7 @@ use crate::ffi::leancrypto;
 use std::ptr;
 use std::sync::atomic;
 
+#[derive(Debug, Copy, Clone)]
 pub enum lcr_bike_type {
     lcr_bike_1,
     lcr_bike_3,

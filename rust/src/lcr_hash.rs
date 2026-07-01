@@ -23,7 +23,7 @@ use crate::ffi::leancrypto;
 pub const LC_SHA_MAX_SIZE_DIGEST: usize =
     leancrypto::LC_SHA_MAX_SIZE_DIGEST as usize;
 
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub enum lcr_hash_type {
     lcr_sha2_256,
     lcr_sha2_384,

@@ -22,6 +22,7 @@ use crate::ffi::leancrypto;
 use std::ptr;
 use std::sync::atomic;
 
+#[derive(Debug, Copy, Clone)]
 pub enum lcr_kyber_x448_type {
     lcr_kyber_512,
     lcr_kyber_768,

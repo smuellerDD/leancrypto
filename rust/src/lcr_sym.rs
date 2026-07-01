@@ -21,7 +21,7 @@ use crate::error::SymError;
 use crate::ffi::leancrypto;
 use std::ptr;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug, Copy, Clone)]
 pub enum lcr_sym_type {
     lcr_aes_cbc,
     lcr_aes_ctr,

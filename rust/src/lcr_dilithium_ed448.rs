@@ -22,6 +22,7 @@ use crate::ffi::leancrypto;
 use std::ptr;
 use std::sync::atomic;
 
+#[derive(Debug, Copy, Clone)]
 pub enum lcr_dilithium_ed448_type {
     lcr_dilithium_44,
     lcr_dilithium_65,

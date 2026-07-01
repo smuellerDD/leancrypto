@@ -22,6 +22,7 @@ use crate::ffi::leancrypto;
 use std::ptr;
 use std::sync::atomic;
 
+#[derive(Debug, Copy, Clone)]
 pub enum lcr_hqc_type {
     lcr_hqc_128,
     lcr_hqc_192,
