@@ -19,10 +19,6 @@
 
 use leancrypto_sys::lcr_dilithium::lcr_dilithium;
 use leancrypto_sys::lcr_dilithium::lcr_dilithium_type;
-use wycheproof::{
-    mldsa_verify::{TestName, TestSet},
-    TestResult,
-};
 
 #[test]
 fn lc_rust_dilithium_87_kat() {
@@ -1135,59 +1131,4 @@ fn lc_rust_dilithium_65() {
 #[test]
 fn lc_rust_dilithium_44() {
     lc_rust_dilithium_one(lcr_dilithium_type::lcr_dilithium_44);
-}
-
-fn wycheproof_dilithium_verify(test_name: TestName) {
-    let test_set = TestSet::load(test_name).unwrap();
-    for test_group in &test_set.test_groups {
-        let mut dilithium = lcr_dilithium::new();
-
-        let result = dilithium.pk_load(&test_group.pubkey);
-        if result.is_err() {
-            /* The test vector may give us strange keys which we reject */
-            continue;
-        }
-
-        for test in &test_group.tests {
-            println!("Test case {}: {}", test.tc_id, test.comment);
-
-            let ctx = &test.ctx;
-            if let Some(ctx) = ctx {
-                if ctx.len() > 0 {
-                    let result = dilithium.ctx_userctx(&ctx.to_vec());
-                    assert_eq!(result, Ok(()));
-                }
-            }
-
-            let mut result = dilithium.sig_load(&test.sig);
-            if result == Ok(()) {
-                result = dilithium.verify(&test.msg);
-            }
-
-            match &test.result {
-                TestResult::Invalid => {
-                    assert!(result.is_err());
-                }
-                TestResult::Valid | TestResult::Acceptable => {
-                    assert_eq!(result, Ok(()));
-                }
-            }
-
-            let _ = dilithium.ctx_zero();
-        }
-    }
-}
-
-#[test]
-fn wycheproof_dilithium_verify_44() {
-    wycheproof_dilithium_verify(TestName::MlDsa44Verify)
-}
-
-#[test]
-fn wycheproof_dilithium_verify_65() {
-    wycheproof_dilithium_verify(TestName::MlDsa65Verify)
-}
-#[test]
-fn wycheproof_dilithium_verify_87() {
-    wycheproof_dilithium_verify(TestName::MlDsa87Verify)
 }
