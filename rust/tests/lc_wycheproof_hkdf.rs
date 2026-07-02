@@ -19,7 +19,7 @@
 
 use leancrypto_sys::lcr_hash::lcr_hash_type;
 use leancrypto_sys::lcr_hkdf::lcr_hkdf;
-use wycheproof::{hkdf::TestName, TestResult};
+use wycheproof::{TestResult, hkdf::TestName};
 
 fn test_hkdf(
     hkdf: &mut lcr_hkdf,

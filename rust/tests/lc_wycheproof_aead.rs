@@ -20,8 +20,8 @@
 use leancrypto_sys::lcr_aead::lcr_aead;
 use leancrypto_sys::lcr_aead::lcr_aead_type;
 use wycheproof::{
-    aead::{TestFlag, TestName},
     TestResult,
+    aead::{TestFlag, TestName},
 };
 
 fn wycheproof_test_aead(

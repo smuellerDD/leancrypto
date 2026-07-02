@@ -19,8 +19,8 @@
 
 use leancrypto_sys::lcr_ed25519::lcr_ed25519;
 use wycheproof::{
-    eddsa::{TestName, TestSet},
     TestResult,
+    eddsa::{TestName, TestSet},
 };
 
 #[test]

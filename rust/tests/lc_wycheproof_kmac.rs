@@ -19,8 +19,8 @@
 
 use leancrypto_sys::lcr_kmac::{lcr_kmac, lcr_kmac_type};
 use wycheproof::{
-    mac::{TestName, TestSet},
     TestResult,
+    mac::{TestName, TestSet},
 };
 
 fn test_kmac(

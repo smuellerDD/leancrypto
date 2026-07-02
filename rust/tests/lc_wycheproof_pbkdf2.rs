@@ -20,8 +20,8 @@
 use leancrypto_sys::lcr_hash::lcr_hash_type;
 use leancrypto_sys::lcr_pbkdf2::lcr_pbkdf2;
 use wycheproof::{
-    pbkdf2::{TestName, TestSet},
     TestResult,
+    pbkdf2::{TestName, TestSet},
 };
 
 fn test_pbkdf2(

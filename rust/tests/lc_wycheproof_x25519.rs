@@ -19,8 +19,8 @@
 
 use leancrypto_sys::{error::X25519Error, lcr_x25519::lcr_x25519};
 use wycheproof::{
-    xdh::{TestName, TestSet},
     TestResult,
+    xdh::{TestName, TestSet},
 };
 
 #[test]

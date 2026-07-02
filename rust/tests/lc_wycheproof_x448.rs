@@ -19,8 +19,8 @@
 
 use leancrypto_sys::lcr_x448::lcr_x448;
 use wycheproof::{
-    xdh::{TestName, TestSet},
     TestResult,
+    xdh::{TestName, TestSet},
 };
 
 #[test]

@@ -19,8 +19,8 @@
 
 use leancrypto_sys::lcr_kyber::{lcr_kyber, lcr_kyber_type};
 use wycheproof::{
-    mlkem::{TestName, TestSet},
     TestResult,
+    mlkem::{TestName, TestSet},
 };
 
 fn wycheproof_kyber(

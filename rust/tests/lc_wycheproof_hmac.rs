@@ -20,8 +20,8 @@
 use leancrypto_sys::lcr_hash::lcr_hash_type;
 use leancrypto_sys::lcr_hmac::lcr_hmac;
 use wycheproof::{
-    mac::{TestName, TestSet},
     TestResult,
+    mac::{TestName, TestSet},
 };
 
 fn test_hmac(

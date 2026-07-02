@@ -19,7 +19,7 @@
 
 use leancrypto_sys::lcr_sym::lcr_sym;
 use leancrypto_sys::lcr_sym::lcr_sym_type;
-use wycheproof::{keywrap::TestName, TestResult};
+use wycheproof::{TestResult, keywrap::TestName};
 
 fn wycheproof_test_sym(
     sym: &mut lcr_sym,

@@ -19,8 +19,8 @@
 
 use leancrypto_sys::lcr_dilithium::{lcr_dilithium, lcr_dilithium_type};
 use wycheproof::{
-    mldsa_sign::{TestName, TestSet},
     TestResult,
+    mldsa_sign::{TestName, TestSet},
 };
 
 fn wycheproof_dilithium_sign(
