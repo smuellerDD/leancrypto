@@ -155,6 +155,10 @@ fn wycheproof_test_chacha64() {
     wycheproof_test_aead(&mut aead, 64, TestName::ChaCha20Poly1305);
 }
 
+/*
+ * See https://github.com/bleichenbacher-daniel/Rooterberg/issues/8
+ * why this is disabled.
+ */
 // #[test]
 // fn wycheproof_test_ascon128() {
 //     let mut aead = lcr_aead::new(lcr_aead_type::lcr_ascon_128);
