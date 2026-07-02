@@ -131,12 +131,22 @@ impl lcr_hmac {
             return Err(HashError::ProcessingError);
         }
 
+        let mut keyptr = key.as_ptr();
+        if key.len() == 0 {
+            keyptr = ptr::null();
+        }
+
+        let mut msgptr = msg.as_ptr();
+        if msg.len() == 0 {
+            msgptr = ptr::null();
+        }
+
         unsafe {
             leancrypto::lc_hmac(
                 lcr_hash_type_mapping(self.hmac),
-                key.as_ptr(),
+                keyptr,
                 key.len(),
-                msg.as_ptr(),
+                msgptr,
                 msg.len(),
                 mac.as_mut_ptr(),
             );
