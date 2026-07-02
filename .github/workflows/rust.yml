@@ -23,7 +23,9 @@ jobs:
       - name: Install meson
         run: |
           sudo apt-get update
-          sudo apt-get install -y meson
+          sudo apt-get install -y meson git
+      - name: Pull Wycheproof-RS
+        run: git clone https://github.com/randombit/wycheproof-rs
       - name: Meson setup
         run: meson setup build -Dtests=disabled -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled -Dsbsigntools=disabled
       - name: Meson compile

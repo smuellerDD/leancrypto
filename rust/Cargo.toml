@@ -22,8 +22,9 @@ bindgen = { version = "0.69.1", features = ["experimental"] }
 pkg-config = { version = "0.3.30", optional = true }
 
 [dev-dependencies]
-#wycheproof = { version = "0.6.0", default-features = false,
-wycheproof = { version = "0.7.0", path = "../../../../repos/wycheproof-rs", default-features = false, features = [
+#wycheproof = { version = "0.7.0", path = "../../../../repos/wycheproof-rs", default-features = false, features = [
+wycheproof = { version = "0.7.0", path = "../wycheproof-rs", default-features = false, features = [
+#wycheproof = { version = "0.6.0", default-features = false, features = [
     "aead",
     "cipher",
     "eddsa",
