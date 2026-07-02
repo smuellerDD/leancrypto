@@ -134,6 +134,7 @@ impl lcr_dilithium {
         }
 
         self.sk_set = true;
+        self.pk_set = true;
 
         Ok(())
     }
