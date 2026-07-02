@@ -23,7 +23,7 @@ use wycheproof::{
     TestResult,
 };
 
-fn wycheproof_dilithium_sign_noseed(
+fn wycheproof_dilithium_sign(
     dilithium_type: lcr_dilithium_type,
     test_name: TestName,
 ) {
@@ -154,7 +154,7 @@ fn wycheproof_dilithium_sign_noseed(
 
 #[test]
 fn wycheproof_dilithium_sign_noseed_44() {
-    wycheproof_dilithium_sign_noseed(
+    wycheproof_dilithium_sign(
         lcr_dilithium_type::lcr_dilithium_44,
         TestName::MlDsa44SignNoSeed,
     )
@@ -162,7 +162,7 @@ fn wycheproof_dilithium_sign_noseed_44() {
 
 #[test]
 fn wycheproof_dilithium_sign_seed_44() {
-    wycheproof_dilithium_sign_noseed(
+    wycheproof_dilithium_sign(
         lcr_dilithium_type::lcr_dilithium_44,
         TestName::MlDsa44SignSeed,
     )
@@ -170,7 +170,7 @@ fn wycheproof_dilithium_sign_seed_44() {
 
 #[test]
 fn wycheproof_dilithium_sign_noseed_65() {
-    wycheproof_dilithium_sign_noseed(
+    wycheproof_dilithium_sign(
         lcr_dilithium_type::lcr_dilithium_65,
         TestName::MlDsa65SignNoSeed,
     )
@@ -178,7 +178,7 @@ fn wycheproof_dilithium_sign_noseed_65() {
 
 #[test]
 fn wycheproof_dilithium_sign_seed_65() {
-    wycheproof_dilithium_sign_noseed(
+    wycheproof_dilithium_sign(
         lcr_dilithium_type::lcr_dilithium_65,
         TestName::MlDsa65SignSeed,
     )
@@ -186,7 +186,7 @@ fn wycheproof_dilithium_sign_seed_65() {
 
 #[test]
 fn wycheproof_dilithium_sign_noseed_87() {
-    wycheproof_dilithium_sign_noseed(
+    wycheproof_dilithium_sign(
         lcr_dilithium_type::lcr_dilithium_87,
         TestName::MlDsa87SignNoSeed,
     )
@@ -194,7 +194,7 @@ fn wycheproof_dilithium_sign_noseed_87() {
 
 #[test]
 fn wycheproof_dilithium_sign_seed_87() {
-    wycheproof_dilithium_sign_noseed(
+    wycheproof_dilithium_sign(
         lcr_dilithium_type::lcr_dilithium_87,
         TestName::MlDsa87SignSeed,
     )

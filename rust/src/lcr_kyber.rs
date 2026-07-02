@@ -99,6 +99,42 @@ impl lcr_kyber {
         Ok(())
     }
 
+    /// Load secret key seed for using with leancrypto
+    ///
+    /// # Arguments
+    ///
+    /// * `sk_seed_buf` buffer with raw secret key seed
+    ///
+    /// # Returns
+    ///
+    /// * Returns Ok() on success or SignatureError on error
+    pub fn sk_seed_load(
+        &mut self,
+        sk_seed_buf: &[u8],
+        kyber_type: lcr_kyber_type,
+    ) -> Result<(), KemError> {
+        // No check for self.sk_set == false as we allow overwriting
+        // of existing key.
+
+        let result = unsafe {
+            leancrypto::lc_kyber_keypair_from_seed(
+                &mut self.pk,
+                &mut self.sk,
+                sk_seed_buf.as_ptr(),
+                sk_seed_buf.len(),
+                Self::lcr_kyber_type_mapping(kyber_type),
+            )
+        };
+        if result < 0 {
+            return Err(KemError::ProcessingError);
+        }
+
+        self.sk_set = true;
+        self.pk_set = true;
+
+        Ok(())
+    }
+
     /// Load public key for using with leancrypto
     ///
     /// # Arguments

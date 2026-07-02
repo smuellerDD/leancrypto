@@ -31,5 +31,6 @@ wycheproof = { version = "0.7.0", path = "../../../../repos/wycheproof-rs", defa
     "keywrap",
     "mldsa_sign",
     "mldsa_verify",
+    "mlkem",
     "xdh",
 ] }
