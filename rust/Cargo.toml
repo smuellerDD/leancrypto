@@ -34,5 +34,6 @@ wycheproof = { version = "0.7.0", path = "../wycheproof-rs", default-features = 
     "mldsa_sign",
     "mldsa_verify",
     "mlkem",
+    "pbkdf2",
     "xdh",
 ] }

@@ -82,6 +82,8 @@ LC_INTERFACE_FUNCTION(int, lc_hmac_setkey, struct lc_hmac_key *hmac_key,
 		CKINT(lc_hash(hash, key, keylen, k_opad));
 		lc_memset_secure(k_opad + digestsize, 0,
 				 blocksize - digestsize);
+	} else if (keylen == 0) {
+		lc_memset_secure(k_opad, 0, blocksize);
 	} else {
 		memcpy(k_opad, key, keylen);
 		lc_memset_secure(k_opad + keylen, 0, blocksize - keylen);
