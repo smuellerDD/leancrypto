@@ -91,16 +91,18 @@ fn wycheproof_dilithium_sign_noseed(
             }
 
             let mu = &test.mu;
+            let msg = &test.msg;
+            let mut result = Ok(());
             if let Some(mu) = mu {
                 if mu.len() > 0 {
-                    let result = dilithium.ctx_external_mu(&mu.to_vec());
+                    result = dilithium.ctx_external_mu(&mu.to_vec());
                     assert_eq!(result, Ok(()));
+                    result = dilithium.sign_deterministic(&[]);
+                    if !result.is_err() {
+                        result = dilithium.verify(&[]);
+                    }
                 }
-            }
-
-            let msg = &test.msg;
-            let mut result;
-            if let Some(msg) = msg {
+            } else if let Some(msg) = msg {
                 result = dilithium.sign_deterministic(&msg);
                 if !result.is_err() {
                     result = dilithium.verify(&msg);
