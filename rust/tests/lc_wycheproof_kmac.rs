@@ -19,8 +19,8 @@
 
 use leancrypto_sys::lcr_kmac::{lcr_kmac, lcr_kmac_type};
 use wycheproof::{
-    TestResult,
     mac::{TestName, TestSet},
+    TestResult,
 };
 
 fn test_kmac(
@@ -35,13 +35,6 @@ fn test_kmac(
 
             let mut mac = vec![0; test.tag.len()];
             let result = kmac.kmac(&test.key, &[], &test.msg, &mut mac);
-            if result != Ok(()) {
-                /*
-                 * We do not support truncated hashes.
-                 */
-                println!("Ignore wrong input data");
-                continue;
-            }
 
             match &test.result {
                 TestResult::Acceptable | TestResult::Valid => {

@@ -20,8 +20,8 @@
 use leancrypto_sys::lcr_hash::lcr_hash_type;
 use leancrypto_sys::lcr_pbkdf2::lcr_pbkdf2;
 use wycheproof::{
-    TestResult,
     pbkdf2::{TestName, TestSet},
+    TestResult,
 };
 
 fn test_pbkdf2(
@@ -42,13 +42,6 @@ fn test_pbkdf2(
                 test.iteration_count as u32,
                 &mut dk,
             );
-            if result != Ok(()) {
-                /*
-                 * We do not support truncated hashes.
-                 */
-                println!("Ignore wrong input data");
-                continue;
-            }
 
             match &test.result {
                 TestResult::Acceptable | TestResult::Valid => {

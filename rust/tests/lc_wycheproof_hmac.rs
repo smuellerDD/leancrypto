@@ -20,8 +20,8 @@
 use leancrypto_sys::lcr_hash::lcr_hash_type;
 use leancrypto_sys::lcr_hmac::lcr_hmac;
 use wycheproof::{
-    TestResult,
     mac::{TestName, TestSet},
+    TestResult,
 };
 
 fn test_hmac(
@@ -34,15 +34,16 @@ fn test_hmac(
         for test in test_group.tests {
             println!("Test case {}: {}", test.tc_id, test.comment);
 
-            let mut mac = vec![0; test.tag.len()];
-            let result = hmac.hmac(&test.key, &test.msg, &mut mac);
-            if result != Ok(()) {
+            if test.tag.len() != hmac.digestsize() {
                 /*
                  * We do not support truncated hashes.
                  */
-                println!("Ignore wrong input data");
+                println!("Ignore test vectors requesting truncated hashes");
                 continue;
             }
+
+            let mut mac = vec![0; test.tag.len()];
+            let result = hmac.hmac(&test.key, &test.msg, &mut mac);
 
             match &test.result {
                 TestResult::Acceptable | TestResult::Valid => {
