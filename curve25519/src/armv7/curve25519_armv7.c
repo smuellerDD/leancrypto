@@ -20,6 +20,7 @@
 #include "cpufeatures.h"
 #include "curve25519_armv7.h"
 #include "../x25519_scalarmult.h"
+#include "../x25519_scalarmult_c.h"
 
 int crypto_scalarmult_curve25519(unsigned char *q, const unsigned char *n,
 				 const unsigned char *p)
