@@ -1,16 +1,16 @@
 # Changelog
 
-## [0.3.0] - 2026-04-14
+## [0.3.0] - 2026-07-02
 
 This version requires leancrypto >= 1.8.0.
 
 ### Added
 
-* X25519 interface - this is only intended to support rustls
+* X25519/X448 interface - this is only intended to support rustls
 
 * HKDF interface
 
-* ED25519 interface - this is only intended to support rustls
+* ED25519/ED448 interface - this is only intended to support rustls
 
 * All getter methods are changed to return data as part of Ok()
 
@@ -21,6 +21,8 @@ This version requires leancrypto >= 1.8.0.
 * KBKDF interface
 
 * status interface
+
+* Wycheproof tester
 
 ### Changed
 

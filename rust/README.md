@@ -10,7 +10,7 @@ The the offered interfaces follow the same concepts as provided with the general
 
 2. Build test code: `cargo build --release`
 
-3. Execute test code: `cargo test --release`
+3. Execute test code: `cargo test --release` - at the time of writing the Wycheproof tests require the presence of https://github.com/randombit/wycheproof-rs in the root directory of leancrypto since the required version 0.7 is not yet released and found in crates.io.
 
 4. Build application `example/lc_hash_sha3_512.rs`: `cargo run --example lc_hash_sha3_512`
 

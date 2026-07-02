@@ -47,9 +47,11 @@ Changes 1.8.0-prerelease
 
 * ChaCha20: increment only the 32 bit counter to be 100% compliant with RFC7539 - but that implies that for one given setiv only 2^32 - 1 bytes are allowed to be en/decrypted
 
-- All production and test code is now subject to regular UBSAN tests
+* All production and test code is now subject to regular UBSAN tests
 
-- Add Wycheproof compliance testing using Rust interface
+* Add Wycheproof compliance testing using Rust interface
+
+* Linux kernel: fix all UBSAN reports - the leancrypto.ko and all tests now work do not show any report with ASAN/UBSAN/kmemleak detector tested on X86 and ARMv8.
 
 Changes 1.7.2
 * Fix RDSEED counter
