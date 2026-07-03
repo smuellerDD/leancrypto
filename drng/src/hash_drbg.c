@@ -320,7 +320,7 @@ out:
 static int drbg_hash_process_addtl(struct lc_drbg_hash_state *drbg,
 				   struct lc_drbg_string *addtl)
 {
-	struct lc_drbg_string data1, data2;
+	struct lc_drbg_string data1, data2, data3;
 	uint8_t prefix = DRBG_PREFIX2;
 	int ret;
 
@@ -332,8 +332,15 @@ static int drbg_hash_process_addtl(struct lc_drbg_hash_state *drbg,
 	lc_drbg_string_fill(&data1, &prefix, 1);
 	lc_drbg_string_fill(&data2, drbg->V, LC_DRBG_HASH_STATELEN);
 	data1.next = &data2;
-	data2.next = addtl;
-	addtl->next = NULL;
+	/*
+	 * Hash this step's single additional-input node. Use a local copy with
+	 * a NULL terminator instead of writing addtl->next = NULL through the
+	 * caller-owned string, which would be an unexpected side effect on the
+	 * caller's list.
+	 */
+	data3 = *addtl;
+	data3.next = NULL;
+	data2.next = &data3;
 	CKINT(drbg_hash(drbg, drbg->scratchpad, &data1));
 
 	/* 10.1.1.4 step 2b */
