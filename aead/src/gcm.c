@@ -721,6 +721,15 @@ static int gcm_dec_update(void *state, const uint8_t *ciphertext,
 	/* bump the GCM context's running length count */
 	gcm_ctx->len += datalen;
 
+	/*
+	 * SP800-38D requires that the maximum encryption is 2^32 - 1 AES blocks
+	 */
+	if (gcm_ctx->len > ((1ULL << 32) - 1) * AES_BLOCKSIZE) {
+		/* clear out the destination buffer */
+		lc_memset_secure(plaintext, 0, datalen);
+		return -EOVERFLOW;
+	}
+
 	while (datalen > 0) {
 		// clamp the datalen to process at AES_BLOCKSIZE bytes
 		use_len = (datalen < AES_BLOCKSIZE) ? (uint8_t)datalen :
