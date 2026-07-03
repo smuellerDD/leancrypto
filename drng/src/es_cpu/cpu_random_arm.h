@@ -120,18 +120,10 @@ static inline bool arm_seed(unsigned long *data)
 
 static inline bool cpu_es_get(unsigned long *buf)
 {
-	unsigned int i = 0;
-
 	if (!arm_id_aa64isar0_el1_feature(ARM8_RNDR_FEATURE))
 		return false;
 
-	for (i = 0; i < sizeof(unsigned long);
-	     i += sizeof(unsigned long), buf += sizeof(unsigned long)) {
-		if (!arm_seed(buf))
-			return false;
-	}
-
-	return true;
+	return arm_seed(buf);
 }
 
 static inline unsigned int cpu_es_multiplier(void)
