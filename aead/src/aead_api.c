@@ -33,7 +33,7 @@ LC_INTERFACE_FUNCTION(void, lc_aead_zero, struct lc_aead_ctx *ctx)
 	if (!ctx)
 		return;
 
-	lc_memset_secure(ctx->key, 0, ctx->keylen);
+	lc_memset_secure(ctx->key, 0, LC_AEAD_MAX_KEYSIZE);
 	ctx->keylen = 0;
 	aead = ctx->aead;
 	aead_state = ctx->aead_state;

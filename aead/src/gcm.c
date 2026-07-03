@@ -954,6 +954,8 @@ LC_INTERFACE_FUNCTION(int, lc_aes_gcm_generate_iv, struct lc_aead_ctx *ctx,
 
 	CKRET(fixed_field_len >= ivlen, -EINVAL);
 
+	CKNULL(ctx->aead_state, -EINVAL);
+
 	switch (type) {
 	case lc_aes_gcm_iv_generate_new:
 		if (fixed_field_len && fips140_mode_enabled())
