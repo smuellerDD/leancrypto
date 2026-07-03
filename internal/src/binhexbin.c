@@ -146,6 +146,17 @@ static int _bin2hex_html(const unsigned char *str, size_t strlen, char *html,
 		else
 			return -EINVAL;
 
+		/*
+		 * Reject a multi-byte sequence that is truncated at the end of
+		 * the input (a valid lead byte as the last byte). Without this,
+		 * the counting pass below does "strlen -= charbytes" with
+		 * charbytes > strlen, underflowing the size_t length and
+		 * reading far past the buffer. Checking here covers both the
+		 * counting and the writing pass.
+		 */
+		if (charbytes > strlen)
+			return -EINVAL;
+
 		if (charbytes == 1) {
 			for (i = 0; i < unreservedlen; i++) {
 				if (*str == unreserved[i]) {
@@ -172,10 +183,11 @@ static int _bin2hex_html(const unsigned char *str, size_t strlen, char *html,
 			continue;
 		}
 
-		/* ensure we have sufficient space */
+		/*
+		 * ensure we have sufficient space (truncation of charbytes
+		 * already checked above)
+		 */
 		if (hexbytes >= htmllen)
-			return -ENOMEM;
-		if (charbytes > strlen)
 			return -ENOMEM;
 
 		/*
