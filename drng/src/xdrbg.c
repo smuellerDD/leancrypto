@@ -78,8 +78,8 @@ static inline int lc_xdrbg_xof_final(struct lc_hash_ctx *xof_ctx,
  *
  *   * length of the hash is set to be equal to |V|
  */
-static void lc_xdrbg_drng_encode(struct lc_hash_ctx *xof_ctx, const uint8_t n,
-				 const uint8_t *alpha, size_t alphalen)
+static int lc_xdrbg_drng_encode(struct lc_hash_ctx *xof_ctx, const uint8_t n,
+				const uint8_t *alpha, size_t alphalen)
 {
 	uint8_t encode;
 
@@ -98,8 +98,8 @@ static void lc_xdrbg_drng_encode(struct lc_hash_ctx *xof_ctx, const uint8_t n,
 	 * 32-byte random value. This is the encoding we recommend for XDRBG.
 	 * """
 	 */
-	if (alphalen > 84)
-		alphalen = 84;
+	if (alphalen > LC_XDRBG_DRNG_ENCODE_LENGTH)
+		return -EINVAL;
 
 	/* Encode the length. */
 	encode = (uint8_t)(n + alphalen);
@@ -143,13 +143,14 @@ static int lc_xdrbg_drng_fke_init_ctx(struct lc_xdrbg_drng_state *state,
 	lc_hash_update(xof_ctx, state->v, keysize);
 
 	/* Insert alpha into the XOF state together with its encoding. */
-	lc_xdrbg_drng_encode(xof_ctx, LC_XDRBG_DRNG_ENCODE_N(2), alpha,
-			     alphalen);
+	CKINT(lc_xdrbg_drng_encode(xof_ctx, LC_XDRBG_DRNG_ENCODE_N(2), alpha,
+				   alphalen));
 
 	/* Generate the V to store in the state and overwrite V'. */
 	lc_xdrbg_xof_final(xof_ctx, state->v, keysize);
 
-	return 0;
+out:
+	return ret;
 }
 
 /*********************************** XDRBG ************************************/
@@ -258,8 +259,9 @@ int lc_xdrbg_drng_seed_nocheck(void *_state, const uint8_t *seed,
 	lc_hash_update(xof_ctx, seed, seedlen);
 
 	/* Insert alpha into the XOF state together with its encoding. */
-	lc_xdrbg_drng_encode(xof_ctx, LC_XDRBG_DRNG_ENCODE_N(initially_seeded),
-			     alpha, alphalen);
+	CKINT(lc_xdrbg_drng_encode(xof_ctx,
+				   LC_XDRBG_DRNG_ENCODE_N(initially_seeded),
+				   alpha, alphalen));
 
 	/* Generate the V to store in the state and overwrite V'. */
 	lc_xdrbg_xof_final(xof_ctx, state->v, keysize);
