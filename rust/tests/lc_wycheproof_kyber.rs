@@ -19,8 +19,8 @@
 
 use leancrypto_sys::lcr_kyber::{lcr_kyber, lcr_kyber_type};
 use wycheproof::{
-    TestResult,
     mlkem::{TestName, TestSet},
+    TestResult,
 };
 
 fn wycheproof_kyber(
@@ -138,7 +138,7 @@ fn wycheproof_kyber(
                             if let Some(ss) = ss {
                                 let ss_slice = match kyber.get_ss() {
                                     Ok(ret) => ret,
-                                    Err(_) => &[],
+                                    Err(_) => [].to_vec(),
                                 };
                                 assert_ne!(ss[..], ss_slice[..]);
                             }
@@ -150,7 +150,7 @@ fn wycheproof_kyber(
                         if let Some(ss) = ss {
                             let ss_slice = match kyber.get_ss() {
                                 Ok(ret) => ret,
-                                Err(_) => &[],
+                                Err(_) => [].to_vec(),
                             };
                             assert_eq!(ss[..], ss_slice[..]);
                         }

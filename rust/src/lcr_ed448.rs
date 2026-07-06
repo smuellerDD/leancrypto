@@ -271,7 +271,7 @@ impl lcr_ed448 {
     /// # Returns
     ///
     /// * Returns Ok() with the signature on success or SignatureError on error
-    pub fn get_sig(&mut self) -> Result<&[u8], SignatureError> {
+    pub fn get_sig(&mut self) -> Result<Vec<u8>, SignatureError> {
         if self.sig_set == false {
             return Err(SignatureError::UninitializedContext);
         }
@@ -288,7 +288,7 @@ impl lcr_ed448 {
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-        Ok(&slice)
+        Ok(slice.to_vec())
     }
 
     /// Method for safe immutable access to ED448 secret key
@@ -296,7 +296,7 @@ impl lcr_ed448 {
     /// # Returns
     ///
     /// * Returns Ok() with the secret key on success or SignatureError on error
-    pub fn get_sk(&mut self) -> Result<&[u8], SignatureError> {
+    pub fn get_sk(&mut self) -> Result<Vec<u8>, SignatureError> {
         if self.sk_set == false {
             return Err(SignatureError::UninitializedContext);
         }
@@ -312,7 +312,7 @@ impl lcr_ed448 {
         }
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
-        Ok(&slice)
+        Ok(slice.to_vec())
     }
 
     /// Method for safe immutable access to ED448 public key
@@ -320,7 +320,7 @@ impl lcr_ed448 {
     /// # Returns
     ///
     /// * Returns Ok() with the public key on success or SignatureError on error
-    pub fn get_pk(&mut self) -> Result<&[u8], SignatureError> {
+    pub fn get_pk(&mut self) -> Result<Vec<u8>, SignatureError> {
         if self.pk_set == false {
             return Err(SignatureError::UninitializedContext);
         }
@@ -337,7 +337,7 @@ impl lcr_ed448 {
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-        Ok(&slice)
+        Ok(slice.to_vec())
     }
 }
 

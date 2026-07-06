@@ -19,8 +19,8 @@
 
 use leancrypto_sys::lcr_dilithium::{lcr_dilithium, lcr_dilithium_type};
 use wycheproof::{
-    TestResult,
     mldsa_sign::{TestName, TestSet},
+    TestResult,
 };
 
 fn wycheproof_dilithium_sign(
@@ -124,7 +124,7 @@ fn wycheproof_dilithium_sign(
                     if !result.is_err() {
                         let sig_slice = match dilithium.get_sig() {
                             Ok(ret) => ret,
-                            Err(_) => &[],
+                            Err(_) => [].to_vec(),
                         };
 
                         /*
@@ -141,7 +141,7 @@ fn wycheproof_dilithium_sign(
                     assert_eq!(result, Ok(()));
                     let sig_slice = match dilithium.get_sig() {
                         Ok(ret) => ret,
-                        Err(_) => &[],
+                        Err(_) => [].to_vec(),
                     };
                     assert_eq!(test.sig[..], sig_slice[..]);
                 }

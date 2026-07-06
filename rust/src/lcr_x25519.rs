@@ -256,7 +256,7 @@ impl lcr_x25519 {
     /// # Returns
     ///
     /// * Returns Ok() with the public key on success or X25519Error on error
-    pub fn get_pk_remote(&mut self) -> Result<&[u8], X25519Error> {
+    pub fn get_pk_remote(&mut self) -> Result<Vec<u8>, X25519Error> {
         if self.pk_remote_set == false {
             return Err(X25519Error::UninitializedContext);
         }
@@ -277,7 +277,7 @@ impl lcr_x25519 {
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-        Ok(&slice)
+        Ok(slice.to_vec())
     }
 
     /// Method for safe immutable access to X25519 secret key
@@ -285,7 +285,7 @@ impl lcr_x25519 {
     /// # Returns
     ///
     /// * Returns Ok() with the secret key on success or X25519Error on error
-    pub fn get_sk(&mut self) -> Result<&[u8], X25519Error> {
+    pub fn get_sk(&mut self) -> Result<Vec<u8>, X25519Error> {
         if self.sk_set == false {
             return Err(X25519Error::UninitializedContext);
         }
@@ -302,7 +302,7 @@ impl lcr_x25519 {
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-        Ok(&slice)
+        Ok(slice.to_vec())
     }
 
     /// Method for safe immutable access to X25519 public key
@@ -310,7 +310,7 @@ impl lcr_x25519 {
     /// # Returns
     ///
     /// * Returns Ok() with the public key on success or X25519Error on error
-    pub fn get_pk(&mut self) -> Result<&[u8], X25519Error> {
+    pub fn get_pk(&mut self) -> Result<Vec<u8>, X25519Error> {
         if self.pk_set == false {
             return Err(X25519Error::UninitializedContext);
         }
@@ -327,7 +327,7 @@ impl lcr_x25519 {
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-        Ok(&slice)
+        Ok(slice.to_vec())
     }
 
     /// Method for safe immutable access to X25519 shared secret
@@ -335,7 +335,7 @@ impl lcr_x25519 {
     /// # Returns
     ///
     /// * Returns Ok() with the shared secret on success or X25519Error on error
-    pub fn get_ss(&mut self) -> Result<&[u8], X25519Error> {
+    pub fn get_ss(&mut self) -> Result<Vec<u8>, X25519Error> {
         if self.ss_set == false {
             return Err(X25519Error::UninitializedContext);
         }
@@ -352,7 +352,7 @@ impl lcr_x25519 {
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-        Ok(&slice)
+        Ok(slice.to_vec())
     }
 }
 

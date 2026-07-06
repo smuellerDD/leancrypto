@@ -342,7 +342,7 @@ impl lcr_dilithium_ed25519 {
     /// # Returns
     ///
     /// * Returns Ok() with the signature on success or SignatureError on error
-    pub fn get_sig(&mut self) -> Result<(&[u8], &[u8]), SignatureError> {
+    pub fn get_sig(&mut self) -> Result<(Vec<u8>, Vec<u8>), SignatureError> {
         if self.sig_set == false {
             return Err(SignatureError::UninitializedContext);
         }
@@ -373,7 +373,7 @@ impl lcr_dilithium_ed25519 {
         let slice_ed25519 =
             unsafe { std::slice::from_raw_parts(ed25519_ptr, ed25519_len) };
 
-        Ok((&slice_dilithium, &slice_ed25519))
+        Ok((slice_dilithium.to_vec(), slice_ed25519.to_vec()))
     }
 
     /// Method for safe immutable access to ML-DSA secret key
@@ -381,7 +381,7 @@ impl lcr_dilithium_ed25519 {
     /// # Returns
     ///
     /// * Returns Ok() with the secret key on success or SignatureError on error
-    pub fn get_sk(&mut self) -> Result<(&[u8], &[u8]), SignatureError> {
+    pub fn get_sk(&mut self) -> Result<(Vec<u8>, Vec<u8>), SignatureError> {
         if self.sk_set == false {
             return Err(SignatureError::UninitializedContext);
         }
@@ -412,7 +412,7 @@ impl lcr_dilithium_ed25519 {
         let slice_ed25519 =
             unsafe { std::slice::from_raw_parts(ed25519_ptr, ed25519_len) };
 
-        Ok((&slice_dilithium, &slice_ed25519))
+        Ok((slice_dilithium.to_vec(), slice_ed25519.to_vec()))
     }
 
     /// Method for safe immutable access to ML-DSA public key
@@ -420,7 +420,7 @@ impl lcr_dilithium_ed25519 {
     /// # Returns
     ///
     /// * Returns Ok() with the public key on success or SignatureError on error
-    pub fn get_pk(&mut self) -> Result<(&[u8], &[u8]), SignatureError> {
+    pub fn get_pk(&mut self) -> Result<(Vec<u8>, Vec<u8>), SignatureError> {
         if self.pk_set == false {
             return Err(SignatureError::UninitializedContext);
         }
@@ -451,7 +451,7 @@ impl lcr_dilithium_ed25519 {
         let slice_ed25519 =
             unsafe { std::slice::from_raw_parts(ed25519_ptr, ed25519_len) };
 
-        Ok((&slice_dilithium, &slice_ed25519))
+        Ok((slice_dilithium.to_vec(), slice_ed25519.to_vec()))
     }
 }
 

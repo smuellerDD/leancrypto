@@ -253,7 +253,7 @@ impl lcr_x448 {
     /// # Returns
     ///
     /// * Returns Ok() with the public key on success or X448Error on error
-    pub fn get_pk_remote(&mut self) -> Result<&[u8], X448Error> {
+    pub fn get_pk_remote(&mut self) -> Result<Vec<u8>, X448Error> {
         if self.pk_remote_set == false {
             return Err(X448Error::UninitializedContext);
         }
@@ -270,7 +270,7 @@ impl lcr_x448 {
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-        Ok(&slice)
+        Ok(slice.to_vec())
     }
 
     /// Method for safe immutable access to X448 secret key
@@ -278,7 +278,7 @@ impl lcr_x448 {
     /// # Returns
     ///
     /// * Returns Ok() with the secret key on success or X448Error on error
-    pub fn get_sk(&mut self) -> Result<&[u8], X448Error> {
+    pub fn get_sk(&mut self) -> Result<Vec<u8>, X448Error> {
         if self.sk_set == false {
             return Err(X448Error::UninitializedContext);
         }
@@ -295,7 +295,7 @@ impl lcr_x448 {
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-        Ok(&slice)
+        Ok(slice.to_vec())
     }
 
     /// Method for safe immutable access to X448 public key
@@ -303,7 +303,7 @@ impl lcr_x448 {
     /// # Returns
     ///
     /// * Returns Ok() with the public key on success or X448Error on error
-    pub fn get_pk(&mut self) -> Result<&[u8], X448Error> {
+    pub fn get_pk(&mut self) -> Result<Vec<u8>, X448Error> {
         if self.pk_set == false {
             return Err(X448Error::UninitializedContext);
         }
@@ -320,7 +320,7 @@ impl lcr_x448 {
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-        Ok(&slice)
+        Ok(slice.to_vec())
     }
 
     /// Method for safe immutable access to X448 shared secret
@@ -328,7 +328,7 @@ impl lcr_x448 {
     /// # Returns
     ///
     /// * Returns Ok() with the shared secret on success or X448Error on error
-    pub fn get_ss(&mut self) -> Result<&[u8], X448Error> {
+    pub fn get_ss(&mut self) -> Result<Vec<u8>, X448Error> {
         if self.ss_set == false {
             return Err(X448Error::UninitializedContext);
         }
@@ -345,7 +345,7 @@ impl lcr_x448 {
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-        Ok(&slice)
+        Ok(slice.to_vec())
     }
 }
 

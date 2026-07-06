@@ -294,7 +294,7 @@ impl lcr_hqc {
     /// # Returns
     ///
     /// * Returns Ok() with the ciphertext on success or KemError on error
-    pub fn get_ct(&mut self) -> Result<&[u8], KemError> {
+    pub fn get_ct(&mut self) -> Result<Vec<u8>, KemError> {
         if self.ct_set == false {
             return Err(KemError::UninitializedContext);
         }
@@ -311,7 +311,7 @@ impl lcr_hqc {
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-        Ok(&slice)
+        Ok(slice.to_vec())
     }
 
     /// Method for safe immutable access to BIKE secret key
@@ -319,7 +319,7 @@ impl lcr_hqc {
     /// # Returns
     ///
     /// * Returns Ok() with the secret key on success or KemError on error
-    pub fn get_sk(&mut self) -> Result<&[u8], KemError> {
+    pub fn get_sk(&mut self) -> Result<Vec<u8>, KemError> {
         if self.sk_set == false {
             return Err(KemError::UninitializedContext);
         }
@@ -336,7 +336,7 @@ impl lcr_hqc {
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-        Ok(&slice)
+        Ok(slice.to_vec())
     }
 
     /// Method for safe immutable access to BIKE public key
@@ -344,7 +344,7 @@ impl lcr_hqc {
     /// # Returns
     ///
     /// * Returns Ok() with the public key on success or KemError on error
-    pub fn get_pk(&mut self) -> Result<&[u8], KemError> {
+    pub fn get_pk(&mut self) -> Result<Vec<u8>, KemError> {
         if self.pk_set == false {
             return Err(KemError::UninitializedContext);
         }
@@ -361,7 +361,7 @@ impl lcr_hqc {
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-        Ok(&slice)
+        Ok(slice.to_vec())
     }
 
     /// Method for safe immutable access to BIKE shared secret
@@ -369,7 +369,7 @@ impl lcr_hqc {
     /// # Returns
     ///
     /// * Returns Ok() with the shared secret on success or KemError on error
-    pub fn get_ss(&mut self) -> Result<&[u8], KemError> {
+    pub fn get_ss(&mut self) -> Result<Vec<u8>, KemError> {
         if self.ss_set == false {
             return Err(KemError::UninitializedContext);
         }
@@ -386,7 +386,7 @@ impl lcr_hqc {
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-        Ok(&slice)
+        Ok(slice.to_vec())
     }
 }
 
