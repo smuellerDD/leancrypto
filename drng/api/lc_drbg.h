@@ -57,6 +57,8 @@ enum lc_drbg_prefixes {
 static inline void lc_drbg_string_fill(struct lc_drbg_string *string,
 				       const uint8_t *buf, size_t len)
 {
+	if (!string)
+		return;
 	string->buf = buf;
 	string->len = len;
 	string->next = NULL;
