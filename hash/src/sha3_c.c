@@ -557,6 +557,11 @@ static void keccak_absorb(void *_state, const uint8_t *in, size_t inlen)
 
 	partial = ctx->msg_len % ctx->r;
 	ctx->squeeze_more = 0;
+
+	/*
+	 * A check for wrap around is not applied as msg_len is a 64 bit
+	 * integer.
+	 */
 	ctx->msg_len += inlen;
 
 	/* Sponge absorbing phase */

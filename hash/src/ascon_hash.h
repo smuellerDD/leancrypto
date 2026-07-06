@@ -114,6 +114,11 @@ ascon_absorb_common(void *_state, const uint8_t *in, size_t inlen,
 
 	partial = ctx->msg_len % LC_ASCON_HASH_RATE;
 	ctx->squeeze_more = 0;
+
+	/*
+	 * A check for wrap around is not applied as msg_len is a 64 bit
+	 * integer.
+	 */
 	ctx->msg_len += inlen;
 
 	/* Sponge absorbing phase */

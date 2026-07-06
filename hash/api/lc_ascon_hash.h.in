@@ -45,7 +45,7 @@ struct lc_ascon_hash {
 	+ 3
 #endif
 	];
-	size_t msg_len;
+	uint64_t msg_len;
 	size_t digestsize;
 	uint8_t roundb;
 	uint8_t offset;

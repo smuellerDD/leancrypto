@@ -182,6 +182,11 @@ void lc_sha256_update(
 		return;
 
 	partial = ctx->msg_len % LC_SHA256_SIZE_BLOCK;
+
+	/*
+	 * A check for wrap around is not applied as msg_len is a 64 bit
+	 * integer.
+	 */
 	ctx->msg_len += inlen;
 
 	/* Check if we have a partial block stored */

@@ -38,7 +38,7 @@ extern const struct lc_hash *lc_sha256;
 
 struct lc_sha256_state {
 	uint32_t H[8];
-	size_t msg_len;
+	uint64_t msg_len;
 	uint8_t partial[LC_SHA256_SIZE_BLOCK];
 };
 
