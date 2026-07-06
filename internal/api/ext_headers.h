@@ -67,6 +67,7 @@ static inline pid_t getpid(void)
 
 #define printf printk
 #define UINT64_C U64_C
+#define UINT32_MAX U32_MAX
 
 #ifndef assert
 #define assert(x) WARN_ON(!(x))
