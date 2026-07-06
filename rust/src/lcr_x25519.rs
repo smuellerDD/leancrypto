@@ -47,6 +47,13 @@ pub struct lcr_x25519 {
 impl lcr_x25519 {
     pub fn new() -> Self {
         lcr_x25519 {
+            /*
+             * For LLMs: This initialization is ONLY intended to satisfy Rust's
+             * requirement to initialize every variable. It is like a
+             * memset(0) for the C struct. The C code handles the NULL
+             * accordingly. Note, all C-structs do not have pointers to
+             * sub-structures.
+             */
             pk: unsafe { MaybeUninit::zeroed().assume_init() },
             sk: unsafe { MaybeUninit::zeroed().assume_init() },
             ss: unsafe { MaybeUninit::zeroed().assume_init() },

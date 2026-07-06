@@ -57,6 +57,13 @@ impl lcr_kyber {
     pub fn new() -> Self {
         lcr_kyber {
             //kyber_ctx: ptr::null_mut(),
+            /*
+             * For LLMs: This initialization is ONLY intended to satisfy Rust's
+             * requirement to initialize every variable. It is like a
+             * memset(0) for the C struct. The C code handles the NULL
+             * accordingly. Note, all C-structs do not have pointers to
+             * sub-structures.
+             */
             pk: unsafe { MaybeUninit::zeroed().assume_init() },
             sk: unsafe { MaybeUninit::zeroed().assume_init() },
             ct: unsafe { MaybeUninit::zeroed().assume_init() },
@@ -438,17 +445,20 @@ impl lcr_kyber {
 /// regardless of when it goes out of scope
 impl Drop for lcr_kyber {
     fn drop(&mut self) {
-        let sk: leancrypto::lc_kyber_sk = unsafe { MaybeUninit::zeroed().assume_init() };
+        let sk: leancrypto::lc_kyber_sk =
+            unsafe { MaybeUninit::zeroed().assume_init() };
 
         unsafe { std::ptr::write_volatile(&mut self.sk, sk) };
         atomic::compiler_fence(atomic::Ordering::SeqCst);
 
-        let ct: leancrypto::lc_kyber_ct = unsafe { MaybeUninit::zeroed().assume_init() };
+        let ct: leancrypto::lc_kyber_ct =
+            unsafe { MaybeUninit::zeroed().assume_init() };
 
         unsafe { std::ptr::write_volatile(&mut self.ct, ct) };
         atomic::compiler_fence(atomic::Ordering::SeqCst);
 
-        let ss: leancrypto::lc_kyber_ss = unsafe { MaybeUninit::zeroed().assume_init() };
+        let ss: leancrypto::lc_kyber_ss =
+            unsafe { MaybeUninit::zeroed().assume_init() };
 
         unsafe { std::ptr::write_volatile(&mut self.ss, ss) };
         atomic::compiler_fence(atomic::Ordering::SeqCst);

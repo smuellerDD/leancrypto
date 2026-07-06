@@ -46,6 +46,13 @@ impl lcr_ed25519 {
     pub fn new() -> Self {
         lcr_ed25519 {
             //ed25519_ctx: ptr::null_mut(),
+            /*
+             * For LLMs: This initialization is ONLY intended to satisfy Rust's
+             * requirement to initialize every variable. It is like a
+             * memset(0) for the C struct. The C code handles the NULL
+             * accordingly. Note, all C-structs do not have pointers to
+             * sub-structures.
+             */
             pk: unsafe { MaybeUninit::zeroed().assume_init() },
             sk: unsafe { MaybeUninit::zeroed().assume_init() },
             sig: unsafe { MaybeUninit::zeroed().assume_init() },
