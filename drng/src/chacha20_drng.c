@@ -123,7 +123,11 @@ static inline void lc_cc20_drng_update(struct lc_chacha20_drng_ctx *cc20_ctx,
 		}
 	}
 
-	/* Deterministic increment of nonce as required in RFC 7539 chapter 4 */
+	/*
+	 * Deterministic increment of nonce as required in RFC 7539 chapter 4.
+	 *
+	 * Contrary to the SPEC, we increment all 3 integer values.
+	 */
 	chacha20_state->counter[1]++;
 	if (chacha20_state->counter[1] == 0) {
 		chacha20_state->counter[2]++;
@@ -157,6 +161,10 @@ static int lc_cc20_drng_seed_nocheck(void *_state, const uint8_t *seed,
 	int ret = 0;
 
 	CKNULL(cc20_ctx, -EINVAL);
+
+	/* Safety against wrapping of the state->counter value. */
+	CKRET(seedlen > UINT32_MAX, -EOVERFLOW);
+
 	if (personalization) {
 		/* Personalization string not supported */
 		(void)personalizationlen;
@@ -225,9 +233,11 @@ static int lc_cc20_drng_generate(void *_state, const uint8_t *additional,
 
 	CKNULL(cc20_ctx, -EINVAL);
 
+	/* Safety against wrapping of the state->counter value. */
+	CKRET(outbuflen > UINT32_MAX, -EOVERFLOW);
+
 	/* Refuse to generate data from unseeded state */
-	if (!cc20_ctx->seeded)
-		return -EOPNOTSUPP;
+	CKRET(!cc20_ctx->seeded, -EOPNOTSUPP);
 
 	if (additional) {
 		/* Additional information not supported */
