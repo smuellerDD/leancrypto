@@ -262,17 +262,14 @@ void cc20_crypt_remaining(struct lc_sym_state *ctx, const uint8_t **in,
 static int cc20_crypt(struct lc_sym_state *ctx, const uint8_t *in, uint8_t *out,
 		      size_t len)
 {
-	int ret;
+	int ret = 0;
 
-	if (!ctx)
-		return -EINVAL;
+	CKNULL(ctx, -EINVAL);
+	CKNULL(len, -EINVAL);
+	CKNULL(in, -EINVAL);
+	CKNULL(out, -EINVAL);
 
-	if (!len)
-		return -EINVAL;
-
-	ret = cc20_check_overflow(ctx, len);
-	if (ret)
-		return ret;
+	CKINT(cc20_check_overflow(ctx, len));
 
 	cc20_crypt_remaining(ctx, &in, &out, &len);
 
@@ -294,17 +291,21 @@ static int cc20_crypt(struct lc_sym_state *ctx, const uint8_t *in, uint8_t *out,
 		ctx->keystream_ptr = (uint8_t)todo;
 	}
 
-	return 0;
+out:
+	return ret;
 }
 
 static int cc20_crypt_iv(const struct lc_sym_state *ctx, const uint8_t *in,
 			 uint8_t *out, size_t len, uint8_t *iv, size_t ivlen)
 {
 	struct lc_sym_state local_ctx = { 0 };
-	int ret;
+	int ret = 0;
 
 	CKNULL(ctx, -EINVAL);
 	CKNULL(len, -EINVAL);
+	CKNULL(in, -EINVAL);
+	CKNULL(out, -EINVAL);
+	CKNULL(iv, -EINVAL);
 
 	/* Set up local context */
 	cc20_init_constants(&local_ctx);
@@ -343,12 +344,15 @@ int cc20_init(struct lc_sym_state *ctx)
 
 int cc20_setkey(struct lc_sym_state *ctx, const uint8_t *key, size_t keylen)
 {
+	int ret = 0;
+
 	/* ChaCha20 is no FIPS-approved algorithm, thus it is disabled */
 	if (fips140_mode_enabled())
 		return -EOPNOTSUPP;
 
-	if (!ctx || keylen != 32)
-		return -EINVAL;
+	CKNULL(ctx, -EINVAL);
+	CKNULL(key, -EINVAL);
+	CKRET(keylen != 32, -EINVAL);
 
 	/* Timecop: key is sensitive. */
 	poison(key, keylen);
@@ -364,7 +368,8 @@ int cc20_setkey(struct lc_sym_state *ctx, const uint8_t *key, size_t keylen)
 
 	cc20_resetkey(ctx);
 
-	return 0;
+out:
+	return ret;
 }
 
 int cc20_init_iv(const struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen)

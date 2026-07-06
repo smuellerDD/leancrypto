@@ -74,7 +74,7 @@ static inline int cc20_crypt_asm(
 		chacha20_asm(out, in, todo, ctx->key.u, ctx->counter);
 
 		ctx->counter[0] += (uint32_t)blocks;
-		cc20_counter_overflow(ctx);
+		//cc20_counter_overflow(ctx);
 
 		in += todo;
 		out += todo;

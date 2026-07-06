@@ -73,9 +73,10 @@ static inline void cc20_init_constants(struct lc_sym_state *ctx)
 	ctx->constants[3] = 0x6b206574;
 }
 
+/* This overflow handling is not needed due to cc20_check_overflow */
+#if 0
 static inline void cc20_counter_overflow(struct lc_sym_state *ctx)
 {
-#if 0
 	if (ctx->counter[0] == 0) {
 		ctx->counter[1]++;
 		if (ctx->counter[1] == 0) {
@@ -84,15 +85,13 @@ static inline void cc20_counter_overflow(struct lc_sym_state *ctx)
 				ctx->counter[3]++;
 		}
 	}
-#else
-	(void)ctx;
-#endif
 }
+#endif
 
 static inline void cc20_inc_counter(struct lc_sym_state *ctx)
 {
 	ctx->counter[0]++;
-	cc20_counter_overflow(ctx);
+	//cc20_counter_overflow(ctx);
 }
 
 static inline void cc20_resetkey(struct lc_sym_state *ctx)
