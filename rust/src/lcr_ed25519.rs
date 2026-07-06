@@ -19,6 +19,7 @@
 
 use crate::error::SignatureError;
 use crate::ffi::leancrypto;
+use std::mem::MaybeUninit;
 use std::ptr;
 use std::sync::atomic;
 
@@ -45,9 +46,9 @@ impl lcr_ed25519 {
     pub fn new() -> Self {
         lcr_ed25519 {
             //ed25519_ctx: ptr::null_mut(),
-            pk: unsafe { std::mem::zeroed() },
-            sk: unsafe { std::mem::zeroed() },
-            sig: unsafe { std::mem::zeroed() },
+            pk: unsafe { MaybeUninit::zeroed().assume_init() },
+            sk: unsafe { MaybeUninit::zeroed().assume_init() },
+            sig: unsafe { MaybeUninit::zeroed().assume_init() },
             pk_set: false,
             sk_set: false,
             sig_set: false,

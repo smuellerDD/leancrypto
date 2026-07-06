@@ -19,6 +19,7 @@
 
 use crate::error::KemError;
 use crate::ffi::leancrypto;
+use std::mem::MaybeUninit;
 use std::ptr;
 use std::sync::atomic;
 
@@ -56,10 +57,10 @@ impl lcr_kyber_x448 {
     pub fn new() -> Self {
         lcr_kyber_x448 {
             //kyber_ctx: ptr::null_mut(),
-            pk: unsafe { std::mem::zeroed() },
-            sk: unsafe { std::mem::zeroed() },
-            ct: unsafe { std::mem::zeroed() },
-            ss: unsafe { std::mem::zeroed() },
+            pk: unsafe { MaybeUninit::zeroed().assume_init() },
+            sk: unsafe { MaybeUninit::zeroed().assume_init() },
+            ct: unsafe { MaybeUninit::zeroed().assume_init() },
+            ss: unsafe { MaybeUninit::zeroed().assume_init() },
             pk_set: false,
             sk_set: false,
             ct_set: false,
@@ -443,7 +444,7 @@ impl Drop for lcr_kyber_x448 {
     fn drop(&mut self) {
         if self.sk_set {
             let sk: leancrypto::lc_kyber_x448_sk =
-                unsafe { std::mem::zeroed() };
+                unsafe { MaybeUninit::zeroed().assume_init() };
 
             unsafe { std::ptr::write_volatile(&mut self.sk, sk) };
             atomic::compiler_fence(atomic::Ordering::SeqCst);
@@ -451,7 +452,7 @@ impl Drop for lcr_kyber_x448 {
 
         if self.ct_set {
             let ct: leancrypto::lc_kyber_x448_ct =
-                unsafe { std::mem::zeroed() };
+                unsafe { MaybeUninit::zeroed().assume_init() };
 
             unsafe { std::ptr::write_volatile(&mut self.ct, ct) };
             atomic::compiler_fence(atomic::Ordering::SeqCst);
@@ -459,7 +460,7 @@ impl Drop for lcr_kyber_x448 {
 
         if self.ss_set {
             let ss: leancrypto::lc_kyber_x448_ss =
-                unsafe { std::mem::zeroed() };
+                unsafe { MaybeUninit::zeroed().assume_init() };
 
             unsafe { std::ptr::write_volatile(&mut self.ss, ss) };
             atomic::compiler_fence(atomic::Ordering::SeqCst);

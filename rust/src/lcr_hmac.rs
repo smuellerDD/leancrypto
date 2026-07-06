@@ -22,6 +22,7 @@ use crate::ffi::leancrypto;
 use crate::lcr_hash::{
     lcr_hash_digestsize_mapping, lcr_hash_type, lcr_hash_type_mapping,
 };
+use std::mem::MaybeUninit;
 use std::ptr;
 use std::sync::atomic;
 
@@ -37,7 +38,7 @@ pub struct lcr_hmac_key {
 impl lcr_hmac_key {
     pub fn new(hmac_type: lcr_hash_type) -> Self {
         lcr_hmac_key {
-            hmac_key: unsafe { std::mem::zeroed() },
+            hmac_key: unsafe { MaybeUninit::zeroed().assume_init() },
             hmac: hmac_type,
         }
     }

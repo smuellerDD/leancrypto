@@ -19,6 +19,7 @@
 
 use crate::error::SignatureError;
 use crate::ffi::leancrypto;
+use std::mem::MaybeUninit;
 use std::ptr;
 use std::sync::atomic;
 
@@ -54,9 +55,9 @@ impl lcr_sphincs {
     pub fn new() -> Self {
         lcr_sphincs {
             //sphincs_ctx: ptr::null_mut(),
-            pk: unsafe { std::mem::zeroed() },
-            sk: unsafe { std::mem::zeroed() },
-            sig: unsafe { std::mem::zeroed() },
+            pk: unsafe { MaybeUninit::zeroed().assume_init() },
+            sk: unsafe { MaybeUninit::zeroed().assume_init() },
+            sig: unsafe { MaybeUninit::zeroed().assume_init() },
             pk_set: false,
             sk_set: false,
             sig_set: false,
@@ -489,7 +490,8 @@ impl lcr_sphincs {
 /// regardless of when it goes out of scope
 impl Drop for lcr_sphincs {
     fn drop(&mut self) {
-        let sk: leancrypto::lc_sphincs_sk = unsafe { std::mem::zeroed() };
+        let sk: leancrypto::lc_sphincs_sk =
+            unsafe { MaybeUninit::zeroed().assume_init() };
 
         unsafe { std::ptr::write_volatile(&mut self.sk, sk) };
         atomic::compiler_fence(atomic::Ordering::SeqCst);

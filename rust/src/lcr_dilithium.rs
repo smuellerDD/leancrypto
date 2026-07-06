@@ -20,6 +20,7 @@
 use crate::error::SignatureError;
 use crate::ffi::leancrypto;
 use crate::lcr_hash::{lcr_hash_type, lcr_hash_type_mapping};
+use std::mem::MaybeUninit;
 use std::ptr;
 use std::sync::atomic;
 
@@ -57,9 +58,9 @@ impl lcr_dilithium {
     pub fn new() -> Self {
         lcr_dilithium {
             //dilithium_ctx: ptr::null_mut(),
-            pk: unsafe { std::mem::zeroed() },
-            sk: unsafe { std::mem::zeroed() },
-            sig: unsafe { std::mem::zeroed() },
+            pk: unsafe { MaybeUninit::zeroed().assume_init() },
+            sk: unsafe { MaybeUninit::zeroed().assume_init() },
+            sig: unsafe { MaybeUninit::zeroed().assume_init() },
 
             ctx: ptr::null_mut(),
             userctx: Vec::new(),
@@ -619,7 +620,8 @@ impl lcr_dilithium {
 /// regardless of when it goes out of scope
 impl Drop for lcr_dilithium {
     fn drop(&mut self) {
-        let sk: leancrypto::lc_dilithium_sk = unsafe { std::mem::zeroed() };
+        let sk: leancrypto::lc_dilithium_sk =
+            unsafe { MaybeUninit::zeroed().assume_init() };
 
         unsafe { std::ptr::write_volatile(&mut self.sk, sk) };
         atomic::compiler_fence(atomic::Ordering::SeqCst);

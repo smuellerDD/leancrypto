@@ -19,6 +19,7 @@
 
 use crate::error::X25519Error;
 use crate::ffi::leancrypto;
+use std::mem::MaybeUninit;
 use std::ptr;
 use std::sync::atomic;
 
@@ -46,10 +47,10 @@ pub struct lcr_x25519 {
 impl lcr_x25519 {
     pub fn new() -> Self {
         lcr_x25519 {
-            pk: unsafe { std::mem::zeroed() },
-            sk: unsafe { std::mem::zeroed() },
-            ss: unsafe { std::mem::zeroed() },
-            pk_remote: unsafe { std::mem::zeroed() },
+            pk: unsafe { MaybeUninit::zeroed().assume_init() },
+            sk: unsafe { MaybeUninit::zeroed().assume_init() },
+            ss: unsafe { MaybeUninit::zeroed().assume_init() },
+            pk_remote: unsafe { MaybeUninit::zeroed().assume_init() },
             pk_set: false,
             sk_set: false,
             ss_set: false,
@@ -360,17 +361,20 @@ impl lcr_x25519 {
 /// regardless of when it goes out of scope
 impl Drop for lcr_x25519 {
     fn drop(&mut self) {
-        let sk: leancrypto::lc_x25519_sk = unsafe { std::mem::zeroed() };
+        let sk: leancrypto::lc_x25519_sk =
+            unsafe { MaybeUninit::zeroed().assume_init() };
 
         unsafe { std::ptr::write_volatile(&mut self.sk, sk) };
         atomic::compiler_fence(atomic::Ordering::SeqCst);
 
-        let pk_remote: leancrypto::lc_x25519_pk = unsafe { std::mem::zeroed() };
+        let pk_remote: leancrypto::lc_x25519_pk =
+            unsafe { MaybeUninit::zeroed().assume_init() };
 
         unsafe { std::ptr::write_volatile(&mut self.pk_remote, pk_remote) };
         atomic::compiler_fence(atomic::Ordering::SeqCst);
 
-        let ss: leancrypto::lc_x25519_ss = unsafe { std::mem::zeroed() };
+        let ss: leancrypto::lc_x25519_ss =
+            unsafe { MaybeUninit::zeroed().assume_init() };
 
         unsafe { std::ptr::write_volatile(&mut self.ss, ss) };
         atomic::compiler_fence(atomic::Ordering::SeqCst);
