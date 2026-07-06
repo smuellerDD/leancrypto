@@ -731,11 +731,9 @@ LC_INTERFACE_FUNCTION(int, lc_drbg_ctr_use_df_alloc, struct lc_rng_ctx **drbg)
 	if (!drbg)
 		return -EINVAL;
 
-	ret = lc_alloc_aligned_secure((void *)&out_state,
+	CKINT(lc_alloc_aligned_secure((void *)&out_state,
 				      LC_SYM_COMMON_ALIGNMENT,
-				      LC_DRBG_CTR_CTX_SIZE_USE_DF);
-	if (ret)
-		return -ret;
+				      LC_DRBG_CTR_CTX_SIZE_USE_DF));
 
 	LC_DRBG_CTR_RNG_CTX(out_state, 1, LC_DRBG_CTR_SCRATCHPAD_USE_DF);
 
@@ -743,7 +741,8 @@ LC_INTERFACE_FUNCTION(int, lc_drbg_ctr_use_df_alloc, struct lc_rng_ctx **drbg)
 
 	*drbg = out_state;
 
-	return 0;
+out:
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_drbg_ctr_no_df_alloc, struct lc_rng_ctx **drbg)
@@ -754,11 +753,9 @@ LC_INTERFACE_FUNCTION(int, lc_drbg_ctr_no_df_alloc, struct lc_rng_ctx **drbg)
 	if (!drbg)
 		return -EINVAL;
 
-	ret = lc_alloc_aligned_secure((void *)&out_state,
+	CKINT(lc_alloc_aligned_secure((void *)&out_state,
 				      LC_SYM_COMMON_ALIGNMENT,
-				      LC_DRBG_CTR_CTX_SIZE_NO_DF);
-	if (ret)
-		return -ret;
+				      LC_DRBG_CTR_CTX_SIZE_NO_DF));
 
 	LC_DRBG_CTR_RNG_CTX(out_state, 0, LC_DRBG_CTR_SCRATCHPAD_NO_DF);
 
@@ -766,7 +763,8 @@ LC_INTERFACE_FUNCTION(int, lc_drbg_ctr_no_df_alloc, struct lc_rng_ctx **drbg)
 
 	*drbg = out_state;
 
-	return 0;
+out:
+	return ret;
 }
 
 static const struct lc_rng _lc_ctr_drbg = {

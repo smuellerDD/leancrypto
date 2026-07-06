@@ -373,12 +373,9 @@ LC_INTERFACE_FUNCTION(int, lc_drbg_hmac_alloc, struct lc_rng_ctx **drbg)
 	if (!drbg)
 		return -EINVAL;
 
-	ret = lc_alloc_aligned_secure((void *)&out_state,
+	CKINT(lc_alloc_aligned_secure((void *)&out_state,
 				      LC_HASH_COMMON_ALIGNMENT,
-				      LC_DRBG_HMAC_CTX_SIZE);
-
-	if (ret)
-		return -ret;
+				      LC_DRBG_HMAC_CTX_SIZE));
 
 	LC_DRBG_HMAC_RNG_CTX(out_state);
 
@@ -386,7 +383,8 @@ LC_INTERFACE_FUNCTION(int, lc_drbg_hmac_alloc, struct lc_rng_ctx **drbg)
 
 	*drbg = out_state;
 
-	return 0;
+out:
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_drbg_hmac_healthcheck_sanity,
@@ -399,8 +397,7 @@ LC_INTERFACE_FUNCTION(int, lc_drbg_hmac_healthcheck_sanity,
 	ssize_t len = 0;
 	int ret = -EFAULT;
 
-	if (!drbg)
-		return -EINVAL;
+	CKNULL(drbg, -EINVAL);
 
 	/*
 	 * if the following tests fail, it is likely that there is a buffer

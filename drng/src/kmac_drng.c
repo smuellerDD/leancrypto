@@ -526,11 +526,9 @@ LC_INTERFACE_FUNCTION(int, lc_kmac256_drng_alloc, struct lc_rng_ctx **state)
 	if (!state)
 		return -EINVAL;
 
-	ret = lc_alloc_aligned_secure((void *)&out_state,
+	CKINT(lc_alloc_aligned_secure((void *)&out_state,
 				      LC_HASH_COMMON_ALIGNMENT,
-				      LC_KMAC256_DRNG_CTX_SIZE);
-	if (ret)
-		return -ret;
+				      LC_KMAC256_DRNG_CTX_SIZE));
 
 	LC_KMAC256_RNG_CTX(out_state);
 
@@ -538,7 +536,8 @@ LC_INTERFACE_FUNCTION(int, lc_kmac256_drng_alloc, struct lc_rng_ctx **state)
 
 	*state = out_state;
 
-	return 0;
+out:
+	return ret;
 }
 
 static const struct lc_rng _lc_kmac256_drng = {

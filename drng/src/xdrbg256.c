@@ -22,6 +22,7 @@
 #include "compare.h"
 #include "fips_mode.h"
 #include "lc_xdrbg.h"
+#include "ret_checkers.h"
 #include "visibility.h"
 #include "xdrbg_internal.h"
 
@@ -115,17 +116,16 @@ LC_INTERFACE_FUNCTION(int, lc_xdrbg256_drng_alloc, struct lc_rng_ctx **state)
 	if (!state)
 		return -EINVAL;
 
-	ret = lc_alloc_aligned_secure((void *)&out_state,
+	CKINT(lc_alloc_aligned_secure((void *)&out_state,
 				      LC_HASH_COMMON_ALIGNMENT,
-				      LC_XDRBG256_DRNG_CTX_SIZE);
-	if (ret)
-		return -ret;
+				      LC_XDRBG256_DRNG_CTX_SIZE));
 
 	LC_XDRBG256_RNG_CTX(out_state);
 
 	*state = out_state;
 
-	return 0;
+out:
+	return ret;
 }
 
 static const struct lc_rng _lc_xdrbg256_drng = {

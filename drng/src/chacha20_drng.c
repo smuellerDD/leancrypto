@@ -294,18 +294,17 @@ LC_INTERFACE_FUNCTION(int, lc_cc20_drng_alloc, struct lc_rng_ctx **state)
 	if (!state)
 		return -EINVAL;
 
-	ret = lc_alloc_aligned_secure((void *)&out_state,
+	CKINT(lc_alloc_aligned_secure((void *)&out_state,
 				      LC_SYM_ALIGNMENT(lc_chacha20),
-				      LC_CC20_DRNG_CTX_SIZE);
-	if (ret)
-		return -ret;
+				      LC_CC20_DRNG_CTX_SIZE));
 
 	LC_CC20_DRNG_SET_CTX(out_state);
 	lc_rng_zero(out_state);
 
 	*state = out_state;
 
-	return 0;
+out:
+	return ret;
 }
 
 static const struct lc_rng _lc_cc20_drng = {

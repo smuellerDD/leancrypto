@@ -461,11 +461,9 @@ LC_INTERFACE_FUNCTION(int, lc_kmac_rng_alloc, struct lc_rng_ctx **state,
 	if (!state)
 		return -EINVAL;
 
-	ret = lc_alloc_aligned_secure((void *)&out_state,
+	CKINT(lc_alloc_aligned_secure((void *)&out_state,
 				      LC_HASH_COMMON_ALIGNMENT,
-				      LC_KMAC_KDF_DRNG_CTX_SIZE);
-	if (ret)
-		return -ret;
+				      LC_KMAC_KDF_DRNG_CTX_SIZE));
 
 	LC_KMAC_KDF_RNG_CTX(out_state, hash);
 
@@ -473,7 +471,8 @@ LC_INTERFACE_FUNCTION(int, lc_kmac_rng_alloc, struct lc_rng_ctx **state,
 
 	*state = out_state;
 
-	return 0;
+out:
+	return ret;
 }
 
 static const struct lc_rng _lc_kmac = {
