@@ -123,6 +123,11 @@ impl lcr_aead {
             )
         };
         if result < 0 {
+            if !self.aead_ctx.is_null() {
+                unsafe { leancrypto::lc_aead_zero_free(self.aead_ctx); }
+                self.aead_ctx = ptr::null_mut();
+            }
+
             return Err(AeadError::ProcessingError);
         }
 

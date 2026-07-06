@@ -117,6 +117,13 @@ impl lcr_sym {
         };
 
         if result < 0 {
+            if !self.sym_ctx.is_null() {
+                unsafe {
+                    leancrypto::lc_sym_zero_free(self.sym_ctx);
+                }
+                self.sym_ctx = ptr::null_mut();
+            }
+
             return Err(SymError::ProcessingError);
         }
 
