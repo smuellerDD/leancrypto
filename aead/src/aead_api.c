@@ -81,6 +81,8 @@ LC_INTERFACE_FUNCTION(int, lc_aead_setkey, struct lc_aead_ctx *ctx,
 	int ret = 0;
 
 	CKNULL(ctx, -EINVAL);
+	/* Ensure that maximum key size can be stored */
+	BUILD_BUG_ON(LC_AEAD_MAX_KEYSIZE > sizeof(ctx->keylen) * 256);
 
 	if (keylen) {
 		if (ivlen) {
