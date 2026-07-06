@@ -447,6 +447,11 @@ static int gcm_setiv(struct lc_aes_gcm_cryptor *ctx, const uint8_t *iv,
 		/* XOR source built from provided IV if len != AES_BLOCKSIZE */
 		uint8_t work_buf[AES_BLOCKSIZE];
 
+		/* maximum IV length check per NIST recommendation */
+		if (sizeof(iv_len) > 4 &&
+		    iv_len > ((1ULL << 32) - 1) * AES_BLOCKSIZE - AES_BLOCKSIZE)
+			return -EOVERFLOW;
+
 		/*
 		 * if we don't have a 12-byte IV, we GHASH whatever we've been
 		 * given
