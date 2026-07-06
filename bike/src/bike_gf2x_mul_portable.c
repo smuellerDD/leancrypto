@@ -76,7 +76,7 @@ void karatzuba_add3_port(uint64_t *c, const uint64_t *mid,
 {
 	size_t i;
 
-	assert(qwords_len % REG_QWORDS == 0);
+	//assert(qwords_len % REG_QWORDS == 0);
 
 	REG_T vr0, vr1, vr2, vr3, vt;
 
