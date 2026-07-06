@@ -103,7 +103,7 @@ impl lcr_dilithium {
             )
         };
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         self.sk_set = true;
@@ -138,7 +138,7 @@ impl lcr_dilithium {
             )
         };
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         self.sk_set = true;
@@ -171,7 +171,7 @@ impl lcr_dilithium {
             )
         };
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         self.pk_set = true;
@@ -203,7 +203,7 @@ impl lcr_dilithium {
             )
         };
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         self.sig_set = true;
@@ -252,7 +252,7 @@ impl lcr_dilithium {
             )
         };
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         self.sk_set = true;
@@ -306,7 +306,7 @@ impl lcr_dilithium {
         };
 
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         self.sig_set = true;
@@ -359,7 +359,7 @@ impl lcr_dilithium {
         }
 
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         self.sig_set = true;
@@ -411,7 +411,7 @@ impl lcr_dilithium {
             return Err(SignatureError::VerificationError);
         }
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         Ok(())
@@ -435,7 +435,7 @@ impl lcr_dilithium {
         };
 
         if result < 0 || ptr == ptr::null_mut() {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
@@ -460,7 +460,7 @@ impl lcr_dilithium {
             leancrypto::lc_dilithium_sk_ptr(&mut ptr, &mut len, &mut self.sk)
         };
         if result < 0 || ptr == ptr::null_mut() {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
@@ -485,7 +485,9 @@ impl lcr_dilithium {
             leancrypto::lc_dilithium_pk_ptr(&mut ptr, &mut len, &mut self.pk)
         };
         if result < 0 || ptr == ptr::null_mut() {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(
+                -1 * leancrypto::EINVAL as i32,
+            ));
         }
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
@@ -498,7 +500,7 @@ impl lcr_dilithium {
             let result =
                 unsafe { leancrypto::lc_dilithium_ctx_alloc(&mut self.ctx) };
             if result < 0 || self.ctx == ptr::null_mut() {
-                return Err(SignatureError::ProcessingError);
+                return Err(SignatureError::ProcessingError(result));
             }
         }
         Ok(())
@@ -519,7 +521,9 @@ impl lcr_dilithium {
         userctx: &[u8],
     ) -> Result<(), SignatureError> {
         if userctx.len() == 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(
+                -1 * leancrypto::EINVAL as i32,
+            ));
         }
 
         self.alloc_ctx()?;
@@ -588,7 +592,9 @@ impl lcr_dilithium {
         external_mu: &[u8],
     ) -> Result<(), SignatureError> {
         if external_mu.len() == 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(
+                -1 * leancrypto::EINVAL as i32,
+            ));
         }
 
         self.alloc_ctx()?;

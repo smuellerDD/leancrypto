@@ -124,11 +124,13 @@ impl lcr_aead {
         };
         if result < 0 {
             if !self.aead_ctx.is_null() {
-                unsafe { leancrypto::lc_aead_zero_free(self.aead_ctx); }
+                unsafe {
+                    leancrypto::lc_aead_zero_free(self.aead_ctx);
+                }
                 self.aead_ctx = ptr::null_mut();
             }
 
-            return Err(AeadError::ProcessingError);
+            return Err(AeadError::ProcessingError(result));
         }
 
         Ok(())
@@ -158,7 +160,9 @@ impl lcr_aead {
             return Err(AeadError::UninitializedContext);
         }
         if plaintext.len() > 0 && plaintext.len() != ciphertext.len() {
-            return Err(AeadError::ProcessingError);
+            return Err(AeadError::ProcessingError(
+                -1 * leancrypto::EINVAL as i32,
+            ));
         }
 
         /*
@@ -191,7 +195,7 @@ impl lcr_aead {
         };
 
         if result < 0 {
-            return Err(AeadError::ProcessingError);
+            return Err(AeadError::ProcessingError(result));
         }
 
         Ok(())
@@ -219,7 +223,7 @@ impl lcr_aead {
         };
 
         if result < 0 {
-            return Err(AeadError::ProcessingError);
+            return Err(AeadError::ProcessingError(result));
         }
 
         Ok(())
@@ -245,7 +249,9 @@ impl lcr_aead {
             return Err(AeadError::UninitializedContext);
         }
         if plaintext.len() != ciphertext.len() {
-            return Err(AeadError::ProcessingError);
+            return Err(AeadError::ProcessingError(
+                -1 * leancrypto::EINVAL as i32,
+            ));
         }
 
         let result = unsafe {
@@ -258,7 +264,7 @@ impl lcr_aead {
         };
 
         if result < 0 {
-            return Err(AeadError::ProcessingError);
+            return Err(AeadError::ProcessingError(result));
         }
 
         Ok(())
@@ -290,7 +296,7 @@ impl lcr_aead {
         };
 
         if result < 0 {
-            return Err(AeadError::ProcessingError);
+            return Err(AeadError::ProcessingError(result));
         }
 
         Ok(())
@@ -320,7 +326,9 @@ impl lcr_aead {
             return Err(AeadError::UninitializedContext);
         }
         if ciphertext.len() > 0 && plaintext.len() != ciphertext.len() {
-            return Err(AeadError::ProcessingError);
+            return Err(AeadError::ProcessingError(
+                -1 * leancrypto::EINVAL as i32,
+            ));
         }
 
         /*
@@ -356,7 +364,7 @@ impl lcr_aead {
             return Err(AeadError::AuthenticationError);
         }
         if result < 0 {
-            return Err(AeadError::ProcessingError);
+            return Err(AeadError::ProcessingError(result));
         }
 
         Ok(())
@@ -383,7 +391,7 @@ impl lcr_aead {
             leancrypto::lc_aead_dec_init(self.aead_ctx, aad.as_ptr(), aad.len())
         };
         if result < 0 {
-            return Err(AeadError::ProcessingError);
+            return Err(AeadError::ProcessingError(result));
         }
 
         Ok(())
@@ -409,7 +417,9 @@ impl lcr_aead {
             return Err(AeadError::UninitializedContext);
         }
         if plaintext.len() != ciphertext.len() {
-            return Err(AeadError::ProcessingError);
+            return Err(AeadError::ProcessingError(
+                -1 * leancrypto::EINVAL as i32,
+            ));
         }
 
         let result = unsafe {
@@ -421,7 +431,7 @@ impl lcr_aead {
             )
         };
         if result < 0 {
-            return Err(AeadError::ProcessingError);
+            return Err(AeadError::ProcessingError(result));
         }
 
         Ok(())
@@ -456,7 +466,7 @@ impl lcr_aead {
             return Err(AeadError::AuthenticationError);
         }
         if result < 0 {
-            return Err(AeadError::ProcessingError);
+            return Err(AeadError::ProcessingError(result));
         }
 
         Ok(())

@@ -75,7 +75,7 @@ impl lcr_kbkdf_ctr {
             )
         };
         if result < 0 {
-            return Err(KdfError::ProcessingError);
+            return Err(KdfError::ProcessingError(result));
         }
         Ok(())
     }
@@ -142,7 +142,7 @@ impl lcr_kbkdf_fb {
             )
         };
         if result < 0 {
-            return Err(KdfError::ProcessingError);
+            return Err(KdfError::ProcessingError(result));
         }
         Ok(())
     }

@@ -65,7 +65,7 @@ impl lcr_hmac_key {
             )
         };
         if result < 0 {
-            return Err(HashError::ProcessingError);
+            return Err(HashError::ProcessingError(result));
         }
         Ok(())
     }
@@ -129,7 +129,9 @@ impl lcr_hmac {
         mac: &mut [u8],
     ) -> Result<(), HashError> {
         if mac.len() < lcr_hash_digestsize_mapping(self.hmac) {
-            return Err(HashError::ProcessingError);
+            return Err(HashError::ProcessingError(
+                -1 * leancrypto::EINVAL as i32,
+            ));
         }
 
         let mut keyptr = key.as_ptr();
@@ -187,7 +189,7 @@ impl lcr_hmac {
                 leancrypto::lc_hmac_init(self.hmac_ctx, key.as_ptr(), key.len())
             };
             if result < 0 {
-                return Err(HashError::ProcessingError);
+                return Err(HashError::ProcessingError(result));
             }
             Ok(())
         } else {
@@ -229,7 +231,7 @@ impl lcr_hmac {
                 )
             };
             if result < 0 {
-                return Err(HashError::ProcessingError);
+                return Err(HashError::ProcessingError(result));
             }
             Ok(())
         } else {
@@ -279,7 +281,9 @@ impl lcr_hmac {
         }
 
         if mac.len() < lcr_hash_digestsize_mapping(self.hmac) {
-            return Err(HashError::ProcessingError);
+            return Err(HashError::ProcessingError(
+                -1 * leancrypto::EINVAL as i32,
+            ));
         }
 
         unsafe {

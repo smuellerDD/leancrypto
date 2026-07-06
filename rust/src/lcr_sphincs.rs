@@ -95,7 +95,7 @@ impl lcr_sphincs {
             )
         };
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         self.sk_set = true;
@@ -127,7 +127,7 @@ impl lcr_sphincs {
             )
         };
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         self.pk_set = true;
@@ -149,7 +149,7 @@ impl lcr_sphincs {
             leancrypto::lc_sphincs_pk_set_keytype_small(&mut self.pk)
         };
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         Ok(())
@@ -168,7 +168,7 @@ impl lcr_sphincs {
         let result =
             unsafe { leancrypto::lc_sphincs_pk_set_keytype_fast(&mut self.pk) };
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         Ok(())
@@ -188,7 +188,7 @@ impl lcr_sphincs {
             leancrypto::lc_sphincs_sk_set_keytype_small(&mut self.sk)
         };
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         Ok(())
@@ -207,7 +207,7 @@ impl lcr_sphincs {
         let result =
             unsafe { leancrypto::lc_sphincs_sk_set_keytype_fast(&mut self.sk) };
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         Ok(())
@@ -237,7 +237,7 @@ impl lcr_sphincs {
             )
         };
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         self.sig_set = true;
@@ -295,7 +295,7 @@ impl lcr_sphincs {
             )
         };
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         self.sk_set = true;
@@ -334,7 +334,7 @@ impl lcr_sphincs {
             )
         };
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         self.sig_set = true;
@@ -372,7 +372,7 @@ impl lcr_sphincs {
             )
         };
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         self.sig_set = true;
@@ -411,7 +411,7 @@ impl lcr_sphincs {
             return Err(SignatureError::VerificationError);
         }
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         Ok(())
@@ -434,7 +434,7 @@ impl lcr_sphincs {
             leancrypto::lc_sphincs_sig_ptr(&mut ptr, &mut len, &mut self.sig)
         };
         if result < 0 || ptr == ptr::null_mut() {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
@@ -459,7 +459,7 @@ impl lcr_sphincs {
             leancrypto::lc_sphincs_sk_ptr(&mut ptr, &mut len, &mut self.sk)
         };
         if result < 0 || ptr == ptr::null_mut() {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
@@ -484,7 +484,7 @@ impl lcr_sphincs {
             leancrypto::lc_sphincs_pk_ptr(&mut ptr, &mut len, &mut self.pk)
         };
         if result < 0 || ptr == ptr::null_mut() {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };

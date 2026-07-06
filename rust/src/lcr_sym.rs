@@ -109,7 +109,7 @@ impl lcr_sym {
 
         result = unsafe { leancrypto::lc_sym_init(self.sym_ctx) };
         if result < 0 {
-            return Err(SymError::ProcessingError);
+            return Err(SymError::ProcessingError(result));
         }
 
         result = unsafe {
@@ -124,7 +124,7 @@ impl lcr_sym {
                 self.sym_ctx = ptr::null_mut();
             }
 
-            return Err(SymError::ProcessingError);
+            return Err(SymError::ProcessingError(result));
         }
 
         Ok(())
@@ -155,7 +155,7 @@ impl lcr_sym {
             leancrypto::lc_sym_setiv(self.sym_ctx, iv.as_ptr(), iv.len())
         };
         if result < 0 {
-            return Err(SymError::ProcessingError);
+            return Err(SymError::ProcessingError(result));
         }
 
         Ok(())
@@ -181,7 +181,9 @@ impl lcr_sym {
             return Err(SymError::UninitializedContext);
         }
         if plaintext.len() != ciphertext.len() {
-            return Err(SymError::ProcessingError);
+            return Err(SymError::ProcessingError(
+                -1 * leancrypto::EINVAL as i32,
+            ));
         }
 
         let result = unsafe {
@@ -193,7 +195,7 @@ impl lcr_sym {
             )
         };
         if result < 0 {
-            return Err(SymError::ProcessingError);
+            return Err(SymError::ProcessingError(result));
         }
 
         Ok(())
@@ -219,7 +221,9 @@ impl lcr_sym {
             return Err(SymError::UninitializedContext);
         }
         if plaintext.len() + 8 != ciphertext.len() {
-            return Err(SymError::ProcessingError);
+            return Err(SymError::ProcessingError(
+                -1 * leancrypto::EINVAL as i32,
+            ));
         }
 
         let result = unsafe {
@@ -231,7 +235,7 @@ impl lcr_sym {
             )
         };
         if result < 0 {
-            return Err(SymError::ProcessingError);
+            return Err(SymError::ProcessingError(result));
         }
 
         Ok(())
@@ -257,7 +261,9 @@ impl lcr_sym {
             return Err(SymError::UninitializedContext);
         }
         if plaintext.len() != ciphertext.len() {
-            return Err(SymError::ProcessingError);
+            return Err(SymError::ProcessingError(
+                -1 * leancrypto::EINVAL as i32,
+            ));
         }
 
         let result = unsafe {
@@ -269,7 +275,7 @@ impl lcr_sym {
             )
         };
         if result < 0 {
-            return Err(SymError::ProcessingError);
+            return Err(SymError::ProcessingError(result));
         }
 
         Ok(())
@@ -295,7 +301,9 @@ impl lcr_sym {
             return Err(SymError::UninitializedContext);
         }
         if plaintext.len() + 8 != ciphertext.len() {
-            return Err(SymError::ProcessingError);
+            return Err(SymError::ProcessingError(
+                -1 * leancrypto::EINVAL as i32,
+            ));
         }
 
         let result = unsafe {
@@ -311,7 +319,7 @@ impl lcr_sym {
             return Err(SymError::AuthenticationError);
         }
         if result < 0 {
-            return Err(SymError::ProcessingError);
+            return Err(SymError::ProcessingError(result));
         }
 
         Ok(())

@@ -97,7 +97,7 @@ impl lcr_dilithium_ed448 {
             )
         };
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         self.sk_set = true;
@@ -133,7 +133,7 @@ impl lcr_dilithium_ed448 {
             )
         };
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         self.pk_set = true;
@@ -169,7 +169,7 @@ impl lcr_dilithium_ed448 {
             )
         };
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         self.sig_set = true;
@@ -221,7 +221,7 @@ impl lcr_dilithium_ed448 {
             )
         };
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         self.sk_set = true;
@@ -260,7 +260,7 @@ impl lcr_dilithium_ed448 {
             )
         };
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         self.sig_set = true;
@@ -298,7 +298,7 @@ impl lcr_dilithium_ed448 {
             )
         };
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         self.sig_set = true;
@@ -337,7 +337,7 @@ impl lcr_dilithium_ed448 {
             return Err(SignatureError::VerificationError);
         }
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         Ok(())
@@ -371,7 +371,7 @@ impl lcr_dilithium_ed448 {
             || dilithium_ptr == ptr::null_mut()
             || ed448_ptr == ptr::null_mut()
         {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         let slice_dilithium =
@@ -410,7 +410,7 @@ impl lcr_dilithium_ed448 {
             || dilithium_ptr == ptr::null_mut()
             || ed448_ptr == ptr::null_mut()
         {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         let slice_dilithium =
@@ -449,7 +449,7 @@ impl lcr_dilithium_ed448 {
             || dilithium_ptr == ptr::null_mut()
             || ed448_ptr == ptr::null_mut()
         {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         let slice_dilithium =

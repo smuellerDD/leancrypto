@@ -101,7 +101,7 @@ impl lcr_kyber_x25519 {
             )
         };
         if result < 0 {
-            return Err(KemError::ProcessingError);
+            return Err(KemError::ProcessingError(result));
         }
 
         self.sk_set = true;
@@ -137,7 +137,7 @@ impl lcr_kyber_x25519 {
             )
         };
         if result < 0 {
-            return Err(KemError::ProcessingError);
+            return Err(KemError::ProcessingError(result));
         }
 
         self.pk_set = true;
@@ -173,7 +173,7 @@ impl lcr_kyber_x25519 {
             )
         };
         if result < 0 {
-            return Err(KemError::ProcessingError);
+            return Err(KemError::ProcessingError(result));
         }
 
         self.ct_set = true;
@@ -227,7 +227,7 @@ impl lcr_kyber_x25519 {
             )
         };
         if result < 0 {
-            return Err(KemError::ProcessingError);
+            return Err(KemError::ProcessingError(result));
         }
 
         self.sk_set = true;
@@ -253,7 +253,7 @@ impl lcr_kyber_x25519 {
             leancrypto::lc_kyber_x25519_dec(&mut self.ss, &self.ct, &self.sk)
         };
         if result < 0 {
-            return Err(KemError::ProcessingError);
+            return Err(KemError::ProcessingError(result));
         }
 
         self.ss_set = true;
@@ -282,7 +282,7 @@ impl lcr_kyber_x25519 {
             )
         };
         if result < 0 {
-            return Err(KemError::ProcessingError);
+            return Err(KemError::ProcessingError(result));
         }
 
         self.ct_set = true;
@@ -319,7 +319,7 @@ impl lcr_kyber_x25519 {
             || kyber_ptr == ptr::null_mut()
             || x25519_ptr == ptr::null_mut()
         {
-            return Err(KemError::ProcessingError);
+            return Err(KemError::ProcessingError(result));
         }
 
         let slice_kyber =
@@ -358,7 +358,7 @@ impl lcr_kyber_x25519 {
             || kyber_ptr == ptr::null_mut()
             || x25519_ptr == ptr::null_mut()
         {
-            return Err(KemError::ProcessingError);
+            return Err(KemError::ProcessingError(result));
         }
 
         let slice_kyber =
@@ -397,7 +397,7 @@ impl lcr_kyber_x25519 {
             || kyber_ptr == ptr::null_mut()
             || x25519_ptr == ptr::null_mut()
         {
-            return Err(KemError::ProcessingError);
+            return Err(KemError::ProcessingError(result));
         }
 
         let slice_kyber =
@@ -437,7 +437,7 @@ impl lcr_kyber_x25519 {
             || kyber_ptr == ptr::null_mut()
             || x25519_ptr == ptr::null_mut()
         {
-            return Err(KemError::ProcessingError);
+            return Err(KemError::ProcessingError(result));
         }
 
         let slice_kyber =

@@ -78,7 +78,7 @@ impl lcr_pbkdf2 {
             )
         };
         if result < 0 {
-            return Err(KdfError::ProcessingError);
+            return Err(KdfError::ProcessingError(result));
         }
         Ok(())
     }

@@ -146,7 +146,7 @@ impl lcr_x509_key {
         let result =
             unsafe { leancrypto::lc_init(leancrypto::LC_INIT_NON_PQC_ENABLED) };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -165,7 +165,7 @@ impl lcr_x509_key {
             };
         }
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
 
         result = unsafe {
@@ -175,7 +175,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
 
         Ok(())
@@ -258,7 +258,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
 
         self.has_sk = true;
@@ -289,7 +289,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
 
         self.sk_der_key = Vec::with_capacity(pkcs8_size);
@@ -303,7 +303,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
 
         /* Set vector to to consumed length */
@@ -331,7 +331,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
 
         let mut pk_der_key = Vec::with_capacity(pk_size);
@@ -345,7 +345,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
 
         /* Set vector to to consumed length */
@@ -387,7 +387,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
 
         let mut key_type: u32 = 0;
@@ -395,7 +395,7 @@ impl lcr_x509_key {
             leancrypto::lc_pkcs8_key_type(&mut key_type, &self.pkcs8_sk)
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
 
         self.key_type = match key_type {
@@ -510,7 +510,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
 
         self.has_pk = true;
@@ -547,7 +547,9 @@ impl lcr_x509_key {
 
     fn cert_configurable(&self) -> Result<(), X509Error> {
         if self.has_certificate {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(
+                -1 * leancrypto::EINVAL as i32,
+            ));
         }
         Ok(())
     }
@@ -580,7 +582,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -603,7 +605,11 @@ impl lcr_x509_key {
         self.cert_configurable()?;
 
         let s = match CString::new(eku) {
-            Err(_) => return Err(X509Error::ProcessingError)?,
+            Err(_) => {
+                return Err(X509Error::ProcessingError(
+                    -1 * leancrypto::EINVAL as i32,
+                ))?
+            }
             Ok(res) => res,
         };
 
@@ -614,7 +620,7 @@ impl lcr_x509_key {
             leancrypto::lc_x509_cert_set_eku(&mut self.x509_cert, s.as_ptr())
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -640,7 +646,7 @@ impl lcr_x509_key {
             leancrypto::lc_x509_cert_set_eku_val(&mut self.x509_cert, eku)
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -663,7 +669,11 @@ impl lcr_x509_key {
         self.cert_configurable()?;
 
         let s = match CString::new(keyusage) {
-            Err(_) => return Err(X509Error::ProcessingError)?,
+            Err(_) => {
+                return Err(X509Error::ProcessingError(
+                    -1 * leancrypto::EINVAL as i32,
+                ))?
+            }
             Ok(res) => res,
         };
 
@@ -677,7 +687,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -706,7 +716,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -728,7 +738,7 @@ impl lcr_x509_key {
         let result =
             unsafe { leancrypto::lc_x509_cert_set_ca(&mut self.x509_cert) };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -750,7 +760,7 @@ impl lcr_x509_key {
             leancrypto::lc_x509_cert_check_issuer_ca(&mut self.x509_cert)
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -779,7 +789,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -802,7 +812,11 @@ impl lcr_x509_key {
         self.cert_configurable()?;
 
         let s = match CString::new(email) {
-            Err(_) => return Err(X509Error::ProcessingError)?,
+            Err(_) => {
+                return Err(X509Error::ProcessingError(
+                    -1 * leancrypto::EINVAL as i32,
+                ))?
+            }
             Ok(res) => res,
         };
         self.san_email.push(s);
@@ -815,7 +829,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -838,7 +852,11 @@ impl lcr_x509_key {
         self.cert_configurable()?;
 
         let s = match CString::new(dns) {
-            Err(_) => return Err(X509Error::ProcessingError)?,
+            Err(_) => {
+                return Err(X509Error::ProcessingError(
+                    -1 * leancrypto::EINVAL as i32,
+                ))?
+            }
             Ok(res) => res,
         };
         self.san_dns.push(s);
@@ -851,7 +869,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -882,7 +900,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -913,7 +931,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -944,7 +962,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -970,7 +988,7 @@ impl lcr_x509_key {
             leancrypto::lc_x509_cert_set_valid_from(&mut self.x509_cert, time)
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -996,7 +1014,7 @@ impl lcr_x509_key {
             leancrypto::lc_x509_cert_set_valid_to(&mut self.x509_cert, time)
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -1019,7 +1037,11 @@ impl lcr_x509_key {
         self.cert_configurable()?;
 
         let s = match CString::new(cn) {
-            Err(_) => return Err(X509Error::ProcessingError)?,
+            Err(_) => {
+                return Err(X509Error::ProcessingError(
+                    -1 * leancrypto::EINVAL as i32,
+                ))?
+            }
             Ok(res) => res,
         };
         self.subject_cn.push(s);
@@ -1033,7 +1055,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -1056,7 +1078,11 @@ impl lcr_x509_key {
         self.cert_configurable()?;
 
         let s = match CString::new(email) {
-            Err(_) => return Err(X509Error::ProcessingError)?,
+            Err(_) => {
+                return Err(X509Error::ProcessingError(
+                    -1 * leancrypto::EINVAL as i32,
+                ))?
+            }
             Ok(res) => res,
         };
         self.subject_email.push(s);
@@ -1070,7 +1096,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -1093,7 +1119,11 @@ impl lcr_x509_key {
         self.cert_configurable()?;
 
         let s = match CString::new(ou) {
-            Err(_) => return Err(X509Error::ProcessingError)?,
+            Err(_) => {
+                return Err(X509Error::ProcessingError(
+                    -1 * leancrypto::EINVAL as i32,
+                ))?
+            }
             Ok(res) => res,
         };
         self.subject_ou.push(s);
@@ -1107,7 +1137,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -1130,7 +1160,11 @@ impl lcr_x509_key {
         self.cert_configurable()?;
 
         let s = match CString::new(o) {
-            Err(_) => return Err(X509Error::ProcessingError)?,
+            Err(_) => {
+                return Err(X509Error::ProcessingError(
+                    -1 * leancrypto::EINVAL as i32,
+                ))?
+            }
             Ok(res) => res,
         };
         self.subject_o.push(s);
@@ -1144,7 +1178,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -1167,7 +1201,11 @@ impl lcr_x509_key {
         self.cert_configurable()?;
 
         let s = match CString::new(st) {
-            Err(_) => return Err(X509Error::ProcessingError)?,
+            Err(_) => {
+                return Err(X509Error::ProcessingError(
+                    -1 * leancrypto::EINVAL as i32,
+                ))?
+            }
             Ok(res) => res,
         };
         self.subject_st.push(s);
@@ -1181,7 +1219,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -1204,7 +1242,11 @@ impl lcr_x509_key {
         self.cert_configurable()?;
 
         let s = match CString::new(c) {
-            Err(_) => return Err(X509Error::ProcessingError)?,
+            Err(_) => {
+                return Err(X509Error::ProcessingError(
+                    -1 * leancrypto::EINVAL as i32,
+                ))?
+            }
             Ok(res) => res,
         };
         self.subject_c.push(s);
@@ -1218,7 +1260,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -1241,7 +1283,11 @@ impl lcr_x509_key {
         self.cert_configurable()?;
 
         let s = match CString::new(cn) {
-            Err(_) => return Err(X509Error::ProcessingError)?,
+            Err(_) => {
+                return Err(X509Error::ProcessingError(
+                    -1 * leancrypto::EINVAL as i32,
+                ))?
+            }
             Ok(res) => res,
         };
         self.issuer_cn.push(s);
@@ -1255,7 +1301,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -1278,7 +1324,11 @@ impl lcr_x509_key {
         self.cert_configurable()?;
 
         let s = match CString::new(email) {
-            Err(_) => return Err(X509Error::ProcessingError)?,
+            Err(_) => {
+                return Err(X509Error::ProcessingError(
+                    -1 * leancrypto::EINVAL as i32,
+                ))?
+            }
             Ok(res) => res,
         };
         self.issuer_email.push(s);
@@ -1292,7 +1342,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -1315,7 +1365,11 @@ impl lcr_x509_key {
         self.cert_configurable()?;
 
         let s = match CString::new(ou) {
-            Err(_) => return Err(X509Error::ProcessingError)?,
+            Err(_) => {
+                return Err(X509Error::ProcessingError(
+                    -1 * leancrypto::EINVAL as i32,
+                ))?
+            }
             Ok(res) => res,
         };
         self.issuer_ou.push(s);
@@ -1329,7 +1383,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -1352,7 +1406,11 @@ impl lcr_x509_key {
         self.cert_configurable()?;
 
         let s = match CString::new(o) {
-            Err(_) => return Err(X509Error::ProcessingError)?,
+            Err(_) => {
+                return Err(X509Error::ProcessingError(
+                    -1 * leancrypto::EINVAL as i32,
+                ))?
+            }
             Ok(res) => res,
         };
         self.issuer_o.push(s);
@@ -1366,7 +1424,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -1389,7 +1447,11 @@ impl lcr_x509_key {
         self.cert_configurable()?;
 
         let s = match CString::new(st) {
-            Err(_) => return Err(X509Error::ProcessingError)?,
+            Err(_) => {
+                return Err(X509Error::ProcessingError(
+                    -1 * leancrypto::EINVAL as i32,
+                ))?
+            }
             Ok(res) => res,
         };
         self.issuer_st.push(s);
@@ -1403,7 +1465,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -1426,7 +1488,11 @@ impl lcr_x509_key {
         self.cert_configurable()?;
 
         let s = match CString::new(c) {
-            Err(_) => return Err(X509Error::ProcessingError)?,
+            Err(_) => {
+                return Err(X509Error::ProcessingError(
+                    -1 * leancrypto::EINVAL as i32,
+                ))?
+            }
             Ok(res) => res,
         };
         self.issuer_c.push(s);
@@ -1440,7 +1506,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -1471,7 +1537,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -1498,7 +1564,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
 
         self.cert_der = Vec::with_capacity(cert_size);
@@ -1512,7 +1578,7 @@ impl lcr_x509_key {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
 
         /* Set vector to to consumed length */
@@ -1575,7 +1641,7 @@ impl lcr_x509 {
         let result =
             unsafe { leancrypto::lc_init(leancrypto::LC_INIT_NON_PQC_ENABLED) };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -1675,7 +1741,7 @@ impl lcr_x509 {
             leancrypto::lc_pkcs8_get_signature_size_from_sk(&mut siglen, &pkcs8)
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
 
         let mut signature = vec![0; siglen];
@@ -1690,7 +1756,7 @@ impl lcr_x509 {
             )
         };
         if result < 0 {
-            return Err(X509Error::ProcessingError);
+            return Err(X509Error::ProcessingError(result));
         }
 
         Ok(signature)

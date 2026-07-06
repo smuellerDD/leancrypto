@@ -92,7 +92,7 @@ impl lcr_hqc {
             )
         };
         if result < 0 {
-            return Err(KemError::ProcessingError);
+            return Err(KemError::ProcessingError(result));
         }
 
         self.sk_set = true;
@@ -124,7 +124,7 @@ impl lcr_hqc {
             )
         };
         if result < 0 {
-            return Err(KemError::ProcessingError);
+            return Err(KemError::ProcessingError(result));
         }
 
         self.pk_set = true;
@@ -156,7 +156,7 @@ impl lcr_hqc {
             )
         };
         if result < 0 {
-            return Err(KemError::ProcessingError);
+            return Err(KemError::ProcessingError(result));
         }
 
         self.ct_set = true;
@@ -188,7 +188,7 @@ impl lcr_hqc {
             )
         };
         if result < 0 {
-            return Err(KemError::ProcessingError);
+            return Err(KemError::ProcessingError(result));
         }
 
         self.ss_set = true;
@@ -231,7 +231,7 @@ impl lcr_hqc {
             )
         };
         if result < 0 {
-            return Err(KemError::ProcessingError);
+            return Err(KemError::ProcessingError(result));
         }
 
         self.sk_set = true;
@@ -256,7 +256,7 @@ impl lcr_hqc {
         let result =
             unsafe { leancrypto::lc_hqc_dec(&mut self.ss, &self.ct, &self.sk) };
         if result < 0 {
-            return Err(KemError::ProcessingError);
+            return Err(KemError::ProcessingError(result));
         }
 
         self.ss_set = true;
@@ -281,7 +281,7 @@ impl lcr_hqc {
             leancrypto::lc_hqc_enc(&mut self.ct, &mut self.ss, &self.pk)
         };
         if result < 0 {
-            return Err(KemError::ProcessingError);
+            return Err(KemError::ProcessingError(result));
         }
 
         self.ct_set = true;
@@ -307,7 +307,7 @@ impl lcr_hqc {
             leancrypto::lc_hqc_ct_ptr(&mut ptr, &mut len, &mut self.ct)
         };
         if result < 0 || ptr == ptr::null_mut() {
-            return Err(KemError::ProcessingError);
+            return Err(KemError::ProcessingError(result));
         }
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
@@ -332,7 +332,7 @@ impl lcr_hqc {
             leancrypto::lc_hqc_sk_ptr(&mut ptr, &mut len, &mut self.sk)
         };
         if result < 0 || ptr == ptr::null_mut() {
-            return Err(KemError::ProcessingError);
+            return Err(KemError::ProcessingError(result));
         }
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
@@ -357,7 +357,7 @@ impl lcr_hqc {
             leancrypto::lc_hqc_pk_ptr(&mut ptr, &mut len, &mut self.pk)
         };
         if result < 0 || ptr == ptr::null_mut() {
-            return Err(KemError::ProcessingError);
+            return Err(KemError::ProcessingError(result));
         }
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
@@ -382,7 +382,7 @@ impl lcr_hqc {
             leancrypto::lc_hqc_ss_ptr(&mut ptr, &mut len, &mut self.ss)
         };
         if result < 0 || ptr == ptr::null_mut() {
-            return Err(KemError::ProcessingError);
+            return Err(KemError::ProcessingError(result));
         }
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };

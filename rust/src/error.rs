@@ -21,7 +21,7 @@
 pub enum HashError {
     AllocationError,
     UninitializedContext,
-    ProcessingError,
+    ProcessingError(i32),
 }
 
 impl std::error::Error for HashError {}
@@ -38,8 +38,8 @@ impl std::fmt::Display for HashError {
             HashError::UninitializedContext => {
                 write!(f, "hash context is not initialized")
             }
-            HashError::ProcessingError => {
-                write!(f, "hash processing error occurred")
+            HashError::ProcessingError(v) => {
+                write!(f, "hash processing error occurred: {}", v)
             }
         }
     }
@@ -49,7 +49,7 @@ impl std::fmt::Display for HashError {
 pub enum SignatureError {
     AllocationError,
     UninitializedContext,
-    ProcessingError,
+    ProcessingError(i32),
     VerificationError,
 }
 
@@ -67,8 +67,8 @@ impl std::fmt::Display for SignatureError {
             SignatureError::UninitializedContext => {
                 write!(f, "Signature context is not initialized")
             }
-            SignatureError::ProcessingError => {
-                write!(f, "Signature processing error occurred")
+            SignatureError::ProcessingError(v) => {
+                write!(f, "Signature processing error occurred: {}", v)
             }
             SignatureError::VerificationError => {
                 write!(f, "Signature signature verification failed")
@@ -81,7 +81,7 @@ impl std::fmt::Display for SignatureError {
 pub enum KemError {
     AllocationError,
     UninitializedContext,
-    ProcessingError,
+    ProcessingError(i32),
 }
 
 impl std::error::Error for KemError {}
@@ -98,8 +98,8 @@ impl std::fmt::Display for KemError {
             KemError::UninitializedContext => {
                 write!(f, "KEM context is not initialized")
             }
-            KemError::ProcessingError => {
-                write!(f, "KEM processing error occurred")
+            KemError::ProcessingError(v) => {
+                write!(f, "KEM processing error occurred: {}", v)
             }
         }
     }
@@ -109,7 +109,7 @@ impl std::fmt::Display for KemError {
 pub enum RngError {
     AllocationError,
     UninitializedContext,
-    ProcessingError,
+    ProcessingError(i32),
     NotSeeded,
 }
 
@@ -127,8 +127,8 @@ impl std::fmt::Display for RngError {
             RngError::UninitializedContext => {
                 write!(f, "RNG context is not initialized")
             }
-            RngError::ProcessingError => {
-                write!(f, "RNG processing error occurred")
+            RngError::ProcessingError(v) => {
+                write!(f, "RNG processing error occurred: {}", v)
             }
             RngError::NotSeeded => write!(f, "RNG context is not seeded"),
         }
@@ -139,7 +139,7 @@ impl std::fmt::Display for RngError {
 pub enum AeadError {
     AllocationError,
     UninitializedContext,
-    ProcessingError,
+    ProcessingError(i32),
     AuthenticationError,
 }
 
@@ -157,8 +157,8 @@ impl std::fmt::Display for AeadError {
             AeadError::UninitializedContext => {
                 write!(f, "AEAD context is not initialized")
             }
-            AeadError::ProcessingError => {
-                write!(f, "AEAD processing error occurred")
+            AeadError::ProcessingError(v) => {
+                write!(f, "AEAD processing error occurred: {}", v)
             }
             AeadError::AuthenticationError => {
                 write!(f, "AEAD decryption authentication error")
@@ -171,7 +171,7 @@ impl std::fmt::Display for AeadError {
 pub enum SymError {
     AllocationError,
     UninitializedContext,
-    ProcessingError,
+    ProcessingError(i32),
     AuthenticationError,
 }
 
@@ -189,8 +189,8 @@ impl std::fmt::Display for SymError {
             SymError::UninitializedContext => {
                 write!(f, "Symmetric context is not initialized")
             }
-            SymError::ProcessingError => {
-                write!(f, "Symmetric processing error occurred")
+            SymError::ProcessingError(v) => {
+                write!(f, "Symmetric processing error occurred: {}", v)
             }
             SymError::AuthenticationError => {
                 write!(f, "Symmetric decryption authentication error")
@@ -203,7 +203,7 @@ impl std::fmt::Display for SymError {
 pub enum X25519Error {
     AllocationError,
     UninitializedContext,
-    ProcessingError,
+    ProcessingError(i32),
     KeyRejectedError,
 }
 
@@ -221,8 +221,8 @@ impl std::fmt::Display for X25519Error {
             X25519Error::UninitializedContext => {
                 write!(f, "XDH context is not initialized")
             }
-            X25519Error::ProcessingError => {
-                write!(f, "XDH processing error occurred")
+            X25519Error::ProcessingError(v) => {
+                write!(f, "XDH processing error occurred: {}", v)
             }
             X25519Error::KeyRejectedError => {
                 write!(f, "XDH key rejected error occurred")
@@ -235,7 +235,7 @@ impl std::fmt::Display for X25519Error {
 pub enum X448Error {
     AllocationError,
     UninitializedContext,
-    ProcessingError,
+    ProcessingError(i32),
 }
 
 impl std::error::Error for X448Error {}
@@ -252,8 +252,8 @@ impl std::fmt::Display for X448Error {
             X448Error::UninitializedContext => {
                 write!(f, "XDH context is not initialized")
             }
-            X448Error::ProcessingError => {
-                write!(f, "XDH processing error occurred")
+            X448Error::ProcessingError(v) => {
+                write!(f, "XDH processing error occurred: {}", v)
             }
         }
     }
@@ -263,7 +263,7 @@ impl std::fmt::Display for X448Error {
 pub enum KdfError {
     AllocationError,
     UninitializedContext,
-    ProcessingError,
+    ProcessingError(i32),
 }
 
 impl std::error::Error for KdfError {}
@@ -280,8 +280,8 @@ impl std::fmt::Display for KdfError {
             KdfError::UninitializedContext => {
                 write!(f, "HKDF context is not initialized")
             }
-            KdfError::ProcessingError => {
-                write!(f, "HKDF processing error occurred")
+            KdfError::ProcessingError(v) => {
+                write!(f, "HKDF processing error occurred: {}", v)
             }
         }
     }
@@ -291,7 +291,7 @@ impl std::fmt::Display for KdfError {
 pub enum X509Error {
     AllocationError,
     UninitializedContext,
-    ProcessingError,
+    ProcessingError(i32),
     VerifyError,
 }
 
@@ -309,8 +309,8 @@ impl std::fmt::Display for X509Error {
             X509Error::UninitializedContext => {
                 write!(f, "X.509 context is not initialized")
             }
-            X509Error::ProcessingError => {
-                write!(f, "X.509 processing error occurred")
+            X509Error::ProcessingError(v) => {
+                write!(f, "X.509 processing error occurred: {}", v)
             }
             X509Error::VerifyError => {
                 write!(f, "X.509 signature verification error")

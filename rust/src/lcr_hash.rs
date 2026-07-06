@@ -132,7 +132,7 @@ impl lcr_hash {
                 )
             };
             if result < 0 {
-                return Err(HashError::ProcessingError);
+                return Err(HashError::ProcessingError(result));
             }
             self.hash_ctx_init = true;
         }
@@ -156,7 +156,9 @@ impl lcr_hash {
         digest: &mut [u8],
     ) -> Result<(), HashError> {
         if digest.len() < lcr_hash_digestsize_mapping(self.hash) {
-            return Err(HashError::ProcessingError);
+            return Err(HashError::ProcessingError(
+                -1 * leancrypto::EINVAL as i32,
+            ));
         }
 
         let result = unsafe {
@@ -168,7 +170,7 @@ impl lcr_hash {
             )
         };
         if result < 0 {
-            return Err(HashError::ProcessingError);
+            return Err(HashError::ProcessingError(result));
         }
 
         Ok(())
@@ -199,7 +201,7 @@ impl lcr_hash {
             )
         };
         if result < 0 {
-            return Err(HashError::ProcessingError);
+            return Err(HashError::ProcessingError(result));
         }
 
         Ok(())
@@ -237,7 +239,7 @@ impl lcr_hash {
             )
         };
         if result < 0 {
-            return Err(HashError::ProcessingError);
+            return Err(HashError::ProcessingError(result));
         }
         Ok(())
     }
@@ -253,7 +255,7 @@ impl lcr_hash {
         // Error handle
         let result = unsafe { leancrypto::lc_hash_init(&mut self.hash_ctx) };
         if result < 0 {
-            return Err(HashError::ProcessingError);
+            return Err(HashError::ProcessingError(result));
         }
         Ok(())
     }
@@ -335,7 +337,9 @@ impl lcr_hash {
             unsafe { leancrypto::lc_hash_digestsize(&mut self.hash_ctx) };
 
         if digest.len() < digestsize {
-            return Err(HashError::ProcessingError);
+            return Err(HashError::ProcessingError(
+                -1 * leancrypto::EINVAL as i32,
+            ));
         }
 
         unsafe {

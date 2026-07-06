@@ -79,7 +79,9 @@ impl lcr_kmac {
         mac: &mut [u8],
     ) -> Result<(), HashError> {
         if mac.len() < 4 {
-            return Err(HashError::ProcessingError);
+            return Err(HashError::ProcessingError(
+                -1 * leancrypto::EINVAL as i32,
+            ));
         }
 
         /*
@@ -135,7 +137,9 @@ impl lcr_kmac {
         mac: &mut [u8],
     ) -> Result<(), HashError> {
         if mac.len() < 4 {
-            return Err(HashError::ProcessingError);
+            return Err(HashError::ProcessingError(
+                -1 * leancrypto::EINVAL as i32,
+            ));
         }
 
         /*
@@ -254,7 +258,9 @@ impl lcr_kmac {
         }
 
         if mac.len() < 4 {
-            return Err(HashError::ProcessingError);
+            return Err(HashError::ProcessingError(
+                -1 * leancrypto::EINVAL as i32,
+            ));
         }
 
         unsafe {

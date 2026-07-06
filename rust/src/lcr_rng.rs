@@ -57,7 +57,7 @@ pub fn lcr_rng_generate_seeded(
     };
 
     if result < 0 {
-        return Err(RngError::ProcessingError);
+        return Err(RngError::ProcessingError(result));
     }
 
     Ok(())
@@ -79,7 +79,7 @@ pub fn lcr_rng_reseed_seeded(
     };
 
     if result < 0 {
-        return Err(RngError::ProcessingError);
+        return Err(RngError::ProcessingError(result));
     }
 
     Ok(())
@@ -203,7 +203,7 @@ impl lcr_rng {
         };
 
         if result < 0 {
-            return Err(RngError::ProcessingError);
+            return Err(RngError::ProcessingError(result));
         }
 
         self.seeded = true;
@@ -244,7 +244,7 @@ impl lcr_rng {
         };
 
         if result < 0 {
-            return Err(RngError::ProcessingError);
+            return Err(RngError::ProcessingError(result));
         }
 
         Ok(())

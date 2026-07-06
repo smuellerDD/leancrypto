@@ -71,7 +71,7 @@ impl lcr_ed448 {
         let result =
             unsafe { leancrypto::lc_init(leancrypto::LC_INIT_NON_PQC_ENABLED) };
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
         Ok(())
     }
@@ -100,7 +100,7 @@ impl lcr_ed448 {
             )
         };
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         self.sk_set = true;
@@ -132,7 +132,7 @@ impl lcr_ed448 {
             )
         };
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         self.pk_set = true;
@@ -164,7 +164,7 @@ impl lcr_ed448 {
             )
         };
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         self.sig_set = true;
@@ -190,7 +190,7 @@ impl lcr_ed448 {
             )
         };
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         self.sk_set = true;
@@ -229,7 +229,7 @@ impl lcr_ed448 {
             )
         };
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         self.sig_set = true;
@@ -268,7 +268,7 @@ impl lcr_ed448 {
             return Err(SignatureError::VerificationError);
         }
         if result < 0 {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         Ok(())
@@ -291,7 +291,7 @@ impl lcr_ed448 {
             leancrypto::lc_ed448_sig_ptr(&mut ptr, &mut len, &mut self.sig)
         };
         if result < 0 || ptr == ptr::null_mut() {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
@@ -316,7 +316,7 @@ impl lcr_ed448 {
             leancrypto::lc_ed448_sk_ptr(&mut ptr, &mut len, &mut self.sk)
         };
         if result < 0 || ptr == ptr::null_mut() {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
@@ -340,7 +340,7 @@ impl lcr_ed448 {
             leancrypto::lc_ed448_pk_ptr(&mut ptr, &mut len, &mut self.pk)
         };
         if result < 0 || ptr == ptr::null_mut() {
-            return Err(SignatureError::ProcessingError);
+            return Err(SignatureError::ProcessingError(result));
         }
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };

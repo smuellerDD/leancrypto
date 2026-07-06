@@ -74,7 +74,7 @@ impl lcr_x448 {
         let result =
             unsafe { leancrypto::lc_init(leancrypto::LC_INIT_NON_PQC_ENABLED) };
         if result < 0 {
-            return Err(X448Error::ProcessingError);
+            return Err(X448Error::ProcessingError(result));
         }
         Ok(())
     }
@@ -94,7 +94,7 @@ impl lcr_x448 {
         };
 
         if result < 0 {
-            return Err(X448Error::ProcessingError);
+            return Err(X448Error::ProcessingError(result));
         }
 
         self.sk_set = true;
@@ -121,7 +121,7 @@ impl lcr_x448 {
         };
 
         if result < 0 {
-            return Err(X448Error::ProcessingError);
+            return Err(X448Error::ProcessingError(result));
         }
 
         self.ss_set = true;
@@ -153,7 +153,7 @@ impl lcr_x448 {
             )
         };
         if result < 0 {
-            return Err(X448Error::ProcessingError);
+            return Err(X448Error::ProcessingError(result));
         }
 
         self.pk_set = true;
@@ -184,7 +184,7 @@ impl lcr_x448 {
             )
         };
         if result < 0 {
-            return Err(X448Error::ProcessingError);
+            return Err(X448Error::ProcessingError(result));
         }
 
         self.sk_set = true;
@@ -216,7 +216,7 @@ impl lcr_x448 {
             )
         };
         if result < 0 {
-            return Err(X448Error::ProcessingError);
+            return Err(X448Error::ProcessingError(result));
         }
 
         self.pk_remote_set = true;
@@ -248,7 +248,7 @@ impl lcr_x448 {
             )
         };
         if result < 0 {
-            return Err(X448Error::ProcessingError);
+            return Err(X448Error::ProcessingError(result));
         }
 
         self.ss_set = true;
@@ -273,7 +273,7 @@ impl lcr_x448 {
             leancrypto::lc_x448_pk_ptr(&mut ptr, &mut len, &mut self.pk_remote)
         };
         if result < 0 || ptr == ptr::null_mut() {
-            return Err(X448Error::ProcessingError);
+            return Err(X448Error::ProcessingError(result));
         }
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
@@ -298,7 +298,7 @@ impl lcr_x448 {
             leancrypto::lc_x448_sk_ptr(&mut ptr, &mut len, &mut self.sk)
         };
         if result < 0 || ptr == ptr::null_mut() {
-            return Err(X448Error::ProcessingError);
+            return Err(X448Error::ProcessingError(result));
         }
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
@@ -323,7 +323,7 @@ impl lcr_x448 {
             leancrypto::lc_x448_pk_ptr(&mut ptr, &mut len, &mut self.pk)
         };
         if result < 0 || ptr == ptr::null_mut() {
-            return Err(X448Error::ProcessingError);
+            return Err(X448Error::ProcessingError(result));
         }
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
@@ -348,7 +348,7 @@ impl lcr_x448 {
             leancrypto::lc_x448_ss_ptr(&mut ptr, &mut len, &mut self.ss)
         };
         if result < 0 || ptr == ptr::null_mut() {
-            return Err(X448Error::ProcessingError);
+            return Err(X448Error::ProcessingError(result));
         }
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
