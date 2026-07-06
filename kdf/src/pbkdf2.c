@@ -190,6 +190,9 @@ LC_INTERFACE_FUNCTION(int, lc_pbkdf2, const struct lc_hash *hash,
 	/* SP800-132 wants a minimum count of 1000 */
 	CKRET(fips140_mode_enabled() && count < 1000, -EOPNOTSUPP);
 
+	/* FIPS 140 wants a minimum password size of 6 */
+	CKRET(fips140_mode_enabled() && pwlen < 6, -EOPNOTSUPP);
+
 	CKINT(lc_pbkdf2_nocheck(hash, pw, pwlen, salt, saltlen, count, key,
 				keylen));
 
