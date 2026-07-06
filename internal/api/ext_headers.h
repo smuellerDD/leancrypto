@@ -312,10 +312,25 @@ static const int errno_private = 0;
 #include <time.h>
 #include <unistd.h>
 
+#include <memoryapi.h>
+
 static inline int mlock(const void *ptr, size_t len)
 {
-	(void)ptr;
-	(void)len;
+	/* "If the function succeeds, the return value is nonzero" */
+	if (!VirtualLock((void *)ptr, len)) {
+		errno = -EAGAIN;
+		return -1;
+	}
+	return 0;
+}
+
+static inline int munlock(const void *ptr, size_t len)
+{
+	/* "If the function succeeds, the return value is nonzero" */
+	if (!VirtualUnlock((void *)ptr, len)) {
+		errno = -EAGAIN;
+		return -1;
+	}
 	return 0;
 }
 
