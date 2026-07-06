@@ -152,7 +152,10 @@ static inline bool mutex_w_islocked(mutex_w_t *mutex)
  */
 static inline void mutex_w_unlock(mutex_w_t *mutex)
 {
-	/* Release the writer lock. */
+	/*
+         * Release the writer lock. This is a silent no-op if the lock was
+         * already unlocked.
+         */
 	atomic_bool_cmpxchg(&mutex->lock, true, false);
 }
 
