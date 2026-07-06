@@ -19,6 +19,7 @@
 
 #include "dilithium_type.h"
 #include "ext_headers_internal.h"
+#include "ret_checkers.h"
 #include "visibility.h"
 
 #include "lc_sha3.h"

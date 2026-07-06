@@ -112,6 +112,8 @@ static int lc_xdrbg_drng_encode(struct lc_hash_ctx *xof_ctx, const uint8_t n,
 	 * Zeroization of encode is not considered to be necessary as alpha is
 	 * considered to be known string.
 	 */
+
+	return 0;
 }
 
 /*
