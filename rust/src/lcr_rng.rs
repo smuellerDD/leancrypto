@@ -128,23 +128,39 @@ impl lcr_rng {
                 self.seeded = true
             }
             lcr_rng_type::lcr_xdrbg256 => {
-                unsafe {
+                let ret = unsafe {
                     leancrypto::lc_xdrbg256_drng_alloc(&mut self.rng_ctx)
                 };
+                if ret < 0 {
+                    return Err(RngError::AllocationError);
+                }
                 self.seeded = false
             }
             lcr_rng_type::lcr_xdrbg128 => {
-                unsafe {
+                let ret = unsafe {
                     leancrypto::lc_xdrbg128_drng_alloc(&mut self.rng_ctx)
                 };
+                if ret < 0 {
+                    return Err(RngError::AllocationError);
+                }
                 self.seeded = false
             }
             lcr_rng_type::lcr_hash_drbg => {
-                unsafe { leancrypto::lc_drbg_hash_alloc(&mut self.rng_ctx) };
+                let ret = unsafe {
+                    leancrypto::lc_drbg_hash_alloc(&mut self.rng_ctx)
+                };
+                if ret < 0 {
+                    return Err(RngError::AllocationError);
+                }
                 self.seeded = false
             }
             lcr_rng_type::lcr_hmac_drbg => {
-                unsafe { leancrypto::lc_drbg_hmac_alloc(&mut self.rng_ctx) };
+                let ret = unsafe {
+                    leancrypto::lc_drbg_hmac_alloc(&mut self.rng_ctx)
+                };
+                if ret < 0 {
+                    return Err(RngError::AllocationError);
+                }
                 self.seeded = false
             } // _ => {
               // 	self.seeded = false;
