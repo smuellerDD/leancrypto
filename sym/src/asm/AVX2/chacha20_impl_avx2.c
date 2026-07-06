@@ -70,19 +70,19 @@ static inline void PartialStore(const __m256i val, uint8_t *Dest, uint64_t Size,
 	memcpy(Dest, BuffForPartialOp, Size);
 }
 
-static inline __m256i RotateLeft7(const __m256i val)
+static inline __m256i lc_RotateLeft7(const __m256i val)
 {
 	return _mm256_or_si256(_mm256_slli_epi32(val, 7),
 			       _mm256_srli_epi32(val, 32 - 7));
 }
 
-static inline __m256i RotateLeft12(const __m256i val)
+static inline __m256i lc_RotateLeft12(const __m256i val)
 {
 	return _mm256_or_si256(_mm256_slli_epi32(val, 12),
 			       _mm256_srli_epi32(val, 32 - 12));
 }
 
-static inline __m256i RotateLeft8(const __m256i val)
+static inline __m256i lc_RotateLeft8(const __m256i val)
 {
 	const __m256i mask =
 		_mm256_set_epi8(14, 13, 12, 15, 10, 9, 8, 11, 6, 5, 4, 7, 2, 1,
@@ -91,7 +91,7 @@ static inline __m256i RotateLeft8(const __m256i val)
 	return _mm256_shuffle_epi8(val, mask);
 }
 
-static inline __m256i RotateLeft16(const __m256i val)
+static inline __m256i lc_RotateLeft16(const __m256i val)
 {
 	const __m256i mask =
 		_mm256_set_epi8(13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0,
@@ -172,10 +172,10 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 			ws->X2_3 = _mm256_xor_si256(ws->X2_3, ws->X2_0);
 			ws->X3_3 = _mm256_xor_si256(ws->X3_3, ws->X3_0);
 
-			ws->X0_3 = RotateLeft16(ws->X0_3);
-			ws->X1_3 = RotateLeft16(ws->X1_3);
-			ws->X2_3 = RotateLeft16(ws->X2_3);
-			ws->X3_3 = RotateLeft16(ws->X3_3);
+			ws->X0_3 = lc_RotateLeft16(ws->X0_3);
+			ws->X1_3 = lc_RotateLeft16(ws->X1_3);
+			ws->X2_3 = lc_RotateLeft16(ws->X2_3);
+			ws->X3_3 = lc_RotateLeft16(ws->X3_3);
 
 			ws->X0_2 = _mm256_add_epi32(ws->X0_2, ws->X0_3);
 			ws->X1_2 = _mm256_add_epi32(ws->X1_2, ws->X1_3);
@@ -187,10 +187,10 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 			ws->X2_1 = _mm256_xor_si256(ws->X2_1, ws->X2_2);
 			ws->X3_1 = _mm256_xor_si256(ws->X3_1, ws->X3_2);
 
-			ws->X0_1 = RotateLeft12(ws->X0_1);
-			ws->X1_1 = RotateLeft12(ws->X1_1);
-			ws->X2_1 = RotateLeft12(ws->X2_1);
-			ws->X3_1 = RotateLeft12(ws->X3_1);
+			ws->X0_1 = lc_RotateLeft12(ws->X0_1);
+			ws->X1_1 = lc_RotateLeft12(ws->X1_1);
+			ws->X2_1 = lc_RotateLeft12(ws->X2_1);
+			ws->X3_1 = lc_RotateLeft12(ws->X3_1);
 
 			ws->X0_0 = _mm256_add_epi32(ws->X0_0, ws->X0_1);
 			ws->X1_0 = _mm256_add_epi32(ws->X1_0, ws->X1_1);
@@ -202,10 +202,10 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 			ws->X2_3 = _mm256_xor_si256(ws->X2_3, ws->X2_0);
 			ws->X3_3 = _mm256_xor_si256(ws->X3_3, ws->X3_0);
 
-			ws->X0_3 = RotateLeft8(ws->X0_3);
-			ws->X1_3 = RotateLeft8(ws->X1_3);
-			ws->X2_3 = RotateLeft8(ws->X2_3);
-			ws->X3_3 = RotateLeft8(ws->X3_3);
+			ws->X0_3 = lc_RotateLeft8(ws->X0_3);
+			ws->X1_3 = lc_RotateLeft8(ws->X1_3);
+			ws->X2_3 = lc_RotateLeft8(ws->X2_3);
+			ws->X3_3 = lc_RotateLeft8(ws->X3_3);
 
 			ws->X0_2 = _mm256_add_epi32(ws->X0_2, ws->X0_3);
 			ws->X1_2 = _mm256_add_epi32(ws->X1_2, ws->X1_3);
@@ -217,10 +217,10 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 			ws->X2_1 = _mm256_xor_si256(ws->X2_1, ws->X2_2);
 			ws->X3_1 = _mm256_xor_si256(ws->X3_1, ws->X3_2);
 
-			ws->X0_1 = RotateLeft7(ws->X0_1);
-			ws->X1_1 = RotateLeft7(ws->X1_1);
-			ws->X2_1 = RotateLeft7(ws->X2_1);
-			ws->X3_1 = RotateLeft7(ws->X3_1);
+			ws->X0_1 = lc_RotateLeft7(ws->X0_1);
+			ws->X1_1 = lc_RotateLeft7(ws->X1_1);
+			ws->X2_1 = lc_RotateLeft7(ws->X2_1);
+			ws->X3_1 = lc_RotateLeft7(ws->X3_1);
 
 			ws->X0_1 = _mm256_shuffle_epi32(
 				ws->X0_1, _MM_SHUFFLE(0, 3, 2, 1));
@@ -260,10 +260,10 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 			ws->X2_3 = _mm256_xor_si256(ws->X2_3, ws->X2_0);
 			ws->X3_3 = _mm256_xor_si256(ws->X3_3, ws->X3_0);
 
-			ws->X0_3 = RotateLeft16(ws->X0_3);
-			ws->X1_3 = RotateLeft16(ws->X1_3);
-			ws->X2_3 = RotateLeft16(ws->X2_3);
-			ws->X3_3 = RotateLeft16(ws->X3_3);
+			ws->X0_3 = lc_RotateLeft16(ws->X0_3);
+			ws->X1_3 = lc_RotateLeft16(ws->X1_3);
+			ws->X2_3 = lc_RotateLeft16(ws->X2_3);
+			ws->X3_3 = lc_RotateLeft16(ws->X3_3);
 
 			ws->X0_2 = _mm256_add_epi32(ws->X0_2, ws->X0_3);
 			ws->X1_2 = _mm256_add_epi32(ws->X1_2, ws->X1_3);
@@ -275,10 +275,10 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 			ws->X2_1 = _mm256_xor_si256(ws->X2_1, ws->X2_2);
 			ws->X3_1 = _mm256_xor_si256(ws->X3_1, ws->X3_2);
 
-			ws->X0_1 = RotateLeft12(ws->X0_1);
-			ws->X1_1 = RotateLeft12(ws->X1_1);
-			ws->X2_1 = RotateLeft12(ws->X2_1);
-			ws->X3_1 = RotateLeft12(ws->X3_1);
+			ws->X0_1 = lc_RotateLeft12(ws->X0_1);
+			ws->X1_1 = lc_RotateLeft12(ws->X1_1);
+			ws->X2_1 = lc_RotateLeft12(ws->X2_1);
+			ws->X3_1 = lc_RotateLeft12(ws->X3_1);
 
 			ws->X0_0 = _mm256_add_epi32(ws->X0_0, ws->X0_1);
 			ws->X1_0 = _mm256_add_epi32(ws->X1_0, ws->X1_1);
@@ -290,10 +290,10 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 			ws->X2_3 = _mm256_xor_si256(ws->X2_3, ws->X2_0);
 			ws->X3_3 = _mm256_xor_si256(ws->X3_3, ws->X3_0);
 
-			ws->X0_3 = RotateLeft8(ws->X0_3);
-			ws->X1_3 = RotateLeft8(ws->X1_3);
-			ws->X2_3 = RotateLeft8(ws->X2_3);
-			ws->X3_3 = RotateLeft8(ws->X3_3);
+			ws->X0_3 = lc_RotateLeft8(ws->X0_3);
+			ws->X1_3 = lc_RotateLeft8(ws->X1_3);
+			ws->X2_3 = lc_RotateLeft8(ws->X2_3);
+			ws->X3_3 = lc_RotateLeft8(ws->X3_3);
 
 			ws->X0_2 = _mm256_add_epi32(ws->X0_2, ws->X0_3);
 			ws->X1_2 = _mm256_add_epi32(ws->X1_2, ws->X1_3);
@@ -305,10 +305,10 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 			ws->X2_1 = _mm256_xor_si256(ws->X2_1, ws->X2_2);
 			ws->X3_1 = _mm256_xor_si256(ws->X3_1, ws->X3_2);
 
-			ws->X0_1 = RotateLeft7(ws->X0_1);
-			ws->X1_1 = RotateLeft7(ws->X1_1);
-			ws->X2_1 = RotateLeft7(ws->X2_1);
-			ws->X3_1 = RotateLeft7(ws->X3_1);
+			ws->X0_1 = lc_RotateLeft7(ws->X0_1);
+			ws->X1_1 = lc_RotateLeft7(ws->X1_1);
+			ws->X2_1 = lc_RotateLeft7(ws->X2_1);
+			ws->X3_1 = lc_RotateLeft7(ws->X3_1);
 
 			ws->X0_1 = _mm256_shuffle_epi32(
 				ws->X0_1, _MM_SHUFFLE(2, 1, 0, 3));
@@ -610,25 +610,25 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 
 			ws->X0_3 = _mm256_xor_si256(ws->X0_3, ws->X0_0);
 
-			ws->X0_3 = RotateLeft16(ws->X0_3);
+			ws->X0_3 = lc_RotateLeft16(ws->X0_3);
 
 			ws->X0_2 = _mm256_add_epi32(ws->X0_2, ws->X0_3);
 
 			ws->X0_1 = _mm256_xor_si256(ws->X0_1, ws->X0_2);
 
-			ws->X0_1 = RotateLeft12(ws->X0_1);
+			ws->X0_1 = lc_RotateLeft12(ws->X0_1);
 
 			ws->X0_0 = _mm256_add_epi32(ws->X0_0, ws->X0_1);
 
 			ws->X0_3 = _mm256_xor_si256(ws->X0_3, ws->X0_0);
 
-			ws->X0_3 = RotateLeft8(ws->X0_3);
+			ws->X0_3 = lc_RotateLeft8(ws->X0_3);
 
 			ws->X0_2 = _mm256_add_epi32(ws->X0_2, ws->X0_3);
 
 			ws->X0_1 = _mm256_xor_si256(ws->X0_1, ws->X0_2);
 
-			ws->X0_1 = RotateLeft7(ws->X0_1);
+			ws->X0_1 = lc_RotateLeft7(ws->X0_1);
 
 			ws->X0_1 = _mm256_shuffle_epi32(
 				ws->X0_1, _MM_SHUFFLE(0, 3, 2, 1));
@@ -641,25 +641,25 @@ int cc20_crypt_bytes_avx2(uint32_t *state, const uint8_t *in, uint8_t *out,
 
 			ws->X0_3 = _mm256_xor_si256(ws->X0_3, ws->X0_0);
 
-			ws->X0_3 = RotateLeft16(ws->X0_3);
+			ws->X0_3 = lc_RotateLeft16(ws->X0_3);
 
 			ws->X0_2 = _mm256_add_epi32(ws->X0_2, ws->X0_3);
 
 			ws->X0_1 = _mm256_xor_si256(ws->X0_1, ws->X0_2);
 
-			ws->X0_1 = RotateLeft12(ws->X0_1);
+			ws->X0_1 = lc_RotateLeft12(ws->X0_1);
 
 			ws->X0_0 = _mm256_add_epi32(ws->X0_0, ws->X0_1);
 
 			ws->X0_3 = _mm256_xor_si256(ws->X0_3, ws->X0_0);
 
-			ws->X0_3 = RotateLeft8(ws->X0_3);
+			ws->X0_3 = lc_RotateLeft8(ws->X0_3);
 
 			ws->X0_2 = _mm256_add_epi32(ws->X0_2, ws->X0_3);
 
 			ws->X0_1 = _mm256_xor_si256(ws->X0_1, ws->X0_2);
 
-			ws->X0_1 = RotateLeft7(ws->X0_1);
+			ws->X0_1 = lc_RotateLeft7(ws->X0_1);
 
 			ws->X0_1 = _mm256_shuffle_epi32(
 				ws->X0_1, _MM_SHUFFLE(2, 1, 0, 3));
