@@ -290,11 +290,17 @@ LC_INTERFACE_FUNCTION(int, lc_x25519_sk_load, struct lc_x25519_sk *sk,
 LC_INTERFACE_FUNCTION(int, lc_x25519_pk_load, struct lc_x25519_pk *pk,
 		      const uint8_t *src_key, size_t src_key_len)
 {
+	int ret = 0;
+
 	if (!pk || !src_key || src_key_len != sizeof(pk->pk))
 		return -EINVAL;
 
+	CKRET(has_small_order(pk->pk), -EKEYREJECTED);
+
 	memcpy(pk->pk, src_key, src_key_len);
-	return 0;
+
+out:
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_x25519_ss_load, struct lc_x25519_ss *ss,
