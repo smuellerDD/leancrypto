@@ -56,7 +56,7 @@ fn lc_rust_x25519_one() {
 
     /* Export local shared secret */
     let ss_local_slice = x25519_local.get_ss().expect("get_ss");
-    let ss_local = ss_local_slice.to_vec();
+    let ss_local = ss_local_slice.get_ref().to_vec();
 
     /* Generate remote shared secret */
     let result = x25519_remote.shared_secret();
@@ -65,7 +65,7 @@ fn lc_rust_x25519_one() {
     /* Export remote shared secret */
     let ss_remote_slice = x25519_remote.get_ss().expect("get_ss");
     assert_eq!(result, Ok(()));
-    let ss_remote = ss_remote_slice.to_vec();
+    let ss_remote = ss_remote_slice.get_ref().to_vec();
 
     /* Check that local and remote shared secrets match */
     assert_eq!(ss_local, ss_remote);

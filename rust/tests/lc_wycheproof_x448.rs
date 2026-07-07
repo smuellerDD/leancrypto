@@ -19,8 +19,8 @@
 
 use leancrypto_sys::lcr_x448::lcr_x448;
 use wycheproof::{
-    TestResult,
     xdh::{TestName, TestSet},
+    TestResult,
 };
 
 #[test]
@@ -50,7 +50,7 @@ fn wycheproof_x448() {
                     assert_eq!(result, Ok(()));
                     let ss_slice = x448.get_ss().expect("get_ss");
                     assert_eq!(
-                        ss_slice[..],
+                        ss_slice.get_ref()[..],
                         test.shared_secret[..],
                         "Derived incorrect secret: {:?}",
                         test

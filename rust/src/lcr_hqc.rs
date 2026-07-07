@@ -19,6 +19,7 @@
 
 use crate::error::KemError;
 use crate::ffi::leancrypto;
+use crate::SecretKey::SecretKey;
 use std::mem::MaybeUninit;
 use std::ptr;
 use std::sync::atomic;
@@ -320,7 +321,7 @@ impl lcr_hqc {
     /// # Returns
     ///
     /// * Returns Ok() with the secret key on success or KemError on error
-    pub fn get_sk(&mut self) -> Result<Vec<u8>, KemError> {
+    pub fn get_sk(&mut self) -> Result<SecretKey, KemError> {
         if self.sk_set == false {
             return Err(KemError::UninitializedContext);
         }
@@ -337,7 +338,7 @@ impl lcr_hqc {
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-        Ok(slice.to_vec())
+        Ok(SecretKey::new(slice))
     }
 
     /// Method for safe immutable access to BIKE public key
@@ -370,7 +371,7 @@ impl lcr_hqc {
     /// # Returns
     ///
     /// * Returns Ok() with the shared secret on success or KemError on error
-    pub fn get_ss(&mut self) -> Result<Vec<u8>, KemError> {
+    pub fn get_ss(&mut self) -> Result<SecretKey, KemError> {
         if self.ss_set == false {
             return Err(KemError::UninitializedContext);
         }
@@ -387,7 +388,7 @@ impl lcr_hqc {
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-        Ok(slice.to_vec())
+        Ok(SecretKey::new(slice))
     }
 }
 

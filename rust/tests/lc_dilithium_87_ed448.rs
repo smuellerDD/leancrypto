@@ -44,8 +44,8 @@ fn lc_rust_dilithium_87_ed448() {
     // Get both SKs
     let (dilithium_sk_slice, ed448_sk_slice) =
         dilithium_ed448.get_sk().expect("get_sk");
-    let dilithium_sk = dilithium_sk_slice.to_vec();
-    let ed448_sk = ed448_sk_slice.to_vec();
+    let dilithium_sk = dilithium_sk_slice.get_ref().to_vec();
+    let ed448_sk = ed448_sk_slice.get_ref().to_vec();
 
     let mut dilithium_ed4482 = lcr_dilithium_ed448::new();
 
@@ -53,13 +53,13 @@ fn lc_rust_dilithium_87_ed448() {
     assert_eq!(result, Ok(()));
     // Check Dilithium SK
     assert_eq!(
-        dilithium_ed448.get_sk().expect("get_sk").0,
-        dilithium_ed4482.get_sk().expect("get_sk").0
+        dilithium_ed448.get_sk().expect("get_sk").0.get_ref(),
+        dilithium_ed4482.get_sk().expect("get_sk").0.get_ref()
     );
     // Check ED448 SK
     assert_eq!(
-        dilithium_ed448.get_sk().expect("get_sk").1,
-        dilithium_ed4482.get_sk().expect("get_sk").1
+        dilithium_ed448.get_sk().expect("get_sk").1.get_ref(),
+        dilithium_ed4482.get_sk().expect("get_sk").1.get_ref()
     );
 
     let result = dilithium_ed4482.pk_load(&dilithium_pk, &ed448_pk);

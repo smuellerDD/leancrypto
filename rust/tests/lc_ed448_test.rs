@@ -91,7 +91,7 @@ fn lc_rust_ed448_sign_kat() {
 
     let result = ed448.sk_load(&sk);
     assert_eq!(result, Ok(()));
-    assert_eq!(ed448.get_sk().expect("get_sk"), &sk[..]);
+    assert_eq!(ed448.get_sk().expect("get_sk").get_ref(), &sk[..]);
 
     let result = ed448.sign(&msg);
     assert_eq!(result, Ok(()));
@@ -103,5 +103,5 @@ fn lc_rust_ed448_sign_kat() {
 
     let result = ed448.keypair();
     assert_eq!(result, Ok(()));
-    assert_ne!(ed448.get_sk().expect("get_sk"), &sk[..]);
+    assert_ne!(ed448.get_sk().expect("get_sk").get_ref(), &sk[..]);
 }

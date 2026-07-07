@@ -1050,7 +1050,7 @@ fn lc_rust_dilithium_87_kat() {
 
     let result = dilithium.sk_load(&sk);
     assert_eq!(result, Ok(()));
-    assert_eq!(dilithium.get_sk().expect("get_sk"), &sk[..]);
+    assert_eq!(dilithium.get_sk().expect("get_sk").get_ref(), &sk[..]);
 
     let result = dilithium.pk_load(&pk);
     assert_eq!(result, Ok(()));
@@ -1065,7 +1065,7 @@ fn lc_rust_dilithium_87_kat() {
 
     let result = dilithium.keypair(lcr_dilithium_type::lcr_dilithium_87);
     assert_eq!(result, Ok(()));
-    assert_ne!(dilithium.get_sk().expect("get_sk"), &sk[..]);
+    assert_ne!(dilithium.get_sk().expect("get_sk").get_ref(), &sk[..]);
     assert_ne!(dilithium.get_pk().expect("get_pk"), &pk[..]);
 }
 
@@ -1088,15 +1088,14 @@ fn lc_rust_dilithium_one(dilithium_type: lcr_dilithium_type) {
 
     let pk_slice = dilithium.get_pk().expect("get_pk");
     let pk = pk_slice.to_vec();
-    let sk_slice = dilithium.get_sk().expect("get_sk");
-    let sk = sk_slice.to_vec();
+    let sk = Vec::from(dilithium.get_sk().expect("get_sk").get_ref());
 
     let mut dilithium2 = lcr_dilithium::new();
     let result = dilithium2.sk_load(&sk);
     assert_eq!(result, Ok(()));
     assert_eq!(
-        dilithium.get_sk().expect("get_sk"),
-        dilithium2.get_sk().expect("get_sk")
+        dilithium.get_sk().expect("get_sk").get_ref(),
+        dilithium2.get_sk().expect("get_sk").get_ref()
     );
 
     let result = dilithium2.pk_load(&pk);

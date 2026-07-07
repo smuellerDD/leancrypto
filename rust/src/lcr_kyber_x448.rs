@@ -19,6 +19,7 @@
 
 use crate::error::KemError;
 use crate::ffi::leancrypto;
+use crate::SecretKey::SecretKey;
 use std::mem::MaybeUninit;
 use std::ptr;
 use std::sync::atomic;
@@ -331,7 +332,7 @@ impl lcr_kyber_x448 {
     /// # Returns
     ///
     /// * Returns Ok() with the secret key on success or KemError on error
-    pub fn get_sk(&mut self) -> Result<(Vec<u8>, Vec<u8>), KemError> {
+    pub fn get_sk(&mut self) -> Result<(SecretKey, SecretKey), KemError> {
         if self.sk_set == false {
             return Err(KemError::UninitializedContext);
         }
@@ -362,7 +363,7 @@ impl lcr_kyber_x448 {
         let slice_x448 =
             unsafe { std::slice::from_raw_parts(x448_ptr, x448_len) };
 
-        Ok((slice_kyber.to_vec(), slice_x448.to_vec()))
+        Ok((SecretKey::new(slice_kyber), SecretKey::new(slice_x448)))
     }
 
     /// Method for safe immutable access to hybrid ML-KEM shared secret
@@ -410,7 +411,7 @@ impl lcr_kyber_x448 {
     /// # Returns
     ///
     /// * Returns Ok() with the ciphertext on success or KemError on error
-    pub fn get_ss(&mut self) -> Result<(Vec<u8>, Vec<u8>), KemError> {
+    pub fn get_ss(&mut self) -> Result<(SecretKey, SecretKey), KemError> {
         if self.ss_set == false {
             return Err(KemError::UninitializedContext);
         }
@@ -441,7 +442,7 @@ impl lcr_kyber_x448 {
         let slice_x448 =
             unsafe { std::slice::from_raw_parts(x448_ptr, x448_len) };
 
-        Ok((slice_kyber.to_vec(), slice_x448.to_vec()))
+        Ok((SecretKey::new(slice_kyber), SecretKey::new(slice_x448)))
     }
 }
 

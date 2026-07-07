@@ -19,6 +19,7 @@
 
 use crate::error::SignatureError;
 use crate::ffi::leancrypto;
+use crate::SecretKey::SecretKey;
 use std::mem::MaybeUninit;
 use std::ptr;
 use std::sync::atomic;
@@ -389,7 +390,7 @@ impl lcr_dilithium_ed25519 {
     /// # Returns
     ///
     /// * Returns Ok() with the secret key on success or SignatureError on error
-    pub fn get_sk(&mut self) -> Result<(Vec<u8>, Vec<u8>), SignatureError> {
+    pub fn get_sk(&mut self) -> Result<(SecretKey, SecretKey), SignatureError> {
         if self.sk_set == false {
             return Err(SignatureError::UninitializedContext);
         }
@@ -420,7 +421,10 @@ impl lcr_dilithium_ed25519 {
         let slice_ed25519 =
             unsafe { std::slice::from_raw_parts(ed25519_ptr, ed25519_len) };
 
-        Ok((slice_dilithium.to_vec(), slice_ed25519.to_vec()))
+        Ok((
+            SecretKey::new(slice_dilithium),
+            SecretKey::new(slice_ed25519),
+        ))
     }
 
     /// Method for safe immutable access to ML-DSA public key

@@ -19,6 +19,7 @@
 
 use crate::error::SignatureError;
 use crate::ffi::leancrypto;
+use crate::SecretKey::SecretKey;
 use std::mem::MaybeUninit;
 use std::ptr;
 use std::sync::atomic;
@@ -447,7 +448,7 @@ impl lcr_sphincs {
     /// # Returns
     ///
     /// * Returns Ok() with the secret key on success or SignatureError on error
-    pub fn get_sk(&mut self) -> Result<Vec<u8>, SignatureError> {
+    pub fn get_sk(&mut self) -> Result<SecretKey, SignatureError> {
         if self.sk_set == false {
             return Err(SignatureError::UninitializedContext);
         }
@@ -464,7 +465,7 @@ impl lcr_sphincs {
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-        Ok(slice.to_vec())
+        Ok(SecretKey::new(slice))
     }
 
     /// Method for safe immutable access to ML-DSA public key

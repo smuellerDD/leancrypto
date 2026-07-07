@@ -27,6 +27,8 @@ pub mod ffi;
 /// Module defining error types
 pub mod error;
 
+pub mod SecretKey;
+
 /// Leancrypto wrapper for lc_aead
 pub mod lcr_aead;
 

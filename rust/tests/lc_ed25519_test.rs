@@ -108,7 +108,7 @@ fn lc_rust_ed25519_sign_kat() {
 
     let result = ed25519.sk_load(&sk);
     assert_eq!(result, Ok(()));
-    assert_eq!(ed25519.get_sk().expect("get_sk"), &sk[..]);
+    assert_eq!(ed25519.get_sk().expect("get_sk").get_ref(), &sk[..]);
 
     let result = ed25519.sign(&msg);
     assert_eq!(result, Ok(()));
@@ -120,5 +120,5 @@ fn lc_rust_ed25519_sign_kat() {
 
     let result = ed25519.keypair();
     assert_eq!(result, Ok(()));
-    assert_ne!(ed25519.get_sk().expect("get_sk"), &sk[..]);
+    assert_ne!(ed25519.get_sk().expect("get_sk").get_ref(), &sk[..]);
 }

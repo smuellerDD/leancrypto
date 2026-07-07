@@ -19,6 +19,7 @@
 
 use crate::error::X25519Error;
 use crate::ffi::leancrypto;
+use crate::SecretKey::SecretKey;
 use std::mem::MaybeUninit;
 use std::ptr;
 use std::sync::atomic;
@@ -293,7 +294,7 @@ impl lcr_x25519 {
     /// # Returns
     ///
     /// * Returns Ok() with the secret key on success or X25519Error on error
-    pub fn get_sk(&mut self) -> Result<Vec<u8>, X25519Error> {
+    pub fn get_sk(&mut self) -> Result<SecretKey, X25519Error> {
         if self.sk_set == false {
             return Err(X25519Error::UninitializedContext);
         }
@@ -310,7 +311,7 @@ impl lcr_x25519 {
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-        Ok(slice.to_vec())
+        Ok(SecretKey::new(slice))
     }
 
     /// Method for safe immutable access to X25519 public key
@@ -343,7 +344,7 @@ impl lcr_x25519 {
     /// # Returns
     ///
     /// * Returns Ok() with the shared secret on success or X25519Error on error
-    pub fn get_ss(&mut self) -> Result<Vec<u8>, X25519Error> {
+    pub fn get_ss(&mut self) -> Result<SecretKey, X25519Error> {
         if self.ss_set == false {
             return Err(X25519Error::UninitializedContext);
         }
@@ -360,7 +361,7 @@ impl lcr_x25519 {
 
         let slice = unsafe { std::slice::from_raw_parts(ptr, len) };
 
-        Ok(slice.to_vec())
+        Ok(SecretKey::new(slice))
     }
 }
 

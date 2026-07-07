@@ -61,7 +61,7 @@ fn wycheproof_x25519() {
                     assert_eq!(result, Ok(()));
                     let ss_slice = x25519.get_ss().expect("get_ss");
                     assert_eq!(
-                        ss_slice[..],
+                        ss_slice.get_ref()[..],
                         test.shared_secret[..],
                         "Derived incorrect secret: {:?}",
                         test

@@ -32,14 +32,14 @@ fn lc_rust_hqc_one(hqc_type: lcr_hqc_type) {
     let ct_slice = hqc.get_ct().expect("get_ct");
     let ct = ct_slice.to_vec();
     let sk_slice = hqc.get_sk().expect("get_sk");
-    let sk = sk_slice.to_vec();
+    let sk = sk_slice.get_ref().to_vec();
 
     let mut hqc2 = lcr_hqc::new();
     let result = hqc2.sk_load(&sk);
     assert_eq!(result, Ok(()));
     assert_eq!(
-        hqc.get_sk().expect("get_sk"),
-        hqc2.get_sk().expect("get_ct")
+        hqc.get_sk().expect("get_sk").get_ref(),
+        hqc2.get_sk().expect("get_sk").get_ref()
     );
 
     let result = hqc2.ct_load(&ct);
@@ -52,8 +52,8 @@ fn lc_rust_hqc_one(hqc_type: lcr_hqc_type) {
     let result = hqc2.decapsulate();
     assert_eq!(result, Ok(()));
     assert_eq!(
-        hqc.get_ss().expect("get_ss"),
-        hqc2.get_ss().expect("get_ss")
+        hqc.get_ss().expect("get_ss").get_ref(),
+        hqc2.get_ss().expect("get_ss").get_ref()
     );
     //println!("ct {:x?}",  hqc2.ct().to_vec().chunks(10).next());
 }

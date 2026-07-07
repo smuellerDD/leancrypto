@@ -1470,7 +1470,7 @@ fn lc_rust_sphincs_shake_128f_kat() {
 
     let result = sphincs.sk_load(&sk);
     assert_eq!(result, Ok(()));
-    assert_eq!(sphincs.get_sk().expect("get_sk"), &sk[..]);
+    assert_eq!(sphincs.get_sk().expect("get_sk").get_ref(), &sk[..]);
 
     let result = sphincs.pk_load(&pk);
     assert_eq!(result, Ok(()));
@@ -1490,7 +1490,7 @@ fn lc_rust_sphincs_shake_128f_kat() {
 
     let result = sphincs.keypair(lcr_sphincs_type::lcr_sphincs_shake_128f);
     assert_eq!(result, Ok(()));
-    assert_ne!(sphincs.get_sk().expect("get_sk"), &sk[..]);
+    assert_ne!(sphincs.get_sk().expect("get_sk").get_ref(), &sk[..]);
     assert_ne!(sphincs.get_pk().expect("get_pk"), &pk[..]);
 }
 
@@ -1516,15 +1516,14 @@ fn lc_rust_sphincs_shake_one(
 
     let pk_slice = sphincs.get_pk().expect("get_pk");
     let pk = pk_slice.to_vec();
-    let sk_slice = sphincs.get_sk().expect("get_sk");
-    let sk = sk_slice.to_vec();
+    let sk = Vec::from(sphincs.get_sk().expect("get_sk").get_ref());
 
     let mut sphincs2 = lcr_sphincs::new();
     let result = sphincs2.sk_load(&sk);
     assert_eq!(result, Ok(()));
     assert_eq!(
-        sphincs.get_sk().expect("get_sk"),
-        sphincs2.get_sk().expect("get_sk")
+        sphincs.get_sk().expect("get_sk").get_ref(),
+        sphincs2.get_sk().expect("get_sk").get_ref()
     );
 
     let result = sphincs2.pk_load(&pk);

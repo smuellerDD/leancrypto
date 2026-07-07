@@ -35,19 +35,19 @@ fn lc_rust_kyber_x25519_one(kyber_x25519_type: lcr_kyber_x25519_type) {
     let ct_x25519 = ct_x25519_slice.to_vec();
     let (sk_kyber_slice, sk_x25519_slice) =
         kyber_x25519.get_sk().expect("get_sk");
-    let sk_kyber = sk_kyber_slice.to_vec();
-    let sk_x25519 = sk_x25519_slice.to_vec();
+    let sk_kyber = sk_kyber_slice.get_ref().to_vec();
+    let sk_x25519 = sk_x25519_slice.get_ref().to_vec();
 
     let mut kyber_x255192 = lcr_kyber_x25519::new();
     let result = kyber_x255192.sk_load(&sk_kyber, &sk_x25519);
     assert_eq!(result, Ok(()));
     assert_eq!(
-        kyber_x25519.get_sk().expect("get_sk").0,
-        kyber_x255192.get_sk().expect("get_sk").0
+        kyber_x25519.get_sk().expect("get_sk").0.get_ref(),
+        kyber_x255192.get_sk().expect("get_sk").0.get_ref()
     );
     assert_eq!(
-        kyber_x25519.get_sk().expect("get_sk").1,
-        kyber_x255192.get_sk().expect("get_sk").1
+        kyber_x25519.get_sk().expect("get_sk").1.get_ref(),
+        kyber_x255192.get_sk().expect("get_sk").1.get_ref()
     );
 
     let result = kyber_x255192.ct_load(&ct_kyber, &ct_x25519);
@@ -64,12 +64,12 @@ fn lc_rust_kyber_x25519_one(kyber_x25519_type: lcr_kyber_x25519_type) {
     let result = kyber_x255192.decapsulate();
     assert_eq!(result, Ok(()));
     assert_eq!(
-        kyber_x25519.get_ss().expect("get_ss").0,
-        kyber_x255192.get_ss().expect("get_ss").0
+        kyber_x25519.get_ss().expect("get_ss").0.get_ref(),
+        kyber_x255192.get_ss().expect("get_ss").0.get_ref()
     );
     assert_eq!(
-        kyber_x25519.get_ss().expect("get_ss").1,
-        kyber_x255192.get_ss().expect("get_ss").1
+        kyber_x25519.get_ss().expect("get_ss").1.get_ref(),
+        kyber_x255192.get_ss().expect("get_ss").1.get_ref()
     );
     //println!("ct {:x?}",  kyber_x255192.ct().to_vec().chunks(10).next());
 }

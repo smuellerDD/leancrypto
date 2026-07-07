@@ -57,7 +57,7 @@ fn wycheproof_kyber(
                 if let Some(privkey) = privkey {
                     assert_eq!(
                         privkey[..],
-                        kyber.get_sk().expect("get_sk")[..]
+                        kyber.get_sk().expect("get_sk").get_ref()[..]
                     );
                 }
 
@@ -137,7 +137,7 @@ fn wycheproof_kyber(
                         if !result.is_err() {
                             if let Some(ss) = ss {
                                 let ss_slice = match kyber.get_ss() {
-                                    Ok(ret) => ret,
+                                    Ok(ret) => ret.get_ref().to_vec(),
                                     Err(_) => [].to_vec(),
                                 };
                                 assert_ne!(ss[..], ss_slice[..]);
@@ -149,7 +149,7 @@ fn wycheproof_kyber(
                         assert_eq!(result, Ok(()));
                         if let Some(ss) = ss {
                             let ss_slice = match kyber.get_ss() {
-                                Ok(ret) => ret,
+                                Ok(ret) => ret.get_ref().to_vec(),
                                 Err(_) => [].to_vec(),
                             };
                             assert_eq!(ss[..], ss_slice[..]);
