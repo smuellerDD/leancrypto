@@ -33,7 +33,7 @@ LC_INTERFACE_FUNCTION(void, lc_hash_update, struct lc_hash_ctx *hash_ctx,
 {
 	const struct lc_hash *hash;
 
-	if (!hash_ctx || !inlen)
+	if (!hash_ctx || !in || !inlen)
 		return;
 
 	hash = hash_ctx->hash;
