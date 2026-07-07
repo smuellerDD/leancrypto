@@ -153,7 +153,9 @@ impl lcr_x448 {
                 pk_buf.len(),
             )
         };
-        if result < 0 {
+        if result == -1 * leancrypto::EKEYREJECTED as i32 {
+            return Err(X448Error::KeyRejectedError);
+        } else if result < 0 {
             return Err(X448Error::ProcessingError(result));
         }
 
@@ -216,7 +218,9 @@ impl lcr_x448 {
                 pk_buf.len(),
             )
         };
-        if result < 0 {
+        if result == -1 * leancrypto::EKEYREJECTED as i32 {
+            return Err(X448Error::KeyRejectedError);
+        } else if result < 0 {
             return Err(X448Error::ProcessingError(result));
         }
 

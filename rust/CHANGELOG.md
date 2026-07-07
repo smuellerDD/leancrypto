@@ -24,6 +24,8 @@ This version requires leancrypto >= 1.8.0.
 
 * Wycheproof tester
 
+* SecretKey
+
 ### Changed
 
 * API breakage: rename all getter functions to get_* (e.g. sk() -> get_sk())

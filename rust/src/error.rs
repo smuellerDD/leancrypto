@@ -236,6 +236,7 @@ pub enum X448Error {
     AllocationError,
     UninitializedContext,
     ProcessingError(i32),
+    KeyRejectedError,
 }
 
 impl std::error::Error for X448Error {}
@@ -254,6 +255,9 @@ impl std::fmt::Display for X448Error {
             }
             X448Error::ProcessingError(v) => {
                 write!(f, "XDH processing error occurred: {}", v)
+            }
+            X448Error::KeyRejectedError => {
+                write!(f, "XDH key rejected error occurred")
             }
         }
     }

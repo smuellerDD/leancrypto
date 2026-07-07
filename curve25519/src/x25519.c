@@ -295,7 +295,7 @@ LC_INTERFACE_FUNCTION(int, lc_x25519_pk_load, struct lc_x25519_pk *pk,
 	if (!pk || !src_key || src_key_len != sizeof(pk->pk))
 		return -EINVAL;
 
-	CKRET(has_small_order(pk->pk), -EKEYREJECTED);
+	CKRET(has_small_order(src_key), -EKEYREJECTED);
 
 	memcpy(pk->pk, src_key, src_key_len);
 

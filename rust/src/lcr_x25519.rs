@@ -156,7 +156,9 @@ impl lcr_x25519 {
                 pk_buf.len(),
             )
         };
-        if result < 0 {
+        if result == -1 * leancrypto::EKEYREJECTED as i32 {
+            return Err(X25519Error::KeyRejectedError);
+        } else if result < 0 {
             return Err(X25519Error::ProcessingError(result));
         }
 
@@ -219,7 +221,9 @@ impl lcr_x25519 {
                 pk_buf.len(),
             )
         };
-        if result < 0 {
+        if result == -1 * leancrypto::EKEYREJECTED as i32 {
+            return Err(X25519Error::KeyRejectedError);
+        } else if result < 0 {
             return Err(X25519Error::ProcessingError(result));
         }
 
