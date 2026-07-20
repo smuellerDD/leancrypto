@@ -128,7 +128,6 @@ mod test {
                     leancrypto_sys::lcr_x25519::lcr_x25519::new();
                 let result = x25519_val.pk_load(&test.public_key);
                 if result == Err(X25519Error::KeyRejectedError) {
-                    //if result.is_err() {
                     continue;
                 }
 
