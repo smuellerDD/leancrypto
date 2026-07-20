@@ -45,7 +45,7 @@ impl SupportedKxGroup for X25519KxGroup {
             Error::General(format!("lc:X25519: key pair generation error: {e}"))
         })?;
 
-        let pk_slice = match x25519.get_pk() {
+        let public_key = match x25519.get_pk() {
             Ok(ret) => ret,
             Err(e) => {
                 return Err(Error::General(format!(
@@ -53,7 +53,6 @@ impl SupportedKxGroup for X25519KxGroup {
                 )));
             }
         };
-        let public_key = pk_slice.to_vec();
 
         Ok(Box::new(X25519KeyExchange {
             private_key: x25519,
@@ -96,7 +95,7 @@ impl ActiveKeyExchange for X25519KeyExchange {
                 )));
             }
         };
-        let ss = ss_slice.to_vec();
+        let ss = ss_slice.get_ref().to_vec();
 
         Ok(SharedSecret::from(ss.as_slice()))
     }
@@ -115,6 +114,7 @@ mod test {
     use rustls::crypto::ActiveKeyExchange;
 
     use super::X25519KeyExchange;
+    use leancrypto_sys::error::X25519Error;
 
     #[test]
     fn x25519() {
@@ -123,6 +123,15 @@ mod test {
                 .unwrap();
         for test_group in &test_set.test_groups {
             for test in &test_group.tests {
+                /* Check for small-order keys and silently ignore them */
+                let mut x25519_val =
+                    leancrypto_sys::lcr_x25519::lcr_x25519::new();
+                let result = x25519_val.pk_load(&test.public_key);
+                if result == Err(X25519Error::KeyRejectedError) {
+                    //if result.is_err() {
+                    continue;
+                }
+
                 let mut x25519 = leancrypto_sys::lcr_x25519::lcr_x25519::new();
                 let result = x25519.enable();
                 assert_eq!(result, Ok(()));

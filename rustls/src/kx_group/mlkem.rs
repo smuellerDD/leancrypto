@@ -72,7 +72,7 @@ impl KxGroup {
         /*
          * Extract the public key
          */
-        let pk_slice = match kyber.get_pk() {
+        let public_key = match kyber.get_pk() {
             Ok(ret) => ret,
             Err(e) => {
                 return Err(Error::General(format!(
@@ -80,7 +80,6 @@ impl KxGroup {
                 )));
             }
         };
-        let public_key = pk_slice.to_vec();
 
         Ok(KeyExchange {
             priv_key: kyber,
@@ -161,7 +160,7 @@ impl SupportedKxGroup for KxGroup {
         Ok(CompletedKeyExchange {
             group: self.named_group,
             pub_key: ct,
-            secret: SharedSecret::from(ss_slice),
+            secret: SharedSecret::from(ss_slice.get_ref().to_vec()),
         })
     }
 
@@ -207,7 +206,7 @@ impl ActiveKeyExchange for KeyExchange {
             }
         };
 
-        Ok(SharedSecret::from(ss_slice))
+        Ok(SharedSecret::from(ss_slice.get_ref().to_vec()))
     }
 
     fn pub_key(&self) -> &[u8] {

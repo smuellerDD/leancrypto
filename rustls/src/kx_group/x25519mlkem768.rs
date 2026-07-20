@@ -73,8 +73,8 @@ impl KxGroupX25519 {
             }
         };
         let mut public_key = vec![];
-        public_key.extend_from_slice(pk_slice);
-        public_key.extend_from_slice(pk_x25519_slice);
+        public_key.extend_from_slice(&pk_slice);
+        public_key.extend_from_slice(&pk_x25519_slice);
         Ok(KeyExchangeX25519 {
             priv_key: kyber_x25519,
             pub_key: public_key,
@@ -150,8 +150,8 @@ impl SupportedKxGroup for KxGroupX25519 {
             }
         };
         let mut ct = vec![];
-        ct.extend_from_slice(ct_slice);
-        ct.extend_from_slice(ct_x25519_slice);
+        ct.extend_from_slice(&ct_slice);
+        ct.extend_from_slice(&ct_x25519_slice);
 
         /*
          * Get the generated shared secret data as a concatenation of
@@ -166,8 +166,8 @@ impl SupportedKxGroup for KxGroupX25519 {
             }
         };
         let mut ss = vec![];
-        ss.extend_from_slice(ss_slice);
-        ss.extend_from_slice(ss_x25519_slice);
+        ss.extend_from_slice(&ss_slice.get_ref().to_vec());
+        ss.extend_from_slice(&ss_x25519_slice.get_ref().to_vec());
 
         Ok(CompletedKeyExchange {
             group: self.named_group,
@@ -228,8 +228,8 @@ impl ActiveKeyExchange for KeyExchangeX25519 {
             }
         };
         let mut ss = vec![];
-        ss.extend_from_slice(ss_slice);
-        ss.extend_from_slice(ss_x25519_slice);
+        ss.extend_from_slice(&ss_slice.get_ref().to_vec());
+        ss.extend_from_slice(&ss_x25519_slice.get_ref().to_vec());
 
         Ok(SharedSecret::from(ss))
     }
