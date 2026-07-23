@@ -78,6 +78,11 @@ if cc.has_argument('-fcf-protection=full')
 			     language: 'c')
 endif
 
+if cc.has_argument('-fstack-clash-protection')
+	add_global_arguments([ '-fstack-clash-protection' ],
+			     language: 'c')
+endif
+
 # ARM64 hardening
 if cc.has_argument('-mbranch-protection=standard')
 	add_global_arguments([ '-mbranch-protection=standard' ], language: 'c')
