@@ -320,7 +320,8 @@ static void sha512_final_internal(
 
 	/* Add the message length in bits at the end of the partial buffer */
 	ctx->msg_len <<= 3;
-	be64_to_ptr(ctx->partial + (LC_SHA512_SIZE_BLOCK - 8), ctx->msg_len);
+	be64_to_ptr(ctx->partial + (LC_SHA512_SIZE_BLOCK - 8),
+		    (uint64_t)ctx->msg_len);
 
 	/* Final transformation */
 	sha512_transform_block(ctx, ctx->partial, 1);
