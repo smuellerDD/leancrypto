@@ -31,5 +31,8 @@
 
 int crypto_scalarmult_curve25519(uint8_t *q, const uint8_t *n, const uint8_t *p)
 {
+	/*
+	 * Clamping of sk performed by this code.
+	 */
 	return crypto_scalarmult_curve25519_c(q, n, p);
 }

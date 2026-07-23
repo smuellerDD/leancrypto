@@ -25,6 +25,9 @@
 int crypto_scalarmult_curve25519(unsigned char *q, const unsigned char *n,
 				 const unsigned char *p)
 {
+	/*
+	 * Clamping of sk performed by this code.
+	 */
 	if (lc_cpu_feature_available() & LC_CPU_FEATURE_ARM_NEON) {
 		crypto_scalarmult_curve25519_armv7(q, n, p);
 		return 0;

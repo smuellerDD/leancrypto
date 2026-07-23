@@ -109,6 +109,9 @@ int crypto_scalarmult_curve25519_avx2(unsigned char *q, const unsigned char *n,
 int crypto_scalarmult_curve25519(unsigned char *q, const unsigned char *n,
 				 const unsigned char *p)
 {
+	/*
+	 * Clamping of sk performed by this code.
+	 */
 	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
 		return crypto_scalarmult_curve25519_avx2(q, n, p);
 	return crypto_scalarmult_curve25519_c(q, n, p);

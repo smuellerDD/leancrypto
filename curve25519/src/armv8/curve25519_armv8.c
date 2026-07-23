@@ -30,6 +30,9 @@ int crypto_scalarmult_curve25519(unsigned char *q, const unsigned char *n,
 	uint64_t saved_regs[8];
 
 	store_fp_regs(saved_regs);
+	/*
+	 * Clamping of sk performed by this code.
+	 */
 	crypto_scalarmult_curve25519_armv8(q, n, p);
 	reload_fp_regs(saved_regs);
 	lc_memset_secure(saved_regs, 0, sizeof(saved_regs));
