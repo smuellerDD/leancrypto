@@ -27,7 +27,7 @@
 
 #include <stdbool.h>
 
-#define ESDM_CPU_ES_IMPLEMENTED
+#define LC_CPU_ES_IMPLEMENTED
 
 /* Function code 114 as per Principles of Operation */
 #define CPACF_PRNO_TRNG 0x72
