@@ -24,7 +24,7 @@ file is updated. Perform the following steps to (re-)generate the C/H files:
    be converted is `asn1/src/x509.asn1`:
 
    ```
-   build/asn1/src/asn1_compiler -v asn1/src/x509.asn1 asn1/src/x509.asn1.c asn1/src/x509.asn1.h
+   build/asn1/src/asn1_compiler -v asn1/src/x509_asn1 asn1/src/x509_asn1.c asn1/src/x509_asn1.h
    ```
 
 # X.509 Certificate Generator
