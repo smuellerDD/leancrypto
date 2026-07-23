@@ -196,6 +196,8 @@ LC_INTERFACE_FUNCTION(int, lc_hash, const struct lc_hash *hash,
 	LC_HASH_CTX_ON_STACK(hash_ctx, hash);
 	int ret;
 
+	CKNULL(digest, -EINVAL);
+
 	CKINT(lc_hash_init(hash_ctx));
 	lc_hash_update(hash_ctx, in, inlen);
 	lc_hash_final(hash_ctx, digest);
@@ -225,6 +227,8 @@ LC_INTERFACE_FUNCTION(int, lc_xof, const struct lc_hash *xof, const uint8_t *in,
 {
 	LC_HASH_CTX_ON_STACK(hash_ctx, xof);
 	int ret;
+
+	CKNULL(digest, -EINVAL);
 
 	CKINT(lc_hash_init(hash_ctx));
 	lc_hash_update(hash_ctx, in, inlen);
