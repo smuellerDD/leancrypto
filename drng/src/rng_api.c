@@ -65,7 +65,12 @@ LC_INTERFACE_FUNCTION(int, lc_rng_generate, struct lc_rng_ctx *ctx,
 	const struct lc_rng *rng;
 	void *rng_state;
 
-	if (!ctx || !out)
+	/*
+	 * The out parameter is not checked as we allow a NULL pointer, i.e.
+	 * the caller does not request a generation, but a DRBG update
+	 * trigger.
+	 */
+	if (!ctx)
 		return -EINVAL;
 
 	rng = ctx->rng;
