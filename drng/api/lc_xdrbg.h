@@ -116,6 +116,9 @@ extern const struct lc_rng *lc_xdrbg512_drng;
  * @param [in] name Name of the stack variable
  *
  * \warning You MUST seed the DRNG!
+ *
+ * \note The maximum allowed additional input / personalization string is 84
+ * bytes.
  */
 #define LC_XDRBG256_DRNG_CTX_ON_STACK(name)                                    \
 	LC_XDRBG_DRNG_CTX_ON_STACK(name, LC_XDRBG256_DRNG_CTX_SIZE);           \
@@ -131,6 +134,9 @@ extern const struct lc_rng *lc_xdrbg512_drng;
  * The memory is pinned so that the DRNG state cannot be swapped out to disk.
  *
  * \warning You MUST seed the DRNG!
+ *
+ * \note The maximum allowed additional input / personalization string is 84
+ * bytes.
  *
  * @return 0 upon success; < 0 on error
  */
@@ -177,6 +183,9 @@ int lc_xdrbg256_drng_alloc(struct lc_rng_ctx **state);
  * @param [in] name Name of the stack variable
  *
  * \warning You MUST seed the DRNG!
+ *
+ * \note The maximum allowed additional input / personalization string is 84
+ * bytes.
  */
 #define LC_XDRBG512_DRNG_CTX_ON_STACK(name)                                    \
 	LC_XDRBG_DRNG_CTX_ON_STACK(name, LC_XDRBG512_DRNG_CTX_SIZE);           \
@@ -192,6 +201,9 @@ int lc_xdrbg256_drng_alloc(struct lc_rng_ctx **state);
  * The memory is pinned so that the DRNG state cannot be swapped out to disk.
  *
  * \warning You MUST seed the DRNG!
+ *
+ * \note The maximum allowed additional input / personalization string is 84
+ * bytes.
  *
  * @return 0 upon success; < 0 on error
  */
@@ -243,6 +255,9 @@ extern const struct lc_rng *lc_xdrbg128_drng;
  * @param [in] name Name of the stack variable
  *
  * \warning You MUST seed the DRNG!
+ *
+ * \note The maximum allowed additional input / personalization string is 84
+ * bytes.
  */
 #define LC_XDRBG128_DRNG_CTX_ON_STACK(name)                                    \
 	LC_XDRBG_DRNG_CTX_ON_STACK(name, LC_XDRBG128_DRNG_CTX_SIZE);           \
@@ -258,6 +273,9 @@ extern const struct lc_rng *lc_xdrbg128_drng;
  * The memory is pinned so that the DRNG state cannot be swapped out to disk.
  *
  * \warning You MUST seed the DRNG!
+ *
+ * \note The maximum allowed additional input / personalization string is 84
+ * bytes.
  *
  * @return 0 upon success; < 0 on error
  */
