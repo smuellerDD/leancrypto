@@ -65,7 +65,7 @@ LC_INTERFACE_FUNCTION(int, lc_rng_generate, struct lc_rng_ctx *ctx,
 	const struct lc_rng *rng;
 	void *rng_state;
 
-	if (!ctx)
+	if (!ctx || !out)
 		return -EINVAL;
 
 	rng = ctx->rng;
