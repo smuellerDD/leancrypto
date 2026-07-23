@@ -239,6 +239,11 @@ int lc_xdrbg_drng_seed_nocheck(void *_state, const uint8_t *seed,
 	uint8_t initially_seeded, keysize = lc_xdrbg_keysize(state);
 	int ret;
 
+	/*
+	 * The seed parameter is allowed to be NULL as this would imply a
+	 * noop in the hash update further down.
+	 */
+
 	/* Timecop: Seed is sensitive. */
 	poison(seed, seedlen);
 
