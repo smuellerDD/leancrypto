@@ -22,117 +22,147 @@
 
 #if defined(__x86_64__) || defined(__i386__)
 
-#include "bool.h"
+#include <cpuid.h>
+#include <immintrin.h>
+
+#include <stdbool.h>
 
 #define LC_CPU_ES_IMPLEMENTED
 
 #define RDRAND_RETRY_LOOPS 10
 
-#define RDRAND_INT ".byte 0x0f,0xc7,0xf0"
-#define RDSEED_INT ".byte 0x0f,0xc7,0xf8"
-#ifdef __LP64__
-#define RDRAND_LONG ".byte 0x48,0x0f,0xc7,0xf0"
-#define RDSEED_LONG ".byte 0x48,0x0f,0xc7,0xf8"
-#else
-#define RDRAND_LONG RDRAND_INT
-#define RDSEED_LONG RDSEED_INT
-#endif
+/*
+ * RDSEED underflows routinely when the DRNG conditioner cannot refill the
+ * seed queue as fast as it is drained - guaranteed to happen when pulling
+ * many words back-to-back. This is a transient condition that clears within
+ * microseconds, so per the Intel DRNG Software Implementation Guide retry
+ * with PAUSE in between. The bound only exists to turn genuinely broken
+ * hardware into a failure instead of a livelock.
+ */
+#define RDSEED_RETRY_LOOPS 1024
 
 #define ECX_RDRAND (1 << 30)
 #define EXT_FEAT_EBX_RDSEED (1 << 18)
 
-#define cpuid_eax(level, a, b, c, d)                                           \
-	__asm__ __volatile__("cpuid\n\t"                                       \
-			     : "=a"(a), "=b"(b), "=c"(c), "=d"(d)              \
-			     : "0"(level))
-
-#define cpuid_eax_ecx(level, count, a, b, c, d)                                \
-	__asm__ __volatile__("cpuid\n\t"                                       \
-			     : "=a"(a), "=b"(b), "=c"(c), "=d"(d)              \
-			     : "0"(level), "2"(count))
-
 static inline int rdseed_available(void)
 {
+	static int rdseed_avail = -1;
 	unsigned int eax, ebx, ecx, edx;
 
+	if (rdseed_avail > -1) {
+		return rdseed_avail;
+	}
+
 	/* Read the maximum leaf */
-	cpuid_eax(0, eax, ebx, ecx, edx);
+	__cpuid(0, eax, ebx, ecx, edx);
 
 	/* Only make call if the leaf is present */
 	if (eax >= 7) {
 		/* read advanced features eax = 7, ecx = 0 */
-		cpuid_eax_ecx(7, 0, eax, ebx, ecx, edx);
+		__cpuid_count(7, 0, eax, ebx, ecx, edx);
 
-		return !!(ebx & EXT_FEAT_EBX_RDSEED);
+		rdseed_avail = !!(ebx & EXT_FEAT_EBX_RDSEED);
+	} else {
+		rdseed_avail = false;
 	}
-	return false;
+
+	return rdseed_avail;
 }
 
 static inline int rdrand_available(void)
 {
+	static int rdrand_avail = -1;
 	unsigned int eax, ebx, ecx, edx;
 
+	if (rdrand_avail > -1) {
+		return rdrand_avail;
+	}
+
 	/* Read the maximum leaf */
-	cpuid_eax(0, eax, ebx, ecx, edx);
+	__cpuid(0, eax, ebx, ecx, edx);
 
 	/* Only make call if the leaf is present */
 	if (eax >= 1) {
-		cpuid_eax(1, eax, ebx, ecx, edx);
-		return !!(ecx & ECX_RDRAND);
+		__cpuid(1, eax, ebx, ecx, edx);
+		rdrand_avail = !!(ecx & ECX_RDRAND);
+	} else {
+		rdrand_avail = false;
 	}
 
-	return false;
+	return rdrand_avail;
 }
+
+#ifdef __x86_64__
+__attribute__((target("rdseed"))) static inline int
+lc_rdseed_step(unsigned long *buf)
+{
+	return _rdseed64_step((unsigned long long *)buf);
+}
+
+__attribute__((target("rdrnd"))) static inline int
+lc_rdrand_step(unsigned long *buf)
+{
+	return _rdrand64_step((unsigned long long *)buf);
+}
+#else
+__attribute__((target("rdseed"))) static inline int
+lc_rdseed_step(unsigned long *buf)
+{
+	return _rdseed32_step((unsigned int *)buf);
+}
+
+__attribute__((target("rdrnd"))) static inline int
+lc_rdrand_step(unsigned long *buf)
+{
+	return _rdrand32_step((unsigned int *)buf);
+}
+#endif
 
 static inline bool cpu_es_x86_rdseed(unsigned long *buf)
 {
 	unsigned int retry = 0;
-	unsigned char ok;
-	static int rdseed_avail = -1;
 
-	if (rdseed_avail == -1) {
-		rdseed_avail = rdseed_available();
-	}
-	if (!rdseed_avail)
+	if (!rdseed_available())
 		return false;
 
-	do {
-		__asm__ __volatile__(RDSEED_LONG "\n\t"
-						 "setc %0"
-				     : "=qm"(ok), "=a"(*buf));
-	} while (!ok && retry++ < RDRAND_RETRY_LOOPS);
+	while (!lc_rdseed_step(buf)) {
+		if (retry++ >= RDSEED_RETRY_LOOPS)
+			return false;
+		__builtin_ia32_pause();
+	}
 
-	return !!ok;
+	return true;
 }
 
 static inline bool cpu_es_x86_rdrand(unsigned long *buf)
 {
-	int ok;
-	static int rdrand_avail = -1;
+	unsigned int retry = 0;
 
-	if (rdrand_avail == -1) {
-		rdrand_avail = rdrand_available();
-	}
-	if (!rdrand_avail)
+	if (!rdrand_available())
 		return false;
 
-	__asm__ __volatile__("1: " RDRAND_LONG "\n\t"
-			     "jc 2f\n\t"
-			     "decl %0\n\t"
-			     "jnz 1b\n\t"
-			     "2:"
-			     : "=r"(ok), "=a"(*buf)
-			     : "0"(RDRAND_RETRY_LOOPS));
-	return !!ok;
+	while (!lc_rdrand_step(buf)) {
+		if (retry++ >= RDRAND_RETRY_LOOPS)
+			return false;
+	}
+
+	return true;
 }
 
 static inline bool cpu_es_get(unsigned long *buf)
 {
-	bool ret = cpu_es_x86_rdseed(buf);
-
-	if (!ret)
+	/*
+	 * perform no fallback between both options,
+	 * as compression would be missing for rdrand,
+	 * when rdseed was initially detected
+	 */
+	if (rdseed_available()) {
+		return cpu_es_x86_rdseed(buf);
+	}
+	if (rdrand_available()) {
 		return cpu_es_x86_rdrand(buf);
-	return ret;
+	}
+	return false;
 }
 
 static inline unsigned int cpu_es_multiplier(void)
@@ -142,11 +172,21 @@ static inline unsigned int cpu_es_multiplier(void)
 	/* Invoke check twice in case the first time the gather loop failed */
 	if (!cpu_es_x86_rdseed(&v) && !cpu_es_x86_rdseed(&v)) {
 		/*
-		 * Intel SPEC: pulling more than 511 128 Bit blocks from RDRAND ensures
+		 * Intel DRNG Software IG:
+		 * pulling more than 511 128 Bit blocks from RDRAND ensures
 		 * one reseed making it logically equivalent to RDSEED. So pull at least
 		 * 1023 64 Bit sub-blocks.
+		 *
+		 * AMD uses AES CTR-DRBG with 256 bit keys for RDRAND
+		 * Intel is not explicit in this document, so we have to assume
+		 * AES CTR-DRBG with 128 bit keys for RDRAND. So double the
+		 * amount of rounds for at least 2 128 bit seeds on every hardware.
+		 *
+		 * See:
+		 * https://www.intel.com/content/www/us/en/content-details/864722/intel-digital-random-number-generator-software-implementation-guide.html
+		 * https://www.amd.com/content/dam/amd/en/documents/processor-tech-docs/white-papers/amd-random-number-generator.pdf
 		 */
-		return 1024;
+		return 2 * 1024;
 	}
 
 	return 1;
