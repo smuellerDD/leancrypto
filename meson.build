@@ -399,7 +399,9 @@ add_global_arguments(['-DMAJVERSION=' + version_array[0],
 
 # Dead-code-stripping support
 add_global_arguments(['-ffunction-sections', '-fdata-sections'], language : 'c')
-if (host_machine.system() == 'darwin')
+if (host_machine.system() == 'sunos')
+	# Do nothing
+elif (host_machine.system() == 'darwin')
 	add_project_link_arguments('-Wl,-dead_strip', language : 'c')
 else
 	add_project_link_arguments('-Wl,--gc-sections', language : 'c')

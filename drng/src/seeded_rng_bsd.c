@@ -37,7 +37,7 @@ static inline ssize_t __getentropy(uint8_t *buffer, size_t bufferlen)
 			return ret;
 		bufferlen -= todo;
 		buffer += todo;
-		totallen += todo;
+		totallen += (ssize_t)todo;
 	}
 
 	return totallen;

@@ -137,7 +137,7 @@ void release_data_memory(uint8_t *memory, size_t memory_length,
 	}
 }
 
-#if (defined(__CYGWIN__) || defined(_WIN32))
+#if (defined(__CYGWIN__) || defined(_WIN32) || defined(__sun))
 
 int get_data(const char *filename, uint8_t **memory, size_t *memory_length,
 	     enum lc_pem_flags pem_flags)
@@ -160,6 +160,9 @@ static int x509_write_pem_data(int fd, const uint8_t *data, size_t datalen,
 
 	CKINT(lc_pem_encode_len(datalen, &certdata_pem_len, pem_flags));
 
+	if (certdata_pem_len >= INT_MAX - 1)
+		return -EOVERFLOW;
+
 	memory = malloc(certdata_pem_len + 1);
 	CKNULL(memory, -ENOMEM);
 
@@ -173,13 +176,17 @@ static int x509_write_pem_data(int fd, const uint8_t *data, size_t datalen,
 
 out:
 	if (memory) {
+#ifdef __sun
+		freezero(memory, certdata_pem_len);
+#else
 		lc_memset_secure(memory, 0, certdata_pem_len);
 		free(memory);
+#endif
 	}
 	return ret;
 }
 
-#else /* (defined(__CYGWIN__) || defined(_WIN32)) */
+#else /* (defined(__CYGWIN__) || defined(_WIN32) || defined(__sun)) */
 
 static int check_filetype(int fd, struct stat *sb)
 {

@@ -51,6 +51,11 @@ static inline size_t min_size(size_t a, size_t b)
 	return a < b ? a : b;
 }
 
+static inline size_t max_size(size_t a, size_t b)
+{
+	return a > b ? a : b;
+}
+
 #ifdef __cplusplus
 }
 #endif

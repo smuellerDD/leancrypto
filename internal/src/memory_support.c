@@ -21,6 +21,7 @@
 #include "ext_headers_internal.h"
 #include "lc_memory_support.h"
 #include "lc_memset_secure.h"
+#include "math_helper.h"
 #include "visibility.h"
 
 struct lc_mem_def {
@@ -66,6 +67,19 @@ static int alloc_aligned_secure_internal(void **memptr, size_t alignment,
 
 	BUILD_BUG_ON(LC_MEM_COMMON_ALIGNMENT > LC_MEM_DEF_ALIGNED_OFFSET);
 	BUILD_BUG_ON(LC_MEM_DEF_ALIGNED_OFFSET < sizeof(struct lc_mem_def));
+
+#ifdef __sun
+	static size_t pagesize = 0;
+
+	if (pagesize == 0) {
+		long sysconf_res = sysconf(_SC_PAGESIZE);
+
+		if (sysconf_res < 0)
+			return -EFAULT;
+		pagesize = (size_t)sysconf_res;
+	}
+	alignment = max_size(alignment, pagesize);
+#endif /* __sun */
 
 	/* Guard against wraps */
 	if (full_size < size)
