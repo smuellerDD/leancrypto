@@ -52,7 +52,6 @@
 #define LC_INTEL_AVX512F_EBX (1 << 16)
 #define LC_INTEL_VPCLMUL_ECX (1 << 10)
 #define LC_INTEL_SHANI_EBX (1 << 29)
-#define LC_INTEL_SHANI_EBX (1 << 29)
 #define LC_INTEL_SHANI512_EAX (1 << 0)
 
 /* This is required by aes_aesni_x86_64.S */

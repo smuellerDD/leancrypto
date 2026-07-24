@@ -283,7 +283,7 @@ static void sha512_update_c(void *_state, const uint8_t *in, size_t inlen)
 	lc_sha512_update(ctx, in, inlen, sha512_transform_block_c);
 }
 
-static void sha512_final_internal(
+static int sha512_final_internal(
 	struct lc_sha512_state *ctx,
 	void (*sha512_transform_block)(struct lc_sha512_state *ctx,
 				       const uint8_t *in, size_t blocks))
@@ -291,7 +291,14 @@ static void sha512_final_internal(
 	unsigned int partial;
 
 	if (!ctx)
-		return;
+		return -EINVAL;
+
+	/*
+	 * The message length below is inserted in bits into the state below.
+	 * Thus, by definition, we cannot have more inut bytes.
+	 */
+	if (ctx->msg_len > (UINT64_C(1) << 61) - 1)
+		return -EOVERFLOW;
 
 	partial = ctx->msg_len % LC_SHA512_SIZE_BLOCK;
 
@@ -327,6 +334,8 @@ static void sha512_final_internal(
 	sha512_transform_block(ctx, ctx->partial, 1);
 
 	lc_memset_secure(ctx->partial, 0, LC_SHA512_SIZE_BLOCK);
+
+	return 0;
 }
 
 void lc_sha512_final(struct lc_sha512_state *ctx, uint8_t *digest,
@@ -339,7 +348,10 @@ void lc_sha512_final(struct lc_sha512_state *ctx, uint8_t *digest,
 	if (!digest)
 		return;
 
-	sha512_final_internal(ctx, sha512_transform_block);
+	if (sha512_final_internal(ctx, sha512_transform_block)) {
+		lc_memset_secure(digest, 0, LC_SHA512_SIZE_DIGEST);
+		return;
+	}
 
 	/* Output digest */
 	for (i = 0; i < 8; i++, digest += 8)
@@ -356,7 +368,10 @@ void lc_sha384_final(struct lc_sha512_state *ctx, uint8_t *digest,
 	if (!digest)
 		return;
 
-	sha512_final_internal(ctx, sha512_transform_block);
+	if (sha512_final_internal(ctx, sha512_transform_block)) {
+		lc_memset_secure(digest, 0, LC_SHA384_SIZE_DIGEST);
+		return;
+	}
 
 	/* Output digest */
 	for (i = 0; i < 6; i++, digest += 8)

@@ -18,6 +18,7 @@
  */
 
 #include "memcpy_secure_internal.h"
+#include "lc_memset_secure.h"
 #include "visibility.h"
 
 LC_INTERFACE_FUNCTION(void *, lc_memcpy_secure, void *d, size_t dn,
@@ -27,6 +28,9 @@ LC_INTERFACE_FUNCTION(void *, lc_memcpy_secure, void *d, size_t dn,
 
 	if (dn != sn)
 		n = (dn > sn) ? sn : dn;
+
+	/* Clear out any "left-over" bytes in destination */
+	lc_memset_secure((uint8_t *)d + n, 0, dn - n);
 
 	return memcpy_secure_64(d, s, n);
 }
