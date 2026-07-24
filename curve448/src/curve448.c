@@ -352,6 +352,11 @@ int curve448_point_decode_like_eddsa_and_mul_by_ratio(
 	gf_mul(p->z, p->t, a);
 	gf_mul(p->y, p->t, d);
 	gf_mul(p->t, b, d);
+
+	/* If x == 0 and x_0 == 1, decoding fails */
+	succ &= ~word_is_zero(gf_eq(p->x, ZERO) &&
+			      enc2[LC_ED448_SECRETKEYBYTES - 1] >> 7);
+
 	lc_memset_secure(a, 0, sizeof(a));
 	lc_memset_secure(b, 0, sizeof(b));
 	lc_memset_secure(c, 0, sizeof(c));
