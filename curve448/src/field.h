@@ -38,7 +38,7 @@
 #include "word.h"
 
 #define NLIMBS (64 / sizeof(word_t))
-#define X_SER_BYTES 56
+#define X_SER_BYTES 57
 #define SER_BYTES 56
 
 #if defined(__GNUC__) || defined(__clang__)
