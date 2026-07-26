@@ -196,9 +196,9 @@ static inline void sha3_ctx_init(void *_state)
 	 * All lc_sha3_*_state are equal except for the last entry, thus we use
 	 * the largest state.
 	 */
-	struct lc_sha3_224_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 
-	BUILD_BUG_ON(LC_HASH_STATE_SIZE < sizeof(struct lc_sha3_224_state));
+	BUILD_BUG_ON(LC_HASH_STATE_SIZE < sizeof(struct lc_sha3_state));
 
 	/*
 	 * Zeroize the actual state which is required by some implementations
@@ -213,7 +213,7 @@ static inline void sha3_ctx_init(void *_state)
 
 void sha3_224_init_common(void *_state)
 {
-	struct lc_sha3_224_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 
 	if (!ctx)
 		return;
@@ -227,7 +227,7 @@ void sha3_224_init_common(void *_state)
 
 static int sha3_224_init_nocheck(void *_state)
 {
-	struct lc_sha3_224_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 
 	if (!ctx)
 		return -EINVAL;
@@ -253,7 +253,7 @@ size_t sha3_224_digestsize(const void *_state)
 
 void sha3_256_init_common(void *_state)
 {
-	struct lc_sha3_256_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 
 	if (!ctx)
 		return;
@@ -267,7 +267,7 @@ void sha3_256_init_common(void *_state)
 
 static int sha3_256_init_nocheck(void *_state)
 {
-	struct lc_sha3_256_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 
 	if (!ctx)
 		return -EINVAL;
@@ -293,7 +293,7 @@ size_t sha3_256_digestsize(const void *_state)
 
 void sha3_384_init_common(void *_state)
 {
-	struct lc_sha3_384_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 
 	if (!ctx)
 		return;
@@ -307,7 +307,7 @@ void sha3_384_init_common(void *_state)
 
 static int sha3_384_init_nocheck(void *_state)
 {
-	struct lc_sha3_384_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 
 	if (!ctx)
 		return -EINVAL;
@@ -333,7 +333,7 @@ size_t sha3_384_digestsize(const void *_state)
 
 void sha3_512_init_common(void *_state)
 {
-	struct lc_sha3_512_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 
 	if (!ctx)
 		return;
@@ -347,7 +347,7 @@ void sha3_512_init_common(void *_state)
 
 static int sha3_512_init_nocheck(void *_state)
 {
-	struct lc_sha3_512_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 
 	if (!ctx)
 		return -EINVAL;
@@ -373,7 +373,7 @@ size_t sha3_512_digestsize(const void *_state)
 
 void shake_128_init_common(void *_state)
 {
-	struct lc_shake_128_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 
 	if (!ctx)
 		return;
@@ -387,7 +387,7 @@ void shake_128_init_common(void *_state)
 
 static int shake_128_init_nocheck(void *_state)
 {
-	struct lc_shake_128_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 
 	if (!ctx)
 		return -EINVAL;
@@ -407,7 +407,7 @@ static int shake_128_init(void *_state)
 
 void shake_256_init_common(void *_state)
 {
-	struct lc_sha3_256_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 
 	if (!ctx)
 		return;
@@ -422,7 +422,7 @@ void shake_256_init_common(void *_state)
 
 static int shake_256_init_nocheck(void *_state)
 {
-	struct lc_sha3_256_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 
 	if (!ctx)
 		return -EINVAL;
@@ -442,7 +442,7 @@ static int shake_256_init(void *_state)
 
 void shake_512_init_common(void *_state)
 {
-	struct lc_sha3_512_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 
 	if (!ctx)
 		return;
@@ -457,7 +457,7 @@ void shake_512_init_common(void *_state)
 
 static int shake_512_init_nocheck(void *_state)
 {
-	struct lc_sha3_512_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 
 	if (!ctx)
 		return -EINVAL;
@@ -477,7 +477,7 @@ static int shake_512_init(void *_state)
 
 void cshake_256_init_common(void *_state)
 {
-	struct lc_sha3_256_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 
 	if (!ctx)
 		return;
@@ -491,7 +491,7 @@ void cshake_256_init_common(void *_state)
 
 static int cshake_256_init_nocheck(void *_state)
 {
-	struct lc_sha3_256_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 
 	if (!ctx)
 		return -EINVAL;
@@ -511,7 +511,7 @@ static int cshake_256_init(void *_state)
 
 void cshake_128_init_common(void *_state)
 {
-	struct lc_shake_128_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 
 	if (!ctx)
 		return;
@@ -525,7 +525,7 @@ void cshake_128_init_common(void *_state)
 
 static int cshake_128_init_nocheck(void *_state)
 {
-	struct lc_shake_128_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 
 	if (!ctx)
 		return -EINVAL;
@@ -549,7 +549,7 @@ static void keccak_absorb(void *_state, const uint8_t *in, size_t inlen)
 	 * All lc_sha3_*_state are equal except for the last entry, thus we use
 	 * the largest state.
 	 */
-	struct lc_sha3_224_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 	uint8_t partial;
 
 	if (!ctx)
@@ -625,7 +625,7 @@ static void keccak_squeeze(void *_state, uint8_t *digest)
 	 * All lc_sha3_*_state are equal except for the last entry, thus we use
 	 * the largest state.
 	 */
-	struct lc_sha3_224_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 	size_t digest_len;
 
 	if (!ctx || !digest)
@@ -680,14 +680,14 @@ static void keccak_squeeze(void *_state, uint8_t *digest)
 
 void shake_set_digestsize(void *_state, size_t digestsize)
 {
-	struct lc_sha3_256_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 
 	ctx->digestsize = digestsize;
 }
 
 size_t shake_get_digestsize(const void *_state)
 {
-	const struct lc_sha3_256_state *ctx = _state;
+	const struct lc_sha3_state *ctx = _state;
 
 	if (!ctx)
 		return sha3_512_digestsize(NULL);
@@ -707,7 +707,7 @@ static const struct lc_hash _sha3_224_c = {
 	.sponge_extract_bytes = keccak_c_extract_bytes,
 	.sponge_newstate = keccak_c_newstate,
 	.sponge_rate = LC_SHA3_224_SIZE_BLOCK,
-	.statesize = sizeof(struct lc_sha3_224_state),
+	.statesize = sizeof(struct lc_sha3_state),
 	.algorithm_type = LC_ALG_STATUS_SHA3
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_224_c) = &_sha3_224_c;
@@ -724,7 +724,7 @@ static const struct lc_hash _sha3_256_c = {
 	.sponge_extract_bytes = keccak_c_extract_bytes,
 	.sponge_newstate = keccak_c_newstate,
 	.sponge_rate = LC_SHA3_256_SIZE_BLOCK,
-	.statesize = sizeof(struct lc_sha3_256_state),
+	.statesize = sizeof(struct lc_sha3_state),
 	.algorithm_type = LC_ALG_STATUS_SHA3
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_256_c) = &_sha3_256_c;
@@ -741,7 +741,7 @@ static const struct lc_hash _sha3_384_c = {
 	.sponge_extract_bytes = keccak_c_extract_bytes,
 	.sponge_newstate = keccak_c_newstate,
 	.sponge_rate = LC_SHA3_384_SIZE_BLOCK,
-	.statesize = sizeof(struct lc_sha3_384_state),
+	.statesize = sizeof(struct lc_sha3_state),
 	.algorithm_type = LC_ALG_STATUS_SHA3
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_384_c) = &_sha3_384_c;
@@ -758,7 +758,7 @@ static const struct lc_hash _sha3_512_c = {
 	.sponge_extract_bytes = keccak_c_extract_bytes,
 	.sponge_newstate = keccak_c_newstate,
 	.sponge_rate = LC_SHA3_512_SIZE_BLOCK,
-	.statesize = sizeof(struct lc_sha3_512_state),
+	.statesize = sizeof(struct lc_sha3_state),
 	.algorithm_type = LC_ALG_STATUS_SHA3
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_sha3_512_c) = &_sha3_512_c;
@@ -775,7 +775,7 @@ static const struct lc_hash _shake128_c = {
 	.sponge_extract_bytes = keccak_c_extract_bytes,
 	.sponge_newstate = keccak_c_newstate,
 	.sponge_rate = LC_SHAKE_128_SIZE_BLOCK,
-	.statesize = sizeof(struct lc_shake_128_state),
+	.statesize = sizeof(struct lc_sha3_state),
 	.algorithm_type = LC_ALG_STATUS_SHAKE
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake128_c) = &_shake128_c;
@@ -792,7 +792,7 @@ static const struct lc_hash _shake256_c = {
 	.sponge_extract_bytes = keccak_c_extract_bytes,
 	.sponge_newstate = keccak_c_newstate,
 	.sponge_rate = LC_SHA3_256_SIZE_BLOCK,
-	.statesize = sizeof(struct lc_sha3_256_state),
+	.statesize = sizeof(struct lc_sha3_state),
 	.algorithm_type = LC_ALG_STATUS_SHAKE
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake256_c) = &_shake256_c;
@@ -809,7 +809,7 @@ static const struct lc_hash _shake512_c = {
 	.sponge_extract_bytes = keccak_c_extract_bytes,
 	.sponge_newstate = keccak_c_newstate,
 	.sponge_rate = LC_SHA3_512_SIZE_BLOCK,
-	.statesize = sizeof(struct lc_sha3_512_state),
+	.statesize = sizeof(struct lc_sha3_state),
 	.algorithm_type = LC_ALG_STATUS_SHAKE512
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_shake512_c) = &_shake512_c;
@@ -826,7 +826,7 @@ static const struct lc_hash _cshake256_c = {
 	.sponge_extract_bytes = keccak_c_extract_bytes,
 	.sponge_newstate = keccak_c_newstate,
 	.sponge_rate = LC_SHA3_256_SIZE_BLOCK,
-	.statesize = sizeof(struct lc_sha3_256_state),
+	.statesize = sizeof(struct lc_sha3_state),
 	.algorithm_type = LC_ALG_STATUS_CSHAKE
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_cshake256_c) = &_cshake256_c;
@@ -843,7 +843,7 @@ static const struct lc_hash _cshake128_c = {
 	.sponge_extract_bytes = keccak_c_extract_bytes,
 	.sponge_newstate = keccak_c_newstate,
 	.sponge_rate = LC_SHAKE_128_SIZE_BLOCK,
-	.statesize = sizeof(struct lc_shake_128_state),
+	.statesize = sizeof(struct lc_sha3_state),
 	.algorithm_type = LC_ALG_STATUS_CSHAKE
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *, lc_cshake128_c) = &_cshake128_c;

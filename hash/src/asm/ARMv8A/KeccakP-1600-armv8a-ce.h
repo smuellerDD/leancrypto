@@ -52,7 +52,7 @@ static inline void keccak_arm_asm_absorb_internal(
 	 * All lc_sha3_*_state are equal except for the last entry, thus we use
 	 * the largest state.
 	 */
-	struct lc_sha3_224_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 	uint8_t partial, blocksize;
 
 	if (!ctx)
@@ -125,7 +125,7 @@ static inline void keccak_arm_asm_squeeze_internal(
 	 * All lc_sha3_*_state are equal except for the last entry, thus we use
 	 * the largest state.
 	 */
-	struct lc_sha3_224_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 	size_t digest_len;
 	uint8_t blocksize;
 	unsigned int squeeze_more = ctx->squeeze_more;

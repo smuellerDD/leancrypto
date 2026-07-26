@@ -36,8 +36,7 @@ extern "C" {
  * All lc_sha3_*_state are equal except for the last entry, thus we use
  * the largest state.
  */
-static inline void sha3_fill_state(struct lc_sha3_224_state *ctx,
-				   const uint8_t *in)
+static inline void sha3_fill_state(struct lc_sha3_state *ctx, const uint8_t *in)
 {
 	unsigned int i;
 
@@ -54,7 +53,7 @@ static inline int sha3_aligned(const uint8_t *ptr, uint32_t alignmask)
 	return 1;
 }
 
-static inline void sha3_fill_state_aligned(struct lc_sha3_224_state *ctx,
+static inline void sha3_fill_state_aligned(struct lc_sha3_state *ctx,
 					   const uint64_t *in)
 {
 	unsigned int i;

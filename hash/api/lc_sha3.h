@@ -32,6 +32,17 @@ extern "C" {
 #define LC_SHA3_STATE_SIZE (LC_SHA3_STATE_WORDS * sizeof(uint64_t))
 /// \endcond
 
+struct lc_sha3_state {
+	uint64_t state[LC_SHA3_STATE_WORDS];
+	size_t digestsize;
+	uint8_t offset;
+	uint8_t partial;
+	uint8_t r;
+	uint8_t rword;
+	uint8_t padding;
+	uint8_t squeeze_more : 1;
+};
+
 /********************************** SHA3-224 **********************************/
 
 /**
@@ -44,17 +55,6 @@ extern const struct lc_hash *lc_sha3_224;
 #define LC_SHA3_224_SIZE_DIGEST_BITS 224
 #define LC_SHA3_224_SIZE_DIGEST (LC_SHA3_224_SIZE_DIGEST_BITS >> 3)
 #define LC_SHA3_224_SIZE_BLOCK LC_SHA3_SIZE_RATE(LC_SHA3_224_SIZE_DIGEST_BITS)
-
-struct lc_sha3_224_state {
-	uint64_t state[LC_SHA3_STATE_WORDS];
-	size_t digestsize;
-	uint8_t offset;
-	uint8_t partial;
-	uint8_t r;
-	uint8_t rword;
-	uint8_t padding;
-	uint8_t squeeze_more : 1;
-};
 
 #define LC_SHA3_224_STATE_SIZE (0)
 #define LC_SHA3_224_CTX_SIZE (LC_HASH_CTX_SIZE)
@@ -93,17 +93,6 @@ extern const struct lc_hash *lc_sha3_256;
 #define LC_SHA3_256_SIZE_DIGEST (LC_SHA3_256_SIZE_DIGEST_BITS >> 3)
 #define LC_SHA3_256_SIZE_BLOCK LC_SHA3_SIZE_RATE(LC_SHA3_256_SIZE_DIGEST_BITS)
 
-struct lc_sha3_256_state {
-	uint64_t state[LC_SHA3_STATE_WORDS];
-	size_t digestsize;
-	uint8_t offset;
-	uint8_t partial;
-	uint8_t r;
-	uint8_t rword;
-	uint8_t padding;
-	uint8_t squeeze_more : 1;
-};
-
 #define LC_SHA3_256_STATE_SIZE (0)
 #define LC_SHA3_256_CTX_SIZE (LC_HASH_CTX_SIZE)
 
@@ -140,17 +129,6 @@ extern const struct lc_hash *lc_sha3_384;
 #define LC_SHA3_384_SIZE_DIGEST_BITS 384
 #define LC_SHA3_384_SIZE_DIGEST (LC_SHA3_384_SIZE_DIGEST_BITS >> 3)
 #define LC_SHA3_384_SIZE_BLOCK LC_SHA3_SIZE_RATE(LC_SHA3_384_SIZE_DIGEST_BITS)
-
-struct lc_sha3_384_state {
-	uint64_t state[LC_SHA3_STATE_WORDS];
-	size_t digestsize;
-	uint8_t offset;
-	uint8_t partial;
-	uint8_t r;
-	uint8_t rword;
-	uint8_t padding;
-	uint8_t squeeze_more : 1;
-};
 
 #define LC_SHA3_384_STATE_SIZE (0)
 #define LC_SHA3_384_CTX_SIZE (LC_HASH_CTX_SIZE)
@@ -189,17 +167,6 @@ extern const struct lc_hash *lc_sha3_512;
 #define LC_SHA3_512_SIZE_DIGEST (LC_SHA3_512_SIZE_DIGEST_BITS >> 3)
 #define LC_SHA3_512_SIZE_BLOCK LC_SHA3_SIZE_RATE(LC_SHA3_512_SIZE_DIGEST_BITS)
 
-struct lc_sha3_512_state {
-	uint64_t state[LC_SHA3_STATE_WORDS];
-	size_t digestsize;
-	uint8_t offset;
-	uint8_t partial;
-	uint8_t r;
-	uint8_t rword;
-	uint8_t padding;
-	uint8_t squeeze_more : 1;
-};
-
 #define LC_SHA3_512_STATE_SIZE (0)
 #define LC_SHA3_512_CTX_SIZE (LC_HASH_CTX_SIZE)
 
@@ -235,17 +202,6 @@ extern const struct lc_hash *lc_shake128;
 /// \cond DO_NOT_DOCUMENT
 #define LC_SHAKE_128_SIZE_DIGEST_BITS 128
 #define LC_SHAKE_128_SIZE_BLOCK LC_SHA3_SIZE_RATE(LC_SHAKE_128_SIZE_DIGEST_BITS)
-
-struct lc_shake_128_state {
-	uint64_t state[LC_SHA3_STATE_WORDS];
-	size_t digestsize;
-	uint8_t offset;
-	uint8_t partial;
-	uint8_t r;
-	uint8_t rword;
-	uint8_t padding;
-	uint8_t squeeze_more : 1;
-};
 
 #define LC_SHAKE_128_STATE_SIZE (0)
 #define LC_SHAKE_128_CTX_SIZE (LC_HASH_CTX_SIZE)
