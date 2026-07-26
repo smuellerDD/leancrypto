@@ -247,7 +247,7 @@ void lc_sha256_final(struct lc_sha256_state *ctx, uint8_t *digest,
 
 	/*
 	 * The message length below is inserted in bits into the state below.
-	 * Thus, by definition, we cannot have more inut bytes.
+	 * Thus, by definition, we cannot have more input bytes.
 	 */
 	if (ctx->msg_len > (UINT64_C(1) << 61) - 1) {
 		lc_memset_secure(digest, 0, LC_SHA256_SIZE_DIGEST);

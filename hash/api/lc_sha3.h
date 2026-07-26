@@ -47,9 +47,9 @@ extern const struct lc_hash *lc_sha3_224;
 
 struct lc_sha3_224_state {
 	uint64_t state[LC_SHA3_STATE_WORDS];
-	uint64_t msg_len;
 	size_t digestsize;
 	uint8_t offset;
+	uint8_t partial;
 	uint8_t r;
 	uint8_t rword;
 	uint8_t padding;
@@ -95,9 +95,9 @@ extern const struct lc_hash *lc_sha3_256;
 
 struct lc_sha3_256_state {
 	uint64_t state[LC_SHA3_STATE_WORDS];
-	uint64_t msg_len;
 	size_t digestsize;
 	uint8_t offset;
+	uint8_t partial;
 	uint8_t r;
 	uint8_t rword;
 	uint8_t padding;
@@ -143,9 +143,9 @@ extern const struct lc_hash *lc_sha3_384;
 
 struct lc_sha3_384_state {
 	uint64_t state[LC_SHA3_STATE_WORDS];
-	uint64_t msg_len;
 	size_t digestsize;
 	uint8_t offset;
+	uint8_t partial;
 	uint8_t r;
 	uint8_t rword;
 	uint8_t padding;
@@ -191,9 +191,9 @@ extern const struct lc_hash *lc_sha3_512;
 
 struct lc_sha3_512_state {
 	uint64_t state[LC_SHA3_STATE_WORDS];
-	uint64_t msg_len;
 	size_t digestsize;
 	uint8_t offset;
+	uint8_t partial;
 	uint8_t r;
 	uint8_t rword;
 	uint8_t padding;
@@ -238,9 +238,9 @@ extern const struct lc_hash *lc_shake128;
 
 struct lc_shake_128_state {
 	uint64_t state[LC_SHA3_STATE_WORDS];
-	uint64_t msg_len;
 	size_t digestsize;
 	uint8_t offset;
+	uint8_t partial;
 	uint8_t r;
 	uint8_t rword;
 	uint8_t padding;

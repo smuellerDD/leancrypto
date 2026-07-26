@@ -53,27 +53,36 @@ static inline void keccak_arm_asm_absorb_internal(
 	 * the largest state.
 	 */
 	struct lc_sha3_224_state *ctx = _state;
-	size_t partial, blocksize;
+	uint8_t partial, blocksize;
 
 	if (!ctx)
 		return;
 
 	blocksize = ctx->r;
-	partial = ctx->msg_len % blocksize;
+	partial = ctx->partial;
 	ctx->squeeze_more = 0;
-	ctx->msg_len += inlen;
 
 	/* Sponge absorbing phase */
 
 	/* Check if we have a partial block stored */
 	if (partial) {
-		size_t todo = blocksize - partial;
+		uint8_t todo = blocksize - partial;
+
+		BUILD_BUG_ON(sizeof(ctx->r) != sizeof(partial));
+		BUILD_BUG_ON(sizeof(ctx->partial) != sizeof(partial));
+		BUILD_BUG_ON(sizeof(todo) != sizeof(partial));
 
 		/*
 		 * If the provided data is small enough to fit in the partial
 		 * buffer, copy it and leave it unprocessed.
 		 */
 		if (inlen < todo) {
+			/*
+			 * ctx->partial cannot grow larger than ctx->r here
+			 * considering how todo is calculated above. Therefore,
+			 * no need for another check.
+			 */
+			ctx->partial += (uint8_t)inlen;
 			sha3_fill_state_bytes(ctx->state, in, partial, inlen);
 			return;
 		}
@@ -103,6 +112,7 @@ static inline void keccak_arm_asm_absorb_internal(
 
 	/* If we have data left, copy it into the partial block buffer */
 	sha3_fill_state_bytes(ctx->state, in, 0, inlen);
+	ctx->partial = (uint8_t)inlen;
 }
 
 static inline void keccak_arm_asm_squeeze_internal(
@@ -127,7 +137,7 @@ static inline void keccak_arm_asm_squeeze_internal(
 	blocksize = ctx->r;
 
 	if (!ctx->squeeze_more) {
-		uint8_t partial = (uint8_t)(ctx->msg_len % blocksize);
+		uint8_t partial = ctx->partial;
 		uint8_t *state = (uint8_t *)ctx->state;
 
 		/* Final round in sponge absorbing phase */
@@ -148,6 +158,13 @@ static inline void keccak_arm_asm_squeeze_internal(
 		LC_NEON_DISABLE;
 
 		ctx->squeeze_more = 1;
+
+		/*
+		 * Setting this to zero is not really needed, but if a caller
+		 * erroneously calls absorb after squeeze, it should still
+		 * work as expected.
+		 */
+		ctx->partial = 0;
 	}
 
 	if (ctx->offset) {

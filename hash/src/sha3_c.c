@@ -206,7 +206,7 @@ static inline void sha3_ctx_init(void *_state)
 	 */
 	sha3_state_init(ctx->state);
 
-	ctx->msg_len = 0;
+	ctx->partial = 0;
 	ctx->squeeze_more = 0;
 	ctx->offset = 0;
 }
@@ -550,31 +550,35 @@ static void keccak_absorb(void *_state, const uint8_t *in, size_t inlen)
 	 * the largest state.
 	 */
 	struct lc_sha3_224_state *ctx = _state;
-	size_t partial;
+	uint8_t partial;
 
 	if (!ctx)
 		return;
 
-	partial = ctx->msg_len % ctx->r;
+	partial = ctx->partial;
 	ctx->squeeze_more = 0;
-
-	/*
-	 * A check for wrap around is not applied as msg_len is a 64 bit
-	 * integer.
-	 */
-	ctx->msg_len += inlen;
 
 	/* Sponge absorbing phase */
 
 	/* Check if we have a partial block stored */
 	if (partial) {
-		size_t todo = ctx->r - partial;
+		uint8_t todo = ctx->r - partial;
+
+		BUILD_BUG_ON(sizeof(ctx->r) != sizeof(partial));
+		BUILD_BUG_ON(sizeof(ctx->partial) != sizeof(partial));
+		BUILD_BUG_ON(sizeof(todo) != sizeof(partial));
 
 		/*
 		 * If the provided data is small enough to fit in the partial
 		 * buffer, copy it and leave it unprocessed.
 		 */
 		if (inlen < todo) {
+			/*
+			 * ctx->partial cannot grow larger than ctx->r here
+			 * considering how todo is calculated above. Therefore,
+			 * no need for another check.
+			 */
+			ctx->partial += (uint8_t)inlen;
 			sha3_fill_state_bytes(ctx->state, in, partial, inlen);
 			return;
 		}
@@ -612,6 +616,7 @@ static void keccak_absorb(void *_state, const uint8_t *in, size_t inlen)
 
 	/* If we have data left, copy it into the partial block buffer */
 	sha3_fill_state_bytes(ctx->state, in, 0, inlen);
+	ctx->partial = (uint8_t)inlen;
 }
 
 static void keccak_squeeze(void *_state, uint8_t *digest)
@@ -629,7 +634,7 @@ static void keccak_squeeze(void *_state, uint8_t *digest)
 	digest_len = ctx->digestsize;
 
 	if (!ctx->squeeze_more) {
-		size_t partial = ctx->msg_len % ctx->r;
+		uint8_t partial = ctx->partial;
 		static const uint8_t terminator = 0x80;
 
 		/* Final round in sponge absorbing phase */
@@ -642,6 +647,13 @@ static void keccak_squeeze(void *_state, uint8_t *digest)
 		sha3_fill_state_bytes(ctx->state, &terminator, ctx->r - 1, 1);
 
 		ctx->squeeze_more = 1;
+
+		/*
+		 * Setting this to zero is not really needed, but if a caller
+		 * erroneously calls absorb after squeeze, it should still
+		 * work as expected.
+		 */
+		ctx->partial = 0;
 	}
 
 	while (digest_len) {

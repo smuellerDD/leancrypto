@@ -295,7 +295,7 @@ static int sha512_final_internal(
 
 	/*
 	 * The message length below is inserted in bits into the state below.
-	 * Thus, by definition, we cannot have more inut bytes.
+	 * Thus, by definition, we cannot have more input bytes.
 	 */
 	if (ctx->msg_len > (UINT64_C(1) << 61) - 1)
 		return -EOVERFLOW;
