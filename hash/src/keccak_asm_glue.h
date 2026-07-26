@@ -59,7 +59,7 @@ static inline void sha3_224_asm_init(void *_state,
 				     void (*StaticInitialize)(void),
 				     void (*Initialize)(void *state))
 {
-	struct lc_sha3_224_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 
 	if (!ctx)
 		return;
@@ -75,7 +75,7 @@ static inline void sha3_256_asm_init(void *_state,
 				     void (*StaticInitialize)(void),
 				     void (*Initialize)(void *state))
 {
-	struct lc_sha3_256_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 
 	if (!ctx)
 		return;
@@ -91,7 +91,7 @@ static inline void sha3_384_asm_init(void *_state,
 				     void (*StaticInitialize)(void),
 				     void (*Initialize)(void *state))
 {
-	struct lc_sha3_384_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 
 	if (!ctx)
 		return;
@@ -107,7 +107,7 @@ static inline void sha3_512_asm_init(void *_state,
 				     void (*StaticInitialize)(void),
 				     void (*Initialize)(void *state))
 {
-	struct lc_sha3_512_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 
 	if (!ctx)
 		return;
@@ -139,7 +139,7 @@ static inline void shake_256_asm_init(void *_state,
 				      void (*StaticInitialize)(void),
 				      void (*Initialize)(void *state))
 {
-	struct lc_sha3_256_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 
 	if (!ctx)
 		return;
@@ -155,7 +155,7 @@ static inline void shake_512_asm_init(void *_state,
 				      void (*StaticInitialize)(void),
 				      void (*Initialize)(void *state))
 {
-	struct lc_sha3_512_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 
 	if (!ctx)
 		return;
@@ -187,7 +187,7 @@ static inline void cshake_256_asm_init(void *_state,
 				       void (*StaticInitialize)(void),
 				       void (*Initialize)(void *state))
 {
-	struct lc_sha3_256_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 
 	if (!ctx)
 		return;
@@ -247,7 +247,7 @@ keccak_asm_absorb(void *_state, const uint8_t *in, size_t inlen,
 	 * All lc_sha3_*_state are equal except for the last entry, thus we use
 	 * the largest state.
 	 */
-	struct lc_sha3_224_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 	size_t partial;
 
 	if (!ctx)
@@ -311,7 +311,7 @@ static inline void keccak_asm_absorb_last_bits(
 	 * All lc_sha3_*_state are equal except for the last entry, thus we use
 	 * the largest state.
 	 */
-	struct lc_sha3_224_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 	unsigned short partial;
 
 	if (ctx->squeeze_more)
@@ -373,7 +373,7 @@ static inline void keccak_asm_squeeze(
 	 * All lc_sha3_*_state are equal except for the last entry, thus we use
 	 * the largest state.
 	 */
-	struct lc_sha3_224_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 	size_t i = 0, j, digest_len, partialBlock;
 	unsigned int rateInBytes = ctx->r;
 
