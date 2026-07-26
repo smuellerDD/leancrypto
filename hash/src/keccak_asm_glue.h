@@ -38,6 +38,7 @@ http://creativecommons.org/publicdomain/zero/1.0/
 #ifndef KECCAK_ASM_GLUE_H
 #define KECCAK_ASM_GLUE_H
 
+#include "build_bug_on.h"
 #include "lc_sha3.h"
 #include "sha3_common.h"
 
@@ -123,7 +124,7 @@ static inline void shake_128_asm_init(void *_state,
 				      void (*StaticInitialize)(void),
 				      void (*Initialize)(void *state))
 {
-	struct lc_shake_128_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 
 	if (!ctx)
 		return;
@@ -171,7 +172,7 @@ static inline void cshake_128_asm_init(void *_state,
 				       void (*StaticInitialize)(void),
 				       void (*Initialize)(void *state))
 {
-	struct lc_shake_128_state *ctx = _state;
+	struct lc_sha3_state *ctx = _state;
 
 	if (!ctx)
 		return;
@@ -248,24 +249,33 @@ keccak_asm_absorb(void *_state, const uint8_t *in, size_t inlen,
 	 * the largest state.
 	 */
 	struct lc_sha3_state *ctx = _state;
-	size_t partial;
+	uint8_t partial;
 
 	if (!ctx)
 		return;
 
-	partial = ctx->msg_len % ctx->r;
+	partial = ctx->partial;
 	ctx->squeeze_more = 0;
-	ctx->msg_len += inlen;
 
 	/* Check if we have a partial block stored */
 	if (partial) {
-		size_t todo = ctx->r - partial;
+		uint8_t todo = ctx->r - partial;
+
+		BUILD_BUG_ON(sizeof(ctx->r) != sizeof(partial));
+		BUILD_BUG_ON(sizeof(ctx->partial) != sizeof(partial));
+		BUILD_BUG_ON(sizeof(todo) != sizeof(partial));
 
 		/*
 		 * If the provided data is small enough to fit in the partial
 		 * buffer, copy it and leave it unprocessed.
 		 */
 		if (inlen < todo) {
+			/*
+			 * ctx->partial cannot grow larger than ctx->r here
+			 * considering how todo is calculated above. Therefore,
+			 * no need for another check.
+			 */
+			ctx->partial += (uint8_t)inlen;
 			AddBytes(ctx->state, in, partial, inlen);
 			return;
 		}
@@ -300,6 +310,7 @@ keccak_asm_absorb(void *_state, const uint8_t *in, size_t inlen,
 
 	/* If we have data left, copy it into the partial block buffer */
 	AddBytes(ctx->state, in, 0, inlen);
+	ctx->partial = (uint8_t)inlen;
 }
 
 static inline void keccak_asm_absorb_last_bits(
@@ -312,12 +323,12 @@ static inline void keccak_asm_absorb_last_bits(
 	 * the largest state.
 	 */
 	struct lc_sha3_state *ctx = _state;
-	unsigned short partial;
+	uint8_t partial;
 
 	if (ctx->squeeze_more)
 		return; /* Too late for additional input */
 
-	partial = (unsigned short)(ctx->msg_len % ctx->r);
+	partial = ctx->partial;
 
 	/* Last few bits, whose delimiter coincides with first bit of padding */
 	AddByte(ctx->state, ctx->padding, (unsigned int)partial);
@@ -334,6 +345,13 @@ static inline void keccak_asm_absorb_last_bits(
 
 	Permute(ctx->state);
 	ctx->squeeze_more = 1;
+
+	/*
+	 * Setting this to zero is not really needed, but if a caller
+	 * erroneously calls absorb after squeeze, it should still
+	 * work as expected.
+	 */
+	ctx->partial = 0;
 }
 
 /**
