@@ -70,7 +70,7 @@ struct lc_hash {
 #endif
 
 #if __has_include("lc_sha3.h")
-#define LC_HASH_STATE_SIZE (224)
+#define LC_HASH_STATE_SIZE (216)
 #elif __has_include("lc_sha512.h")
 #define LC_HASH_STATE_SIZE (200)
 #elif __has_include("lc_sha256.h")

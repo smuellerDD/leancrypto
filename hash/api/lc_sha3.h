@@ -30,18 +30,26 @@ extern "C" {
 #define LC_SHA3_SIZE_RATE(bits) ((1600 - 2 * bits) >> 3)
 #define LC_SHA3_STATE_WORDS 25
 #define LC_SHA3_STATE_SIZE (LC_SHA3_STATE_WORDS * sizeof(uint64_t))
-/// \endcond
 
+/**
+ * \struct Keccak algorithm state
+ *
+ * \brief State used by all Keccak-based algorithms which also defines the
+ * algorithm entirely.
+ */
 struct lc_sha3_state {
-	uint64_t state[LC_SHA3_STATE_WORDS];
-	size_t digestsize;
-	uint8_t offset;
-	uint8_t partial;
-	uint8_t r;
-	uint8_t rword;
-	uint8_t padding;
-	uint8_t squeeze_more : 1;
+	uint64_t state
+		[LC_SHA3_STATE_WORDS]; /**< State buffer holding Keccak state */
+	size_t digestsize; /**< Size of digest - for XOFs, this is allowed to be set by caller */
+	uint8_t offset; /**< Offset in Keccak state to perform read/write operation */
+	uint8_t partial; /**< Number of processed input bytes smaller than the rate */
+	uint8_t r; /**< Rate of the algorithm */
+	uint8_t rword; /**< Rate words (rate / sizeof(uint64_t)) */
+	uint8_t padding; /**< Padding byte to apply */
+	uint8_t squeeze_more
+		: 1; /**< Indicator whether first squeeze happened */
 };
+/// \endcond
 
 /********************************** SHA3-224 **********************************/
 
