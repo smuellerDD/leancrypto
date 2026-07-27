@@ -317,7 +317,7 @@ static const struct lc_hash _shake128_riscv_asm = {
 	.sponge_extract_bytes = keccak_riscv_extract_bytes,
 	.sponge_newstate = keccak_riscv_newstate,
 	.sponge_rate = LC_SHAKE_128_SIZE_BLOCK,
-	.statesize = sizeof(struct lc_shake_128_state),
+	.statesize = sizeof(struct lc_sha3_state),
 	.algorithm_type = LC_ALG_STATUS_SHAKE
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,
@@ -371,7 +371,7 @@ static const struct lc_hash _cshake128_riscv_asm = {
 	.sponge_extract_bytes = keccak_riscv_extract_bytes,
 	.sponge_newstate = keccak_riscv_newstate,
 	.sponge_rate = LC_SHAKE_128_SIZE_BLOCK,
-	.statesize = sizeof(struct lc_shake_128_state),
+	.statesize = sizeof(struct lc_sha3_state),
 	.algorithm_type = LC_ALG_STATUS_CSHAKE
 };
 LC_INTERFACE_SYMBOL(const struct lc_hash *,
