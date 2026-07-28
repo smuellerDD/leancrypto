@@ -136,6 +136,7 @@ static inline void keccak_arm_asm_squeeze_internal(
 	digest_len = ctx->digestsize;
 	blocksize = ctx->r;
 
+	/* Final data block processing */
 	if (!ctx->squeeze_more) {
 		uint8_t partial = ctx->partial;
 		uint8_t *state = (uint8_t *)ctx->state;
@@ -167,8 +168,13 @@ static inline void keccak_arm_asm_squeeze_internal(
 		ctx->partial = 0;
 	}
 
+	/* Squeeze phase */
 	if (ctx->offset) {
 		/*
+		 * If a previous squeeze operation happened that obtain
+		 * only parts of the rate, provide the current request from that
+		 * remaining state.
+		 *
 		 * Access requests when squeezing more data that
 		 * happens to be not aligned with the block size of
 		 * the used SHAKE algorithm are processed byte-wise.
@@ -193,7 +199,8 @@ static inline void keccak_arm_asm_squeeze_internal(
 		/* Advance the offset */
 		ctx->offset += todo;
 		/* Wrap the offset at block size */
-		ctx->offset %= blocksize;
+		if (ctx->offset == blocksize)
+			ctx->offset = 0;
 
 		/* If entire request is satisfied here, no need to continue. */
 		if (!digest_len)

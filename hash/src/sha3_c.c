@@ -674,7 +674,8 @@ static void keccak_squeeze(void *_state, uint8_t *digest)
 		/* Advance the offset */
 		ctx->offset += todo;
 		/* Wrap the offset at block size */
-		ctx->offset %= ctx->r;
+		if (ctx->offset == ctx->r)
+			ctx->offset = 0;
 	}
 }
 
