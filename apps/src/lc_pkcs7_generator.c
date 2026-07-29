@@ -125,6 +125,30 @@ static void pkcs7_generator_usage(void)
 	fprintf(stderr, "\n\t-h  --help\t\t\tPrint this help text\n");
 }
 
+/* Convert a command line argument into an unsigned int or bail out */
+static unsigned int parse_uint(const char *str)
+{
+	char *endptr = NULL;
+	unsigned long val;
+
+	errno = 0;
+	val = strtoul(str, &endptr, 10);
+
+	/* Reject empty strings, trailing garbage and out-of-range values */
+	if (errno || endptr == str || *endptr != '\0') {
+		pkcs7_generator_usage();
+		exit(1);
+	}
+#if ULONG_MAX > UINT_MAX
+	if (val > UINT_MAX) {
+		pkcs7_generator_usage();
+		exit(1);
+	}
+#endif
+
+	return (unsigned int)val;
+}
+
 int main(int argc, char *argv[])
 {
 	struct pkcs7_generator_opts parsed_opts = { 0 };
@@ -304,8 +328,7 @@ int main(int argc, char *argv[])
 				break;
 			/* check-eku */
 			case 20:
-				checker_opts->eku =
-					(unsigned int)strtoul(optarg, NULL, 10);
+				checker_opts->eku = parse_uint(optarg);
 				parsed_opts.checker = 1;
 				break;
 			/* check-noca */
@@ -325,8 +348,7 @@ int main(int argc, char *argv[])
 				break;
 			/* check-keyusage */
 			case 24:
-				checker_opts->keyusage =
-					(unsigned int)strtoul(optarg, NULL, 10);
+				checker_opts->keyusage = parse_uint(optarg);
 				parsed_opts.checker = 1;
 				break;
 			/* check-data */

@@ -345,10 +345,12 @@ static int x509_enc_ca_pathlen(struct x509_generator_opts *opts,
 {
 	struct lc_x509_certificate *cert = &opts->cert;
 	unsigned long val;
-	char *string;
+	char *endptr = NULL;
 	int ret;
 
-	val = strtoul(opt_optarg, &string, 10);
+	val = strtoul(opt_optarg, &endptr, 10);
+	if (errno || endptr == opt_optarg || *endptr != '\0')
+		return -EINVAL;
 	if (val < UINT_MAX) {
 		CKINT_LOG(lc_x509_cert_set_ca_pathlen(cert, (unsigned int)val),
 			  "CA path length %u\n", (uint16_t)val);
@@ -432,8 +434,11 @@ static int x509_enc_valid_from(struct x509_generator_opts *opts,
 {
 	struct lc_x509_certificate *cert = &opts->cert;
 	unsigned long long val;
+	char *endptr = NULL;
 
-	val = strtoull(opt_optarg, NULL, 10);
+	val = strtoull(opt_optarg, &endptr, 10);
+	if (errno || endptr == opt_optarg || *endptr != '\0')
+		return -EINVAL;
 	if (val == ULLONG_MAX)
 		return -ERANGE;
 
@@ -445,8 +450,11 @@ static int x509_enc_valid_to(struct x509_generator_opts *opts,
 {
 	struct lc_x509_certificate *cert = &opts->cert;
 	unsigned long long val;
+	char *endptr = NULL;
 
-	val = strtoull(opt_optarg, NULL, 10);
+	val = strtoull(opt_optarg, &endptr, 10);
+	if (errno || endptr == opt_optarg || *endptr != '\0')
+		return -EINVAL;
 	if (val == ULLONG_MAX)
 		return -ERANGE;
 
@@ -459,9 +467,12 @@ static int x509_enc_valid_days(struct x509_generator_opts *opts,
 	struct lc_x509_certificate *cert = &opts->cert;
 	time64_t now;
 	unsigned long long val;
+	char *endptr = NULL;
 	int ret;
 
-	val = strtoull(opt_optarg, NULL, 10);
+	val = strtoull(opt_optarg, &endptr, 10);
+	if (errno || endptr == opt_optarg || *endptr != '\0')
+		return -EINVAL;
 	if (val == ULLONG_MAX)
 		return -ERANGE;
 
@@ -1180,6 +1191,54 @@ static void x509_generator_version(void)
 	fprintf(stderr, "%s\n", version);
 }
 
+/* Convert a command line argument into an unsigned long long or bail out */
+static unsigned long long parse_ull(const char *str)
+{
+	char *endptr = NULL;
+	unsigned long long val;
+
+	errno = 0;
+	val = strtoull(str, &endptr, 10);
+
+	/* Reject empty strings, trailing garbage and out-of-range values */
+	if (errno || endptr == str || *endptr != '\0') {
+		x509_generator_usage();
+		exit(1);
+	}
+#if ULONG_MAX > UINT_MAX
+	if (val > UINT_MAX) {
+		x509_generator_usage();
+		exit(1);
+	}
+#endif
+
+	return val;
+}
+
+/* Convert a command line argument into an unsigned int or bail out */
+static unsigned int parse_uint(const char *str)
+{
+	char *endptr = NULL;
+	unsigned long val;
+
+	errno = 0;
+	val = strtoul(str, &endptr, 10);
+
+	/* Reject empty strings, trailing garbage and out-of-range values */
+	if (errno || endptr == str || *endptr != '\0') {
+		x509_generator_usage();
+		exit(1);
+	}
+#if ULONG_MAX > UINT_MAX
+	if (val > UINT_MAX) {
+		x509_generator_usage();
+		exit(1);
+	}
+#endif
+
+	return (unsigned int)val;
+}
+
 int main(int argc, char *argv[])
 {
 	struct workspace {
@@ -1523,20 +1582,17 @@ int main(int argc, char *argv[])
 				break;
 			/* check-valid-from */
 			case 42:
-				checker_opts->valid_from =
-					strtoull(optarg, NULL, 10);
+				checker_opts->valid_from = parse_ull(optarg);
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-valid-to */
 			case 43:
-				checker_opts->valid_to =
-					strtoull(optarg, NULL, 10);
+				checker_opts->valid_to = parse_ull(optarg);
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-eku */
 			case 44:
-				checker_opts->eku =
-					(unsigned int)strtoul(optarg, NULL, 10);
+				checker_opts->eku = parse_uint(optarg);
 				ws->parsed_opts.checker = 1;
 				break;
 			/* check-san-email */
@@ -1581,8 +1637,7 @@ int main(int argc, char *argv[])
 				break;
 			/* check-keyusage */
 			case 53:
-				checker_opts->keyusage =
-					(unsigned int)strtoul(optarg, NULL, 10);
+				checker_opts->keyusage = parse_uint(optarg);
 				ws->parsed_opts.checker = 1;
 				break;
 
