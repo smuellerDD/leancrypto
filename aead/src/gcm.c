@@ -447,10 +447,19 @@ static int gcm_setiv(struct lc_aes_gcm_cryptor *ctx, const uint8_t *iv,
 		/* XOR source built from provided IV if len != AES_BLOCKSIZE */
 		uint8_t work_buf[AES_BLOCKSIZE];
 
-		/* maximum IV length check per NIST recommendation */
+		/*
+		 * maximum IV length check per NIST recommendation
+		 *
+		 * The pragma is needed as otherwise the compiler will issue
+		 * a warning that the iv_len check is always false (which is
+		 * correct and should be gated with the sizeof(iv_len) before).
+		 */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtype-limits"
 		if (sizeof(iv_len) > 4 &&
 		    iv_len > ((1ULL << 32) - 1) * AES_BLOCKSIZE - AES_BLOCKSIZE)
 			return -EOVERFLOW;
+#pragma GCC diagnostic pop
 
 		/*
 		 * if we don't have a 12-byte IV, we GHASH whatever we've been

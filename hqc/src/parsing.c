@@ -71,7 +71,7 @@ void load8_arr(uint64_t *out64, size_t outlen, const uint8_t *in8, size_t inlen)
 	out64[index_out] = in8[inlen - 1];
 	for (i = (int8_t)(inlen - index_in) - 2; i >= 0; --i) {
 		out64[index_out] <<= 8;
-		out64[index_out] |= in8[index_in + (size_t)i];
+		out64[index_out] |= in8[(size_t)index_in + (size_t)i];
 	}
 }
 
