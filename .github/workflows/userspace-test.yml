@@ -1,32 +1,199 @@
-name: Linux user space CI
+name: User space CI
 
 on:
   push:
     branches: [ "master" ]
   pull_request:
-    branches: [ "master" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Every job scripts in bash, including the Windows ones, so that the build and
+# run steps stay identical across the matrix rather than being rewritten in
+# PowerShell. Git for Windows provides bash on the Windows runners.
+defaults:
+  run:
+    shell: bash
 
 jobs:
-  build:
+  # ubuntu-24.04-arm rather than a hypothetical "ubuntu-latest-arm": GitHub
+  # publishes no -arm alias for ubuntu-latest, only version-pinned arm labels.
+  #
+  # The arm64 entry is not a duplicate of the x86 one. It is the only job that
+  # compiles the aarch64 cntvct_el0 timer read against Linux, and the only
+  # aarch64 target anywhere in this workflow that pairs it with glibc and with
+  # the sysfs cache-size discovery in arch/jitterentropy-arch-cache.c. macOS on
+  # Apple Silicon reaches the same timer instruction but through an entirely
+  # different libc and a sysctl cache backend, so neither stands in for the
+  # other.
+  linux:
+    name: Linux / ${{ matrix.os }} / ${{ matrix.cc }} / shared=${{ matrix.shared }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, ubuntu-24.04-arm ]
+        cc: [ gcc, clang ]
+        shared: [ 'shared', 'static', 'both' ]
+    steps:
+      - uses: actions/checkout@v4
 
+      - name: Install meson
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y meson gcovr doxygen graphviz gnu-efi
+
+      - name: Meson setup
+        run: CC=${{ matrix.cc }} meson setup build -Ddefault=library=${{ matrix.shared }} -Db_coverage=true -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled -Dsecure_execution=enabled  -Dsbsigntools=enabled
+
+      - name: Meson compile
+        run: meson compile -C build
+
+      - name: Meson test
+        run: meson test -C build --suite regression
+      #- name: Generate test coverage report
+      #  run: ninja coverage-html -C build
+      #- name: Archive code coverage results
+      #  uses: actions/upload-artifact@v4
+      #  with:
+      #    name: code-coverage-report
+      #    path: build/meson-logs/coveragereport
+
+  # 32-bit exercises code paths no other job reaches: the narrower size_t/long,
+  # other accelerations
+  linux-32bit:
+    name: Linux / gcc -m32
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install 32-bit toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-multilib meson gnu-efi
+
+      - name: Meson setup
+        run: meson setup --cross-file cross-compile/x86_32.txt build -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled
+
+      - name: Meson compile
+        run: meson compile -C build
+
+      - name: Meson test
+        run: meson test -C build --suite regression
+
+  # The distributions the hosted runners are not: every enterprise Linux
+  # generation still under support - RHEL 7 through 10, SLES 15 SP7 and 16.1 -
+  # and, at the other end, Arch. Between them they span eighteen years of
+  # toolchain, gcc 4.8.5 / glibc 2.17 through gcc 16 / glibc 2.44, and they are
+  # here to hold *both* bounds. The Ubuntu jobs above sit in the middle and say
+  # only that the library builds against something current; the long-lived
+  # appliance and HSM firmware it tends to end up inside is built against
+  # something considerably older, and the compiler that will reject it next is
+  # newer.
+  #
+  # The entries are not interchangeable, and the interesting one is RHEL 7. It is
+  # the only environment anywhere in this workflow where glibc's own version
+  # floors are visible at all.
+  #
+  # Arch is the mirror image of RHEL 7 and the reason this job is not only about
+  # old toolchains. It is a rolling release carrying gcc and glibc within days of
+  # upstream, which makes it the earliest warning available that a new compiler
+  # has started rejecting something: today it builds this library with gcc 16 and
+  # glibc 2.44, a full compiler generation ahead of the newest enterprise entry
+  # and two ahead of the Ubuntu runners.
+  #
+  # The rest are compiler coverage. Between them the entries compile the library
+  # with gcc 4.8.5, 7.5, 8.5, 11.5, 14, 15 and 16 - seven diagnostic generations,
+  # where the two Ubuntu jobs supply one. gcc 14 is the first to reject implicit
+  # declarations outright rather than warn, and SLES 15 is the only thing here on
+  # gcc 7: an enterprise distribution can hold a compiler generation for a
+  # decade, and the gap between RHEL 7's 4.8 and RHEL 8's 8.5 is otherwise not
+  # covered by anything.
+  #
+  # None of these has a hosted runner, and unlike the BSDs none needs a VM - a
+  # container is the same libc and the same compiler. It is started with docker
+  # run from the job rather than through the workflow's "container:" key because
+  # actions/checkout is a Node 20 action and Node 20 requires glibc 2.28: it
+  # cannot execute inside the RHEL 7 image at all. So the checkout happens on the
+  # runner and the tree is mounted in, uniformly for every entry rather than only
+  # where it is forced.
+  #
+  # Each distribution's own image is used rather than a rebuild: Red Hat's UBI,
+  # SUSE's BCI and Arch's own are all published by the project itself, and the
+  # first two carry a repository subset that serves the handful of packages
+  # installed here without a subscription. centos:7 would instead need every
+  # build to first rewrite its yum configuration to point at vault.centos.org,
+  # the mirrors having been retired.
+  linux-distro:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # RHEL 7.9 is pinned because it is the last RHEL 7 minor release: a
+          # fixed target rather than a moving "latest". The other UBI entries
+          # are still receiving minor releases and deliberately track them - a
+          # new compiler landing in RHEL 9 is a thing this job should notice,
+          # not something to pin away.
+          - name: RHEL 7
+            image: registry.access.redhat.com/ubi7/ubi:7.9
+          - name: RHEL 8
+            image: registry.access.redhat.com/ubi8/ubi:latest
+          - name: RHEL 9
+            image: registry.access.redhat.com/ubi9/ubi:latest
+          - name: RHEL 10
+            image: registry.access.redhat.com/ubi10/ubi:latest
+          # BCI publishes no floating major tag - there is no bci-base:15 or
+          # :16, only <major>.<minor> and a "latest" that currently means the
+          # newest SLE 15 service pack - so unlike UBI these have to be named
+          # exactly and bumped by hand when a service pack lands. One per
+          # generation is enough: 15 SP6 and SP7 carry an identical toolchain,
+          # as do 16.0 and 16.1.
+          - name: SLES 15 SP7
+            image: registry.suse.com/bci/bci-base:15.7
+          - name: SLES 16.1
+            image: registry.suse.com/bci/bci-base:16.1
+          # Arch publishes the same image to Docker Hub and to quay.io. The
+          # latter is used because Docker Hub rate-limits anonymous pulls per
+          # source IP, and a GitHub runner shares its IP with every other job on
+          # the same host - a limit this workflow has no way to raise and would
+          # hit at random.
+          - name: Arch Linux
+            image: quay.io/archlinux/archlinux:latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Install meson
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y meson gcovr doxygen graphviz gnu-efi
-    - name: Meson setup
-      run: meson setup build -Db_coverage=true -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled -Dsecure_execution=enabled  -Dsbsigntools=enabled
-    - name: Meson compile
-      run: meson compile -C build
-    - name: Meson test
-      run: meson test -C build
-    #- name: Generate test coverage report
-    #  run: ninja coverage-html -C build
-    #- name: Archive code coverage results
-    #  uses: actions/upload-artifact@v4
-    #  with:
-    #    name: code-coverage-report
-    #    path: build/meson-logs/coveragereport
+      - uses: actions/checkout@v4
+
+      - name: Build and test in a ${{ matrix.name }} container
+        run: |
+          docker run --rm -v "$PWD:/src" -w /src \
+            "${{ matrix.image }}" \
+            bash -euxo pipefail -c '
+              # RHEL 7 predates dnf and has only yum; RHEL 8 and later keep yum
+              # as a symlink onto dnf; SLES uses zypper and Arch pacman. Probing
+              # in this order picks each distribution native tool rather than a
+              # compatibility shim.
+              #
+              # pacman needs -Sy to fetch the package databases first: the image
+              # ships with none, and the Arch mirrors carry only the current
+              # version of each package, so a database older than the image is
+              # already stale. --needed skips anything the image happens to
+              # carry rather than reinstalling it.
+              if command -v dnf > /dev/null; then
+                install="dnf -y install"
+              elif command -v zypper > /dev/null; then
+                install="zypper --non-interactive install"
+              elif command -v pacman > /dev/null; then
+                install="pacman -Sy --noconfirm --needed"
+              else
+                install="yum -y install"
+              fi
+              $install gcc make meson
+
+              # GNU make is plain make here, not gmake as on the BSD guests the
+              # script is otherwise driven from.
+              sh .github/scripts/vm-build-and-test.sh
+            '
+
