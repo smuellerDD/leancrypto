@@ -51,7 +51,7 @@ for shared in shared static both; do
 	echo "==> Meson build (BUILD_SHARED_LIBS=$shared)"
 
 	rm -rf "$build"
-	meson setup $build -Ddefault=library=$shared -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled -Dsecure_execution=enabled  -Dsbsigntools=enabled
+	meson setup $build -Ddefault-library=$shared -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled
 	meson compile -C $build
 
 	meson test -C $build --suite regression
