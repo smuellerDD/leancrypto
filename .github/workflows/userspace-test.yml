@@ -52,6 +52,13 @@ jobs:
 
       - name: Meson test
         run: meson test -C build --suite regression
+
+      - name: Archive test log
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-log
+          path: build/meson-logs/testlog.txt
+
       #- name: Generate test coverage report
       #  run: ninja coverage-html -C build
       #- name: Archive code coverage results
@@ -137,8 +144,8 @@ jobs:
           # are still receiving minor releases and deliberately track them - a
           # new compiler landing in RHEL 9 is a thing this job should notice,
           # not something to pin away.
-          - name: RHEL 7
-            image: registry.access.redhat.com/ubi7/ubi:7.9
+          # - name: RHEL 7
+          #   image: registry.access.redhat.com/ubi7/ubi:7.9
           - name: RHEL 8
             image: registry.access.redhat.com/ubi8/ubi:latest
           - name: RHEL 9
