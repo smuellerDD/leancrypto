@@ -42,10 +42,10 @@ jobs:
       - name: Install meson
         run: |
           sudo apt-get update
-          sudo apt-get install -y meson gcovr doxygen graphviz gnu-efi
+          sudo apt-get install -y meson gcovr doxygen graphviz
 
       - name: Meson setup
-        run: CC=${{ matrix.cc }} meson setup build -Ddefault_library=${{ matrix.shared }} -Db_coverage=true -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled -Dsecure_execution=enabled  -Dsbsigntools=enabled
+        run: CC=${{ matrix.cc }} meson setup build -Ddefault_library=${{ matrix.shared }} -Db_coverage=true -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled -Dsecure_execution=enabled
 
       - name: Meson compile
         run: meson compile -C build
