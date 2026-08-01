@@ -745,7 +745,9 @@ struct lc_dilithium_ed25519_ctx {
 #define LC_DILITHIUM_ED25519_SET_CTX(name)                                     \
 	LC_DILITHIUM_SET_CTX_COMMON(&(name)->dilithium_ctx);                   \
 	LC_DILITHIUM_ED25519_CTX_INIT_HASH(name);                              \
-	(name)->dilithium_ctx.composite_algorithm = 1
+	(name)->dilithium_ctx.composite_algorithm = 1;                         \
+	(name)->msg_prefix = NULL;                                             \
+	(name)->msg_prefix_len = 0
 #endif
 /// \endcond
 
@@ -1072,7 +1074,9 @@ struct lc_dilithium_ed448_ctx {
 	sizeof(struct lc_dilithium_ed448_ctx)
 #define LC_DILITHIUM_ED448_SET_CTX(name)                                       \
 	LC_DILITHIUM_SET_CTX(&(name)->dilithium_ctx);                          \
-	(name)->dilithium_ctx.composite_algorithm = 1;
+	(name)->dilithium_ctx.composite_algorithm = 1;                         \
+	(name)->msg_prefix = NULL;                                             \
+	(name)->msg_prefix_len = 0
 #endif
 /// \endcond
 
