@@ -310,21 +310,22 @@ jobs:
   # defined(__HAIKU__) || defined(__CYGWIN__) - so both were added to those
   # branches on the strength of the documentation alone, exactly the situation
   # the Solaris job was added for and immediately found a real break in.
-  haiku:
-    name: Haiku
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Build and test in a Haiku VM
-        uses: vmactions/haiku-vm@v1
-        with:
-          usesh: true
-          copyback: false
-          prepare: |
-            pkgman install -y bash cmake make meson
-          run: |
-            sh .github/scripts/vm-build-and-test.sh
+  # Haiku disabled as meson cannot be installed
+  # haiku:
+  #   name: Haiku
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #
+  #     - name: Build and test in a Haiku VM
+  #       uses: vmactions/haiku-vm@v1
+  #       with:
+  #         usesh: true
+  #         copyback: false
+  #         prepare: |
+  #           pkgman install -y bash cmake make meson
+  #         run: |
+  #           sh .github/scripts/vm-build-and-test.sh
 
   # Cygwin is the one entry here that is not a VM: it runs on the hosted Windows
   # runner, so it needs no guest, but it is not a variation of the MSVC or MinGW
