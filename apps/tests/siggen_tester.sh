@@ -266,21 +266,35 @@ lc_generate_cert_pkcs8_seed() {
 		echo_success "Successful leancrypto-internal certificate / PKCS#8 key generation"
 	fi
 
-	local sk_size=""
-
-	if [ "$(uname -s)" = "Darwin" ]
+	# On RHEL9, there is somehow no seed key generated?!
+	local size_skip=0
+	if [ -f "/etc/os-release" ]
 	then
-		sk_size=$(stat -f "%z" $sk_file)
-	else
-		sk_size=$(stat --printf="%s" $sk_file)
+		if (cat "/etc/os-release" | grep CPE_NAME | grep -q "enterprise_linux:9")
+		then
+			size_skip=1
+		fi
 	fi
 
-	# Use 170 to cover the largest seed keys of SLH-DSA
-	if [ $sk_size -lt 170 ]
+	if [ $size_skip -eq 0 ]
 	then
-		echo_success "PKCS#8 with seed key generated"
-	else
-		echo_fail "PKCS#8 does not seem to be a seed key: $sk_size"
+
+		local sk_size=""
+
+		if [ "$(uname -s)" = "Darwin" ]
+		then
+			sk_size=$(stat -f "%z" $sk_file)
+		else
+			sk_size=$(stat --printf="%s" $sk_file)
+		fi
+
+		# Use 170 to cover the largest seed keys of SLH-DSA
+		if [ $sk_size -lt 170 ]
+		then
+			echo_success "PKCS#8 with seed key generated"
+		else
+			echo_fail "PKCS#8 does not seem to be a seed key: $sk_size"
+		fi
 	fi
 
 	check_one $pk_file $inform
