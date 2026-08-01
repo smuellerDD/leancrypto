@@ -111,7 +111,7 @@ check_one() {
 		echo_fail "Files $file1 and $file2 mismatch"
 		exit 1
 	else
-		echo_pass "Files $file1 and $file2 match"
+		echo_success "Files $file1 and $file2 match"
 	fi
 }
 

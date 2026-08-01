@@ -54,5 +54,5 @@ for shared in shared static both; do
 	meson setup $build -Ddefault_library=$shared -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled
 	meson compile -C $build
 
-	meson test -C $build --suite regression
+	meson test -v -C $build --suite regression
 done

@@ -47,7 +47,7 @@ for all workloads. Currently supported envionments:
 
 Type                  | Service               | Status
 ---                   | ---                   | ---
-Linux User Space      | GitHub                | [![Linux user space CI](https://github.com/smuellerDD/leancrypto/actions/workflows/userspace-test.yml/badge.svg)](https://github.com/smuellerDD/leancrypto/actions/workflows/userspace-test.yml)
+User Space            | GitHub                | [![User space CI](https://github.com/smuellerDD/leancrypto/actions/workflows/userspace-test.yml/badge.svg)](https://github.com/smuellerDD/leancrypto/actions/workflows/userspace-test.yml)
 Linux Kernel Space    | GitHub                | [![Build Status Linux Kernel Space](https://github.com/smuellerDD/leancrypto/actions/workflows/linux-kernelspace-test.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/linux-kernelspace-test.yml)
 macOS User Space      | GitHub                | [![Build Status macOS User Space](https://github.com/smuellerDD/leancrypto/actions/workflows/macos-test.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/macos-test.yml)
 Small Stack           | GitHub                | [![Build Status Small Stack](https://github.com/smuellerDD/leancrypto/actions/workflows/small-stack-test.yml/badge.svg?branch=master)](https://github.com/smuellerDD/leancrypto/actions/workflows/small-stack-test.yml)

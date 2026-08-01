@@ -51,21 +51,7 @@ jobs:
         run: meson compile -C build
 
       - name: Meson test
-        run: meson test -C build --suite regression
-
-      - name: Archive test log
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-log
-          path: build/meson-logs/testlog.txt
-
-      #- name: Generate test coverage report
-      #  run: ninja coverage-html -C build
-      #- name: Archive code coverage results
-      #  uses: actions/upload-artifact@v4
-      #  with:
-      #    name: code-coverage-report
-      #    path: build/meson-logs/coveragereport
+        run: meson test -v -C build --suite regression
 
   # 32-bit exercises code paths no other job reaches: the narrower size_t/long,
   # other accelerations
@@ -87,7 +73,7 @@ jobs:
         run: meson compile -C build
 
       - name: Meson test
-        run: meson test -C build --suite regression
+        run: meson test -v -C build --suite regression
 
   # The distributions the hosted runners are not: every enterprise Linux
   # generation still under support - RHEL 7 through 10, SLES 15 SP7 and 16.1 -
