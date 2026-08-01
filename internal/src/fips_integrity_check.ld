@@ -20,8 +20,6 @@ SECTIONS
 		PROVIDE(lc_fips_end_data = ADDR(.data) + SIZEOF(.data));
 
 		/* Read-only data */
-		#PROVIDE(lc_fips_start_rodata = ADDR(.rodata));
-		#PROVIDE(lc_fips_end_rodata = ADDR(.rodata) + SIZEOF(.rodata));
 		PROVIDE(lc_fips_start_rodata = ADDR(.lc_fips_rodata));
 		PROVIDE(lc_fips_end_rodata = ADDR(.lc_fips_rodata) + SIZEOF(.lc_fips_rodata));
 
