@@ -127,7 +127,8 @@ if (seeded_rng == 1)
 			src += files([ 'seeded_rng_darwin.c' ])
 		endif
 
-		if (host_machine.system() == 'windows')
+		if ((host_machine.system() == 'windows') or
+		    (host_machine.system() == 'cygwin'))
 			src += files([ 'seeded_rng_windows.c' ])
 			leancrypto_link += cc.find_library( 'bcrypt',
 							    required: true)
