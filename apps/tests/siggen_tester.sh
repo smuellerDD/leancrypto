@@ -266,6 +266,15 @@ lc_generate_cert_pkcs8_seed() {
 		echo_success "Successful leancrypto-internal certificate / PKCS#8 key generation"
 	fi
 
+	local sk_size=""
+
+	if [ "$(uname -s)" = "Darwin" ]
+	then
+		sk_size=$(stat -f "%z" $sk_file)
+	else
+		sk_size=$(stat --printf="%s" $sk_file)
+	fi
+
 	# Use 170 to cover the largest seed keys of SLH-DSA
 	if [ $sk_size -lt 170 ]
 	then
@@ -276,15 +285,6 @@ lc_generate_cert_pkcs8_seed() {
 
 	check_one $pk_file $inform
 	check_one_priv $sk_file $inform
-
-	local sk_size=""
-
-	if [ "$(uname -s)" = "Darwin" ]
-	then
-		sk_size=$(stat -f "%z" $sk_file)
-	else
-		sk_size=$(stat --printf="%s" $sk_file)
-	fi
 }
 
 lc_sign_cert() {
