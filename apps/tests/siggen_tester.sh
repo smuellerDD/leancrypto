@@ -266,6 +266,14 @@ lc_generate_cert_pkcs8_seed() {
 		echo_success "Successful leancrypto-internal certificate / PKCS#8 key generation"
 	fi
 
+	# Use 170 to cover the largest seed keys of SLH-DSA
+	if [ $sk_size -lt 170 ]
+	then
+		echo_success "PKCS#8 with seed key generated"
+	else
+		echo_fail "PKCS#8 does not seem to be a seed key: $sk_size"
+	fi
+
 	check_one $pk_file $inform
 	check_one_priv $sk_file $inform
 
@@ -276,14 +284,6 @@ lc_generate_cert_pkcs8_seed() {
 		sk_size=$(stat -f "%z" $sk_file)
 	else
 		sk_size=$(stat --printf="%s" $sk_file)
-	fi
-
-	# Use 170 to cover the largest seed keys of SLH-DSA
-	if [ $sk_size -lt 170 ]
-	then
-		echo_success "PKCS#8 with seed key generated"
-	else
-		echo_fail "PKCS#8 does not seem to be a seed key: $sk_size"
 	fi
 }
 
