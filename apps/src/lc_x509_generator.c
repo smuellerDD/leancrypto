@@ -436,6 +436,11 @@ static int x509_enc_valid_from(struct x509_generator_opts *opts,
 	unsigned long long val;
 	char *endptr = NULL;
 
+	/*
+	 * Setting of errno necessary as otherwise in some libraries
+	 * strtoull does not set it to zero.
+	 */
+	errno = 0;
 	val = strtoull(opt_optarg, &endptr, 10);
 	if (errno || endptr == opt_optarg || *endptr != '\0')
 		return -EINVAL;
@@ -452,6 +457,11 @@ static int x509_enc_valid_to(struct x509_generator_opts *opts,
 	unsigned long long val;
 	char *endptr = NULL;
 
+	/*
+	 * Setting of errno necessary as otherwise in some libraries
+	 * strtoull does not set it to zero.
+	 */
+	errno = 0;
 	val = strtoull(opt_optarg, &endptr, 10);
 	if (errno || endptr == opt_optarg || *endptr != '\0')
 		return -EINVAL;
@@ -470,6 +480,11 @@ static int x509_enc_valid_days(struct x509_generator_opts *opts,
 	char *endptr = NULL;
 	int ret;
 
+	/*
+	 * Setting of errno necessary as otherwise in some libraries
+	 * strtoull does not set it to zero.
+	 */
+	errno = 0;
 	val = strtoull(opt_optarg, &endptr, 10);
 	if (errno || endptr == opt_optarg || *endptr != '\0')
 		return -EINVAL;
