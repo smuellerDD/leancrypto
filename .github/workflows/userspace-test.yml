@@ -200,7 +200,7 @@ jobs:
   # tested image) is used; pinning here only guarantees the job breaks once that
   # image is retired. Solaris is the exception and says why at the job.
   freebsd:
-    name: FreeBSD / cmake + make
+    name: FreeBSD
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -211,12 +211,12 @@ jobs:
           usesh: true
           copyback: false
           prepare: |
-            pkg install -y cmake gmake meson
+            pkg install -y bash cmake gmake meson
           run: |
             sh .github/scripts/vm-build-and-test.sh
 
   openbsd:
-    name: OpenBSD / cmake + make
+    name: OpenBSD
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -227,12 +227,12 @@ jobs:
           usesh: true
           copyback: false
           prepare: |
-            pkg_add -I cmake gmake meson
+            pkg_add -I bash cmake gmake meson
           run: |
             sh .github/scripts/vm-build-and-test.sh
 
   netbsd:
-    name: NetBSD / cmake + make
+    name: NetBSD
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -243,12 +243,12 @@ jobs:
           usesh: true
           copyback: false
           prepare: |
-            /usr/sbin/pkg_add cmake gmake meson
+            /usr/sbin/pkg_add bash cmake gmake meson
           run: |
             sh .github/scripts/vm-build-and-test.sh
 
   dragonflybsd:
-    name: DragonFly BSD / cmake + make
+    name: DragonFly BSD
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -259,7 +259,7 @@ jobs:
           usesh: true
           copyback: false
           prepare: |
-            pkg install -y cmake gmake meson
+            pkg install -y bash cmake gmake meson
           run: |
             sh .github/scripts/vm-build-and-test.sh
 
@@ -300,7 +300,7 @@ jobs:
             # pkg(1) exits 4 for "nothing to do", which is what an image that
             # already carries one of these reports; only a real failure should
             # stop the job, so 4 is accepted and everything else is not.
-            pkg install developer/build/cmake developer/build/gnu-make developer/build/meson || [ $? -eq 4 ]
+            pkg install bash developer/build/cmake developer/build/gnu-make developer/build/meson || [ $? -eq 4 ]
           run: |
             sh .github/scripts/vm-build-and-test.sh
 
@@ -322,7 +322,7 @@ jobs:
           usesh: true
           copyback: false
           prepare: |
-            pkgman install -y cmake make meson
+            pkgman install -y bash cmake make meson
           run: |
             sh .github/scripts/vm-build-and-test.sh
 
@@ -347,6 +347,7 @@ jobs:
           # gcc-core rather than gcc: the C compiler alone, no C++ or the rest
           # of the collection this build never invokes.
           packages: |
+            bash
             cmake
             gcc-core
             make
