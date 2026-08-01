@@ -283,7 +283,7 @@ lc_generate_cert_pkcs8_seed() {
 	then
 		echo_success "PKCS#8 with seed key generated"
 	else
-		echo_fail "PKCS#8 does not seem to be a seed key"
+		echo_fail "PKCS#8 does not seem to be a seed key: $sk_size"
 	fi
 }
 

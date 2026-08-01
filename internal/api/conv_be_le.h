@@ -48,7 +48,7 @@ static inline uint16_t _lc_bswap16(uint16_t x)
 #if !defined(__HAVE_BUILTIN_BSWAP32__) || !defined(__HAVE_BUILTIN_BSWAP64__)
 static inline uint32_t _lc_bswap32(uint32_t x)
 {
-	return ((rol32(x, 8) & 0x00ff00ffL) | (ror32(x, 8) & 0xff00ff00L));
+	return ((rol32(x, 8) & 0x00ff00ffU) | (ror32(x, 8) & 0xff00ff00U));
 }
 #define _lc_swap32(x) _lc_bswap32((uint32_t)(x))
 #else

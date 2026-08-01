@@ -178,7 +178,7 @@ int bit_slice_full_subtract_avx512(upc_t *upc, uint8_t val)
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	for (j = 0; j < LC_BIKE_SLICES; j++) {
-		const uint64_t lsb_mask = 0 - (val & 0x1);
+		const uint64_t lsb_mask = (uint64_t)(0 - (val & 0x1));
 		size_t i;
 
 		val >>= 1;

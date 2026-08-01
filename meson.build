@@ -827,13 +827,11 @@ if (not get_option('disable-asm'))
 			'-mavx2',
 			'-mbmi2',
 			'-mpopcnt',
-			'-Wno-unused-command-line-argument',
 		]
 		cc_avx512_args = [
 			'-mavx512f',
 			'-mbmi2',
 			'-mpopcnt',
-			'-Wno-unused-command-line-argument',
 		]
 	endif
 
