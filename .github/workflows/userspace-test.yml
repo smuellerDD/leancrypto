@@ -302,7 +302,7 @@ jobs:
             # stop the job, so 4 is accepted and everything else is not.
             pkg install bash developer/build/cmake developer/build/gnu-make developer/build/meson || [ $? -eq 4 ]
           run: |
-            sh .github/scripts/vm-build-and-test.sh
+            CC=gcc sh .github/scripts/vm-build-and-test.sh
 
   # Haiku and Cygwin are the last two platforms arch/ names but nothing here
   # compiles. Both appear by name in the same preprocessor conditions -
