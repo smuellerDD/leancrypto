@@ -190,3 +190,169 @@ jobs:
               sh .github/scripts/vm-build-and-test.sh
             '
 
+  # These systems have no hosted GitHub runner, so they are exercised in a QEMU
+  # guest started by the vmactions actions on an Ubuntu runner.
+  #
+  # The release is left unpinned so the action's default (its most recently
+  # tested image) is used; pinning here only guarantees the job breaks once that
+  # image is retired. Solaris is the exception and says why at the job.
+  freebsd:
+    name: FreeBSD / cmake + make
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and test in a FreeBSD VM
+        uses: vmactions/freebsd-vm@v1
+        with:
+          usesh: true
+          copyback: false
+          prepare: |
+            pkg install -y cmake gmake meson
+          run: |
+            sh .github/scripts/vm-build-and-test.sh
+
+  openbsd:
+    name: OpenBSD / cmake + make
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and test in an OpenBSD VM
+        uses: vmactions/openbsd-vm@v1
+        with:
+          usesh: true
+          copyback: false
+          prepare: |
+            pkg_add -I cmake gmake meson
+          run: |
+            sh .github/scripts/vm-build-and-test.sh
+
+  netbsd:
+    name: NetBSD / cmake + make
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and test in a NetBSD VM
+        uses: vmactions/netbsd-vm@v1
+        with:
+          usesh: true
+          copyback: false
+          prepare: |
+            /usr/sbin/pkg_add cmake gmake meson
+          run: |
+            sh .github/scripts/vm-build-and-test.sh
+
+  dragonflybsd:
+    name: DragonFly BSD / cmake + make
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and test in a DragonFly BSD VM
+        uses: vmactions/dragonflybsd-vm@v1
+        with:
+          usesh: true
+          copyback: false
+          prepare: |
+            pkg install -y cmake gmake meson
+          run: |
+            sh .github/scripts/vm-build-and-test.sh
+
+  # Solaris is the SunOS half of the list above. Two things differ from the BSD
+  # jobs and both are deliberate.
+  #
+  # The release is pinned, against the rule stated above, because the stock
+  # 11.4 image carries no C compiler and the action publishes ready-made
+  # variants rather than leaving one to be installed: 11.4-gcc is 11.4 with the
+  # default gcc/g++ already in it. Installing a compiler through pkg(1) instead
+  # would cost a large download on every run to arrive at the same place.
+  #
+  # Packages come from Oracle's IPS repository rather than the OpenCSW pkgutil
+  # the action's own example uses. CMakeLists.txt asks for CMake 3.20 and the
+  # 11.4 IPS repository carries 3.2x, whereas OpenCSW targets Solaris 10 and
+  # makes no such promise. developer/build/gnu-make is what puts gmake on PATH,
+  # which the shared script needs because the Makefile is GNU make syntax and
+  # /usr/bin/make here is the SunOS one.
+  #
+  # CC is set rather than left to the script's cc/gcc/clang search: on Solaris
+  # /usr/bin/cc can be the Oracle Studio compiler, and while CMakeLists.txt has
+  # a SUNPRO branch, the Makefile is GCC-specific - it parses `cc -dumpversion`
+  # and passes GCC warning flags - so the Makefile half of the script would fail
+  # on a guest where cc resolved to Studio.
+  solaris:
+    name: Solaris
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and test in a Solaris VM
+        uses: vmactions/solaris-vm@v1
+        with:
+          release: "11.4-gcc"
+          usesh: true
+          copyback: false
+          prepare: |
+            # pkg(1) exits 4 for "nothing to do", which is what an image that
+            # already carries one of these reports; only a real failure should
+            # stop the job, so 4 is accepted and everything else is not.
+            pkg install developer/build/cmake developer/build/gnu-make developer/build/meson || [ $? -eq 4 ]
+          run: |
+            sh .github/scripts/vm-build-and-test.sh
+
+  # Haiku and Cygwin are the last two platforms arch/ names but nothing here
+  # compiles. Both appear by name in the same preprocessor conditions -
+  # jitterentropy-arch-sched.c, -ncpu.c and -uuid.c all test
+  # defined(__HAIKU__) || defined(__CYGWIN__) - so both were added to those
+  # branches on the strength of the documentation alone, exactly the situation
+  # the Solaris job was added for and immediately found a real break in.
+  haiku:
+    name: Haiku
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and test in a Haiku VM
+        uses: vmactions/haiku-vm@v1
+        with:
+          usesh: true
+          copyback: false
+          prepare: |
+            pkgman install -y cmake make meson
+          run: |
+            sh .github/scripts/vm-build-and-test.sh
+
+  # Cygwin is the one entry here that is not a VM: it runs on the hosted Windows
+  # runner, so it needs no guest, but it is not a variation of the MSVC or MinGW
+  # jobs either. Those two are Windows targets; Cygwin is a POSIX target that
+  # happens to sit on Windows.
+  cygwin:
+    name: Cygwin
+    runs-on: windows-latest
+    steps:
+      # Before the checkout, so the shell scripts arrive with LF endings.
+      # Cygwin's sh reads a CRLF script as having a stray \r on every line and
+      # fails on the first one.
+      - name: Keep line endings as committed
+        run: git config --global core.autocrlf input
+
+      - uses: actions/checkout@v4
+
+      - uses: cygwin/cygwin-install-action@v6
+        with:
+          # gcc-core rather than gcc: the C compiler alone, no C++ or the rest
+          # of the collection this build never invokes.
+          packages: |
+            cmake
+            gcc-core
+            make
+            binutils
+            meson
+
+      # The workflow-level "shell: bash" default resolves to Cygwin's bash here
+      # rather than the runner's Git bash: the action prepends Cygwin's bin to
+      # PATH, and GitHub looks the interpreter up there. That is what makes the
+      # POSIX script below run against the Cygwin toolchain at all.
+      - name: Build and test
+        run: sh .github/scripts/vm-build-and-test.sh
