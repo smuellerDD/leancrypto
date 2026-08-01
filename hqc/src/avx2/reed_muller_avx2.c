@@ -38,9 +38,7 @@ static __inline__ int __bsfd(int __A)
 	return __builtin_ctz((unsigned int)__A);
 }
 
-#if defined(__clang__) || defined(LINUX_KERNEL)
-#define _bit_scan_forward(A) __bsfd((A))
-#endif
+#define _bit_scan_forward_int(A) __bsfd((A))
 
 // copy bit 0 into all bits of a 64 bit value
 #define BIT0MASK(x) (int32_t)(-((x) & 1))
@@ -253,7 +251,7 @@ static inline uint8_t find_peaks(struct reed_muller_decode_ws *ws)
 			_mm256_hadd_epi16(ws->peak_mask.mm, ws->peak_mask.mm);
 	}
 	// add low 4 bits of message
-	message |= (uint8_t)_bit_scan_forward(
+	message |= (uint8_t)_bit_scan_forward_int(
 		(int)(ws->peak_mask.u16[0] + ws->peak_mask.u16[8]));
 
 	// set bit 7 if sign of biggest value is positive
