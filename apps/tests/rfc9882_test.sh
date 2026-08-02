@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # Written by Stephan Mueller <smueller@chronox.de>
 #

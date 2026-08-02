@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # Copyright (C) 2017 - 2026, Stephan Mueller <smueller@chronox.de>
 #
