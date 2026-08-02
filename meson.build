@@ -110,9 +110,34 @@ endif
 if get_option('optimization') == '0'
 	add_global_arguments([ '-DDEBUG' ], language: 'c')
 elif get_option('efi').disabled()
-	# FORTIFY_SOURCE=3 only supported for gcc >= 12.0 or clang >=9.0
-	add_global_arguments([ '-U_FORTIFY_SOURCE' ], language: 'c')
-	add_global_arguments([ '-D_FORTIFY_SOURCE=3' ], language: 'c')
+	code = '''
+		#include <features.h>
+
+		#ifndef _FORTIFY_SOURCE
+		#error "_FORTIFY_SOURCE not defined"
+		#endif
+
+		#if _FORTIFY_SOURCE < 3
+		#error "FORTIFY level too low"
+		#endif
+
+		int main(void) {
+		return 0;
+		}
+	'''
+
+	supports_fortify3 = cc.compiles(code,
+		args: ['-O2', '-D_FORTIFY_SOURCE=3'],
+		name: '_FORTIFY_SOURCE=3'
+	)
+
+	if supports_fortify3
+		add_global_arguments([ '-U_FORTIFY_SOURCE' ], language: 'c')
+		add_global_arguments([ '-D_FORTIFY_SOURCE=3' ], language: 'c')
+	else
+		add_global_arguments([ '-U_FORTIFY_SOURCE' ], language: 'c')
+		add_global_arguments([ '-D_FORTIFY_SOURCE=2' ], language: 'c')
+	endif
 endif
 
 if get_option('enable_selftests').enabled()
