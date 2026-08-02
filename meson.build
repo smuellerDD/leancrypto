@@ -459,12 +459,6 @@ if get_option('fips140_negative').enabled()
 	fips140_negative_expect_fail = true
 endif
 
-# Link with libssp if present
-# This is needed on Solaris where the libssp provides the __stack_chk_fail
-# and __stack_chk_guard implementations
-leancrypto_link += cc.find_library( 'ssp_nonshared', required: false)
-leancrypto_link += cc.find_library( 'ssp', required: false)
-
 # Header generation
 header_script = find_program('addon/generate_header.sh', required: true)
 
@@ -942,6 +936,12 @@ leancrypto_support_libs = [ ]
 
 # External libraries leancrypto should link to
 leancrypto_link = [ ]
+
+# Link with libssp if present
+# This is needed on Solaris where the libssp provides the __stack_chk_fail
+# and __stack_chk_guard implementations
+leancrypto_link += cc.find_library( 'ssp_nonshared', required: false)
+leancrypto_link += cc.find_library( 'ssp', required: false)
 
 foreach n : subdirs
 	subdir(n)
