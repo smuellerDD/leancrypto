@@ -347,7 +347,7 @@ static int lc_ascon_dec_final(struct lc_ascon_cryptor *ascon,
 {
 	const struct lc_hash *hash = ascon->hash;
 	uint8_t calctag[64] __align(sizeof(uint64_t));
-	int ret;
+	int ret = 0;
 
 	BUILD_BUG_ON(sizeof(calctag) != sizeof(ascon->key));
 

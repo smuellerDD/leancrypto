@@ -506,6 +506,12 @@ then
 	fi
 fi
 
+# NetBSD OpenSSL also has issues
+os=$(uname -s 2>/dev/null)
+if [ x"$os" = x"NetBSD" ]
+then
+	exit 77
+fi
 case $TESTTYPE
 in
 	"ML-DSA87" | "ML-DSA-87")

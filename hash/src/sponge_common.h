@@ -29,7 +29,7 @@ extern "C" {
 
 static inline void sponge_fill_state_bytes(uint64_t *state, const uint8_t *in,
 					   size_t byte_offset, size_t inlen,
-					   uint64_t (*bswap64)(uint64_t))
+					   uint64_t (*int_bswap64)(uint64_t))
 {
 	unsigned int i;
 	union {
@@ -58,7 +58,7 @@ static inline void sponge_fill_state_bytes(uint64_t *state, const uint8_t *in,
 		     i++, in++, ctr++)
 			tmp.b[i] = *in;
 
-		*state ^= bswap64(tmp.dw);
+		*state ^= int_bswap64(tmp.dw);
 		state++;
 		inlen -= ctr;
 		i = 0;
@@ -71,8 +71,8 @@ static inline void sponge_fill_state_bytes(uint64_t *state, const uint8_t *in,
 static inline void
 sponge_extract_bytes(const void *state, uint8_t *data, size_t offset,
 		     size_t length, unsigned int state_len,
-		     uint64_t (*bswap64)(uint64_t),
-		     uint32_t (*bswap32)(uint32_t),
+		     uint64_t (*int_bswap64)(uint64_t),
+		     uint32_t (*int_bswap32)(uint32_t),
 		     void (*to_ptr64)(uint8_t *p, const uint64_t value),
 		     void (*to_ptr32)(uint8_t *p, const uint32_t value))
 {
@@ -96,7 +96,7 @@ sponge_extract_bytes(const void *state, uint8_t *data, size_t offset,
 			byte = (i % sizeof(*s)) << 3;
 
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-			if (bswap64 == be_bswap64) {
+			if (int_bswap64 == be_bswap64) {
 				/*
 				 * Counterintuitively this byte-swap is needed
 				 * here because the bit-shift below assigning
@@ -110,7 +110,7 @@ sponge_extract_bytes(const void *state, uint8_t *data, size_t offset,
 				*data = (uint8_t)(s[word] >> byte);
 			}
 #else
-			*data = (uint8_t)(bswap64(s[word]) >> byte);
+			*data = (uint8_t)(int_bswap64(s[word]) >> byte);
 #endif
 		}
 	} else {
@@ -145,7 +145,7 @@ sponge_extract_bytes(const void *state, uint8_t *data, size_t offset,
 		if (todo_32) {
 			/* 32-bit aligned request */
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-			if (bswap32 == be_bswap32) {
+			if (int_bswap32 == be_bswap32) {
 				to_ptr32(data, val.w[0]);
 				/* see above for why this byte-swap is needed */
 				part = le_bswap32(val.w[1]);
@@ -154,29 +154,29 @@ sponge_extract_bytes(const void *state, uint8_t *data, size_t offset,
 				part = val.w[0];
 			}
 #else
-			if (bswap32 == be_bswap32) {
+			if (int_bswap32 == be_bswap32) {
 				to_ptr32(data, val.w[1]);
-				part = bswap32(val.w[0]);
+				part = int_bswap32(val.w[0]);
 			} else {
 				to_ptr32(data, val.w[0]);
-				part = bswap32(val.w[1]);
+				part = int_bswap32(val.w[1]);
 			}
 #endif
 			data += 4;
 		} else {
 			/* non-aligned request */
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-			if (bswap32 == be_bswap32) {
+			if (int_bswap32 == be_bswap32) {
 				/* see above for why this byte-swap is needed */
 				part = le_bswap32(val.w[0]);
 			} else {
 				part = val.w[1];
 			}
 #else
-			if (bswap32 == be_bswap32)
-				part = bswap32(val.w[1]);
+			if (int_bswap32 == be_bswap32)
+				part = int_bswap32(val.w[1]);
 			else
-				part = bswap32(val.w[0]);
+				part = int_bswap32(val.w[0]);
 #endif
 		}
 
@@ -187,7 +187,7 @@ sponge_extract_bytes(const void *state, uint8_t *data, size_t offset,
 
 static inline void sponge_newstate(void *state, const uint8_t *data,
 				   size_t offset, size_t length,
-				   uint64_t (*bswap64)(uint64_t))
+				   uint64_t (*int_bswap64)(uint64_t))
 {
 	uint64_t *s = state;
 	unsigned int i;
@@ -218,14 +218,14 @@ static inline void sponge_newstate(void *state, const uint8_t *data,
 		 * Swap the data to local endianess to allow the following loop
 		 * to work as expected.
 		 */
-		tmp.dw = bswap64(tmp.dw);
+		tmp.dw = int_bswap64(tmp.dw);
 
 		/* Overwrite the existing tmp data with new data */
 		for (ctr = 0; i < sizeof(tmp) && (size_t)ctr < length;
 		     i++, data++, ctr++)
 			tmp.b[i] = *data;
 
-		*s = bswap64(tmp.dw);
+		*s = int_bswap64(tmp.dw);
 		s++;
 		length -= ctr;
 		i = 0;
