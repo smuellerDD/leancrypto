@@ -24,7 +24,7 @@ if get_option('kyber_x448').enabled()
 				include_dirs,
 				include_internal_dirs
 			],
-			link_with: leancrypto_lib
+			dependencies: leancrypto
 			)
 
 	test('ECDH X448 Common', x448_tester, suite: regression)
@@ -57,7 +57,7 @@ if get_option('dilithium_ed448').enabled()
 				include_dirs,
 				include_internal_dirs
 			],
-			link_with: leancrypto_lib
+			dependencies: leancrypto
 			)
 	test('EDDSA ED448 Common', ed448_tester, suite: regression)
 	test('EDDSA ED448 Disabled', ed448_disabled_tester,

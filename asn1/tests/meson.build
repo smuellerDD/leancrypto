@@ -723,8 +723,7 @@ if get_option('pkcs7_generator').enabled()
 	pkcs7_trust_malicious1_tester = executable('pkcs7_trust_malicious1_tester',
 		[ 'pkcs7_trust_malicious1_tester.c', internal_src ],
 		include_directories: [ include_internal_dirs ],
-		dependencies: leancrypto,
-		link_with: leancrypto_lib
+		dependencies: leancrypto
 		)
 	test('PKCS7 Trust Validation - Malicious Cert chain',
 		pkcs7_trust_malicious1_tester, suite: regression,

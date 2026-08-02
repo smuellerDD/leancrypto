@@ -86,6 +86,7 @@ if ((get_option('dilithium_87').enabled() or
 			include_directories: [
 				include_dirs,
 				include_internal_dirs
-			], link_with: leancrypto_lib
+			],
+			dependencies: leancrypto
 			)
 endif

@@ -59,7 +59,7 @@ if get_option('kyber_x25519').enabled()
 				include_dirs,
 				include_internal_dirs
 			],
-			link_with: leancrypto_lib
+			dependencies: leancrypto
 			)
 
 	test('ECDH X25519 Common', x25519_tester, suite: regression)
@@ -92,7 +92,7 @@ if get_option('dilithium_ed25519').enabled()
 				include_dirs,
 				include_internal_dirs
 			],
-			link_with: leancrypto_lib
+			dependencies: leancrypto
 			)
 	test('EDDSA ED25519', ed25519_tester, suite: regression)
 	test('EDDSA ED25519 Disabled', ed25519_disabled_tester,

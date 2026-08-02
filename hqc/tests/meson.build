@@ -105,7 +105,8 @@ if hqc_tests_generic
 					include_dirs,
 					include_internal_dirs,
 					include_hqc_internal
-				], link_with: leancrypto_lib
+				],
+				dependencies: leancrypto
 				)
 	test('HQC official API KEM', hqc_kem_official_tester,
 	     suite: regression)

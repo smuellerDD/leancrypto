@@ -111,7 +111,8 @@ if bike_tests_generic
 					include_dirs,
 					include_internal_dirs,
 					include_bike_internal
-				], link_with: leancrypto_lib
+				],
+				dependencies: leancrypto
 				)
 	test('BIKE official API KEM', bike_kem_official_tester,
 	     suite: regression,
