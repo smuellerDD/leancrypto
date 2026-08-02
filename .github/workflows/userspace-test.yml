@@ -361,3 +361,30 @@ jobs:
       # POSIX script below run against the Cygwin toolchain at all.
       - name: Build and test
         run: sh .github/scripts/vm-build-and-test.sh
+
+  # MSVC is the reference Windows toolchain.
+  # MSVC currently disabled as I am not sure how to install Meson
+  # windows-msvc:
+  #   name: Windows / MSVC / ${{ matrix.os }} / shared=${{ matrix.shared }}
+  #   runs-on: ${{ matrix.os }}
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       os: [ windows-latest, windows-11-arm ]
+  #       shared: [ 'shared', 'static', 'both' ]
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #
+  #     - name: Install meson
+  #       run: |
+  #         sudo apt-get update
+  #         sudo apt-get install -y meson gcovr doxygen graphviz
+  #
+  #     - name: Meson setup
+  #       run: CC=${{ matrix.cc }} meson setup build -Ddefault_library=${{ matrix.shared }} -Db_coverage=true -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled -Dsecure_execution=enabled
+  #
+  #     - name: Meson compile
+  #       run: meson compile -C build
+  #
+  #     - name: Meson test
+  #       run: meson test -v -C build --suite regression
