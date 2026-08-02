@@ -119,6 +119,7 @@ if (seeded_rng == 1)
 		if ((host_machine.system() == 'dragonfly') or
 		    (host_machine.system() == 'freebsd') or
 		    (host_machine.system() == 'openbsd') or
+		    (host_machine.system() == 'netbsd') or
 		    (host_machine.system() == 'sunos'))
 			src += files([ 'seeded_rng_bsd.c' ])
 		endif
