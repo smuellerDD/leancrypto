@@ -108,7 +108,7 @@ check_one() {
 
 # Solaris cannot handle "local" keywords
 os=$(uname -s 2>/dev/null)
-if [ x"$os" = x"Solaris" ]
+if [ x"$os" = x"SunOS" ]
 then
 	exit 77
 fi
