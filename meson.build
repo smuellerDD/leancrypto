@@ -34,7 +34,6 @@ cc = meson.get_compiler('c')
 add_global_arguments([ '-fstack-protector-strong',
 		       '-fwrapv',
 		       '--param', 'ssp-buffer-size=4',
-		       '-fvisibility=hidden',
 		       '-Wconversion',
 		       '-Wcast-align',
 		       '-Wmissing-field-initializers',
@@ -105,6 +104,27 @@ endif
 
 if build_machine.system() == 'sunos'
 	add_global_arguments([ '-Wa,--divide' ], language: 'c')
+endif
+
+# Cygwin compiler supports -fvisibility=hidden, but emits tons of warnings that
+# it is not supported during compilation
+code = '''
+	int func(void);
+	int func(void)
+	{
+		return 0;
+	}
+
+	int main(void) {
+		return func();
+	}
+'''
+supports_visibility = cc.compiles(code,
+	args: ['-O2', '-fvisibility=hidden', '-Werror'],
+	name: 'fvisibility=hidden'
+)
+if supports_visibility
+	add_global_arguments([ '-fvisibility=hidden' ], language: 'c')
 endif
 
 if get_option('optimization') == '0'
