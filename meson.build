@@ -110,6 +110,7 @@ endif
 if get_option('optimization') == '0'
 	add_global_arguments([ '-DDEBUG' ], language: 'c')
 elif get_option('efi').disabled()
+	# FORTIFY_SOURCE=3 only supported for gcc >= 12.0 or clang >=9.0
 	add_global_arguments([ '-U_FORTIFY_SOURCE' ], language: 'c')
 	add_global_arguments([ '-D_FORTIFY_SOURCE=3' ], language: 'c')
 endif
@@ -936,12 +937,14 @@ leancrypto_support_libs = [ ]
 
 # External libraries leancrypto should link to
 leancrypto_link = [ ]
+leancrypto_ssp_link = [ ]
 
 # Link with libssp if present
 # This is needed on Solaris where the libssp provides the __stack_chk_fail
 # and __stack_chk_guard implementations
-leancrypto_link += cc.find_library( 'ssp_nonshared', required: false)
-leancrypto_link += cc.find_library( 'ssp', required: false)
+leancrypto_ssp_link += cc.find_library( 'ssp_nonshared', required: false)
+leancrypto_ssp_link += cc.find_library( 'ssp', required: false)
+leancrypto_link += leancrypto_ssp_link
 
 foreach n : subdirs
 	subdir(n)

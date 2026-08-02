@@ -261,6 +261,7 @@ if (asn1_compiler_enabled)
 
 	asn1_compiler = executable('asn1_compiler',
 		[ asn1_compiler_files ],
+		dependencies: [ leancrypto_ssp_link ],
 		include_directories: [ include_internal_dirs ],
 	)
 endif
