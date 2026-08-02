@@ -325,8 +325,8 @@ static int x509_write_pem_data(int fd, const uint8_t *data, size_t datalen,
 		goto out;
 	}
 
-	memory = mmap(NULL, certdata_pem_len + 1, PROT_WRITE | PROT_READ,
-		      MAP_PRIVATE, fd, 0);
+	memory = mmap(NULL, certdata_pem_len + 1, PROT_WRITE,
+		      PROT_READ | MAP_PRIVATE, fd, 0);
 	if (memory == MAP_FAILED) {
 		memory = NULL;
 		ret = -errno;
