@@ -198,7 +198,7 @@ lc_convert_sk() {
 	then
 		echo_fail "Failed to convert secret key"
 	else
-		echo_success "Successful conversion of ecret key"
+		echo_success "Successful conversion of secret key"
 	fi
 }
 

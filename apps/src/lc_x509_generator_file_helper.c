@@ -138,7 +138,8 @@ void release_data_memory(uint8_t *memory, size_t memory_length,
 }
 
 #if (defined(__CYGWIN__) || defined(_WIN32) || defined(__sun) ||               \
-     defined(__OpenBSD__) || defined(__NetBSD))
+     defined(__OpenBSD__) || defined(__NetBSD__) || defined(__FreeBSD__))
+
 
 int get_data(const char *filename, uint8_t **memory, size_t *memory_length,
 	     enum lc_pem_flags pem_flags)
@@ -324,8 +325,8 @@ static int x509_write_pem_data(int fd, const uint8_t *data, size_t datalen,
 		goto out;
 	}
 
-	memory = mmap(NULL, certdata_pem_len + 1, PROT_WRITE,
-		      PROT_READ | MAP_PRIVATE, fd, 0);
+	memory = mmap(NULL, certdata_pem_len + 1, PROT_WRITE | PROT_READ,
+		      MAP_PRIVATE, fd, 0);
 	if (memory == MAP_FAILED) {
 		memory = NULL;
 		ret = -errno;
