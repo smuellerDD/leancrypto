@@ -1138,7 +1138,9 @@ endforeach
 ################################################################################
 # Create Doxygen documentation
 ################################################################################
-if doxygen.found()
+# Doxygen on cygwin is not able to parse current config file
+if (doxygen.found() and (build_machine.system() != 'cygwin')
+
 	subdir('doc')
 else
 	message('Doxygen documentation not generated due to missing Doxygen binary')
