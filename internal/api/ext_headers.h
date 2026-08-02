@@ -490,6 +490,9 @@ static inline int lc_get_time(time64_t *time_since_epoch, time64_t *n_sec)
 #ifndef ENOKEY
 #define ENOKEY 252 /* Key not found */
 #endif
+#ifndef ENODATA
+#define ENODATA 251 /* Data not provided */
+#endif
 #endif /* LC_EFI_ENVIRONMENT */
 
 #endif /* EXT_HEADERS_H */
