@@ -147,7 +147,7 @@ elif get_option('efi').disabled()
 	'''
 
 	supports_fortify3 = cc.compiles(code,
-		args: ['-O2', '-D_FORTIFY_SOURCE=3'],
+		args: ['-O2', '-D_FORTIFY_SOURCE=3', '-Werror'],
 		name: '_FORTIFY_SOURCE=3'
 	)
 
