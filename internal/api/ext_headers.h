@@ -319,6 +319,7 @@ static const int errno_private = 0;
 
 #include <memoryapi.h>
 
+#ifndef __CYGWIN__
 static inline int mlock(const void *ptr, size_t len)
 {
 	/* "If the function succeeds, the return value is nonzero" */
@@ -338,6 +339,7 @@ static inline int munlock(const void *ptr, size_t len)
 	}
 	return 0;
 }
+#endif /* __CYGWIN__ */
 
 #define SYSV_ABI __attribute__((sysv_abi))
 
