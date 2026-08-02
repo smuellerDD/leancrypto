@@ -453,6 +453,7 @@ then
 	fi
 fi
 
+# NetBSD OpenSSL also has issues
 os=$(uname -s 2>/dev/null)
 if [ x"$os" = x"NetBSD" ]
 then
