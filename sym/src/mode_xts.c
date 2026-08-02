@@ -228,6 +228,10 @@ static int mode_xts_encrypt_iv_internal(const struct lc_mode_state *ctx,
 		uint8_t CC[AES_BLOCKLEN] __align(sizeof(uint64_t)),
 			PP[AES_BLOCKLEN] __align(sizeof(uint64_t));
 
+		/* Safety valve */
+		if (b > AES_BLOCKLEN)
+			return -EFAULT;
+
 		/* Encrypt last full block */
 		xts_enc_block(ctx, CC, in, tweak);
 		gfmul_alpha(tweak);
@@ -351,6 +355,10 @@ static int mode_xts_decrypt_iv_internal(const struct lc_mode_state *ctx,
 		uint8_t CC[AES_BLOCKLEN] __align(sizeof(uint64_t)),
 			PP[AES_BLOCKLEN] __align(sizeof(uint64_t));
 		union lc_xts_tweak tweak_local;
+
+		/* Safety valve */
+		if (b > AES_BLOCKLEN)
+			return -EFAULT;
 
 		memcpy(tweak_local.b, tweak->b, AES_BLOCKLEN);
 
