@@ -1118,6 +1118,7 @@ if get_option('efi').disabled()
 endif
 
 leancrypto = declare_dependency(link_with: leancrypto_lib,
+				dependencies: [ leancrypto_ssp_link ],
 				include_directories: include_dirs)
 
 install_headers(include_files, subdir: leancrypto_header_subdir)
