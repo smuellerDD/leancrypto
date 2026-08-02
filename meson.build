@@ -137,6 +137,24 @@ elif get_option('efi').disabled()
 	else
 		add_global_arguments([ '-U_FORTIFY_SOURCE' ], language: 'c')
 		add_global_arguments([ '-D_FORTIFY_SOURCE=2' ], language: 'c')
+
+		# Older compilers also complain about some LTO type mismatch
+		if cc.has_argument('-Wno-lto-type-mismatch')
+			add_global_arguments([ '-Wno-lto-type-mismatch' ],
+					       language: 'c')
+		endif
+
+		# Older compilers also complain about strict aliasing
+		if cc.has_argument('-fno-strict-aliasing')
+			add_global_arguments([ '-fno-strict-aliasing' ],
+					       language: 'c')
+		endif
+
+		# Older compilers have the conversion check incomplete
+		if cc.has_argument('-Wno-conversion')
+			add_global_arguments([ '-Wno-conversion' ],
+					       language: 'c')
+		endif
 	endif
 endif
 
