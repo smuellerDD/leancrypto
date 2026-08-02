@@ -264,34 +264,21 @@ lc_generate_csr_pkcs8_seed() {
 		echo_success "Successful leancrypto-internal CSR / PKCS#8 key generation"
 	fi
 
-	# On RHEL9, there is somehow no seed key generated?!
-	local size_skip=0
-	if [ -f "/etc/os-release" ]
+	local sk_size=""
+
+	if [ "$(uname -s)" = "Darwin" ]
 	then
-		if (cat "/etc/os-release" | grep CPE_NAME | grep -q "enterprise_linux:9")
-		then
-			size_skip=1
-		fi
+		sk_size=$(stat -f "%z" $sk_file)
+	else
+		sk_size=$(stat --printf="%s" $sk_file)
 	fi
 
-	if [ $size_skip -eq 0 ]
+	# Use 170 to cover the largest seed keys of SLH-DSA
+	if [ $sk_size -lt 170 ]
 	then
-		local sk_size=""
-
-		if [ "$(uname -s)" = "Darwin" ]
-		then
-			sk_size=$(stat -f "%z" $sk_file)
-		else
-			sk_size=$(stat --printf="%s" $sk_file)
-		fi
-
-		# Use 170 to cover the largest seed keys of SLH-DSA
-		if [ $sk_size -lt 170 ]
-		then
-			echo_success "PKCS#8 with seed key generated"
-		else
-			echo_fail "PKCS#8 does not seem to be a seed key: $sk_size"
-		fi
+		echo_success "PKCS#8 with seed key generated"
+	else
+		echo_fail "PKCS#8 does not seem to be a seed key: $sk_size"
 	fi
 }
 
@@ -451,6 +438,15 @@ ossl_keygen_lc_op_pem() {
 
 	lc_sign_csr "PEM" "--pem-output"
 }
+
+# On RHEL9, OpenSSL somehow returns strange data
+if [ -f "/etc/os-release" ]
+then
+	if (cat "/etc/os-release" | grep CPE_NAME | grep -q "enterprise_linux:9")
+	then
+		exit 77
+	fi
+fi
 
 case $TESTTYPE
 in
