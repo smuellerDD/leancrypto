@@ -137,7 +137,8 @@ void release_data_memory(uint8_t *memory, size_t memory_length,
 	}
 }
 
-#if (defined(__CYGWIN__) || defined(_WIN32) || defined(__sun))
+#if (defined(__CYGWIN__) || defined(_WIN32) || defined(__sun) ||               \
+     defined(__OpenBSD__))
 
 int get_data(const char *filename, uint8_t **memory, size_t *memory_length,
 	     enum lc_pem_flags pem_flags)
