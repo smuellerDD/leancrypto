@@ -483,6 +483,13 @@ composite_ref_imp_test() {
 	done
 }
 
+# Solaris cannot handle "local" keywords
+os=$(uname -s 2>/dev/null)
+if [ x"$os" = x"Solaris" ]
+then
+	exit 77
+fi
+
 bc_test
 redhound_test
 cht_test

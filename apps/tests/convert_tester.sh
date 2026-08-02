@@ -246,6 +246,13 @@ lc_convert_pk_pem_der() {
 	check_one "${pk_file}" "${pk_file}.2"
 }
 
+# Solaris cannot handle "local" keywords
+os=$(uname -s 2>/dev/null)
+if [ x"$os" = x"Solaris" ]
+then
+	exit 77
+fi
+
 lc_convert_sk_der_pem "ML-DSA87"
 lc_convert_sk_pem_der "ML-DSA65-ED25519"
 lc_convert_pk_der_pem "SLH-DSA-SHAKE-192F"

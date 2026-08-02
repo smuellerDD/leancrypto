@@ -18,6 +18,13 @@
 # DAMAGE.
 #
 
+# Solaris cannot handle "local" keywords
+os=$(uname -s 2>/dev/null)
+if [ x"$os" = x"Solaris" ]
+then
+	exit 77
+fi
+
 DIRNAME="$(dirname "$0")"
 . "$DIRNAME/libtest.sh"
 

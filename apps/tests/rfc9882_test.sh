@@ -106,6 +106,13 @@ check_one() {
 	fi
 }
 
+# Solaris cannot handle "local" keywords
+os=$(uname -s 2>/dev/null)
+if [ x"$os" = x"Solaris" ]
+then
+	exit 77
+fi
+
 check_one $TESTVECTOR
 
 ################################################################################
