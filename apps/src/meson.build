@@ -12,7 +12,7 @@ if (host_machine.system() != 'windows' and
 		sha512sum = executable('sha512sum',
 				[ sha512sum_files ],
 				include_directories: [ include_internal_dirs ],
-				dependencies: [ leancrypto, leancrypto_ssp_link ],
+				dependencies: leancrypto,
 				install: true,
 				install_dir: get_option('libexecdir') / meson.project_name()
 				)
@@ -23,7 +23,7 @@ if (host_machine.system() != 'windows' and
 		sha384sum = executable('sha384sum',
 				[ sha384sum_files ],
 				include_directories: [ include_internal_dirs ],
-				dependencies: [ leancrypto, leancrypto_ssp_link ],
+				dependencies: leancrypto,
 				install: true,
 				install_dir: get_option('libexecdir') / meson.project_name()
 				)
@@ -36,7 +36,7 @@ if (host_machine.system() != 'windows' and
 		sha256sum = executable('sha256sum',
 				[ sha256sum_files ],
 				include_directories: [ include_internal_dirs ],
-				dependencies: [ leancrypto, leancrypto_ssp_link ],
+				dependencies: leancrypto,
 				install: true,
 				install_dir: get_option('libexecdir') / meson.project_name()
 				)
@@ -49,7 +49,7 @@ if (host_machine.system() != 'windows' and
 		sha3_256sum = executable('sha3-256sum',
 				[ sha3_256sum_files ],
 				include_directories: [ include_internal_dirs ],
-				dependencies: [ leancrypto, leancrypto_ssp_link ],
+				dependencies: leancrypto,
 				install: true,
 				install_dir: get_option('libexecdir') / meson.project_name()
 				)
@@ -60,7 +60,7 @@ if (host_machine.system() != 'windows' and
 		sha3_384sum = executable('sha3-384sum',
 				[ sha3_384sum_files ],
 				include_directories: [ include_internal_dirs ],
-				dependencies: [ leancrypto, leancrypto_ssp_link ],
+				dependencies: leancrypto,
 				install: true,
 				install_dir: get_option('libexecdir') / meson.project_name()
 				)
@@ -71,7 +71,7 @@ if (host_machine.system() != 'windows' and
 		sha3_512sum = executable('sha3-512sum',
 				[ sha3_512sum_files ],
 				include_directories: [ include_internal_dirs ],
-				dependencies: [ leancrypto, leancrypto_ssp_link ],
+				dependencies: leancrypto,
 				install: true,
 				install_dir: get_option('libexecdir') / meson.project_name()
 				)
@@ -84,7 +84,7 @@ if (host_machine.system() != 'windows' and
 		ascon256_sum = executable('ascon256-sum',
 				[ ascon256_sum_files ],
 				include_directories: [ include_internal_dirs ],
-				dependencies: [ leancrypto, leancrypto_ssp_link ],
+				dependencies: leancrypto,
 				install: true,
 				install_dir: get_option('libexecdir') / meson.project_name()
 				)
@@ -102,7 +102,7 @@ if (host_machine.system() != 'windows' and
 		lc_x509_generator = executable('lc_x509_generator',
 				[ lc_x509_generator_files ],
 				include_directories: [ include_internal_dirs ],
-				dependencies: [ leancrypto, leancrypto_ssp_link ],
+				dependencies: leancrypto,
 				install: true,
 				)
 	endif
@@ -120,7 +120,7 @@ if (host_machine.system() != 'windows' and
 		lc_pkcs7_generator = executable('lc_pkcs7_generator',
 				[ lc_pkcs7_generator_files ],
 				include_directories: [ include_internal_dirs ],
-				dependencies: [ leancrypto, leancrypto_ssp_link ],
+				dependencies: leancrypto,
 				install: true,
 				)
 	endif
@@ -141,7 +141,7 @@ if (host_machine.system() != 'windows' and
 		sbsign = executable('sbsign',
 				[ sbsign_files ],
 				include_directories: [ include_internal_dirs ],
-				dependencies: [ leancrypto, leancrypto_ssp_link ],
+				dependencies: leancrypto,
 				install: true,
 				install_dir: get_option('libexecdir') / meson.project_name()
 				)
@@ -160,7 +160,7 @@ if (host_machine.system() != 'windows' and
 		sbverify = executable('sbverify',
 				[ sbverify_files ],
 				include_directories: [ include_internal_dirs ],
-				dependencies: [ leancrypto, leancrypto_ssp_link ],
+				dependencies: leancrypto,
 				install: true,
 				install_dir: get_option('libexecdir') / meson.project_name()
 				)
@@ -176,7 +176,7 @@ if (host_machine.system() != 'windows' and
 		sbvarsign = executable('sbvarsign',
 				[ sbvarsign_files ],
 				include_directories: [ include_internal_dirs ],
-				dependencies: [ leancrypto, leancrypto_ssp_link ],
+				dependencies: leancrypto,
 				install: true,
 				install_dir: get_option('libexecdir') / meson.project_name()
 				)
@@ -190,7 +190,7 @@ if (host_machine.system() != 'windows' and
 		sbsiglist = executable('sbsiglist',
 				[ sbsiglist_files ],
 				include_directories: [ include_internal_dirs ],
-				dependencies: [ leancrypto, leancrypto_ssp_link ],
+				dependencies: leancrypto,
 				install: true,
 				install_dir: get_option('libexecdir') / meson.project_name()
 				)
@@ -204,7 +204,7 @@ if (host_machine.system() != 'windows' and
 		sbkeysync = executable('sbkeysync',
 				[ sbkeysync_files ],
 				include_directories: [ include_internal_dirs ],
-				dependencies: [ leancrypto, leancrypto_ssp_link ],
+				dependencies: leancrypto,
 				install: true,
 				install_dir: get_option('libexecdir') / meson.project_name()
 				)
@@ -221,7 +221,7 @@ if (host_machine.system() != 'windows' and
 		sbattach = executable('sbattach',
 				[ sbattach_files ],
 				include_directories: [ include_internal_dirs ],
-				dependencies: [ leancrypto, leancrypto_ssp_link ],
+				dependencies: leancrypto,
 				install: true,
 				install_dir: get_option('libexecdir') / meson.project_name()
 				)
