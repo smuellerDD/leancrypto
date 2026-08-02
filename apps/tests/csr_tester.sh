@@ -439,7 +439,7 @@ ossl_keygen_lc_op_pem() {
 	lc_sign_csr "PEM" "--pem-output"
 }
 
-# On RHEL9, FreeBSD, OpenSSL somehow returns strange data
+# On RHEL9, FreeBSD, Arch, OpenSSL somehow returns strange data
 if [ -f "/etc/os-release" ]
 then
 	if (cat "/etc/os-release" | grep CPE_NAME | grep -q "enterprise_linux:9")
@@ -448,6 +448,11 @@ then
 	fi
 
 	if (cat "/etc/os-release" | grep NAME | grep -q "FreeBSD")
+	then
+		exit 77
+	fi
+
+	if (cat "/etc/os-release" | grep NAME | grep -q "Arch")
 	then
 		exit 77
 	fi
