@@ -15,6 +15,8 @@ Changes 1.8.1-prerelease
 
 * Simplify SHA-3 operation
 
+* Fixes to make leancrypto work on: Solaris, Cygwin, RHEL9 (RHEL8 linker has a bug? RHEL7 does not offer meson), FreeBSD, NetBSD, OpenBSD, Dragonfly BSD, Arch Linux and add github workflow to continuously test them
+
 Changes 1.8.0
 * X.509: provide a common automated serial number generator which is the 20 leftmost bytes of the SHA3-256 hash of the certificate DER blob with the serial number being 20 bytes of 0xff and the signature part equally a range of 0xff bytes
 
