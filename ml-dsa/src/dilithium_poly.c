@@ -59,6 +59,12 @@ uint32_t poly_chknorm(const poly *a, int32_t B)
 		t |= ct_cmask_neg_i32(B - 1 - ct_abs_i32(a->coeffs[i]));
 	}
 
+	/*
+	 * Timecop: Due to constant time ops above, the result is not critical
+	 */
+	unpoison(t, sizeof(t));
+	unpoison(i, sizeof(i));
+
 	return t;
 }
 

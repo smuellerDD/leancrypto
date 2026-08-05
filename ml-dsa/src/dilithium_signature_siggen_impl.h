@@ -79,6 +79,7 @@ static int lc_dilithium_sign_internal_ahat(struct lc_dilithium_sig *sig,
 			uint8_t poly_uniform_gamma1_buf[WS_POLY_UNIFORM_BUF_SIZE];
 			uint8_t poly_challenge_buf[POLY_CHALLENGE_BYTES];
 		} tmp;
+		uint8_t reject0, reject1;
 	};
 	unsigned int n, i;
 	uint8_t *key, *mu, *rhoprime, *rnd;
@@ -191,6 +192,8 @@ static int lc_dilithium_sign_internal_ahat(struct lc_dilithium_sig *sig,
 	h = &ws->h;
 
 rej:
+	ws->reject0 = ws->reject1 = 0;
+
 	/* Algorithm 7 step 11 - Sample intermediate vector y */
 	polyvecl_uniform_gamma1(&ws->y, rhoprime, nonce++,
 				ws->tmp.poly_uniform_gamma1_buf);
@@ -263,16 +266,21 @@ rej:
 		/* Reduction of z, the result of previous call */
 		poly_reduce(&z->vec[i]);
 
-		/* Timecop: the signature component z is not sensitive any more. */
-		unpoison(&z->vec[i], sizeof(poly));
-
 		/* Algorithm 7: step 23 - z rejection */
-		if (poly_chknorm(&z->vec[i],
-				 LC_DILITHIUM_GAMMA1 - LC_DILITHIUM_BETA)) {
-			rej_total |= 1 << 0;
-			goto rej;
-		}
+		cmov_uint8(&ws->reject0, 1,
+			   (uint8_t)poly_chknorm(&z->vec[i],
+						 LC_DILITHIUM_GAMMA1 -
+							 LC_DILITHIUM_BETA));
 	}
+
+	unpoison(&ws->reject0, sizeof(ws->reject0));
+#ifdef REJECTION_TEST_SAMPLING
+	rej_total |= (uint8_t)ct_sel_int32(1 << 0, 0, ws->reject0);
+#endif
+	if (ws->reject0)
+		goto rej;
+
+	ws->reject0 = 0;
 
 	/*
 	 * Check that subtracting cs2 does not change high bits of w and low
@@ -288,15 +296,11 @@ rej:
 		/* Reduction of r0, the result of previous call */
 		poly_reduce(&w0->vec[i]);
 
-		/* Timecop: verification data w0 is not sensitive any more. */
-		unpoison(&w0->vec[i], sizeof(poly));
-
 		/* Algorithm 7: step 23 - r0 rejection */
-		if (poly_chknorm(&w0->vec[i],
-				 LC_DILITHIUM_GAMMA2 - LC_DILITHIUM_BETA)) {
-			rej_total |= 1 << 1;
-			goto rej;
-		}
+		cmov_uint8(&ws->reject0, 1,
+			   (uint8_t)poly_chknorm(&w0->vec[i],
+						 LC_DILITHIUM_GAMMA2 -
+							 LC_DILITHIUM_BETA));
 
 		/* Compute hints for w1 */
 		/* Algorithm 7: step 25 - chat multiply that */
@@ -306,26 +310,42 @@ rej:
 		/* Reduction of h */
 		poly_reduce(&h->vec[i]);
 
-		/*
-		 * Timecop: the signature component h is not sensitive any more.
-		 */
-		unpoison(&h->vec[i], sizeof(poly));
-
 		/* Algorithm 7: step 28 - ct0 rejection */
-		if (poly_chknorm(&h->vec[i], LC_DILITHIUM_GAMMA2)) {
-			rej_total |= 1 << 2;
-			goto rej;
-		}
+		cmov_uint8(&ws->reject1, 1,
+			   (uint8_t)poly_chknorm(&h->vec[i],
+						 LC_DILITHIUM_GAMMA2));
 
 		poly_add(&w0->vec[i], &w0->vec[i], &h->vec[i]);
 	}
 
+	unpoison(&ws->reject0, sizeof(ws->reject0));
+	unpoison(&ws->reject1, sizeof(ws->reject1));
+#ifdef REJECTION_TEST_SAMPLING
+	rej_total |= (uint8_t)ct_sel_int32(1 << 1, 0, ws->reject0);
+	rej_total |= (uint8_t)ct_sel_int32(1 << 2, 0, ws->reject1);
+#endif
+	if (ws->reject0 | ws->reject1)
+		goto rej;
+
+	ws->reject0 = 0;
+
 	/* Algorithm 7: step 26 */
 	n = polyveck_make_hint(&ws->h, &ws->w0, &ws->w1);
-	if (n > LC_DILITHIUM_OMEGA) {
-		rej_total |= 1 << 3;
+	cmov_uint8(&ws->reject0, 1, n > LC_DILITHIUM_OMEGA);
+	unpoison(&ws->reject0, sizeof(ws->reject0));
+#ifdef REJECTION_TEST_SAMPLING
+	rej_total |= (uint8_t)ct_sel_int32(1 << 3, 0, ws->reject0);
+#endif
+	if (ws->reject0)
 		goto rej;
-	}
+
+	/*
+	 * Timecop: the signature components z, w0, h are not sensitive any
+	 * more.
+	 */
+	unpoison(z, sizeof(polyvecl));
+	unpoison(w0, sizeof(polyveck));
+	unpoison(h, sizeof(polyveck));
 
 	/* Write signature */
 	pack_sig(sig, &ws->z, &ws->h);
