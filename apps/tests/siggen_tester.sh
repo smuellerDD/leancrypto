@@ -106,7 +106,10 @@ color()
 			reset|off|default) code=0 ;;
 			bold|bright) code=1 ;;
 		esac
-		[[ $code == 0 ]] || echo -ne "\033[$(printf "%02d" $((code+bg)))m"
+		if [ $code -eq 0 ]
+		then
+			echo -ne "\033[$(printf "%02d" $((code+bg)))m"
+		fi
 		shift
 	done
 }
