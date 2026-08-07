@@ -209,8 +209,8 @@ static inline void sha512_transform(struct lc_sha512_state *ctx,
 		W[i] = 0;
 }
 
-static inline void sha512_transform_block_c(struct lc_sha512_state *ctx,
-					    const uint8_t *in, size_t blocks)
+static inline void SYSV_ABI sha512_transform_block_c(
+	struct lc_sha512_state *ctx, const uint8_t *in, size_t blocks)
 {
 	size_t i;
 
@@ -218,10 +218,9 @@ static inline void sha512_transform_block_c(struct lc_sha512_state *ctx,
 		sha512_transform(ctx, in);
 }
 
-void lc_sha512_update(
-	struct lc_sha512_state *ctx, const uint8_t *in, size_t inlen,
-	void (*sha512_transform_block)(struct lc_sha512_state *ctx,
-				       const uint8_t *in, size_t blocks))
+void lc_sha512_update(struct lc_sha512_state *ctx, const uint8_t *in,
+		      size_t inlen,
+		      sha512_transform_block_f sha512_transform_block)
 {
 	size_t blocks;
 	unsigned int partial;
@@ -283,10 +282,9 @@ static void sha512_update_c(void *_state, const uint8_t *in, size_t inlen)
 	lc_sha512_update(ctx, in, inlen, sha512_transform_block_c);
 }
 
-static int sha512_final_internal(
-	struct lc_sha512_state *ctx,
-	void (*sha512_transform_block)(struct lc_sha512_state *ctx,
-				       const uint8_t *in, size_t blocks))
+static int
+sha512_final_internal(struct lc_sha512_state *ctx,
+		      sha512_transform_block_f sha512_transform_block)
 {
 	unsigned int partial;
 
@@ -339,9 +337,7 @@ static int sha512_final_internal(
 }
 
 void lc_sha512_final(struct lc_sha512_state *ctx, uint8_t *digest,
-		     void (*sha512_transform_block)(struct lc_sha512_state *ctx,
-						    const uint8_t *in,
-						    size_t blocks))
+		     sha512_transform_block_f sha512_transform_block)
 {
 	unsigned int i;
 
@@ -359,9 +355,7 @@ void lc_sha512_final(struct lc_sha512_state *ctx, uint8_t *digest,
 }
 
 void lc_sha384_final(struct lc_sha512_state *ctx, uint8_t *digest,
-		     void (*sha512_transform_block)(struct lc_sha512_state *ctx,
-						    const uint8_t *in,
-						    size_t blocks))
+		     sha512_transform_block_f sha512_transform_block)
 {
 	unsigned int i;
 

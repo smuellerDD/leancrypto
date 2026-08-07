@@ -161,8 +161,8 @@ static inline void sha256_transform(struct lc_sha256_state *ctx,
 		W[i] = 0;
 }
 
-static inline void sha256_transform_block_c(struct lc_sha256_state *ctx,
-					    const uint8_t *in, size_t blocks)
+static inline void SYSV_ABI sha256_transform_block_c(
+	struct lc_sha256_state *ctx, const uint8_t *in, size_t blocks)
 {
 	size_t i;
 
@@ -170,10 +170,9 @@ static inline void sha256_transform_block_c(struct lc_sha256_state *ctx,
 		sha256_transform(ctx, in);
 }
 
-void lc_sha256_update(
-	struct lc_sha256_state *ctx, const uint8_t *in, size_t inlen,
-	void (*sha256_transform_block)(struct lc_sha256_state *ctx,
-				       const uint8_t *in, size_t blocks))
+void lc_sha256_update(struct lc_sha256_state *ctx, const uint8_t *in,
+		      size_t inlen,
+		      sha256_transform_block_f sha256_transform_block)
 {
 	size_t blocks;
 	unsigned int partial;
@@ -236,9 +235,7 @@ static void sha256_update_c(void *_state, const uint8_t *in, size_t inlen)
 }
 
 void lc_sha256_final(struct lc_sha256_state *ctx, uint8_t *digest,
-		     void (*sha256_transform_block)(struct lc_sha256_state *ctx,
-						    const uint8_t *in,
-						    size_t blocks))
+		     sha256_transform_block_f sha256_transform_block)
 {
 	unsigned int i, partial;
 
