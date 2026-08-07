@@ -1013,6 +1013,17 @@ if host_machine.system() == 'windows'
 	arch_src += files([ 'internal/src/getopt.c' ])
 endif
 
+# clang-cl preprocesses an assembler source into an intermediate file that is
+# named after the source and that is placed into the current working directory
+# instead of into a unique temporary location. An assembler source compiled more
+# than once - as done for the individual ML-KEM and ML-DSA parameter sets - thus
+# lets the concurrently running compilations overwrite each other's intermediate
+# which silently yields two objects holding the symbols of one parameter set.
+# Compile a uniquely named copy of such a source to keep the intermediates
+# apart.
+asm_unique_copy = (host_machine.system() == 'windows' and
+		   cc.get_argument_syntax() == 'msvc')
+
 # FIPS non-approved crypto sources
 src = [ ]
 
@@ -1198,22 +1209,35 @@ else
 	leancrypto_lib_fips = leancrypto_static_lib_fips
 endif
 
+# Windows requires the consumer of a DLL to declare the imported data symbols
+# with __declspec(dllimport) - see internal/api/lc_export.h. The flag is only
+# handed out with the dependency object of the shared library. Consumers of the
+# static library resolve the symbols directly and thus must not see it.
+leancrypto_shared_cargs = [ ]
+if (build_shared and host_machine.system() == 'windows')
+	leancrypto_shared_cargs += [ '-DLC_LINK_SHARED' ]
+endif
+
 if get_option('efi').disabled()
 	pkgconfig.generate(leancrypto_lib_fips,
+			extra_cflags: leancrypto_shared_cargs,
 			description: 'PQC-resistant cryptographic library with FIPS-140 compliance')
 endif
 
 leancrypto_fips = declare_dependency(link_with: leancrypto_lib_fips,
 				     dependencies: [ leancrypto_ssp_link ],
+				     compile_args: leancrypto_shared_cargs,
 				     include_directories: include_dirs)
 
 if get_option('efi').disabled()
 	pkgconfig.generate(leancrypto_lib,
+			   extra_cflags: leancrypto_shared_cargs,
 			   description: 'PQC-resistant cryptographic library')
 endif
 
 leancrypto = declare_dependency(link_with: leancrypto_lib,
 				dependencies: [ leancrypto_ssp_link ],
+				compile_args: leancrypto_shared_cargs,
 				include_directories: include_dirs)
 
 install_headers(include_files, subdir: leancrypto_header_subdir)
