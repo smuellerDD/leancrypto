@@ -25,6 +25,8 @@ Changes 1.8.1-prerelease
 
 * Windows: fix SHA-3 / SHAKE / cSHAKE acceleration - the assembler implementations were handed over to the glue code as function pointers that did not carry the SysV ABI, i.e. the indirect calls were issued with the ABI of the host.
 
+* Windows: fix SHA-2 acceleration - the AVX2 and SHA-NI implementations were neither declared nor handed over to the glue code with the SysV ABI.
+
 Changes 1.8.0
 * X.509: provide a common automated serial number generator which is the 20 leftmost bytes of the SHA3-256 hash of the certificate DER blob with the serial number being 20 bytes of 0xff and the signature part equally a range of 0xff bytes
 
