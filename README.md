@@ -206,6 +206,13 @@ Now you are ready to set up `leancrypto` with meson:
 
 3. `meson compile -C build`
 
+Applications linking against the `leancrypto` DLL must be compiled with
+`-DLC_LINK_SHARED`. It makes the header files declare the exported data symbols
+such as `lc_sha3_256` with `__declspec(dllimport)` which Windows requires to
+resolve them through the import table. The generated `pkg-config` file carries
+the definition, i.e. consumers using `pkg-config` get it automatically. It must
+not be set when linking against the static library.
+
 ### MSYS2
 
 The `leancrypto` library can be built on Windows using

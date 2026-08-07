@@ -20,6 +20,7 @@
 #ifndef LC_HASH_DRBG_H
 #define LC_HASH_DRBG_H
 
+#include "lc_export.h"
 #include "lc_drbg.h"
 #include "lc_rng.h"
 #include "lc_sha512.h"
@@ -57,7 +58,7 @@ struct lc_drbg_hash_state {
 #define LC_DRBG_HASH_SET_CTX(name)                                             \
 	_LC_DRBG_HASH_SET_CTX(name, name, sizeof(struct lc_drbg_hash_state))
 
-extern const struct lc_rng *lc_hash_drbg;
+extern LC_DLL_IMPORT const struct lc_rng *lc_hash_drbg;
 
 #define LC_DRBG_HASH_RNG_CTX(name)                                             \
 	LC_RNG_CTX((name), lc_hash_drbg, LC_HASH_COMMON_ALIGNMENT);            \

@@ -20,13 +20,15 @@
 #ifndef ASCON_C
 #define ASCON_C
 
+#include "lc_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern const struct lc_hash *lc_ascon_256_c;
-extern const struct lc_hash *lc_ascon_128a_c;
-extern const struct lc_hash *lc_ascon_xof_c;
+extern LC_DLL_IMPORT const struct lc_hash *lc_ascon_256_c;
+extern LC_DLL_IMPORT const struct lc_hash *lc_ascon_128a_c;
+extern LC_DLL_IMPORT const struct lc_hash *lc_ascon_xof_c;
 
 #ifdef __cplusplus
 }

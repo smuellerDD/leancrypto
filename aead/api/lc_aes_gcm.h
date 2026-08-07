@@ -20,6 +20,7 @@
 #ifndef LC_AES_GCM_H
 #define LC_AES_GCM_H
 
+#include "lc_export.h"
 #include "lc_aead.h"
 #include "lc_aes.h"
 #include "lc_sym.h"
@@ -70,7 +71,7 @@ struct lc_aes_gcm_cryptor {
 	(LC_AES_GCM_CTX_COMMON_SIZE + LC_AES_GCM_STATE_SIZE_LEN(len))
 
 /* AES-GCM AEAD-algorithm */
-extern const struct lc_aead *lc_aes_gcm_aead;
+extern LC_DLL_IMPORT const struct lc_aead *lc_aes_gcm_aead;
 
 #define _LC_AES_GCM_SET_CTX(name)                                              \
 	_LC_SYM_SET_CTX((&name->sym_ctx), lc_aes, name,                        \

@@ -20,20 +20,22 @@
 #ifndef SHA3_AVX512_H
 #define SHA3_AVX512_H
 
+#include "lc_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern const struct lc_hash *lc_sha3_224_avx512;
-extern const struct lc_hash *lc_sha3_256_avx512;
-extern const struct lc_hash *lc_sha3_384_avx512;
-extern const struct lc_hash *lc_sha3_512_avx512;
+extern LC_DLL_IMPORT const struct lc_hash *lc_sha3_224_avx512;
+extern LC_DLL_IMPORT const struct lc_hash *lc_sha3_256_avx512;
+extern LC_DLL_IMPORT const struct lc_hash *lc_sha3_384_avx512;
+extern LC_DLL_IMPORT const struct lc_hash *lc_sha3_512_avx512;
 
-extern const struct lc_hash *lc_shake128_avx512;
-extern const struct lc_hash *lc_shake256_avx512;
-extern const struct lc_hash *lc_shake512_avx512;
-extern const struct lc_hash *lc_cshake128_avx512;
-extern const struct lc_hash *lc_cshake256_avx512;
+extern LC_DLL_IMPORT const struct lc_hash *lc_shake128_avx512;
+extern LC_DLL_IMPORT const struct lc_hash *lc_shake256_avx512;
+extern LC_DLL_IMPORT const struct lc_hash *lc_shake512_avx512;
+extern LC_DLL_IMPORT const struct lc_hash *lc_cshake128_avx512;
+extern LC_DLL_IMPORT const struct lc_hash *lc_cshake256_avx512;
 
 #ifdef __cplusplus
 }

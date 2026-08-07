@@ -20,6 +20,7 @@
 #ifndef MODE_CBC_H
 #define MODE_CBC_H
 
+#include "lc_export.h"
 #include "lc_sym.h"
 
 #ifdef __cplusplus
@@ -34,7 +35,7 @@ struct lc_mode_state {
 
 void mode_cbc_selftest(const struct lc_sym *aes);
 
-extern const struct lc_sym_mode *lc_mode_cbc_c;
+extern LC_DLL_IMPORT const struct lc_sym_mode *lc_mode_cbc_c;
 
 #ifdef __cplusplus
 }

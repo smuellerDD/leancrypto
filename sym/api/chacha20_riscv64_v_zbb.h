@@ -20,11 +20,13 @@
 #ifndef CHACHA20_RISCV64_V_ZBB_H
 #define CHACHA20_RISCV64_V_ZBB_H
 
+#include "lc_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern const struct lc_sym *lc_chacha20_riscv64_v_zbb;
+extern LC_DLL_IMPORT const struct lc_sym *lc_chacha20_riscv64_v_zbb;
 
 #ifdef __cplusplus
 }

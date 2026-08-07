@@ -20,15 +20,17 @@
 #ifndef AES_ARMCE_V8_H
 #define AES_ARMCE_V8_H
 
+#include "lc_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern const struct lc_sym *lc_aes_cbc_armce;
-extern const struct lc_sym *lc_aes_ctr_armce;
-extern const struct lc_sym *lc_aes_kw_armce;
-extern const struct lc_sym *lc_aes_armce;
-extern const struct lc_sym *lc_aes_xts_armce;
+extern LC_DLL_IMPORT const struct lc_sym *lc_aes_cbc_armce;
+extern LC_DLL_IMPORT const struct lc_sym *lc_aes_ctr_armce;
+extern LC_DLL_IMPORT const struct lc_sym *lc_aes_kw_armce;
+extern LC_DLL_IMPORT const struct lc_sym *lc_aes_armce;
+extern LC_DLL_IMPORT const struct lc_sym *lc_aes_xts_armce;
 
 #ifdef __cplusplus
 }

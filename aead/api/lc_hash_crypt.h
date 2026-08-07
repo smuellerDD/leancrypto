@@ -20,6 +20,7 @@
 #ifndef LC_HASH_CRYPT_H
 #define LC_HASH_CRYPT_H
 
+#include "lc_export.h"
 #include "lc_aead.h"
 /*
  * This is the hash crypt cipher operation using the Hash DRBG with SHA-512
@@ -59,7 +60,7 @@ struct lc_hc_cryptor {
 	 LC_HASH_COMMON_ALIGNMENT)
 
 /* Hash-based AEAD-algorithm */
-extern const struct lc_aead *lc_hash_aead;
+extern LC_DLL_IMPORT const struct lc_aead *lc_hash_aead;
 
 #define _LC_HC_SET_CTX(name, hashname)                                         \
 	LC_DRBG_HASH_RNG_CTX((&name->drbg));                                   \

@@ -20,6 +20,7 @@
 #ifndef LC_HKDF_H
 #define LC_HKDF_H
 
+#include "lc_export.h"
 #include "ext_headers.h"
 #include "lc_hmac.h"
 #include "lc_rng.h"
@@ -240,7 +241,7 @@ enum lc_alg_status_val lc_hkdf_alg_status(const struct lc_hash *hash);
  */
 
 /* HKDF DRNG implementation */
-extern const struct lc_rng *lc_hkdf_rng;
+extern LC_DLL_IMPORT const struct lc_rng *lc_hkdf_rng;
 
 /// \cond DO_NOT_DOCUMENT
 #define LC_HKDF_DRNG_CTX_SIZE                                                  \

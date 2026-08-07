@@ -90,6 +90,7 @@ src += files([ 'memcmp_secure_c.c' ])
 
 include_files += files([
 	'../api/ext_headers.h',
+	'../api/lc_export.h',
 	'../api/lc_init.h',
 	'../api/lc_memcmp_secure.h',
 	'../api/lc_memcpy_secure.h',

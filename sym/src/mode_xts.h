@@ -20,6 +20,7 @@
 #ifndef MODE_XTS_H
 #define MODE_XTS_H
 
+#include "lc_export.h"
 #include "conv_be_le.h"
 #include "lc_sym.h"
 
@@ -79,7 +80,7 @@ static inline void gfmul_alpha(union lc_xts_tweak *t)
 
 void mode_xts_selftest(const struct lc_sym *aes);
 
-extern const struct lc_sym_mode *lc_mode_xts_c;
+extern LC_DLL_IMPORT const struct lc_sym_mode *lc_mode_xts_c;
 
 #ifdef __cplusplus
 }

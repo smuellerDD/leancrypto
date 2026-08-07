@@ -20,6 +20,7 @@
 #ifndef LC_CHACHA20_POLY1305_H
 #define LC_CHACHA20_POLY1305_H
 
+#include "lc_export.h"
 #include "lc_aead.h"
 #include "lc_chacha20.h"
 #include "lc_memset_secure.h"
@@ -46,7 +47,7 @@ struct lc_chacha20_poly1305_cryptor {
 	 LC_CHACHA20_POLY1305_STATE_SIZE)
 
 /* AES-CBC with HMAC based AEAD-algorithm */
-extern const struct lc_aead *lc_chacha20_poly1305_aead;
+extern LC_DLL_IMPORT const struct lc_aead *lc_chacha20_poly1305_aead;
 
 #define _LC_CHACHA20_POLY1305_SET_CTX(name)                                    \
 	_LC_SYM_SET_CTX((&name->chacha20), lc_chacha20, name,                  \

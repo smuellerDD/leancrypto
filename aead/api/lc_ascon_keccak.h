@@ -20,6 +20,7 @@
 #ifndef LC_ASCON_KECCAK_H
 #define LC_ASCON_KECCAK_H
 
+#include "lc_export.h"
 #include "lc_ascon_aead.h"
 #include "lc_sha3.h"
 
@@ -42,7 +43,7 @@ extern "C" {
 /// \endcond
 
 /* Ascon-Keccak-based AEAD-algorithm */
-extern const struct lc_aead *lc_ascon_keccak_aead;
+extern LC_DLL_IMPORT const struct lc_aead *lc_ascon_keccak_aead;
 
 /**
  * @brief Allocate Ascon Keccak cryptor context on heap

@@ -20,6 +20,8 @@
 #ifndef LC_XDRBG_DRNG_H
 #define LC_XDRBG_DRNG_H
 
+#include "lc_export.h"
+
 #if defined __has_include
 #if __has_include("lc_ascon_hash.h")
 #include "lc_ascon_hash.h"
@@ -77,8 +79,8 @@ struct lc_xdrbg_drng_state {
 #ifdef LC_XDRBG_SHAKE_ENABLED
 
 /// \cond DO_NOT_DOCUMENT
-extern const struct lc_rng *lc_xdrbg256_drng;
-extern const struct lc_rng *lc_xdrbg512_drng;
+extern LC_DLL_IMPORT const struct lc_rng *lc_xdrbg256_drng;
+extern LC_DLL_IMPORT const struct lc_rng *lc_xdrbg512_drng;
 
 #define LC_XDRBG256_DRNG_KEYSIZE 64
 /*
@@ -216,7 +218,7 @@ int lc_xdrbg512_drng_alloc(struct lc_rng_ctx **state);
 #ifdef LC_XDRBG_ASCON_ENABLED
 
 /// \cond DO_NOT_DOCUMENT
-extern const struct lc_rng *lc_xdrbg128_drng;
+extern LC_DLL_IMPORT const struct lc_rng *lc_xdrbg128_drng;
 
 #define LC_XDRBG128_DRNG_KEYSIZE 32
 

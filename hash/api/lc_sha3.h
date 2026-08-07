@@ -20,6 +20,7 @@
 #ifndef LC_SHA3_H
 #define LC_SHA3_H
 
+#include "lc_export.h"
 #include "lc_hash.h"
 
 #ifdef __cplusplus
@@ -57,7 +58,7 @@ struct lc_sha3_state {
  * @var lc_sha3_224
  * @brief SHA3-224 algorithm reference
  */
-extern const struct lc_hash *lc_sha3_224;
+extern LC_DLL_IMPORT const struct lc_hash *lc_sha3_224;
 
 /// \cond DO_NOT_DOCUMENT
 #define LC_SHA3_224_SIZE_DIGEST_BITS 224
@@ -94,7 +95,7 @@ extern const struct lc_hash *lc_sha3_224;
  * @var lc_sha3_256
  * @brief SHA3-256 algorithm reference
  */
-extern const struct lc_hash *lc_sha3_256;
+extern LC_DLL_IMPORT const struct lc_hash *lc_sha3_256;
 
 /// \cond DO_NOT_DOCUMENT
 #define LC_SHA3_256_SIZE_DIGEST_BITS 256
@@ -131,7 +132,7 @@ extern const struct lc_hash *lc_sha3_256;
  * @var lc_sha3_384
  * @brief SHA3-384 algorithm reference
  */
-extern const struct lc_hash *lc_sha3_384;
+extern LC_DLL_IMPORT const struct lc_hash *lc_sha3_384;
 
 /// \cond DO_NOT_DOCUMENT
 #define LC_SHA3_384_SIZE_DIGEST_BITS 384
@@ -168,7 +169,7 @@ extern const struct lc_hash *lc_sha3_384;
  * @var lc_sha3_512
  * @brief SHA3-512 algorithm reference
  */
-extern const struct lc_hash *lc_sha3_512;
+extern LC_DLL_IMPORT const struct lc_hash *lc_sha3_512;
 
 /// \cond DO_NOT_DOCUMENT
 #define LC_SHA3_512_SIZE_DIGEST_BITS 512
@@ -205,7 +206,7 @@ extern const struct lc_hash *lc_sha3_512;
  * @var lc_shake128
  * @brief SHAKE128 algorithm reference
  */
-extern const struct lc_hash *lc_shake128;
+extern LC_DLL_IMPORT const struct lc_hash *lc_shake128;
 
 /// \cond DO_NOT_DOCUMENT
 #define LC_SHAKE_128_SIZE_DIGEST_BITS 128
@@ -241,7 +242,7 @@ extern const struct lc_hash *lc_shake128;
  * @var lc_shake256
  * @brief SHAKE256 algorithm reference
  */
-extern const struct lc_hash *lc_shake256;
+extern LC_DLL_IMPORT const struct lc_hash *lc_shake256;
 
 /// \cond DO_NOT_DOCUMENT
 #define LC_SHAKE_256_SIZE_DIGEST_BITS 256
@@ -276,7 +277,7 @@ extern const struct lc_hash *lc_shake256;
  * @var lc_shake512
  * @brief SHAKE512 algorithm reference
  */
-extern const struct lc_hash *lc_shake512;
+extern LC_DLL_IMPORT const struct lc_hash *lc_shake512;
 
 /// \cond DO_NOT_DOCUMENT
 #define LC_SHAKE_512_SIZE_DIGEST_BITS 512
@@ -311,7 +312,7 @@ extern const struct lc_hash *lc_shake512;
  * @var lc_cshake256
  * @brief cSHAKE256 algorithm reference
  */
-extern const struct lc_hash *lc_cshake256;
+extern LC_DLL_IMPORT const struct lc_hash *lc_cshake256;
 
 /// \cond DO_NOT_DOCUMENT
 
@@ -342,7 +343,7 @@ extern const struct lc_hash *lc_cshake256;
  * @var lc_cshake128
  * @brief cSHAKE128 algorithm reference
  */
-extern const struct lc_hash *lc_cshake128;
+extern LC_DLL_IMPORT const struct lc_hash *lc_cshake128;
 
 /// \cond DO_NOT_DOCUMENT
 #define LC_CSHAKE_128_CTX(name)                                                \

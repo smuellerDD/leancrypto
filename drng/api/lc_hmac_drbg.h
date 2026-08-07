@@ -20,6 +20,7 @@
 #ifndef LC_HMAC_DRBG_H
 #define LC_HMAC_DRBG_H
 
+#include "lc_export.h"
 #include "lc_drbg.h"
 #include "lc_hmac.h"
 #include "lc_rng.h"
@@ -58,7 +59,7 @@ struct lc_drbg_hmac_state {
 #define LC_DRBG_HMAC_SET_CTX(name)                                             \
 	_LC_DRBG_HMAC_SET_CTX(name, name, sizeof(struct lc_drbg_hmac_state))
 
-extern const struct lc_rng *lc_hmac_drbg;
+extern LC_DLL_IMPORT const struct lc_rng *lc_hmac_drbg;
 
 #define LC_DRBG_HMAC_RNG_CTX(name)                                             \
 	LC_RNG_CTX(name, lc_hmac_drbg, LC_HASH_COMMON_ALIGNMENT);              \
