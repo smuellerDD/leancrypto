@@ -39,6 +39,7 @@ http://creativecommons.org/publicdomain/zero/1.0/
 #define KECCAK_ASM_GLUE_H
 
 #include "build_bug_on.h"
+#include "ext_headers.h"
 #include "lc_sha3.h"
 #include "sha3_common.h"
 
@@ -48,6 +49,30 @@ http://creativecommons.org/publicdomain/zero/1.0/
 extern "C" {
 #endif
 
+/*
+ * The assembler implementations of the Keccak permutation follow the SysV ABI
+ * on all systems - see SYSV_ABI. The calling convention is part of the function
+ * type, i.e. it must be carried by the function pointers the implementations
+ * are handed over with as well. Without it, the indirect calls below are issued
+ * with the ABI of the host on systems where both differ - notably Windows,
+ * where the arguments would be passed in the wrong registers.
+ */
+typedef void(SYSV_ABI *keccak_static_initialize_f)(void);
+typedef void(SYSV_ABI *keccak_initialize_f)(void *state);
+typedef void(SYSV_ABI *keccak_permute_f)(void *state);
+typedef void(SYSV_ABI *keccak_add_byte_f)(void *state, unsigned char data,
+					  unsigned int offset);
+typedef void(SYSV_ABI *keccak_add_bytes_f)(void *state,
+					   const unsigned char *data,
+					   size_t offset, size_t length);
+typedef void(SYSV_ABI *keccak_extract_bytes_f)(const void *state,
+					       unsigned char *data,
+					       size_t offset, size_t length);
+typedef size_t(SYSV_ABI *keccak_fastloop_absorb_f)(void *state,
+						   unsigned int laneCount,
+						   const unsigned char *data,
+						   size_t dataByteLen);
+
 /**
  * StaticInitialize - Function called at least once before any use of the other
  * functions, possibly to initialize global variables.
@@ -56,9 +81,9 @@ extern "C" {
  * Initialize - Function to initialize the state to the logical value 0^width.
  * @param _state   Pointer to the state to initialize.
  */
-static inline void sha3_224_asm_init(void *_state,
-				     void (*StaticInitialize)(void),
-				     void (*Initialize)(void *state))
+static inline void
+sha3_224_asm_init(void *_state, keccak_static_initialize_f StaticInitialize,
+		  keccak_initialize_f Initialize)
 {
 	struct lc_sha3_state *ctx = _state;
 
@@ -72,9 +97,9 @@ static inline void sha3_224_asm_init(void *_state,
 	sha3_224_init_common(_state);
 }
 
-static inline void sha3_256_asm_init(void *_state,
-				     void (*StaticInitialize)(void),
-				     void (*Initialize)(void *state))
+static inline void
+sha3_256_asm_init(void *_state, keccak_static_initialize_f StaticInitialize,
+		  keccak_initialize_f Initialize)
 {
 	struct lc_sha3_state *ctx = _state;
 
@@ -88,9 +113,9 @@ static inline void sha3_256_asm_init(void *_state,
 	sha3_256_init_common(_state);
 }
 
-static inline void sha3_384_asm_init(void *_state,
-				     void (*StaticInitialize)(void),
-				     void (*Initialize)(void *state))
+static inline void
+sha3_384_asm_init(void *_state, keccak_static_initialize_f StaticInitialize,
+		  keccak_initialize_f Initialize)
 {
 	struct lc_sha3_state *ctx = _state;
 
@@ -104,9 +129,9 @@ static inline void sha3_384_asm_init(void *_state,
 	sha3_384_init_common(_state);
 }
 
-static inline void sha3_512_asm_init(void *_state,
-				     void (*StaticInitialize)(void),
-				     void (*Initialize)(void *state))
+static inline void
+sha3_512_asm_init(void *_state, keccak_static_initialize_f StaticInitialize,
+		  keccak_initialize_f Initialize)
 {
 	struct lc_sha3_state *ctx = _state;
 
@@ -120,9 +145,9 @@ static inline void sha3_512_asm_init(void *_state,
 	sha3_512_init_common(_state);
 }
 
-static inline void shake_128_asm_init(void *_state,
-				      void (*StaticInitialize)(void),
-				      void (*Initialize)(void *state))
+static inline void
+shake_128_asm_init(void *_state, keccak_static_initialize_f StaticInitialize,
+		   keccak_initialize_f Initialize)
 {
 	struct lc_sha3_state *ctx = _state;
 
@@ -136,9 +161,9 @@ static inline void shake_128_asm_init(void *_state,
 	shake_128_init_common(_state);
 }
 
-static inline void shake_256_asm_init(void *_state,
-				      void (*StaticInitialize)(void),
-				      void (*Initialize)(void *state))
+static inline void
+shake_256_asm_init(void *_state, keccak_static_initialize_f StaticInitialize,
+		   keccak_initialize_f Initialize)
 {
 	struct lc_sha3_state *ctx = _state;
 
@@ -152,9 +177,9 @@ static inline void shake_256_asm_init(void *_state,
 	shake_256_init_common(_state);
 }
 
-static inline void shake_512_asm_init(void *_state,
-				      void (*StaticInitialize)(void),
-				      void (*Initialize)(void *state))
+static inline void
+shake_512_asm_init(void *_state, keccak_static_initialize_f StaticInitialize,
+		   keccak_initialize_f Initialize)
 {
 	struct lc_sha3_state *ctx = _state;
 
@@ -168,9 +193,9 @@ static inline void shake_512_asm_init(void *_state,
 	shake_512_init_common(_state);
 }
 
-static inline void cshake_128_asm_init(void *_state,
-				       void (*StaticInitialize)(void),
-				       void (*Initialize)(void *state))
+static inline void
+cshake_128_asm_init(void *_state, keccak_static_initialize_f StaticInitialize,
+		    keccak_initialize_f Initialize)
 {
 	struct lc_sha3_state *ctx = _state;
 
@@ -184,9 +209,9 @@ static inline void cshake_128_asm_init(void *_state,
 	cshake_128_init_common(_state);
 }
 
-static inline void cshake_256_asm_init(void *_state,
-				       void (*StaticInitialize)(void),
-				       void (*Initialize)(void *state))
+static inline void
+cshake_256_asm_init(void *_state, keccak_static_initialize_f StaticInitialize,
+		    keccak_initialize_f Initialize)
 {
 	struct lc_sha3_state *ctx = _state;
 
@@ -235,14 +260,10 @@ static inline void cshake_256_asm_init(void *_state,
  * return    The number of bytes processed.
  * pre    0 < @a laneCount < SnP_laneCount
  */
-static inline void
-keccak_asm_absorb(void *_state, const uint8_t *in, size_t inlen,
-		  void (*AddBytes)(void *state, const unsigned char *data,
-				   size_t offset, size_t length),
-		  void (*Permute)(void *state),
-		  size_t (*FastLoop_Absorb)(void *state, unsigned int laneCount,
-					    const unsigned char *data,
-					    size_t dataByteLen))
+static inline void keccak_asm_absorb(void *_state, const uint8_t *in,
+				     size_t inlen, keccak_add_bytes_f AddBytes,
+				     keccak_permute_f Permute,
+				     keccak_fastloop_absorb_f FastLoop_Absorb)
 {
 	/*
 	 * All lc_sha3_*_state are equal except for the last entry, thus we use
@@ -313,10 +334,9 @@ keccak_asm_absorb(void *_state, const uint8_t *in, size_t inlen,
 	ctx->partial = (uint8_t)inlen;
 }
 
-static inline void keccak_asm_absorb_last_bits(
-	void *_state,
-	void (*AddByte)(void *state, unsigned char data, unsigned int offset),
-	void (*Permute)(void *state))
+static inline void keccak_asm_absorb_last_bits(void *_state,
+					       keccak_add_byte_f AddByte,
+					       keccak_permute_f Permute)
 {
 	/*
 	 * All lc_sha3_*_state are equal except for the last entry, thus we use
@@ -380,12 +400,10 @@ static inline void keccak_asm_absorb_last_bits(
  * pre    0 ≤ @a offset < (width in bytes)
  * pre    0 ≤ @a offset + @a length ≤ (width in bytes)
  */
-static inline void keccak_asm_squeeze(
-	void *_state, uint8_t *digest,
-	void (*AddByte)(void *state, unsigned char data, unsigned int offset),
-	void (*Permute)(void *state),
-	void (*ExtractBytes)(const void *state, unsigned char *data,
-			     size_t offset, size_t length))
+static inline void keccak_asm_squeeze(void *_state, uint8_t *digest,
+				      keccak_add_byte_f AddByte,
+				      keccak_permute_f Permute,
+				      keccak_extract_bytes_f ExtractBytes)
 {
 	/*
 	 * All lc_sha3_*_state are equal except for the last entry, thus we use

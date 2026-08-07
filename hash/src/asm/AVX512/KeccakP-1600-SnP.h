@@ -43,8 +43,14 @@
 #define KeccakP1600_AVX512_StaticInitialize()
 void SYSV_ABI KeccakP1600_AVX512_Initialize(void *state);
 //void KeccakP1600_AVX512_AddByte(void *state, unsigned char data, unsigned int offset);
-static inline void KeccakP1600_AVX512_AddByte(void *state, unsigned char byte,
-					      unsigned int offset)
+/*
+ * Although implemented in C, the function is handed over to the assembler glue
+ * code together with the assembler implementations and therefore must use the
+ * same ABI as those - see SYSV_ABI.
+ */
+static inline void SYSV_ABI KeccakP1600_AVX512_AddByte(void *state,
+						       unsigned char byte,
+						       unsigned int offset)
 {
 	((unsigned char *)(state))[(offset)] ^= (byte);
 }
@@ -57,8 +63,8 @@ void SYSV_ABI KeccakP1600_AVX512_OverwriteBytes(void *state,
 						unsigned int length);
 void SYSV_ABI KeccakP1600_AVX512_OverwriteWithZeroes(void *state,
 						     unsigned int byteCount);
-void SYSV_ABI SYSV_ABI KeccakP1600_AVX512_Permute_Nrounds(void *state,
-							  unsigned int nrounds);
+void SYSV_ABI KeccakP1600_AVX512_Permute_Nrounds(void *state,
+						 unsigned int nrounds);
 void SYSV_ABI KeccakP1600_AVX512_Permute_12rounds(void *state);
 void SYSV_ABI KeccakP1600_AVX512_Permute_24rounds(void *state);
 void SYSV_ABI KeccakP1600_AVX512_ExtractBytes(const void *state,

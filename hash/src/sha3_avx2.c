@@ -29,11 +29,7 @@
 
 static int sha3_224_avx2_init_nocheck(void *_state)
 {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
-	/* Handle SYSV_ABI */
 	sha3_224_asm_init(_state, NULL, KeccakP1600_AVX2_Initialize);
-#pragma GCC diagnostic pop
 
 	return 0;
 }
@@ -48,11 +44,7 @@ static int sha3_224_avx2_init(void *_state)
 
 static int sha3_256_avx2_init_nocheck(void *_state)
 {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
-	/* Handle SYSV_ABI */
 	sha3_256_asm_init(_state, NULL, KeccakP1600_AVX2_Initialize);
-#pragma GCC diagnostic pop
 
 	return 0;
 }
@@ -67,11 +59,7 @@ static int sha3_256_avx2_init(void *_state)
 
 static int sha3_384_avx2_init_nocheck(void *_state)
 {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
-	/* Handle SYSV_ABI */
 	sha3_384_asm_init(_state, NULL, KeccakP1600_AVX2_Initialize);
-#pragma GCC diagnostic pop
 
 	return 0;
 }
@@ -86,11 +74,7 @@ static int sha3_384_avx2_init(void *_state)
 
 static int sha3_512_avx2_init_nocheck(void *_state)
 {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
-	/* Handle SYSV_ABI */
 	sha3_512_asm_init(_state, NULL, KeccakP1600_AVX2_Initialize);
-#pragma GCC diagnostic pop
 
 	return 0;
 }
@@ -105,11 +89,7 @@ static int sha3_512_avx2_init(void *_state)
 
 static int shake_128_avx2_init_nocheck(void *_state)
 {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
-	/* Handle SYSV_ABI */
 	shake_128_asm_init(_state, NULL, KeccakP1600_AVX2_Initialize);
-#pragma GCC diagnostic pop
 
 	return 0;
 }
@@ -124,11 +104,7 @@ static int shake_128_avx2_init(void *_state)
 
 static int shake_256_avx2_init_nocheck(void *_state)
 {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
-	/* Handle SYSV_ABI */
 	shake_256_asm_init(_state, NULL, KeccakP1600_AVX2_Initialize);
-#pragma GCC diagnostic pop
 
 	return 0;
 }
@@ -143,11 +119,7 @@ static int shake_256_avx2_init(void *_state)
 
 static int shake_512_avx2_init_nocheck(void *_state)
 {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
-	/* Handle SYSV_ABI */
 	shake_512_asm_init(_state, NULL, KeccakP1600_AVX2_Initialize);
-#pragma GCC diagnostic pop
 
 	return 0;
 }
@@ -162,11 +134,7 @@ static int shake_512_avx2_init(void *_state)
 
 static int cshake_128_avx2_init_nocheck(void *_state)
 {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
-	/* Handle SYSV_ABI */
 	cshake_128_asm_init(_state, NULL, KeccakP1600_AVX2_Initialize);
-#pragma GCC diagnostic pop
 
 	return 0;
 }
@@ -181,11 +149,7 @@ static int cshake_128_avx2_init(void *_state)
 
 static int cshake_256_avx2_init_nocheck(void *_state)
 {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
-	/* Handle SYSV_ABI */
 	cshake_256_asm_init(_state, NULL, KeccakP1600_AVX2_Initialize);
-#pragma GCC diagnostic pop
 
 	return 0;
 }
@@ -201,26 +165,18 @@ static int cshake_256_avx2_init(void *_state)
 static void keccak_avx2_absorb(void *_state, const uint8_t *in, size_t inlen)
 {
 	LC_FPU_ENABLE;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
-	/* Handle SYSV_ABI */
 	keccak_asm_absorb(_state, in, inlen, KeccakP1600_AVX2_AddBytes,
 			  KeccakP1600_AVX2_Permute_24rounds,
 			  KeccakF1600_AVX2_FastLoop_Absorb);
-#pragma GCC diagnostic pop
 	LC_FPU_DISABLE;
 }
 
 static void keccak_avx2_squeeze(void *_state, uint8_t *digest)
 {
 	LC_FPU_ENABLE;
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
-	/* Handle SYSV_ABI */
 	keccak_asm_squeeze(_state, digest, KeccakP1600_AVX2_AddByte,
 			   KeccakP1600_AVX2_Permute_24rounds,
 			   KeccakP1600_AVX2_ExtractBytes);
-#pragma GCC diagnostic pop
 	LC_FPU_DISABLE;
 }
 
