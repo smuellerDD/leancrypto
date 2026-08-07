@@ -19,6 +19,8 @@ Changes 1.8.1-prerelease
 
 * Add support for native Windows with MSVC using clang-cl (the MSVC compiler is not supported as the assembler structure is different and I am not going to support multiple ASM structures).
 
+* Windows: fix parallel compilation of the assembler code that is compiled once per ML-KEM / ML-DSA parameter set - clang-cl placed the preprocessed intermediate of all of them into the same file.
+
 Changes 1.8.0
 * X.509: provide a common automated serial number generator which is the 20 leftmost bytes of the SHA3-256 hash of the certificate DER blob with the serial number being 20 bytes of 0xff and the signature part equally a range of 0xff bytes
 
