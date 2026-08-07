@@ -42,8 +42,15 @@ bike_vpclmul_src = [
 		'bike_gf2x_mul_base_vpclmul.c',
 	]
 
+# BEGIN: Windows MSVC clang-cl
+#	does not support the following, thus enable conditionally
 
-bike_args = [ '-funroll-loops' ]
+bike_args = [ ]
+if cc.has_argument('-funroll-loops')
+	bike_args = [ '-funroll-loops' ]
+endif
+
+# END: Windows MSVC clang-cl
 
 if x86_64_asm
 	bike_args += [ '-mno-red-zone', '-DX86_64' ]

@@ -7,17 +7,20 @@ if get_option('x509_parser').enabled()
 			   '../../apps/src/lc_x509_generator_file_helper.c',
 			   '../../apps/src/lc_x509_generator_checker.c',
 			   '../../apps/src/lc_x509_generator_print.c',
-			   internal_src ],
+			   internal_src, arch_src ],
 			 include_directories: [ include_dirs, include_internal_dirs ],
 			 dependencies: leancrypto_static_lib
 			 )
 
-	gmtime_tester = executable('gmtime_tester',
-			 [ 'gmtime_tester.c' ],
-			 include_directories: [ include_internal_dirs ],
-			 dependencies: leancrypto,
-			 )
-	test('X.509 gmtime', gmtime_tester, suite: regression)
+	# Disable test on Windows as the gmtime correspondence API is deprecated
+	if host_machine.system() != 'windows'
+		gmtime_tester = executable('gmtime_tester',
+				[ 'gmtime_tester.c' ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto,
+				)
+		test('X.509 gmtime', gmtime_tester, suite: regression)
+	endif
 
 	if (dilithium_enabled)
 		test('X.509 ML-DSA87 Root CA', asn1_tester,
@@ -148,7 +151,7 @@ endif
 if get_option('x509_generator').enabled()
 	x509_gen_tester = executable('x509_gen_tester',
 			 [ 'x509_gen_tester.c',
-			   internal_src ],
+			   internal_src, arch_src ],
 			 include_directories: [ include_internal_dirs ],
 			 dependencies: leancrypto
 			 )
@@ -176,7 +179,7 @@ if get_option('x509_generator').enabled()
 	asn1_enc_tester = executable('asn1_enc_tester',
 			 [ 'asn1_enc_tester.c',
 			   'x509_extensions_test_asn1.c',
-			   internal_src ],
+			   internal_src, arch_src ],
 			 include_directories:
 			 [ include_dirs,
 			   include_internal_dirs,
@@ -306,7 +309,7 @@ if get_option('x509_generator').enabled()
 	asn1_extensions_enc_tester = executable('asn1_extensions_enc_tester',
 			 [ 'asn1_extensions_enc_tester.c',
 			   'x509_extensions_test_asn1.c',
-			   internal_src ],
+			   internal_src, arch_src ],
 			 include_directories:
 			 [ include_dirs,
 			   include_internal_dirs,
@@ -405,7 +408,7 @@ if get_option('x509_generator').enabled()
 	asn1_eku_enc_tester = executable('asn1_eku_enc_tester',
 			 [ 'asn1_eku_enc_tester.c',
 			   'x509_extensions_test_asn1.c',
-			   internal_src ],
+			   internal_src, arch_src ],
 			 include_directories:
 			 [ include_dirs,
 			   include_internal_dirs,
@@ -431,7 +434,7 @@ if get_option('x509_generator').enabled()
 	x509_siggen_sigver_tester = executable('x509_siggen_sigver_tester',
 			 [ 'x509_siggen_sigver_tester.c',
 			   '../../apps/src/lc_x509_generator_file_helper.c',
-			   internal_src ],
+			   internal_src, arch_src ],
 			 include_directories: [ include_dirs,
 						include_internal_dirs ],
 			 dependencies: leancrypto_static_lib
@@ -440,7 +443,7 @@ if get_option('x509_generator').enabled()
 			 [ 'x509_decode_encode_tester.c',
 			   '../../apps/src/lc_x509_generator_file_helper.c',
 			   '../../apps/src/lc_x509_generator_print.c',
-			   internal_src ],
+			   internal_src, arch_src ],
 			 include_directories: [ include_dirs,
 						include_internal_dirs ],
 			 dependencies: leancrypto
@@ -535,7 +538,7 @@ if get_option('pkcs7_parser').enabled()
 	pkcs7_trust_tester = executable('pkcs7_trust_tester',
 			 [ 'pkcs7_trust_tester.c',
 			   '../../apps/src/lc_x509_generator_file_helper.c',
-			   internal_src ],
+			   internal_src, arch_src ],
 			 include_directories: [ include_internal_dirs ],
 			 dependencies: leancrypto
 			 )

@@ -12,11 +12,11 @@ if get_option('sha2-256').enabled()
 	# SHA2-256: Intel AVX2 implementation
 	if (x86_64_asm)
 		src += files([ 'sha256_avx2.c', 'sha256_shani.c' ])
-		if (host_machine.system() == 'windows')
-			src += files([ 'asm/AVX2/sha2-256-AVX2_windows.S' ])
-		else
+# 		if (host_machine.system() == 'windows')
+# 			src += files([ 'asm/AVX2/sha2-256-AVX2_windows.S' ])
+# 		else
 			src += files([ 'asm/AVX2/sha2-256-AVX2.S' ])
-		endif
+		#endif
 	else
 		src += files([ 'sha256_avx2_null.c',
 				    'sha256_shani_null.c' ])
@@ -83,11 +83,11 @@ if get_option('sha2-512').enabled()
 	# SHA2-512: Intel AVX2 implementation
 	if (x86_64_asm)
 		src += files([ 'sha512_avx2.c', 'sha512_shani.c' ])
-		if (host_machine.system() == 'windows')
-			src += files([ 'asm/AVX2/sha2-512-AVX2_windows.S' ])
-		else
+# 		if (host_machine.system() == 'windows')
+# 			src += files([ 'asm/AVX2/sha2-512-AVX2_windows.S' ])
+# 		else
 			src += files([ 'asm/AVX2/sha2-512-AVX2.S' ])
-		endif
+		#endif
 	else
 		src += files([ 'sha512_avx2_null.c',
 				    'sha512_shani_null.c' ])

@@ -82,7 +82,7 @@ if ((get_option('dilithium_87').enabled() or
     (get_option('sha2-256').enabled() and
      get_option('sha2-512').enabled()))
 	tester_kat = executable('tester_kat',
-			[ 'tester_kat.c', internal_src ],
+			[ 'tester_kat.c', internal_src, arch_src ],
 			include_directories: [
 				include_dirs,
 				include_internal_dirs

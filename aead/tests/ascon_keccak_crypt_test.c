@@ -50,8 +50,7 @@ static int ak_tester_one(const struct lc_hash *hash, const uint8_t *pt,
 			 const uint8_t *exp_tag, uint8_t exp_tag_len)
 {
 	struct lc_aead_ctx *ak_heap = NULL;
-	ssize_t ret;
-	int ret_checked = 0;
+	int ret, ret_checked = 0;
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wvla"
 	uint8_t out_enc[ptlen];
@@ -63,7 +62,7 @@ static int ak_tester_one(const struct lc_hash *hash, const uint8_t *pt,
 	/* One shot encryption with pt ptr != ct ptr */
 	ret = lc_aead_setkey(ak, key, keylen, iv, ivlen);
 	if (ret) {
-		printf("AEAD setkey failed: %zd\n", ret);
+		printf("AEAD setkey failed: %d\n", ret);
 		return 1;
 	}
 

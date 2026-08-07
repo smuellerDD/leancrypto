@@ -274,31 +274,6 @@ static const int errno_private = 0;
  * Windows
  ******************************************************************************/
 
-#ifndef MB_LEN_MAX
-#define MB_LEN_MAX 16
-#endif
-
-#if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7)
-
-#define LC_DEFINE_CONSTRUCTOR(_func)                                           \
-	void __attribute__((constructor)) _func(void)
-#define LC_DEFINE_DESTRUCTOR(_func) void __attribute__((destructor)) _func(void)
-
-#else
-
-#error "Constructor / destructor not defined for compiler"
-
-#endif
-
-/*
- * Replace GCC-specific alternative keywords
- * see https://gcc.gnu.org/onlinedocs/gcc/Alternate-Keywords.html
- */
-#ifndef __GNUC__
-#define __asm__ asm
-#define __volatile__ volatile
-#endif
-
 #ifndef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE 200112L
 #endif
@@ -315,9 +290,148 @@ static const int errno_private = 0;
 #include <string.h>
 #include <sys/types.h>
 #include <time.h>
-#include <unistd.h>
+
+#ifndef MB_LEN_MAX
+#define MB_LEN_MAX 16
+#endif
+
+#ifdef __GNUC__
+/* ....... MinGW ....... */
+#if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7)
+
+#define LC_DEFINE_CONSTRUCTOR(_func)                                           \
+	void __attribute__((constructor)) _func(void)
+#define LC_DEFINE_DESTRUCTOR(_func) void __attribute__((destructor)) _func(void)
 
 #include <memoryapi.h>
+#include <unistd.h>
+
+typedef int64_t time64_t;
+
+static inline int lc_get_time(time64_t *time_since_epoch, time64_t *n_sec)
+{
+	struct timespec tp = { 0 };
+
+	if (!time_since_epoch)
+		return -EINVAL;
+
+	if (clock_gettime(CLOCK_REALTIME, &tp) == 0) {
+		*time_since_epoch = tp.tv_sec;
+		if (n_sec)
+			*n_sec = tp.tv_nsec;
+		return 0;
+	}
+
+	*time_since_epoch = (time64_t)-1;
+	return -errno;
+}
+
+#else /* __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7) */
+
+#error "Constructor / destructor not defined for compiler"
+
+#endif /* __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7) */
+
+#elif defined(_MSC_VER)
+
+/* ....... MSVC including optionally clang ....... */
+
+#define LC_DEFINE_CONSTRUCTOR(_func)                                           \
+	static void _func(void);                                               \
+	__declspec(allocate(".CRT$XCU")) void (*_func##_ptr)(void) = _func;
+
+#define LC_DEFINE_DESTRUCTOR(_func)                                            \
+	static void _func(void);                                               \
+	static void _func##_dtor(void)                                         \
+	{                                                                      \
+		atexit(_func);                                                 \
+	}                                                                      \
+	__declspec(allocate(".CRT$XCU")) void (*_func##_dtor##_ptr)(void) =    \
+		_func##_dtor;
+
+#include <io.h>
+#include <windows.h>
+
+typedef int64_t time64_t;
+static inline int lc_get_time(time64_t *time_since_epoch, time64_t *n_sec)
+{
+	FILETIME ft;
+	ULARGE_INTEGER t;
+
+	GetSystemTimeAsFileTime(&ft);
+
+	t.LowPart = ft.dwLowDateTime;
+	t.HighPart = ft.dwHighDateTime;
+
+	// FILETIME: 100 ns intervals since 1601-01-01
+	t.QuadPart -= 116444736000000000ULL;
+	uint64_t unix_seconds = t.QuadPart / 10000000ULL;
+	*time_since_epoch = (time64_t)unix_seconds;
+	if (n_sec)
+		*n_sec = (time64_t)((t.QuadPart * 100ULL) % 1000000000ULL);
+
+	return 0;
+}
+
+typedef int pid_t;
+static inline pid_t getpid(void)
+{
+	DWORD pid = GetCurrentProcessId();
+
+	return (pid_t)pid;
+}
+
+#define strtok_r strtok_s
+#define localtime_r(timep, result) localtime_s((result), (time_t)(timep))
+#define write _write
+#define read _read
+#define close _close
+#define open lc_open
+#define fopen lc_fopen
+
+static inline int lc_open(const char *path, int flags, int mode)
+{
+	int fd;
+	errno_t err = _sopen_s(&fd, path, flags, _SH_DENYNO, mode);
+
+	if (err != 0) {
+		errno = err;
+		return -1;
+	}
+	return fd;
+}
+
+static inline FILE *fopen(const char *path, const char *mode)
+{
+	FILE *fp;
+	errno_t err = fopen_s(&fp, path, mode);
+
+	if (err != 0) {
+		errno = err;
+		return NULL;
+	}
+	return fp;
+}
+
+#ifndef _SSIZE_T
+typedef long ssize_t;
+#define _SSIZE_T
+#endif
+
+#else /* __GNUC__ */
+
+#error "Constructor / destructor not defined for compiler"
+
+#endif
+
+/*
+ * Replace GCC-specific alternative keywords
+ * see https://gcc.gnu.org/onlinedocs/gcc/Alternate-Keywords.html
+ */
+#ifndef __GNUC__
+#define __asm__ asm
+#define __volatile__ volatile
+#endif
 
 #ifdef __CYGWIN__
 #include <sys/mman.h>
@@ -357,26 +471,6 @@ static inline int munlock(const void *ptr, size_t len)
 	do {                                                                   \
 	} while (0)
 #endif
-
-typedef int64_t time64_t;
-
-static inline int lc_get_time(time64_t *time_since_epoch, time64_t *n_sec)
-{
-	struct timespec tp = { 0 };
-
-	if (!time_since_epoch)
-		return -EINVAL;
-
-	if (clock_gettime(CLOCK_REALTIME, &tp) == 0) {
-		*time_since_epoch = tp.tv_sec;
-		if (n_sec)
-			*n_sec = tp.tv_nsec;
-		return 0;
-	}
-
-	*time_since_epoch = (time64_t)-1;
-	return -errno;
-}
 
 #define LC_FIPS_RODATA_SECTION
 

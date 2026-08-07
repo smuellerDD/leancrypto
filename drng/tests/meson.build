@@ -44,7 +44,7 @@ if get_option('kmac_drng').enabled()
 				   )
 	kmac_drng_tester_output = executable('kmac_drng_tester_output',
 				   [ 'kmac_drng_tester_output.c',
-				     internal_src ],
+				     internal_src, arch_src ],
 				   include_directories: [ include_internal_dirs ],
 				   dependencies: leancrypto
 				   )
@@ -79,7 +79,7 @@ if get_option('cshake_drng').enabled()
 				   )
 	cshake_drng_tester_output = executable('cshake_drng_tester_output',
 				   [ 'cshake_drng_tester_output.c',
-				     internal_src ],
+				     internal_src, arch_src ],
 				   include_directories: [ include_internal_dirs ],
 				   dependencies: leancrypto
 				   )
@@ -114,7 +114,7 @@ if (get_option('xdrbg').enabled() and get_option('sha3').enabled())
 				   )
 	xdrbg256_tester_output = executable('xdrbg256_tester_output',
 				   [ 'xdrbg256_tester_output.c',
-				     internal_src ],
+				     internal_src, arch_src ],
 				   include_directories: [ include_internal_dirs ],
 				   dependencies: leancrypto
 				   )
@@ -172,7 +172,7 @@ if (get_option('xdrbg').enabled() and get_option('ascon').enabled())
 				   )
 	xdrbg128_tester_output = executable('xdrbg128_tester_output',
 				   [ 'xdrbg128_tester_output.c',
-				     internal_src ],
+				     internal_src, arch_src ],
 				   include_directories: [ include_internal_dirs ],
 				   dependencies: leancrypto
 				   )

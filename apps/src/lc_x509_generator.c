@@ -22,7 +22,6 @@
 #include <getopt.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/mman.h>
 #include <sys/stat.h>
 #include <time.h>
 
@@ -503,6 +502,9 @@ static int x509_enc_subject_cn(struct x509_generator_opts *opts,
 {
 	struct lc_x509_certificate *cert = &opts->cert;
 
+	if (!opt_optarg)
+		return -EINVAL;
+
 	return lc_x509_cert_set_subject_cn(cert, opt_optarg,
 					   strlen(opt_optarg));
 }
@@ -511,6 +513,9 @@ static int x509_enc_subject_email(struct x509_generator_opts *opts,
 				  const char *opt_optarg)
 {
 	struct lc_x509_certificate *cert = &opts->cert;
+
+	if (!opt_optarg)
+		return -EINVAL;
 
 	return lc_x509_cert_set_subject_email(cert, opt_optarg,
 					      strlen(opt_optarg));
@@ -521,6 +526,9 @@ static int x509_enc_subject_ou(struct x509_generator_opts *opts,
 {
 	struct lc_x509_certificate *cert = &opts->cert;
 
+	if (!opt_optarg)
+		return -EINVAL;
+
 	return lc_x509_cert_set_subject_ou(cert, opt_optarg,
 					   strlen(opt_optarg));
 }
@@ -529,6 +537,9 @@ static int x509_enc_subject_o(struct x509_generator_opts *opts,
 			      const char *opt_optarg)
 {
 	struct lc_x509_certificate *cert = &opts->cert;
+
+	if (!opt_optarg)
+		return -EINVAL;
 
 	return lc_x509_cert_set_subject_o(cert, opt_optarg, strlen(opt_optarg));
 }
@@ -547,6 +558,9 @@ static int x509_enc_subject_c(struct x509_generator_opts *opts,
 {
 	struct lc_x509_certificate *cert = &opts->cert;
 
+	if (!opt_optarg)
+		return -EINVAL;
+
 	return lc_x509_cert_set_subject_c(cert, opt_optarg, strlen(opt_optarg));
 }
 
@@ -555,6 +569,9 @@ static int x509_enc_issuer_cn(struct x509_generator_opts *opts,
 {
 	struct lc_x509_certificate *cert = &opts->cert;
 
+	if (!opt_optarg)
+		return -EINVAL;
+
 	return lc_x509_cert_set_issuer_cn(cert, opt_optarg, strlen(opt_optarg));
 }
 
@@ -562,6 +579,9 @@ static int x509_enc_issuer_email(struct x509_generator_opts *opts,
 				 const char *opt_optarg)
 {
 	struct lc_x509_certificate *cert = &opts->cert;
+
+	if (!opt_optarg)
+		return -EINVAL;
 
 	return lc_x509_cert_set_issuer_email(cert, opt_optarg,
 					     strlen(opt_optarg));
@@ -572,6 +592,9 @@ static int x509_enc_issuer_ou(struct x509_generator_opts *opts,
 {
 	struct lc_x509_certificate *cert = &opts->cert;
 
+	if (!opt_optarg)
+		return -EINVAL;
+
 	return lc_x509_cert_set_issuer_ou(cert, opt_optarg, strlen(opt_optarg));
 }
 
@@ -579,6 +602,9 @@ static int x509_enc_issuer_o(struct x509_generator_opts *opts,
 			     const char *opt_optarg)
 {
 	struct lc_x509_certificate *cert = &opts->cert;
+
+	if (!opt_optarg)
+		return -EINVAL;
 
 	return lc_x509_cert_set_issuer_o(cert, opt_optarg, strlen(opt_optarg));
 }
@@ -588,6 +614,9 @@ static int x509_enc_issuer_st(struct x509_generator_opts *opts,
 {
 	struct lc_x509_certificate *cert = &opts->cert;
 
+	if (!opt_optarg)
+		return -EINVAL;
+
 	return lc_x509_cert_set_issuer_st(cert, opt_optarg, strlen(opt_optarg));
 }
 
@@ -595,6 +624,9 @@ static int x509_enc_issuer_c(struct x509_generator_opts *opts,
 			     const char *opt_optarg)
 {
 	struct lc_x509_certificate *cert = &opts->cert;
+
+	if (!opt_optarg)
+		return -EINVAL;
 
 	return lc_x509_cert_set_issuer_c(cert, opt_optarg, strlen(opt_optarg));
 }

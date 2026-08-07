@@ -20,7 +20,6 @@
 #define _GNU_SOURCE
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <unistd.h>
 
 #include "lc_memory_support.h"
 #include "lc_memset_secure.h"

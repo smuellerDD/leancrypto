@@ -90,41 +90,6 @@ if (host_machine.system() != 'windows' and
 				)
 	endif
 
-	if get_option('x509_generator').enabled()
-		lc_x509_generator_files = internal_src
-		lc_x509_generator_files += files([
-						'lc_x509_generator.c',
-						'lc_x509_generator_checker.c',
-						'lc_x509_generator_file_helper.c',
-						'lc_x509_generator_print.c',
-						])
-
-		lc_x509_generator = executable('lc_x509_generator',
-				[ lc_x509_generator_files ],
-				include_directories: [ include_internal_dirs ],
-				dependencies: leancrypto,
-				install: true,
-				)
-	endif
-
-	if get_option('pkcs7_generator').enabled()
-		lc_pkcs7_generator_files = internal_src
-		lc_pkcs7_generator_files += files([
-			'lc_pkcs7_generator.c',
-			'lc_pkcs7_generator_helper.c',
-			'lc_x509_generator_checker.c',
-			'lc_x509_generator_file_helper.c',
-			'lc_x509_generator_print.c',
-			])
-
-		lc_pkcs7_generator = executable('lc_pkcs7_generator',
-				[ lc_pkcs7_generator_files ],
-				include_directories: [ include_internal_dirs ],
-				dependencies: leancrypto,
-				install: true,
-				)
-	endif
-
 	if get_option('sbsigntools').enabled()
 		sbsign_files = internal_src
 		sbsign_files += files([
@@ -226,6 +191,42 @@ if (host_machine.system() != 'windows' and
 				install_dir: get_option('libexecdir') / meson.project_name()
 				)
 	endif
-
 endif
 
+if (get_option('efi').disabled() and
+    get_option('apps').enabled())
+	if get_option('x509_generator').enabled()
+		lc_x509_generator_files = [ internal_src, arch_src ]
+		lc_x509_generator_files += files([
+						'lc_x509_generator.c',
+						'lc_x509_generator_checker.c',
+						'lc_x509_generator_file_helper.c',
+						'lc_x509_generator_print.c',
+						])
+
+		lc_x509_generator = executable('lc_x509_generator',
+				[ lc_x509_generator_files ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto,
+				install: true,
+				)
+	endif
+
+	if get_option('pkcs7_generator').enabled()
+		lc_pkcs7_generator_files = [ internal_src, arch_src ]
+		lc_pkcs7_generator_files += files([
+			'lc_pkcs7_generator.c',
+			'lc_pkcs7_generator_helper.c',
+			'lc_x509_generator_checker.c',
+			'lc_x509_generator_file_helper.c',
+			'lc_x509_generator_print.c',
+			])
+
+		lc_pkcs7_generator = executable('lc_pkcs7_generator',
+				[ lc_pkcs7_generator_files ],
+				include_directories: [ include_internal_dirs ],
+				dependencies: leancrypto,
+				install: true,
+				)
+	endif
+endif

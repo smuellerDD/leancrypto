@@ -31,9 +31,7 @@ project('leancrypto', 'c',
 cc = meson.get_compiler('c')
 
 # Hardening Compiler flags
-add_global_arguments([ '-fstack-protector-strong',
-		       '-fwrapv',
-		       '--param', 'ssp-buffer-size=4',
+add_global_arguments([ '-fwrapv',
 		       '-Wconversion',
 		       '-Wcast-align',
 		       '-Wmissing-field-initializers',
@@ -51,6 +49,33 @@ add_global_arguments([ '-fstack-protector-strong',
 		       '-Wswitch-default'
 		        ],
 		       language : 'c')
+
+# BEGIN: Windows MSVC clang-cl
+#	does not support the following, thus enable conditionally
+
+if cc.has_argument('-fstack-protector-strong')
+	add_global_arguments([ '-fstack-protector-strong' ],
+			     language: 'c')
+endif
+
+if host_machine.system() != 'windows'
+	add_global_arguments([ '--param', 'ssp-buffer-size=4' ],
+			     language: 'c')
+endif
+
+# Dead-code-stripping support
+if cc.has_argument('-ffunction-sections')
+	add_global_arguments([ '-ffunction-sections' ],
+			     language: 'c')
+endif
+
+# Dead-code-stripping support
+if cc.has_argument('-fdata-sections')
+	add_global_arguments([ '-fdata-sections' ],
+			     language: 'c')
+endif
+
+# END: Windows MSVC clang-cl
 
 if cc.has_argument('-Wdocumentation')
 	add_global_arguments([ '-Wdocumentation' ],
@@ -461,9 +486,7 @@ add_global_arguments(['-DMAJVERSION=' + version_array[0],
 		      '-DVERSION="' + meson.project_version() + '"'],
 		      language : 'c')
 
-# Dead-code-stripping support
-add_global_arguments(['-ffunction-sections', '-fdata-sections'], language : 'c')
-if (host_machine.system() == 'sunos')
+if (host_machine.system() == 'sunos' or host_machine.system() == 'windows')
 	# Do nothing
 elif (host_machine.system() == 'darwin')
 	add_project_link_arguments('-Wl,-dead_strip', language : 'c')
@@ -984,6 +1007,12 @@ endif
 # Execute compilation
 ################################################################################
 
+# Architecture-specific files
+arch_src = [ ]
+if host_machine.system() == 'windows'
+	arch_src += files([ 'internal/src/getopt.c' ])
+endif
+
 # FIPS non-approved crypto sources
 src = [ ]
 
@@ -1055,6 +1084,7 @@ if build_shared
 		dependencies: [ leancrypto_link ],
 		link_whole: [ leancrypto_raw_static_lib ],
 		link_args: link_args_fips140,
+		vs_module_defs: 'leancrypto.def',
 		install: true
 		)
 
@@ -1072,6 +1102,7 @@ if build_shared
 		dependencies: [ leancrypto_link ],
 		link_whole: [ leancrypto_raw_static_lib ],
 		link_args: link_args_fips140,
+		vs_module_defs: 'leancrypto.def',
 		install: true
 		)
 
@@ -1203,7 +1234,6 @@ endforeach
 ################################################################################
 # Doxygen on cygwin is not able to parse current config file
 if (doxygen.found() and (build_machine.system() != 'cygwin'))
-
 	subdir('doc')
 else
 	message('Doxygen documentation not generated due to missing Doxygen binary')

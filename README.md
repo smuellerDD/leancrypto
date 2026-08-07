@@ -35,7 +35,7 @@ properties listed in the following:
 The one go-to library usable in any environment - validate it once and use it
 for all workloads. Currently supported envionments:
 
-* User space (POSIX environments like Linux, macOS, BSDs; Windows)
+* User space (POSIX environments like Linux, macOS, BSDs; Windows MSYS and native support)
 
 * Kernel space (Linux including registration into kernel crypto API)
 
@@ -189,6 +189,24 @@ considerations must be applied:
   first API call before calling any other leancrypto service function.
 
 ## Library Build for Windows
+
+### Native
+
+The `leancrypto` library can be built on Windows natively using `clang-cl`
+along with MSVC. For this, install MSVC and add the support for `clang-cl`
+during its installation.
+
+Then install Python followed by `meson`.
+
+Now you are ready to set up `leancrypto` with meson:
+
+1. `set CC=clang-cl`
+
+2. `meson setup build`
+
+3. `meson compile -C build`
+
+### MSYS2
 
 The `leancrypto` library can be built on Windows using
 [MSYS2](https://www.msys2.org/). Once `MSYS2` is installed along with `meson`

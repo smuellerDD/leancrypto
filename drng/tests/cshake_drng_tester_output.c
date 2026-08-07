@@ -22,9 +22,9 @@
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/time.h>
 
 #include "lc_cshake256_drng.h"
+#include "ret_checkers.h"
 #include "small_stack_support.h"
 
 struct opts {
@@ -71,25 +71,21 @@ static int cshake_drng(struct opts *opts, FILE *out)
 		uint8_t outbuf[LC_CSHAKE256_DRNG_MAX_CHUNK];
 		char outhex[2 * LC_CSHAKE256_DRNG_MAX_CHUNK];
 	};
-	struct timeval tv;
 	uint64_t time;
+	time64_t time_s, time_ns = 0;
 	size_t bytes = opts->bytecount;
+	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 #ifdef LC_MEM_ON_HEAP
 	struct lc_rng_ctx *cshake_ctx;
-	int ret = lc_cshake256_drng_alloc(&cshake_ctx);
-	if (ret)
-		return ret;
+	CKINT(lc_cshake256_drng_alloc(&cshake_ctx));
 #else
 	LC_CSHAKE256_DRNG_CTX_ON_STACK(cshake_ctx);
 #endif
 
-	if (gettimeofday(&tv, NULL) < 0) {
-		printf("Cannot obtain timestamp: %s\n", strerror(errno));
-		return 1;
-	}
-	time = (uint64_t)tv.tv_sec * 1000000 + (uint64_t)tv.tv_usec;
+	CKINT(lc_get_time(&time_s, &time_ns));
+	time = (uint64_t)time_s * 1000000000 + (uint64_t)time_ns;
 
 	lc_rng_seed(cshake_ctx, (uint8_t *)&time, sizeof(time), NULL, 0);
 
@@ -110,6 +106,7 @@ static int cshake_drng(struct opts *opts, FILE *out)
 		bytes -= todo;
 	}
 
+out:
 #ifdef LC_MEM_ON_HEAP
 	lc_rng_zero_free(cshake_ctx);
 #else
@@ -179,8 +176,8 @@ int main(int argc, char *argv[])
 	if (opts.outfile) {
 		out = fopen(opts.outfile, "w");
 		if (!out) {
-			printf("Cannot open file %s: %s\n", opts.outfile,
-			       strerror(errno));
+			printf("Cannot open file %s: %d\n", opts.outfile,
+			       errno);
 			return 1;
 		}
 	}

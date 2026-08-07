@@ -308,7 +308,7 @@ void poly_tomsg_avx(uint8_t msg[LC_KYBER_INDCPA_MSGBYTES],
 		    const poly *restrict a)
 {
 	unsigned int i;
-	int small;
+	int poly_small;
 	__m256i f0, f1, g0, g1;
 
 #pragma GCC diagnostic push
@@ -332,8 +332,8 @@ void poly_tomsg_avx(uint8_t msg[LC_KYBER_INDCPA_MSGBYTES],
 		f1 = _mm256_sub_epi16(f1, hhq);
 		f0 = _mm256_packs_epi16(f0, f1);
 		f0 = _mm256_permute4x64_epi64(f0, 0xD8);
-		small = _mm256_movemask_epi8(f0);
-		memcpy(&msg[4 * i], &small, 4);
+		poly_small = _mm256_movemask_epi8(f0);
+		memcpy(&msg[4 * i], &poly_small, 4);
 	}
 	LC_FPU_DISABLE;
 }

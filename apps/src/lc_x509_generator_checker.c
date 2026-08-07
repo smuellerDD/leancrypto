@@ -17,6 +17,9 @@
  * DAMAGE.
  */
 
+#ifndef _POSIX_C_SOURCE
+#define _POSIX_C_SOURCE 200112L
+#endif
 #include "binhexbin.h"
 #include "ext_headers_internal.h"
 #include "lc_memcmp_secure.h"
@@ -131,30 +134,23 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 
 	if (parsed_opts->valid_from) {
 		if (parsed_opts->valid_from != (uint64_t)x509->valid_from) {
-			struct tm *exp_detail, *act_detail;
+			struct tm exp_detail, act_detail;
 
-			// localtime_r(&x509->valid_from, &act_detail);
-			// localtime_r((int64_t *)&parsed_opts->valid_from,
-			// 	    &exp_detail);
-			act_detail = localtime((time_t *)&x509->valid_from);
-			exp_detail =
-				localtime((time_t *)&parsed_opts->valid_from);
-			CKNULL_LOG(act_detail, -EINVAL,
-				   "Certificate valid_from time mismatch\n");
-			CKNULL_LOG(exp_detail, -EINVAL,
-				   "Certificate valid_from time mismatch\n");
+			localtime_r(&x509->valid_from, &act_detail);
+			localtime_r((int64_t *)&parsed_opts->valid_from,
+				    &exp_detail);
 
 			printf("Certificate valid_from time mismatch, expected %d-%.2d-%.2d %.2d:%.2d:%.2d (%" PRIu64
 			       "), actual %d-%.2d-%.2d %.2d:%.2d:%.2d (%" PRId64
 			       ")\n",
-			       exp_detail->tm_year + 1900,
-			       exp_detail->tm_mon + 1, exp_detail->tm_mday,
-			       exp_detail->tm_hour, exp_detail->tm_min,
-			       exp_detail->tm_sec, parsed_opts->valid_from,
-			       act_detail->tm_year + 1900,
-			       act_detail->tm_mon + 1, act_detail->tm_mday,
-			       act_detail->tm_hour, act_detail->tm_min,
-			       act_detail->tm_sec, x509->valid_from);
+			       exp_detail.tm_year + 1900,
+			       exp_detail.tm_mon + 1, exp_detail.tm_mday,
+			       exp_detail.tm_hour, exp_detail.tm_min,
+			       exp_detail.tm_sec, parsed_opts->valid_from,
+			       act_detail.tm_year + 1900,
+			       act_detail.tm_mon + 1, act_detail.tm_mday,
+			       act_detail.tm_hour, act_detail.tm_min,
+			       act_detail.tm_sec, x509->valid_from);
 			return -EINVAL;
 		} else {
 			printf("Certificate valid_from time successfully verified\n");
@@ -163,30 +159,23 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 
 	if (parsed_opts->valid_to) {
 		if (parsed_opts->valid_to != (uint64_t)x509->valid_to) {
-			struct tm *exp_detail, *act_detail;
+			struct tm exp_detail, act_detail;
 
-			// localtime_r(&x509->valid_to, &act_detail);
-			// localtime_r((int64_t *)&parsed_opts->valid_to,
-			// 	    &exp_detail);
-			act_detail = localtime((time_t *)&x509->valid_to);
-			exp_detail =
-				localtime((time_t *)&parsed_opts->valid_to);
-			CKNULL_LOG(act_detail, -EINVAL,
-				   "Certificate valid_from time mismatch\n");
-			CKNULL_LOG(exp_detail, -EINVAL,
-				   "Certificate valid_from time mismatch\n");
+			localtime_r(&x509->valid_to, &act_detail);
+			localtime_r((int64_t *)&parsed_opts->valid_to,
+				    &exp_detail);
 
 			printf("Certificate valid_to time mismatch, expected %d-%.2d-%.2d %.2d:%.2d:%.2d (%" PRIu64
 			       "), actual %d-%.2d-%.2d %.2d:%.2d:%.2d (%" PRId64
 			       ")\n",
-			       exp_detail->tm_year + 1900,
-			       exp_detail->tm_mon + 1, exp_detail->tm_mday,
-			       exp_detail->tm_hour, exp_detail->tm_min,
-			       exp_detail->tm_sec, parsed_opts->valid_to,
-			       act_detail->tm_year + 1900,
-			       act_detail->tm_mon + 1, act_detail->tm_mday,
-			       act_detail->tm_hour, act_detail->tm_min,
-			       act_detail->tm_sec, x509->valid_to);
+			       exp_detail.tm_year + 1900,
+			       exp_detail.tm_mon + 1, exp_detail.tm_mday,
+			       exp_detail.tm_hour, exp_detail.tm_min,
+			       exp_detail.tm_sec, parsed_opts->valid_to,
+			       act_detail.tm_year + 1900,
+			       act_detail.tm_mon + 1, act_detail.tm_mday,
+			       act_detail.tm_hour, act_detail.tm_min,
+			       act_detail.tm_sec, x509->valid_to);
 			return -EINVAL;
 		} else {
 			printf("Certificate valid_to time successfully verified\n");
