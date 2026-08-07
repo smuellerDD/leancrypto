@@ -21,6 +21,8 @@ Changes 1.8.1-prerelease
 
 * Windows: fix parallel compilation of the assembler code that is compiled once per ML-KEM / ML-DSA parameter set - clang-cl placed the preprocessed intermediate of all of them into the same file.
 
+* Windows: fix linking against the shared library - the import libraries referenced a non-existing DLL name and the exported data symbols were neither marked as DATA nor declared with __declspec(dllimport).
+
 Changes 1.8.0
 * X.509: provide a common automated serial number generator which is the 20 leftmost bytes of the SHA3-256 hash of the certificate DER blob with the serial number being 20 bytes of 0xff and the signature part equally a range of 0xff bytes
 

@@ -20,6 +20,7 @@
 #ifndef LC_SYMKMAC_H
 #define LC_SYMKMAC_H
 
+#include "lc_export.h"
 #include "lc_aead.h"
 #include "lc_sym.h"
 #include "lc_kmac.h"
@@ -45,7 +46,7 @@ struct lc_kh_cryptor {
 	 LC_KH_STATE_SIZE)
 
 /* AES-CBC with KMAC based AEAD-algorithm */
-extern const struct lc_aead *lc_symkmac_aead;
+extern LC_DLL_IMPORT const struct lc_aead *lc_symkmac_aead;
 
 #define _LC_KH_SET_CTX(name, symalgo, hash)                                    \
 	_LC_SYM_SET_CTX((&name->sym), symalgo, name,                           \

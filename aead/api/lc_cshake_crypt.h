@@ -20,6 +20,7 @@
 #ifndef LC_CSHAKE_CRYPT_H
 #define LC_CSHAKE_CRYPT_H
 
+#include "lc_export.h"
 #include "lc_aead.h"
 #include "lc_memory_support.h"
 
@@ -70,7 +71,7 @@ struct lc_cc_cryptor {
 	 LC_CC_STATE_SIZE)
 
 /* CSHAKE-based AEAD-algorithm */
-extern const struct lc_aead *lc_cshake_aead;
+extern LC_DLL_IMPORT const struct lc_aead *lc_cshake_aead;
 
 /* Ensure that ->keystream is aligned to XOR alignment requirement */
 #define _LC_CC_SET_CTX(name, hashname)                                         \

@@ -20,6 +20,7 @@
 #ifndef LC_CTR_DRBG_H
 #define LC_CTR_DRBG_H
 
+#include "lc_export.h"
 #include "lc_aes.h"
 #include "lc_drbg.h"
 #include "lc_memory_support.h"
@@ -93,7 +94,7 @@ struct lc_drbg_ctr_state {
 	_LC_DRBG_CTR_SET_CTX(name, name, sizeof(struct lc_drbg_ctr_state),     \
 			     _use_df, _scratchpad_size)
 
-extern const struct lc_rng *lc_ctr_drbg;
+extern LC_DLL_IMPORT const struct lc_rng *lc_ctr_drbg;
 
 #define LC_DRBG_CTR_RNG_CTX(name, _use_df, _scratchpad_size)                   \
 	LC_RNG_CTX(name, lc_ctr_drbg, 1);                                      \

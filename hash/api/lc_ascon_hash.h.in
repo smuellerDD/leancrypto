@@ -20,6 +20,7 @@
 #ifndef LC_ASCON_HASH_H
 #define LC_ASCON_HASH_H
 
+#include "lc_export.h"
 #include "lc_hash.h"
 
 #ifdef __cplusplus
@@ -74,19 +75,19 @@ struct lc_ascon_hash {
  * @var lc_ascon_256
  * @brief Ascon 256 message digest algorithm
  */
-extern const struct lc_hash *lc_ascon_256;
+extern LC_DLL_IMPORT const struct lc_hash *lc_ascon_256;
 
 /**
  * @var lc_ascon_128a
  * @brief Ascon 128a message digest algorithm
  */
-extern const struct lc_hash *lc_ascon_128a;
+extern LC_DLL_IMPORT const struct lc_hash *lc_ascon_128a;
 
 /**
  * @var lc_ascon_xof
  * @brief Ascon XOF extended output function
  */
-extern const struct lc_hash *lc_ascon_xof;
+extern LC_DLL_IMPORT const struct lc_hash *lc_ascon_xof;
 
 /**
  * @brief Allocate stack memory for the Ascon 256 context without VLA

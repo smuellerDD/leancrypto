@@ -20,12 +20,14 @@
 #ifndef SHA512_RISCV_ZBB_H
 #define SHA512_RISCV_ZBB_H
 
+#include "lc_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern const struct lc_hash *lc_sha384_riscv_zbb;
-extern const struct lc_hash *lc_sha512_riscv_zbb;
+extern LC_DLL_IMPORT const struct lc_hash *lc_sha384_riscv_zbb;
+extern LC_DLL_IMPORT const struct lc_hash *lc_sha512_riscv_zbb;
 
 #ifdef __cplusplus
 }

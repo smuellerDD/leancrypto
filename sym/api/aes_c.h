@@ -20,18 +20,20 @@
 #ifndef AES_C_H
 #define AES_C_H
 
+#include "lc_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern const struct lc_sym *lc_aes_cbc_c;
-extern const struct lc_sym *lc_aes_ctr_c;
-extern const struct lc_sym *lc_aes_kw_c;
-extern const struct lc_sym *lc_aes_c;
-extern const struct lc_sym *lc_aes_xts_c;
+extern LC_DLL_IMPORT const struct lc_sym *lc_aes_cbc_c;
+extern LC_DLL_IMPORT const struct lc_sym *lc_aes_ctr_c;
+extern LC_DLL_IMPORT const struct lc_sym *lc_aes_kw_c;
+extern LC_DLL_IMPORT const struct lc_sym *lc_aes_c;
+extern LC_DLL_IMPORT const struct lc_sym *lc_aes_xts_c;
 
-extern const struct lc_sym *lc_aes_sbox;
-extern const struct lc_sym *lc_aes_ct;
+extern LC_DLL_IMPORT const struct lc_sym *lc_aes_sbox;
+extern LC_DLL_IMPORT const struct lc_sym *lc_aes_ct;
 #ifdef __cplusplus
 }
 #endif

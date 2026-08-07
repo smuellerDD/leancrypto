@@ -20,6 +20,7 @@
 #ifndef LC_KDF_CTR_H
 #define LC_KDF_CTR_H
 
+#include "lc_export.h"
 #include "ext_headers.h"
 #include "lc_hash.h"
 #include "lc_rng.h"
@@ -116,7 +117,7 @@ struct lc_kdf_ctr_ctx {
 	_LC_CTR_KDF_SET_CTX(name, hashname, name, sizeof(struct lc_kdf_ctr_ctx))
 
 /* CTR_KDF DRNG implementation */
-extern const struct lc_rng *lc_kdf_ctr_rng;
+extern LC_DLL_IMPORT const struct lc_rng *lc_kdf_ctr_rng;
 
 #define LC_CTR_KDF_DRNG_CTX_SIZE                                               \
 	(sizeof(struct lc_rng_ctx) +                                           \

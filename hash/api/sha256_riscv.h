@@ -20,11 +20,13 @@
 #ifndef SHA256_RISCV_H
 #define SHA256_RISCV_H
 
+#include "lc_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern const struct lc_hash *lc_sha256_riscv;
+extern LC_DLL_IMPORT const struct lc_hash *lc_sha256_riscv;
 
 #ifdef __cplusplus
 }

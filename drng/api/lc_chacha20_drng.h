@@ -20,6 +20,7 @@
 #ifndef _LC_CHACHA20_DRNG_H
 #define _LC_CHACHA20_DRNG_H
 
+#include "lc_export.h"
 #include "ext_headers.h"
 #include "lc_chacha20.h"
 #include "lc_rng.h"
@@ -39,7 +40,7 @@ struct lc_chacha20_drng_ctx {
 };
 
 /* ChaCha20-based DRNG */
-extern const struct lc_rng *lc_cc20_drng;
+extern LC_DLL_IMPORT const struct lc_rng *lc_cc20_drng;
 
 #define LC_CC20_DRNG_SYM_STATE_SIZE (LC_CC20_STATE_SIZE)
 #define LC_CC20_DRNG_STATE_SIZE                                                \

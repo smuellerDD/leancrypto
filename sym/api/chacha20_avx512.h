@@ -20,11 +20,13 @@
 #ifndef CHACHA20_AVX512_H
 #define CHACHA20_AVX512_H
 
+#include "lc_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern const struct lc_sym *lc_chacha20_avx512;
+extern LC_DLL_IMPORT const struct lc_sym *lc_chacha20_avx512;
 
 #ifdef __cplusplus
 }

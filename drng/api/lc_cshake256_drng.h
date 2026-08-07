@@ -20,6 +20,7 @@
 #ifndef LC_CSHAKE256_DRNG_H
 #define LC_CSHAKE256_DRNG_H
 
+#include "lc_export.h"
 #include "lc_cshake.h"
 #include "lc_rng.h"
 
@@ -41,7 +42,7 @@ struct lc_cshake256_drng_state {
 	(sizeof(struct lc_rng_ctx) + LC_CSHAKE256_DRNG_STATE_SIZE)
 
 /* CSHAKE256-based DRNG */
-extern const struct lc_rng *lc_cshake256_drng;
+extern LC_DLL_IMPORT const struct lc_rng *lc_cshake256_drng;
 
 #define LC_CSHAKE256_RNG_CTX(name)                                             \
 	LC_RNG_CTX(name, lc_cshake256_drng, 1);                                \

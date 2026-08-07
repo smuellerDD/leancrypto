@@ -20,6 +20,7 @@
 #ifndef LC_KMAC_CRYPT_H
 #define LC_KMAC_CRYPT_H
 
+#include "lc_export.h"
 #include "ext_headers.h"
 #include "lc_aead.h"
 #include "lc_memory_support.h"
@@ -68,7 +69,7 @@ struct lc_kc_cryptor {
 	 LC_KC_STATE_SIZE)
 
 /* KMAC-based AEAD-algorithm */
-extern const struct lc_aead *lc_kmac_aead;
+extern LC_DLL_IMPORT const struct lc_aead *lc_kmac_aead;
 
 /* Ensure that ->keystream is aligned to XOR alignment requirement */
 #define _LC_KC_SET_CTX(name, hashname)                                         \

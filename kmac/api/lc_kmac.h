@@ -20,6 +20,7 @@
 #ifndef LC_KMAC_H
 #define LC_KMAC_H
 
+#include "lc_export.h"
 #include "lc_hash.h"
 #include "lc_rng.h"
 #include "lc_sha3.h"
@@ -337,7 +338,7 @@ int lc_kmac_xof(const struct lc_hash *hash, const uint8_t *key, size_t keylen,
  */
 
 /* KMAC DRNG implementation */
-extern const struct lc_rng *lc_kmac_rng;
+extern LC_DLL_IMPORT const struct lc_rng *lc_kmac_rng;
 
 /// \cond DO_NOT_DOCUMENT
 #define LC_KMAC_KDF_DRNG_CTX_SIZE                                              \

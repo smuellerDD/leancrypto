@@ -20,31 +20,33 @@
 #ifndef SHA3_RISCV_ASM_H
 #define SHA3_RISCV_ASM_H
 
+#include "lc_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern const struct lc_hash *lc_sha3_224_riscv_asm;
-extern const struct lc_hash *lc_sha3_256_riscv_asm;
-extern const struct lc_hash *lc_sha3_384_riscv_asm;
-extern const struct lc_hash *lc_sha3_512_riscv_asm;
+extern LC_DLL_IMPORT const struct lc_hash *lc_sha3_224_riscv_asm;
+extern LC_DLL_IMPORT const struct lc_hash *lc_sha3_256_riscv_asm;
+extern LC_DLL_IMPORT const struct lc_hash *lc_sha3_384_riscv_asm;
+extern LC_DLL_IMPORT const struct lc_hash *lc_sha3_512_riscv_asm;
 
-extern const struct lc_hash *lc_shake128_riscv_asm;
-extern const struct lc_hash *lc_shake256_riscv_asm;
-extern const struct lc_hash *lc_shake512_riscv_asm;
-extern const struct lc_hash *lc_cshake128_riscv_asm;
-extern const struct lc_hash *lc_cshake256_riscv_asm;
+extern LC_DLL_IMPORT const struct lc_hash *lc_shake128_riscv_asm;
+extern LC_DLL_IMPORT const struct lc_hash *lc_shake256_riscv_asm;
+extern LC_DLL_IMPORT const struct lc_hash *lc_shake512_riscv_asm;
+extern LC_DLL_IMPORT const struct lc_hash *lc_cshake128_riscv_asm;
+extern LC_DLL_IMPORT const struct lc_hash *lc_cshake256_riscv_asm;
 
-extern const struct lc_hash *lc_sha3_224_riscv_asm_zbb;
-extern const struct lc_hash *lc_sha3_256_riscv_asm_zbb;
-extern const struct lc_hash *lc_sha3_384_riscv_asm_zbb;
-extern const struct lc_hash *lc_sha3_512_riscv_asm_zbb;
+extern LC_DLL_IMPORT const struct lc_hash *lc_sha3_224_riscv_asm_zbb;
+extern LC_DLL_IMPORT const struct lc_hash *lc_sha3_256_riscv_asm_zbb;
+extern LC_DLL_IMPORT const struct lc_hash *lc_sha3_384_riscv_asm_zbb;
+extern LC_DLL_IMPORT const struct lc_hash *lc_sha3_512_riscv_asm_zbb;
 
-extern const struct lc_hash *lc_shake128_riscv_asm_zbb;
-extern const struct lc_hash *lc_shake256_riscv_asm_zbb;
-extern const struct lc_hash *lc_shake512_riscv_asm_zbb;
-extern const struct lc_hash *lc_cshake128_riscv_asm_zbb;
-extern const struct lc_hash *lc_cshake256_riscv_asm_zbb;
+extern LC_DLL_IMPORT const struct lc_hash *lc_shake128_riscv_asm_zbb;
+extern LC_DLL_IMPORT const struct lc_hash *lc_shake256_riscv_asm_zbb;
+extern LC_DLL_IMPORT const struct lc_hash *lc_shake512_riscv_asm_zbb;
+extern LC_DLL_IMPORT const struct lc_hash *lc_cshake128_riscv_asm_zbb;
+extern LC_DLL_IMPORT const struct lc_hash *lc_cshake256_riscv_asm_zbb;
 
 #ifdef __cplusplus
 }

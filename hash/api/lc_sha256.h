@@ -20,6 +20,7 @@
 #ifndef LC_SHA256_H
 #define LC_SHA256_H
 
+#include "lc_export.h"
 #include "lc_hash.h"
 
 #ifdef __cplusplus
@@ -30,7 +31,7 @@ extern "C" {
  * @var lc_sha256
  * @brief SHA2-256 algorithm reference
  */
-extern const struct lc_hash *lc_sha256;
+extern LC_DLL_IMPORT const struct lc_hash *lc_sha256;
 
 /// \cond DO_NOT_DOCUMENT
 #define LC_SHA256_SIZE_BLOCK 64

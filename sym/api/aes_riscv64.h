@@ -20,16 +20,18 @@
 #ifndef AES_RISCV64_V8_H
 #define AES_RISCV64_V8_H
 
+#include "lc_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern const struct lc_sym *lc_aes_cbc_riscv64;
-extern const struct lc_sym *lc_aes_ctr_riscv64;
-extern const struct lc_sym *lc_aes_kw_riscv64;
-extern const struct lc_sym *lc_aes_riscv64;
+extern LC_DLL_IMPORT const struct lc_sym *lc_aes_cbc_riscv64;
+extern LC_DLL_IMPORT const struct lc_sym *lc_aes_ctr_riscv64;
+extern LC_DLL_IMPORT const struct lc_sym *lc_aes_kw_riscv64;
+extern LC_DLL_IMPORT const struct lc_sym *lc_aes_riscv64;
 extern const struct lc_sym *lc_aes_riscv64_enc_only;
-extern const struct lc_sym *lc_aes_xts_riscv64;
+extern LC_DLL_IMPORT const struct lc_sym *lc_aes_xts_riscv64;
 
 #ifdef __cplusplus
 }

@@ -20,11 +20,13 @@
 #ifndef SHA256_SHANI_H
 #define SHA256_SHANI_H
 
+#include "lc_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern const struct lc_hash *lc_sha256_shani;
+extern LC_DLL_IMPORT const struct lc_hash *lc_sha256_shani;
 
 #ifdef __cplusplus
 }

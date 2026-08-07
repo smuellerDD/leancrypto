@@ -20,6 +20,7 @@
 #ifndef MODE_CTR_H
 #define MODE_CTR_H
 
+#include "lc_export.h"
 #include "aes_internal.h"
 #include "bitshift.h"
 #include "build_bug_on.h"
@@ -40,7 +41,7 @@ struct lc_mode_state {
 
 void mode_ctr_selftest(const struct lc_sym *aes);
 
-extern const struct lc_sym_mode *lc_mode_ctr_c;
+extern LC_DLL_IMPORT const struct lc_sym_mode *lc_mode_ctr_c;
 
 static inline void ctr128_inc(uint64_t ctr[AES_CTR128_64BIT_WORDS])
 {

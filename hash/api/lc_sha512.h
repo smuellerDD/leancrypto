@@ -20,6 +20,7 @@
 #ifndef LC_SHA512_H
 #define LC_SHA512_H
 
+#include "lc_export.h"
 #include "lc_hash.h"
 
 #ifdef __cplusplus
@@ -30,13 +31,13 @@ extern "C" {
  * @var lc_sha384
  * @brief SHA2-384 algorithm reference
  */
-extern const struct lc_hash *lc_sha384;
+extern LC_DLL_IMPORT const struct lc_hash *lc_sha384;
 
 /**
  * @var lc_sha512
  * @brief SHA2-512 algorithm reference
  */
-extern const struct lc_hash *lc_sha512;
+extern LC_DLL_IMPORT const struct lc_hash *lc_sha512;
 
 /// \cond DO_NOT_DOCUMENT
 #define LC_SHA512_SIZE_BLOCK 128

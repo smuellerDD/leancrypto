@@ -20,13 +20,15 @@
 #ifndef ASCON_ARM_NEON
 #define ASCON_ARM_NEON
 
+#include "lc_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern const struct lc_hash *lc_ascon_256_arm_neon;
-extern const struct lc_hash *lc_ascon_128a_arm_neon;
-extern const struct lc_hash *lc_ascon_xof_arm_neon;
+extern LC_DLL_IMPORT const struct lc_hash *lc_ascon_256_arm_neon;
+extern LC_DLL_IMPORT const struct lc_hash *lc_ascon_128a_arm_neon;
+extern LC_DLL_IMPORT const struct lc_hash *lc_ascon_xof_arm_neon;
 
 #ifdef __cplusplus
 }

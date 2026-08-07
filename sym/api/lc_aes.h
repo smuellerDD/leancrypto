@@ -26,6 +26,7 @@
 #ifndef LC_AES_H
 #define LC_AES_H
 
+#include "lc_export.h"
 #include "lc_sym.h"
 
 #ifdef __cplusplus
@@ -33,22 +34,22 @@ extern "C" {
 #endif
 
 /* AES ECB mode */
-extern const struct lc_sym *lc_aes_ecb;
+extern LC_DLL_IMPORT const struct lc_sym *lc_aes_ecb;
 
 /* AES CBC mode */
-extern const struct lc_sym *lc_aes_cbc;
+extern LC_DLL_IMPORT const struct lc_sym *lc_aes_cbc;
 
 /* AES CTR mode */
-extern const struct lc_sym *lc_aes_ctr;
+extern LC_DLL_IMPORT const struct lc_sym *lc_aes_ctr;
 
 /* AES KW mode */
-extern const struct lc_sym *lc_aes_kw;
+extern LC_DLL_IMPORT const struct lc_sym *lc_aes_kw;
 
 /* AES raw block operation */
-extern const struct lc_sym *lc_aes;
+extern LC_DLL_IMPORT const struct lc_sym *lc_aes;
 
 /* AES XTS mode */
-extern const struct lc_sym *lc_aes_xts;
+extern LC_DLL_IMPORT const struct lc_sym *lc_aes_xts;
 
 /**
  * @ingroup Symmetric

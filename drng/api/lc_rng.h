@@ -20,6 +20,7 @@
 #ifndef LC_RNG_H
 #define LC_RNG_H
 
+#include "lc_export.h"
 #include "lc_memory_support.h"
 #include "lc_status.h"
 
@@ -72,7 +73,7 @@ struct lc_rng_ctx {
  * handled. Thus, this structure can be directly used for the lc_rng API by a
  * caller and have a properly seeded DRNG.
  */
-extern struct lc_rng_ctx *lc_seeded_rng;
+extern LC_DLL_IMPORT struct lc_rng_ctx *lc_seeded_rng;
 
 /**
  * @ingroup RNGs

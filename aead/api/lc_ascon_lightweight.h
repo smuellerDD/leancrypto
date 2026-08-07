@@ -20,6 +20,7 @@
 #ifndef LC_ASCON_LIGHTWEIGHT_H
 #define LC_ASCON_LIGHTWEIGHT_H
 
+#include "lc_export.h"
 #include "lc_ascon_aead.h"
 #include "lc_ascon_hash.h"
 
@@ -42,7 +43,7 @@ extern "C" {
 /// \endcond
 
 /* Ascon-based AEAD-algorithm */
-extern const struct lc_aead *lc_ascon_aead;
+extern LC_DLL_IMPORT const struct lc_aead *lc_ascon_aead;
 
 /**
  * @brief Allocate Ascon Lightweight cryptor context on heap

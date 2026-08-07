@@ -1,4 +1,3 @@
-LIBRARY leancrypto
 EXPORTS
 	; Interface functions defined with LC_INTERFACE_FUNCTION
 	; find ./ -name *.c | xargs grep LC_INTERFACE_FUNCTION | cut -d"," -f2 | uniq | sort
@@ -463,7 +462,7 @@ EXPORTS
 	lc_kex_x448_uake_responder_ss
 	lc_kh_alloc
 	lc_kmac
-	lc_kmac_rng
+	lc_kmac_rng DATA
 	lc_kmac256_drng_alloc
 	lc_kmac_alg_status
 	lc_kmac_alloc
@@ -847,181 +846,181 @@ EXPORTS
 
 	; Interface symbols
 	; find ./ -name *.c | xargs grep -A1 LC_INTERFACE_SYMBOL | cut -d"," -f2
-	lc_aes
-	lc_aes_aesni
-	lc_aes_armce
-	lc_aes_c
-	lc_aes_cbc
-	lc_aes_cbc_aesni
-	lc_aes_cbc_armce
-	lc_aes_cbc_c
-	lc_aes_cbc_riscv64
-	lc_aes_ct
-	lc_aes_ctr
-	lc_aes_ctr_aesni
-	lc_aes_ctr_armce
-	lc_aes_ctr_c
-	lc_aes_ctr_riscv64
+	lc_aes DATA
+	lc_aes_aesni DATA
+	lc_aes_armce DATA
+	lc_aes_c DATA
+	lc_aes_cbc DATA
+	lc_aes_cbc_aesni DATA
+	lc_aes_cbc_armce DATA
+	lc_aes_cbc_c DATA
+	lc_aes_cbc_riscv64 DATA
+	lc_aes_ct DATA
+	lc_aes_ctr DATA
+	lc_aes_ctr_aesni DATA
+	lc_aes_ctr_armce DATA
+	lc_aes_ctr_c DATA
+	lc_aes_ctr_riscv64 DATA
 	;lc_aes_ecb
-	lc_aes_gcm_aead
-	lc_aes_kw
-	lc_aes_kw_aesni
-	lc_aes_kw_armce
-	lc_aes_kw_c
-	lc_aes_kw_riscv64
-	lc_aes_riscv64
-	lc_aes_sbox
-	lc_aes_xts
-	lc_aes_xts_aesni
-	lc_aes_xts_armce
-	lc_aes_xts_c
-	lc_aes_xts_riscv64
-	lc_ascon_128a
-	lc_ascon_128a_arm_neon
-	lc_ascon_128a_avx512
-	lc_ascon_128a_c
-	lc_ascon_256
-	lc_ascon_256_arm_neon
-	lc_ascon_256_avx512
-	lc_ascon_256_c
-	lc_ascon_aead
-	lc_ascon_keccak_aead
-	lc_ascon_xof
-	lc_ascon_xof_arm_neon
-	lc_ascon_xof_avx512
-	lc_ascon_xof_c
-	lc_cc20_drng
-	lc_chacha20
-	lc_chacha20_avx2
-	lc_chacha20_avx512
-	lc_chacha20_c
-	lc_chacha20_neon
-	lc_chacha20_poly1305_aead
-	lc_chacha20_riscv64_v_zbb
-	lc_cshake128
-	lc_cshake128_arm_asm
-	lc_cshake128_arm_ce
-	lc_cshake128_arm_neon
-	lc_cshake128_avx2
-	lc_cshake128_avx512
-	lc_cshake128_c
-	lc_cshake128_riscv_asm
-	lc_cshake128_riscv_asm_zbb
-	lc_cshake256
-	lc_cshake256_arm_asm
-	lc_cshake256_arm_ce
-	lc_cshake256_arm_neon
-	lc_cshake256_avx2
-	lc_cshake256_avx512
-	lc_cshake256_c
-	lc_cshake256_drng
-	lc_cshake256_riscv_asm
-	lc_cshake256_riscv_asm_zbb
-	lc_cshake_aead
-	lc_ctr_drbg
-	lc_hash_aead
-	lc_hash_drbg
+	lc_aes_gcm_aead DATA
+	lc_aes_kw DATA
+	lc_aes_kw_aesni DATA
+	lc_aes_kw_armce DATA
+	lc_aes_kw_c DATA
+	lc_aes_kw_riscv64 DATA
+	lc_aes_riscv64 DATA
+	lc_aes_sbox DATA
+	lc_aes_xts DATA
+	lc_aes_xts_aesni DATA
+	lc_aes_xts_armce DATA
+	lc_aes_xts_c DATA
+	lc_aes_xts_riscv64 DATA
+	lc_ascon_128a DATA
+	lc_ascon_128a_arm_neon DATA
+	lc_ascon_128a_avx512 DATA
+	lc_ascon_128a_c DATA
+	lc_ascon_256 DATA
+	lc_ascon_256_arm_neon DATA
+	lc_ascon_256_avx512 DATA
+	lc_ascon_256_c DATA
+	lc_ascon_aead DATA
+	lc_ascon_keccak_aead DATA
+	lc_ascon_xof DATA
+	lc_ascon_xof_arm_neon DATA
+	lc_ascon_xof_avx512 DATA
+	lc_ascon_xof_c DATA
+	lc_cc20_drng DATA
+	lc_chacha20 DATA
+	lc_chacha20_avx2 DATA
+	lc_chacha20_avx512 DATA
+	lc_chacha20_c DATA
+	lc_chacha20_neon DATA
+	lc_chacha20_poly1305_aead DATA
+	lc_chacha20_riscv64_v_zbb DATA
+	lc_cshake128 DATA
+	lc_cshake128_arm_asm DATA
+	lc_cshake128_arm_ce DATA
+	lc_cshake128_arm_neon DATA
+	lc_cshake128_avx2 DATA
+	lc_cshake128_avx512 DATA
+	lc_cshake128_c DATA
+	lc_cshake128_riscv_asm DATA
+	lc_cshake128_riscv_asm_zbb DATA
+	lc_cshake256 DATA
+	lc_cshake256_arm_asm DATA
+	lc_cshake256_arm_ce DATA
+	lc_cshake256_arm_neon DATA
+	lc_cshake256_avx2 DATA
+	lc_cshake256_avx512 DATA
+	lc_cshake256_c DATA
+	lc_cshake256_drng DATA
+	lc_cshake256_riscv_asm DATA
+	lc_cshake256_riscv_asm_zbb DATA
+	lc_cshake_aead DATA
+	lc_ctr_drbg DATA
+	lc_hash_aead DATA
+	lc_hash_drbg DATA
 	lc_hkdf
-	lc_hkdf_rng
-	lc_hmac_drbg
+	lc_hkdf_rng DATA
+	lc_hmac_drbg DATA
 	lc_kdf_ctr
-	lc_kdf_ctr_rng
+	lc_kdf_ctr_rng DATA
 	lc_kmac
-	lc_kmac256_drng
-	lc_kmac_aead
-	lc_mode_cbc_c
-	lc_mode_ctr_c
-	lc_mode_xts_c
-	lc_seeded_rng
-	lc_sha256
-	lc_sha256_arm_ce
-	lc_sha256_arm_neon
-	lc_sha256_avx2
-	lc_sha256_c
-	lc_sha256_riscv
-	lc_sha256_riscv_zbb
-	lc_sha256_shani
-	lc_sha3_224
-	lc_sha3_224_arm_asm
-	lc_sha3_224_arm_ce
-	lc_sha3_224_arm_neon
-	lc_sha3_224_avx2
-	lc_sha3_224_avx512
-	lc_sha3_224_c
-	lc_sha3_224_riscv_asm
-	lc_sha3_224_riscv_asm_zbb
-	lc_sha3_256
-	lc_sha3_256_arm_asm
-	lc_sha3_256_arm_ce
-	lc_sha3_256_arm_neon
-	lc_sha3_256_avx2
-	lc_sha3_256_avx512
-	lc_sha3_256_c
-	lc_sha3_256_riscv_asm
-	lc_sha3_256_riscv_asm_zbb
-	lc_sha3_384
-	lc_sha3_384_arm_asm
-	lc_sha3_384_arm_ce
-	lc_sha3_384_arm_neon
-	lc_sha3_384_avx2
-	lc_sha3_384_avx512
-	lc_sha3_384_c
-	lc_sha3_384_riscv_asm
-	lc_sha3_384_riscv_asm_zbb
-	lc_sha3_512
-	lc_sha3_512_arm_asm
-	lc_sha3_512_arm_ce
-	lc_sha3_512_arm_neon
-	lc_sha3_512_avx2
-	lc_sha3_512_avx512
-	lc_sha3_512_c
-	lc_sha3_512_riscv_asm
-	lc_sha3_512_riscv_asm_zbb
-	lc_sha384
-	lc_sha384_arm_ce
-	lc_sha384_arm_neon
-	lc_sha384_avx2
-	lc_sha384_c
-	lc_sha384_riscv
-	lc_sha384_riscv_zbb
-	lc_sha384_shani
-	lc_sha512
-	lc_sha512_arm_ce
-	lc_sha512_arm_neon
-	lc_sha512_avx2
-	lc_sha512_c
-	lc_sha512_riscv
-	lc_sha512_riscv_zbb
-	lc_sha512_shani
-	lc_shake128
-	lc_shake128_arm_asm
-	lc_shake128_arm_ce
-	lc_shake128_arm_neon
-	lc_shake128_avx2
-	lc_shake128_avx512
-	lc_shake128_c
-	lc_shake128_riscv_asm
-	lc_shake128_riscv_asm_zbb
-	lc_shake256
-	lc_shake256_arm_asm
-	lc_shake256_arm_ce
-	lc_shake256_arm_neon
-	lc_shake256_avx2
-	lc_shake256_avx512
-	lc_shake256_c
-	lc_shake256_riscv_asm
-	lc_shake256_riscv_asm_zbb
-	lc_shake512
-	lc_shake512_arm_asm
-	lc_shake512_arm_ce
-	lc_shake512_arm_neon
-	lc_shake512_avx2
-	lc_shake512_avx512
-	lc_shake512_c
-	lc_shake512_riscv_asm
-	lc_shake512_riscv_asm_zbb
-	lc_symhmac_aead
-	lc_symkmac_aead
-	lc_xdrbg128_drng
-	lc_xdrbg256_drng
-	lc_xdrbg512_drng
+	lc_kmac256_drng DATA
+	lc_kmac_aead DATA
+	lc_mode_cbc_c DATA
+	lc_mode_ctr_c DATA
+	lc_mode_xts_c DATA
+	lc_seeded_rng DATA
+	lc_sha256 DATA
+	lc_sha256_arm_ce DATA
+	lc_sha256_arm_neon DATA
+	lc_sha256_avx2 DATA
+	lc_sha256_c DATA
+	lc_sha256_riscv DATA
+	lc_sha256_riscv_zbb DATA
+	lc_sha256_shani DATA
+	lc_sha3_224 DATA
+	lc_sha3_224_arm_asm DATA
+	lc_sha3_224_arm_ce DATA
+	lc_sha3_224_arm_neon DATA
+	lc_sha3_224_avx2 DATA
+	lc_sha3_224_avx512 DATA
+	lc_sha3_224_c DATA
+	lc_sha3_224_riscv_asm DATA
+	lc_sha3_224_riscv_asm_zbb DATA
+	lc_sha3_256 DATA
+	lc_sha3_256_arm_asm DATA
+	lc_sha3_256_arm_ce DATA
+	lc_sha3_256_arm_neon DATA
+	lc_sha3_256_avx2 DATA
+	lc_sha3_256_avx512 DATA
+	lc_sha3_256_c DATA
+	lc_sha3_256_riscv_asm DATA
+	lc_sha3_256_riscv_asm_zbb DATA
+	lc_sha3_384 DATA
+	lc_sha3_384_arm_asm DATA
+	lc_sha3_384_arm_ce DATA
+	lc_sha3_384_arm_neon DATA
+	lc_sha3_384_avx2 DATA
+	lc_sha3_384_avx512 DATA
+	lc_sha3_384_c DATA
+	lc_sha3_384_riscv_asm DATA
+	lc_sha3_384_riscv_asm_zbb DATA
+	lc_sha3_512 DATA
+	lc_sha3_512_arm_asm DATA
+	lc_sha3_512_arm_ce DATA
+	lc_sha3_512_arm_neon DATA
+	lc_sha3_512_avx2 DATA
+	lc_sha3_512_avx512 DATA
+	lc_sha3_512_c DATA
+	lc_sha3_512_riscv_asm DATA
+	lc_sha3_512_riscv_asm_zbb DATA
+	lc_sha384 DATA
+	lc_sha384_arm_ce DATA
+	lc_sha384_arm_neon DATA
+	lc_sha384_avx2 DATA
+	lc_sha384_c DATA
+	lc_sha384_riscv DATA
+	lc_sha384_riscv_zbb DATA
+	lc_sha384_shani DATA
+	lc_sha512 DATA
+	lc_sha512_arm_ce DATA
+	lc_sha512_arm_neon DATA
+	lc_sha512_avx2 DATA
+	lc_sha512_c DATA
+	lc_sha512_riscv DATA
+	lc_sha512_riscv_zbb DATA
+	lc_sha512_shani DATA
+	lc_shake128 DATA
+	lc_shake128_arm_asm DATA
+	lc_shake128_arm_ce DATA
+	lc_shake128_arm_neon DATA
+	lc_shake128_avx2 DATA
+	lc_shake128_avx512 DATA
+	lc_shake128_c DATA
+	lc_shake128_riscv_asm DATA
+	lc_shake128_riscv_asm_zbb DATA
+	lc_shake256 DATA
+	lc_shake256_arm_asm DATA
+	lc_shake256_arm_ce DATA
+	lc_shake256_arm_neon DATA
+	lc_shake256_avx2 DATA
+	lc_shake256_avx512 DATA
+	lc_shake256_c DATA
+	lc_shake256_riscv_asm DATA
+	lc_shake256_riscv_asm_zbb DATA
+	lc_shake512 DATA
+	lc_shake512_arm_asm DATA
+	lc_shake512_arm_ce DATA
+	lc_shake512_arm_neon DATA
+	lc_shake512_avx2 DATA
+	lc_shake512_avx512 DATA
+	lc_shake512_c DATA
+	lc_shake512_riscv_asm DATA
+	lc_shake512_riscv_asm_zbb DATA
+	lc_symhmac_aead DATA
+	lc_symkmac_aead DATA
+	lc_xdrbg128_drng DATA
+	lc_xdrbg256_drng DATA
+	lc_xdrbg512_drng DATA
