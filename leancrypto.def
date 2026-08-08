@@ -920,12 +920,9 @@ EXPORTS
 	lc_ctr_drbg DATA
 	lc_hash_aead DATA
 	lc_hash_drbg DATA
-	lc_hkdf
 	lc_hkdf_rng DATA
 	lc_hmac_drbg DATA
-	lc_kdf_ctr
 	lc_kdf_ctr_rng DATA
-	lc_kmac
 	lc_kmac256_drng DATA
 	lc_kmac_aead DATA
 	lc_mode_cbc_c DATA

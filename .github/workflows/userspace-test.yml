@@ -361,28 +361,39 @@ jobs:
         run: sh .github/scripts/vm-build-and-test.sh -Dtests=disabled
 
   # MSVC is the reference Windows toolchain.
-  # MSVC currently disabled as I am not sure how to install Meson
-  # windows-msvc:
-  #   name: Windows / MSVC / ${{ matrix.os }} / shared=${{ matrix.shared }}
-  #   runs-on: ${{ matrix.os }}
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       os: [ windows-latest, windows-11-arm ]
-  #       shared: [ 'shared', 'static', 'both' ]
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #
-  #     - name: Install meson
-  #       run: |
-  #         sudo apt-get update
-  #         sudo apt-get install -y meson gcovr doxygen graphviz
-  #
-  #     - name: Meson setup
-  #       run: CC=${{ matrix.cc }} meson setup build -Ddefault_library=${{ matrix.shared }} -Db_coverage=true -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled -Dsecure_execution=enabled
-  #
-  #     - name: Meson compile
-  #       run: meson compile -C build
-  #
-  #     - name: Meson test
-  #       run: meson test -v -C build --suite regression
+  windows-msvc:
+    name: Windows / MSVC / ${{ matrix.os }} / shared=${{ matrix.shared }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ windows-latest, windows-11-arm ]
+        shared: [ 'shared', 'static', 'both' ]
+        os: [ windows-latest ]
+        shared: [ 'both' ]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.x'
+
+      - name: Install meson
+        run: |
+          python -m pip install --upgrade pip
+          pip install meson ninja
+
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Meson setup
+        shell: pwsh
+        run: |
+          $env:CC = "clang-cl"
+          $env:CXX = "clang-cl"
+          meson setup build -Ddefault_library=${{ matrix.shared }} -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled
+
+      - name: Meson compile
+        run: meson compile -C build
+
+      - name: Meson test
+        run: meson test -v -C build --suite regression

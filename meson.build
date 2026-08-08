@@ -839,7 +839,8 @@ if get_option('pkcs7_parser').disabled() and get_option('pkcs7_generator').enabl
 	error('PKCS#7 / CMS generator support requires PKCS#7 / CMS parser support')
 endif
 
-if get_option('pkcs8_parser').disabled() and get_option('pkcs8_generator').enabled()
+if (get_option('pkcs8_parser').disabled() and
+    get_option('pkcs8_generator').enabled())
 	error('PKCS#8 generator support requires PKCS#8 parser support')
 endif
 
@@ -1009,7 +1010,8 @@ endif
 
 # Architecture-specific files
 arch_src = [ ]
-if host_machine.system() == 'windows'
+if (host_machine.system() == 'windows' and
+    cc.get_argument_syntax() == 'msvc')
 	arch_src += files([ 'internal/src/getopt.c' ])
 endif
 
@@ -1190,6 +1192,7 @@ else
 		include_directories: [ include_dirs, include_internal_dirs ],
 		dependencies: [ leancrypto_link ],
 		link_whole: [ leancrypto_raw_static_lib ],
+		vs_module_defs: 'leancrypto.def',
 		install: true
 		)
 	leancrypto_static_lib = declare_dependency(
@@ -1204,6 +1207,7 @@ else
 					include_internal_dirs ],
 		dependencies: [ leancrypto_link ],
 		link_whole: [ leancrypto_raw_static_lib ],
+		vs_module_defs: 'leancrypto.def',
 		install: true
 		)
 	leancrypto_lib_fips = leancrypto_static_lib_fips
