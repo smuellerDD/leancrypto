@@ -161,10 +161,11 @@ static int x509_write_pem_data(int fd, const uint8_t *data, size_t datalen,
 
 	CKINT(lc_pem_encode_len(datalen, &certdata_pem_len, pem_flags));
 
-	if (certdata_pem_len >= INT_MAX - 1)
+	certdata_pem_len += 1
+	if (certdata_pem_len >= INT_MAX)
 		return -EOVERFLOW;
 
-	memory = malloc(certdata_pem_len + 1);
+	memory = malloc(certdata_pem_len);
 	CKNULL(memory, -ENOMEM);
 
 	CKINT(lc_pem_encode(data, datalen, memory, certdata_pem_len,
@@ -173,7 +174,7 @@ static int x509_write_pem_data(int fd, const uint8_t *data, size_t datalen,
 	/* Write final LF */
 	memory[certdata_pem_len] = 0x0a;
 
-	CKINT(x509_write_data(fd, (uint8_t *)memory, certdata_pem_len + 1));
+	CKINT(x509_write_data(fd, (uint8_t *)memory, certdata_pem_len));
 
 out:
 	if (memory) {
