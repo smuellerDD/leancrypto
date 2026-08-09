@@ -136,11 +136,12 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 		if (parsed_opts->valid_from != (uint64_t)x509->valid_from) {
 			struct tm exp_detail, act_detail, *tm_ret;
 
-			tm_ret = localtime_r(&x509->valid_from, &act_detail);
+			tm_ret = localtime_r((const time_t *)&x509->valid_from,
+					     &act_detail);
 			CKNULL_LOG(tm_ret, -EINVAL,
 				   "Certificate valid_from time mismatch\n");
 			tm_ret = localtime_r(
-				(int64_t *)&parsed_opts->valid_from,
+				(const time_t *)&parsed_opts->valid_from,
 				&exp_detail);
 			CKNULL_LOG(tm_ret, -EINVAL,
 				   "Certificate valid_from time mismatch\n");
@@ -166,11 +167,13 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 		if (parsed_opts->valid_to != (uint64_t)x509->valid_to) {
 			struct tm exp_detail, act_detail, *tm_ret;
 
-			tm_ret = localtime_r(&x509->valid_to, &act_detail);
+			tm_ret = localtime_r((const time_t *)&x509->valid_to,
+					     &act_detail);
 			CKNULL_LOG(tm_ret, -EINVAL,
 				   "Certificate valid_to time mismatch\n");
-			tm_ret = localtime_r((int64_t *)&parsed_opts->valid_to,
-					     &exp_detail);
+			tm_ret = localtime_r(
+				(const time_t *)&parsed_opts->valid_to,
+				&exp_detail);
 			CKNULL_LOG(tm_ret, -EINVAL,
 				   "Certificate valid_to time mismatch\n");
 
