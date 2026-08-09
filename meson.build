@@ -1218,24 +1218,13 @@ else
 		)
 
 	# Create the official static library
-	if vs_module_defs_supported
-		leancrypto_static_lib_gen = static_library('leancrypto',
-			[ src_wrapper ],
-			include_directories: [ include_dirs, include_internal_dirs ],
-			dependencies: [ leancrypto_link ],
-			link_whole: [ leancrypto_raw_static_lib ],
-			vs_module_defs: 'leancrypto.def',
-			install: true
-			)
-	else
-		leancrypto_static_lib_gen = static_library('leancrypto',
-			[ src_wrapper ],
-			include_directories: [ include_dirs, include_internal_dirs ],
-			dependencies: [ leancrypto_link ],
-			link_whole: [ leancrypto_raw_static_lib ],
-			install: true
-			)
-	endif
+	leancrypto_static_lib_gen = static_library('leancrypto',
+		[ src_wrapper ],
+		include_directories: [ include_dirs, include_internal_dirs ],
+		dependencies: [ leancrypto_link ],
+		link_whole: [ leancrypto_raw_static_lib ],
+		install: true
+		)
 
 	leancrypto_static_lib = declare_dependency(
 		link_with : leancrypto_static_lib_gen,
@@ -1243,26 +1232,14 @@ else
 	leancrypto_lib = leancrypto_static_lib_gen
 
 	# Create the official static FIPS library
-	if vs_module_defs_supported
-		leancrypto_static_lib_fips = static_library('leancrypto-fips',
-			[ src_fips_wrapper ],
-			include_directories: [ include_dirs,
-						include_internal_dirs ],
-			dependencies: [ leancrypto_link ],
-			link_whole: [ leancrypto_raw_static_lib ],
-			vs_module_defs: 'leancrypto.def',
-			install: true
-			)
-	else
-		leancrypto_static_lib_fips = static_library('leancrypto-fips',
-			[ src_fips_wrapper ],
-			include_directories: [ include_dirs,
-						include_internal_dirs ],
-			dependencies: [ leancrypto_link ],
-			link_whole: [ leancrypto_raw_static_lib ],
-			install: true
-			)
-	endif
+	leancrypto_static_lib_fips = static_library('leancrypto-fips',
+		[ src_fips_wrapper ],
+		include_directories: [ include_dirs,
+					include_internal_dirs ],
+		dependencies: [ leancrypto_link ],
+		link_whole: [ leancrypto_raw_static_lib ],
+		install: true
+		)
 	leancrypto_lib_fips = leancrypto_static_lib_fips
 endif
 
