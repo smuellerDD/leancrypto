@@ -1070,6 +1070,13 @@ if (host_machine.system() != 'windows')
 		    check: true)
 endif
 
+# Windows requires the vs_module_defs which, however, is only supported on
+# newer versions of meson. Yet, on some OSes, only older versions are
+# available which we want to support still. Once all relevant OSes have
+# moved to the new version, this check can be dropped.
+vs_module_defs_supported = (meson.version().version_compare('>=1.3.0') and
+			    host_machine.system() == 'windows')
+
 fips_integrity_hasher_dep = []
 # Build FIPS 140 library
 if build_shared
@@ -1090,16 +1097,28 @@ if build_shared
 		)
 
 	# Create the official shared library
-	leancrypto_both_libs = both_libraries('leancrypto',
-		[ src_wrapper ],
-		include_directories: [ include_dirs, include_internal_dirs ],
-		soversion: version_array[0],
-		dependencies: [ leancrypto_link ],
-		link_whole: [ leancrypto_raw_static_lib ],
-		link_args: link_args_fips140,
-		vs_module_defs: 'leancrypto.def',
-		install: true
-		)
+	if vs_module_defs_supported
+		leancrypto_both_libs = both_libraries('leancrypto',
+			[ src_wrapper ],
+			include_directories: [ include_dirs, include_internal_dirs ],
+			soversion: version_array[0],
+			dependencies: [ leancrypto_link ],
+			link_whole: [ leancrypto_raw_static_lib ],
+			link_args: link_args_fips140,
+			vs_module_defs: 'leancrypto.def',
+			install: true
+			)
+	else
+		leancrypto_both_libs = both_libraries('leancrypto',
+			[ src_wrapper ],
+			include_directories: [ include_dirs, include_internal_dirs ],
+			soversion: version_array[0],
+			dependencies: [ leancrypto_link ],
+			link_whole: [ leancrypto_raw_static_lib ],
+			link_args: link_args_fips140,
+			install: true
+			)
+	endif
 
 	leancrypto_lib = leancrypto_both_libs.get_shared_lib()
 	leancrypto_static_lib = declare_dependency(
@@ -1108,16 +1127,28 @@ if build_shared
 		)
 
 	# Create the official shared FIPS library
-	leancrypto_both_libs_fips = both_libraries('leancrypto-fips',
-		[ src_fips_wrapper ],
-		include_directories: [ include_dirs, include_internal_dirs ],
-		soversion: version_array[0],
-		dependencies: [ leancrypto_link ],
-		link_whole: [ leancrypto_raw_static_lib ],
-		link_args: link_args_fips140,
-		vs_module_defs: 'leancrypto.def',
-		install: true
-		)
+	if vs_module_defs_supported
+		leancrypto_both_libs_fips = both_libraries('leancrypto-fips',
+			[ src_fips_wrapper ],
+			include_directories: [ include_dirs, include_internal_dirs ],
+			soversion: version_array[0],
+			dependencies: [ leancrypto_link ],
+			link_whole: [ leancrypto_raw_static_lib ],
+			link_args: link_args_fips140,
+			vs_module_defs: 'leancrypto.def',
+			install: true
+			)
+	else
+		leancrypto_both_libs_fips = both_libraries('leancrypto-fips',
+			[ src_fips_wrapper ],
+			include_directories: [ include_dirs, include_internal_dirs ],
+			soversion: version_array[0],
+			dependencies: [ leancrypto_link ],
+			link_whole: [ leancrypto_raw_static_lib ],
+			link_args: link_args_fips140,
+			install: true
+			)
+	endif
 
 	leancrypto_lib_fips = leancrypto_both_libs_fips.get_shared_lib()
 	leancrypto_static_lib_fips = leancrypto_both_libs_fips.get_static_lib()
@@ -1187,29 +1218,51 @@ else
 		)
 
 	# Create the official static library
-	leancrypto_static_lib_gen = static_library('leancrypto',
-		[ src_wrapper ],
-		include_directories: [ include_dirs, include_internal_dirs ],
-		dependencies: [ leancrypto_link ],
-		link_whole: [ leancrypto_raw_static_lib ],
-		vs_module_defs: 'leancrypto.def',
-		install: true
-		)
+	if vs_module_defs_supported
+		leancrypto_static_lib_gen = static_library('leancrypto',
+			[ src_wrapper ],
+			include_directories: [ include_dirs, include_internal_dirs ],
+			dependencies: [ leancrypto_link ],
+			link_whole: [ leancrypto_raw_static_lib ],
+			vs_module_defs: 'leancrypto.def',
+			install: true
+			)
+	else
+		leancrypto_static_lib_gen = static_library('leancrypto',
+			[ src_wrapper ],
+			include_directories: [ include_dirs, include_internal_dirs ],
+			dependencies: [ leancrypto_link ],
+			link_whole: [ leancrypto_raw_static_lib ],
+			install: true
+			)
+	endif
+
 	leancrypto_static_lib = declare_dependency(
 		link_with : leancrypto_static_lib_gen,
 		)
 	leancrypto_lib = leancrypto_static_lib_gen
 
 	# Create the official static FIPS library
-	leancrypto_static_lib_fips = static_library('leancrypto-fips',
-		[ src_fips_wrapper ],
-		include_directories: [ include_dirs,
-					include_internal_dirs ],
-		dependencies: [ leancrypto_link ],
-		link_whole: [ leancrypto_raw_static_lib ],
-		vs_module_defs: 'leancrypto.def',
-		install: true
-		)
+	if vs_module_defs_supported
+		leancrypto_static_lib_fips = static_library('leancrypto-fips',
+			[ src_fips_wrapper ],
+			include_directories: [ include_dirs,
+						include_internal_dirs ],
+			dependencies: [ leancrypto_link ],
+			link_whole: [ leancrypto_raw_static_lib ],
+			vs_module_defs: 'leancrypto.def',
+			install: true
+			)
+	else
+		leancrypto_static_lib_fips = static_library('leancrypto-fips',
+			[ src_fips_wrapper ],
+			include_directories: [ include_dirs,
+						include_internal_dirs ],
+			dependencies: [ leancrypto_link ],
+			link_whole: [ leancrypto_raw_static_lib ],
+			install: true
+			)
+	endif
 	leancrypto_lib_fips = leancrypto_static_lib_fips
 endif
 
