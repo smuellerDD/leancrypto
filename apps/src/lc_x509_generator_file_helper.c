@@ -161,7 +161,7 @@ static int x509_write_pem_data(int fd, const uint8_t *data, size_t datalen,
 
 	CKINT(lc_pem_encode_len(datalen, &certdata_pem_len, pem_flags));
 
-	certdata_pem_len += 1
+	certdata_pem_len += 1;
 	if (certdata_pem_len >= INT_MAX)
 		return -EOVERFLOW;
 
