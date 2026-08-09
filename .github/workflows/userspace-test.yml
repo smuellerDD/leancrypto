@@ -367,7 +367,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ windows-latest, windows-11-arm ]
+        os: [ windows-latest ]
+        # Windows on ARM seems to not yet be supported by Github?!
+        # Errors thrown:
+        # clang-cl: warning: unknown argument ignored in clang-cl: '-fwrapv' [-Wunknown-argument]
+        # error: unknown target CPU 'armv8-a+simd'
+        #os: [ windows-latest, windows-11-arm ]
         shared: [ 'shared', 'static', 'both' ]
     steps:
       - uses: actions/checkout@v7
