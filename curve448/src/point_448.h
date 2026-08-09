@@ -280,11 +280,21 @@ void curve448_point_mul_by_ratio_and_encode_like_eddsa(
  *
  * See notes on decaf_448_point_mul_by_ratio_and_encode_like_eddsa
  *
- * @param [out] enc The encoded point.
- * @param [in] p The point.
+ * @param [in] enc The encoded point.
+ * @param [out] p The point.
  */
 int curve448_point_decode_like_eddsa_and_mul_by_ratio(
 	curve448_point_t p, const uint8_t enc[LC_ED448_PUBLICKEYBYTES]);
+
+/**
+ * @brief EdDSA point decoding: Verify final bytes to ensure that unused
+ * bits are zero.
+ *
+ * @param [in] enc The encoded point.
+ * @param [in] r Set to 1 if the R signature value is analyzed, or 0 for S
+ */
+int curve448_point_decode_verify_last_byte(
+	const uint8_t enc[LC_ED448_PUBLICKEYBYTES], int r);
 
 /*
  * Multiply a precomputed base point by a scalar: out = scalar*base.

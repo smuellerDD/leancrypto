@@ -19,8 +19,8 @@
 
 use leancrypto_sys::lcr_ed448::lcr_ed448;
 use wycheproof::{
-    TestResult,
     eddsa::{TestName, TestSet},
+    TestResult,
 };
 
 #[test]
@@ -35,16 +35,6 @@ fn wycheproof_ed448_verify() {
         assert_eq!(result, Ok(()));
 
         for test in &test_group.tests {
-            /*
-             * Under discussion at
-             * https://github.com/bleichenbacher-daniel/Rooterberg/issues/6
-             */
-            match test.tc_id {
-                63..66 => continue,
-                76 => continue,
-                _ => (),
-            }
-
             println!("Test case {}: {}", test.tc_id, test.comment);
 
             let mut result = ed448.sig_load(&test.sig);

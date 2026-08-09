@@ -30,6 +30,7 @@
  * Originally written by Mike Hamburg
  */
 
+#include "build_bug_on.h"
 #include "field.h"
 #include "point_448.h"
 #include "lc_ed448.h"
@@ -317,10 +318,10 @@ int curve448_point_decode_like_eddsa_and_mul_by_ratio(
 	curve448_point_t p, const uint8_t enc[LC_ED448_PUBLICKEYBYTES])
 {
 	uint8_t enc2[LC_ED448_PUBLICKEYBYTES];
+
 	memcpy(enc2, enc, sizeof(enc2));
 
 	mask_t low = ~word_is_zero(enc2[LC_ED448_SECRETKEYBYTES - 1] & 0x80);
-	enc2[LC_ED448_SECRETKEYBYTES - 1] &= (uint8_t)~0x80;
 
 	mask_t succ = gf_deserialize(p->y, enc2, 0, 0);
 
@@ -365,6 +366,36 @@ int curve448_point_decode_like_eddsa_and_mul_by_ratio(
 	lc_memset_secure(enc2, 0, sizeof(enc2));
 
 	return -(int)mask_to_bool(succ);
+}
+
+int curve448_point_decode_verify_last_byte(
+	const uint8_t enc[LC_ED448_PUBLICKEYBYTES], int r)
+{
+	/*
+	 * The R value deefines the high bit of the last byte as a sign flag
+	 * according to RFC8032 section 5.2.3 step 4. Thus, this value is
+	 * allowed to be set by the caller.
+	 */
+	const uint8_t mask = r ? 0x7f : 0xff;
+
+	/*
+	 * This function is intended to cover both, R (LC_ED448_PUBLICKEYBYTES)
+	 * and S (LC_ED448_SECRETKEYBYTES)
+	 */
+	BUILD_BUG_ON(LC_ED448_PUBLICKEYBYTES != LC_ED448_SECRETKEYBYTES);
+
+	/*
+	 * The unused bits of the 57-byte R and S encoding and are always zero
+	 * in a valid encoding:
+	 * - R must be (y < p < 2^448)
+	 * - S < L < 2^448). S must be congruent to the valid s mod L
+	 *
+	 * This requirement is compliant to whycheproof tests and as discussed
+	 * in https://github.com/bleichenbacher-daniel/Rooterberg/issues/6.
+	 */
+	if (enc[LC_ED448_PUBLICKEYBYTES - 1] & mask)
+		return -EBADMSG;
+	return 0;
 }
 
 void curve448_point_mul_by_ratio_and_encode_like_x448(

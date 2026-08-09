@@ -750,6 +750,12 @@ curveed448_verify(const uint8_t signature[LC_ED448_SIGBYTES],
 		}
 	}
 
+	/* Verify R point */
+	CKINT(curve448_point_decode_verify_last_byte(signature, 1));
+	/* Verify S point */
+	CKINT(curve448_point_decode_verify_last_byte(
+		&signature[LC_ED448_PUBLICKEYBYTES], 0));
+
 	CKINT(curve448_point_decode_like_eddsa_and_mul_by_ratio(pk_point,
 								pubkey));
 
