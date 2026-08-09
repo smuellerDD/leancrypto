@@ -417,11 +417,14 @@ jobs:
         update: true
         install: git meson mingw-w64-${{matrix.env}}-meson mingw-w64-${{matrix.env}}-gcc
     - name: Meson setup
-      run: msys2 -c 'meson setup build -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled' -Dsbsigntools=disabled
+      shell: msys2 {0}
+      run: meson setup build -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled -Dsbsigntools=disabled
     - name: Meson compile
-      run: msys2 -c 'meson compile -C build'
+      shell: msys2 {0}
+      run: meson compile -C build
     - name: Meson test
-      run: msys2 -c 'meson test -v -C build --suite regression'
+      shell: msys2 {0}
+      run: meson test -v -C build --suite regression
     # - name: Archive test logs
     #   if: always()
     #   uses: actions/upload-artifact@v4
