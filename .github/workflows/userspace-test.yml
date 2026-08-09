@@ -367,9 +367,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #os: [ windows-latest, windows-11-arm ]
+        os: [ windows-latest, windows-11-arm ]
         #shared: [ 'shared', 'static', 'both' ]
-        os: [ windows-latest ]
         shared: [ 'both' ]
     steps:
       - uses: actions/checkout@v7
