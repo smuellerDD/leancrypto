@@ -756,12 +756,19 @@ int lc_x509_cert_get_pubkey(const struct lc_x509_certificate *cert,
  *
  * @param [in] cert X.509 certificate from which the data is to be obtained
  * @param [out] eku_names Reference to an array of strings
- * @param [out] num_eku Number of returned EKU strings
+ * @param [in,out] num_eku Number of returned EKU strings, but when calling this
+ *			   function, provide the number of available array
+ *			   entries.
+ *
+ * This function is intended to be used as follows: The caller allocates
+ * an array of n char pointers and references that array in \p eku_names.
+ * The value n is set in \p num_eku. When the function returns, it contains
+ * \p num_eku entries in \p eku_names.
  *
  * @return 0 on success or < 0 on error
  */
 int lc_x509_cert_get_eku(const struct lc_x509_certificate *cert,
-			 const char ***eku_names, unsigned int *num_eku);
+			 const char **eku_names, unsigned int *num_eku);
 
 /**
  * @ingroup X509
@@ -784,12 +791,17 @@ int lc_x509_cert_get_eku_val(const struct lc_x509_certificate *cert,
  *
  * @param [in] cert X.509 certificate from which the data is to be obtained
  * @param [out] keyusage_names Reference to an array of strings
- * @param [out] num_keyusage Number of returned key usage strings
+ * @param [in,out] num_keyusage Number of returned key usage strings
+ *
+ * This function is intended to be used as follows: The caller allocates
+ * an array of n char pointers and references that array in \p keyusage_names.
+ * The value n is set in \p num_keyusage. When the function returns, it contains
+ * \p num_keyusage entries in \p keyusage_names.
  *
  * @return 0 on success or < 0 on error
  */
 int lc_x509_cert_get_keyusage(const struct lc_x509_certificate *cert,
-			      const char ***keyusage_names,
+			      const char **keyusage_names,
 			      unsigned int *num_keyusage);
 
 /**

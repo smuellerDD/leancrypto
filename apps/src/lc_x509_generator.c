@@ -1208,7 +1208,7 @@ static void x509_generator_usage(void)
 	fprintf(stderr, "\t   --data-file <FILE>\t\tFile with data to sign\n");
 
 	fprintf(stderr,
-		"\n\t    --enable-non-pqc-algoritms\tEnable non-POQC algorithm\n");
+		"\n\t   --enable-non-pqc-algoritms\tEnable non-POQC algorithm\n");
 
 	fprintf(stderr, "\n\t-h --help\t\t\tPrint this help text\n");
 	fprintf(stderr,

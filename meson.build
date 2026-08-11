@@ -11,7 +11,7 @@
 # Patchlevel Version: API / ABI compatible, no functional changes, no
 #		      enhancements, bug fixes only. No relinking necessary.
 project('leancrypto', 'c',
-	version: '1.8.1',
+	version: '1.9.0',
 	meson_version: '>=0.56.0',
 	default_options: [
 		'warning_level=3',

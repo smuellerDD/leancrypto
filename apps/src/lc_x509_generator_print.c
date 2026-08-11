@@ -19,6 +19,7 @@
 
 #include "binhexbin.h"
 #include "ext_headers_internal.h"
+#include "helper.h"
 #include "lc_asn1.h"
 #include "lc_sha256.h"
 #include "lc_sha3.h"
@@ -129,6 +130,9 @@ static void print_x509_serial(const struct lc_x509_certificate *x509)
 static void print_x509_extensions(const struct lc_x509_certificate *x509)
 {
 	const struct lc_public_key *pub = &x509->pub;
+	const char *usage_names[10];
+	unsigned int i, num_names = ARRAY_SIZE(usage_names);
+	int ret;
 
 	print_x509_bindata("X509v3 Subject Key Identifier", x509->raw_skid,
 			   x509->raw_skid_size);
@@ -149,66 +153,42 @@ static void print_x509_extensions(const struct lc_x509_certificate *x509)
 
 		printf("\n");
 	}
-	if (pub->key_usage) {
+
+	ret = lc_x509_cert_get_keyusage(x509, usage_names, &num_names);
+	if (!ret && num_names) {
 		printf("X509v3 Key Usage: ");
-		if (pub->key_usage & (LC_KEY_USAGE_CRITICAL))
-			printf("(critical) ");
-		if (pub->key_usage & (LC_KEY_USAGE_DIGITALSIG))
-			printf("digitalSignature ");
-		if (pub->key_usage & (LC_KEY_USAGE_CONTENT_COMMITMENT))
-			printf("contentCommitment ");
-		if (pub->key_usage & (LC_KEY_USAGE_KEY_ENCIPHERMENT))
-			printf("keyEncipherment ");
-		if (pub->key_usage & (LC_KEY_USAGE_DATA_ENCIPHERMENT))
-			printf("dataEncipherment ");
-		if (pub->key_usage & (LC_KEY_USAGE_KEYCERTSIGN))
-			printf("keyCertSign ");
-		if (pub->key_usage & (LC_KEY_USAGE_CRLSIGN))
-			printf("cRLSign ");
-		if (pub->key_usage & (LC_KEY_USAGE_ENCIPHER_ONLY))
-			printf("encipherOnly ");
-		if (pub->key_usage & (LC_KEY_USAGE_DECIPHER_ONLY))
-			printf("decipherOnly ");
+
+		for (i = 0; i < num_names; i++)
+			printf("%s ", usage_names[i]);
+
 		printf("\n");
 	}
 
-	if (pub->key_eku) {
+	num_names = ARRAY_SIZE(usage_names);
+	ret = lc_x509_cert_get_eku(x509, usage_names, &num_names);
+	if (!ret && num_names) {
 		printf("X509v3 Extended Key Usage: ");
-		if (pub->key_eku & (LC_KEY_EKU_CRITICAL))
-			printf("(critical) ");
 
-		if (pub->key_eku & (LC_KEY_EKU_ANY))
-			printf("anyExtendedKeyUsage ");
-		if (pub->key_eku & (LC_KEY_EKU_SERVER_AUTH))
-			printf("ServerAuthentication ");
-		if (pub->key_eku & (LC_KEY_EKU_CLIENT_AUTH))
-			printf("ClientAuthentication ");
-		if (pub->key_eku & (LC_KEY_EKU_CODE_SIGNING))
-			printf("CodeSigning ");
-		if (pub->key_eku & (LC_KEY_EKU_EMAIL_PROTECTION))
-			printf("EmailProtection ");
-		if (pub->key_eku & (LC_KEY_EKU_TIME_STAMPING))
-			printf("TImeStamping ");
-		if (pub->key_eku & (LC_KEY_EKU_OCSP_SIGNING))
-			printf("OCSPSignign ");
+		for (i = 0; i < num_names; i++)
+			printf("%s ", usage_names[i]);
+
 		printf("\n");
 	}
 
 	if (x509->san_dns && x509->san_dns_len) {
-		char buf[32];
+		char buf[32] = { 0 };
 
 		memcpy(buf, x509->san_dns,
-		       min_size(sizeof(buf), x509->san_dns_len));
+		       min_size(sizeof(buf) - 1, x509->san_dns_len));
 		printf("Subject Alternative Name (DNS): %s\n", buf);
 	}
+
 	if (x509->san_ip && x509->san_ip_len) {
 		if (x509->san_ip_len == 4) {
 			printf("Subject Alternative Name (IP): %u.%u.%u.%u\n",
 			       x509->san_ip[0], x509->san_ip[1],
 			       x509->san_ip[2], x509->san_ip[3]);
 		} else if (x509->san_ip_len == 16) {
-			unsigned int i;
-
 			printf("Subject Alternative Name (IP): ");
 			for (i = 0; i < x509->san_ip_len; i++) {
 				if (i)

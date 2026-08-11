@@ -119,7 +119,7 @@ int lc_x509_cert_oid_to_eku(enum OID oid, uint16_t *eku)
 
 LC_INTERFACE_FUNCTION(int, lc_x509_cert_get_eku,
 		      const struct lc_x509_certificate *cert,
-		      const char ***eku_names, unsigned int *num_eku)
+		      const char **eku_names, unsigned int *num_eku)
 {
 	const struct lc_public_key *pub;
 	unsigned int i, num = 0;
@@ -129,11 +129,17 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_get_eku,
 	CKNULL(eku_names, -EINVAL);
 	CKNULL(num_eku, -EINVAL);
 
+	if (!num_eku)
+		return 0;
+
 	pub = &cert->pub;
 
 	for (i = 0; i < x509_eku_to_name_size; i++) {
-		if (pub->key_eku & x509_eku_to_name[i].val)
-			*eku_names[num++] = x509_eku_to_name[i].name;
+		if (pub->key_eku & x509_eku_to_name[i].val) {
+			eku_names[num++] = x509_eku_to_name[i].name;
+			if (num >= *num_eku)
+				break;
+		}
 	}
 
 	*num_eku = num;
@@ -183,7 +189,7 @@ const unsigned int x509_keyusage_to_name_size =
 
 LC_INTERFACE_FUNCTION(int, lc_x509_cert_get_keyusage,
 		      const struct lc_x509_certificate *cert,
-		      const char ***keyusage_names, unsigned int *num_keyusage)
+		      const char **keyusage_names, unsigned int *num_keyusage)
 {
 	const struct lc_public_key *pub;
 	unsigned int i, num = 0;
@@ -193,11 +199,17 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_get_keyusage,
 	CKNULL(keyusage_names, -EINVAL);
 	CKNULL(num_keyusage, -EINVAL);
 
+	if (!num_keyusage)
+		return 0;
+
 	pub = &cert->pub;
 
 	for (i = 0; i < x509_keyusage_to_name_size; i++) {
-		if (pub->key_usage & x509_keyusage_to_name[i].val)
-			*keyusage_names[num++] = x509_keyusage_to_name[i].name;
+		if (pub->key_usage & x509_keyusage_to_name[i].val) {
+			keyusage_names[num++] = x509_keyusage_to_name[i].name;
+			if (num >= *num_keyusage)
+				break;
+		}
 	}
 
 	*num_keyusage = num;

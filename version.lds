@@ -18,7 +18,7 @@
  * existing binaries keep binding to the version they were linked against.
  */
 
-LIBLEANCRYPTO_1.8 {
+LIBLEANCRYPTO_1.9 {
 	global:
 		/* lc_aead.h */
 		lc_aead_zero;
@@ -1775,7 +1775,7 @@ LIBLEANCRYPTO_PRIVATE_0 {
 		shake256x2_armv8;
 		shake128x4;
 		shake256x4;
-} LIBLEANCRYPTO_1.8;
+} LIBLEANCRYPTO_1.9;
 
 FREEBSD_0 {
 	environ;
