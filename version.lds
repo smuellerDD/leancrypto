@@ -1481,9 +1481,6 @@ LIBLEANCRYPTO_PRIVATE_0 {
 		lc_cpu_feature_disable;
 		lc_cpu_feature_enable;
 
-		lc_dilithium_87_keypair;
-		lc_dilithium_65_keypair;
-		lc_dilithium_44_keypair;
 		lc_dilithium_87_keypair_avx2;
 		lc_dilithium_65_keypair_avx2;
 		lc_dilithium_87_keypair_armv7;
@@ -1518,9 +1515,6 @@ LIBLEANCRYPTO_PRIVATE_0 {
 		lc_dilithium_87_keypair_from_seed_riscv64_rvv;
 		lc_dilithium_65_keypair_from_seed_riscv64_rvv;
 		lc_dilithium_44_keypair_from_seed_riscv64_rvv;
-		lc_dilithium_87_pk_from_sk;
-		lc_dilithium_65_pk_from_sk;
-		lc_dilithium_44_pk_from_sk;
 		lc_dilithium_87_pk_from_sk_avx2;
 		lc_dilithium_65_pk_from_sk_avx2;
 		lc_dilithium_87_pk_from_sk_c;
@@ -1538,9 +1532,6 @@ LIBLEANCRYPTO_PRIVATE_0 {
 		lc_dilithium_87_pk_from_sk_riscv64_rvv;
 		lc_dilithium_65_pk_from_sk_riscv64_rvv;
 		lc_dilithium_44_pk_from_sk_riscv64_rvv;
-		lc_dilithium_87_sign;
-		lc_dilithium_65_sign;
-		lc_dilithium_44_sign;
 		lc_dilithium_87_sign_avx2;
 		lc_dilithium_65_sign_avx2;
 		lc_dilithium_87_sign_c;
@@ -1558,9 +1549,6 @@ LIBLEANCRYPTO_PRIVATE_0 {
 		lc_dilithium_87_sign_riscv64_rvv;
 		lc_dilithium_65_sign_riscv64_rvv;
 		lc_dilithium_44_sign_riscv64_rvv;
-		lc_dilithium_87_sign_ctx;
-		lc_dilithium_65_sign_ctx;
-		lc_dilithium_44_sign_ctx;
 		lc_dilithium_87_sign_ctx_avx2;
 		lc_dilithium_65_sign_ctx_avx2;
 		lc_dilithium_87_sign_ctx_c;
@@ -1578,9 +1566,6 @@ LIBLEANCRYPTO_PRIVATE_0 {
 		lc_dilithium_87_sign_ctx_riscv64_rvv;
 		lc_dilithium_65_sign_ctx_riscv64_rvv;
 		lc_dilithium_44_sign_ctx_riscv64_rvv;
-		lc_dilithium_87_sign_final;
-		lc_dilithium_65_sign_final;
-		lc_dilithium_44_sign_final;
 		lc_dilithium_87_sign_final_avx2;
 		lc_dilithium_65_sign_final_avx2;
 		lc_dilithium_87_sign_final_c;
@@ -1598,9 +1583,6 @@ LIBLEANCRYPTO_PRIVATE_0 {
 		lc_dilithium_87_sign_final_riscv64_rvv;
 		lc_dilithium_65_sign_final_riscv64_rvv;
 		lc_dilithium_44_sign_final_riscv64_rvv;
-		lc_dilithium_87_sign_init;
-		lc_dilithium_65_sign_init;
-		lc_dilithium_44_sign_init;
 		lc_dilithium_87_sign_init_avx2;
 		lc_dilithium_65_sign_init_avx2;
 		lc_dilithium_87_sign_init_c;
@@ -1618,9 +1600,6 @@ LIBLEANCRYPTO_PRIVATE_0 {
 		lc_dilithium_87_sign_init_riscv64_rvv;
 		lc_dilithium_65_sign_init_riscv64_rvv;
 		lc_dilithium_44_sign_init_riscv64_rvv;
-		lc_dilithium_87_sign_update;
-		lc_dilithium_65_sign_update;
-		lc_dilithium_44_sign_update;
 		lc_dilithium_87_sign_update_avx2;
 		lc_dilithium_65_sign_update_avx2;
 		lc_dilithium_87_sign_update_c;
@@ -1638,9 +1617,6 @@ LIBLEANCRYPTO_PRIVATE_0 {
 		lc_dilithium_87_sign_update_riscv64_rvv;
 		lc_dilithium_65_sign_update_riscv64_rvv;
 		lc_dilithium_44_sign_update_riscv64_rvv;
-		lc_dilithium_87_verify;
-		lc_dilithium_65_verify;
-		lc_dilithium_44_verify;
 		lc_dilithium_87_verify_avx2;
 		lc_dilithium_65_verify_avx2;
 		lc_dilithium_87_verify_c;
@@ -1658,9 +1634,6 @@ LIBLEANCRYPTO_PRIVATE_0 {
 		lc_dilithium_87_verify_riscv64_rvv;
 		lc_dilithium_65_verify_riscv64_rvv;
 		lc_dilithium_44_verify_riscv64_rvv;
-		lc_dilithium_87_verify_ctx;
-		lc_dilithium_65_verify_ctx;
-		lc_dilithium_44_verify_ctx;
 		lc_dilithium_87_verify_ctx_avx2;
 		lc_dilithium_65_verify_ctx_avx2;
 		lc_dilithium_87_verify_ctx_c;
@@ -1678,9 +1651,6 @@ LIBLEANCRYPTO_PRIVATE_0 {
 		lc_dilithium_87_verify_ctx_riscv64_rvv;
 		lc_dilithium_65_verify_ctx_riscv64_rvv;
 		lc_dilithium_44_verify_ctx_riscv64_rvv;
-		lc_dilithium_87_verify_final;
-		lc_dilithium_65_verify_final;
-		lc_dilithium_44_verify_final;
 		lc_dilithium_87_verify_final_avx2;
 		lc_dilithium_65_verify_final_avx2;
 		lc_dilithium_87_verify_final_c;
@@ -1698,9 +1668,6 @@ LIBLEANCRYPTO_PRIVATE_0 {
 		lc_dilithium_87_verify_final_riscv64_rvv;
 		lc_dilithium_65_verify_final_riscv64_rvv;
 		lc_dilithium_44_verify_final_riscv64_rvv;
-		lc_dilithium_87_verify_init;
-		lc_dilithium_65_verify_init;
-		lc_dilithium_44_verify_init;
 		lc_dilithium_87_verify_init_avx2;
 		lc_dilithium_65_verify_init_avx2;
 		lc_dilithium_87_verify_init_c;
@@ -1718,9 +1685,6 @@ LIBLEANCRYPTO_PRIVATE_0 {
 		lc_dilithium_87_verify_init_riscv64_rvv;
 		lc_dilithium_65_verify_init_riscv64_rvv;
 		lc_dilithium_44_verify_init_riscv64_rvv;
-		lc_dilithium_87_verify_update;
-		lc_dilithium_65_verify_update;
-		lc_dilithium_44_verify_update;
 		lc_dilithium_87_verify_update_avx2;
 		lc_dilithium_65_verify_update_avx2;
 		lc_dilithium_87_verify_update_c;
@@ -1803,16 +1767,12 @@ LIBLEANCRYPTO_PRIVATE_0 {
 		lc_kyber_ies_enc_final;
 		lc_kyber_ies_enc_init;
 		lc_kyber_ies_enc_update;
-		lc_kyber_1024_keypair;
-		lc_kyber_768_keypair;
-		lc_kyber_512_keypair;
 		lc_kyber_1024_keypair_c;
 		lc_kyber_768_keypair_c;
 		lc_kyber_512_keypair_c;
 		lc_kyber_1024_keypair_from_seed_c;
 		lc_kyber_768_keypair_from_seed_c;
 		lc_kyber_512_keypair_from_seed_c;
-		lc_kyber_pk_from_sk;
 		lc_kyber_1024_pk_from_sk_c;
 		lc_kyber_768_pk_from_sk_c;
 		lc_kyber_512_pk_from_sk_c;
@@ -1822,3 +1782,11 @@ LIBLEANCRYPTO_PRIVATE_0 {
 		shake128x4;
 		shake256x4;
 } LIBLEANCRYPTO_1.8;
+
+FREEBSD_0 {
+	environ;
+};
+
+DRAGONFLYBSD_0 {
+	__progname;
+};
