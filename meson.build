@@ -7,9 +7,9 @@
 #		 major version).
 # Minor Version: API compatible, ABI may change, functional enhancements only,
 #		 consumer can be left unchanged if enhancements are not
-#		 considered. Yet, consumer must be recompiled.
+#		 considered. Yet, consumer must be re-linked.
 # Patchlevel Version: API / ABI compatible, no functional changes, no
-#		      enhancements, bug fixes only.
+#		      enhancements, bug fixes only. No relinking necessary.
 project('leancrypto', 'c',
 	version: '1.8.1',
 	meson_version: '>=0.56.0',
@@ -49,6 +49,23 @@ add_global_arguments([ '-fwrapv',
 		       '-Wswitch-default'
 		        ],
 		       language : 'c')
+
+# Symbol versioning for libleancrypto: Meson has no option for linker version
+# scripts, so the flag goes through link_args; link_depends makes Ninja relink
+# when version.lds changes. Version scripts are a GNU ld / LLD feature, hence
+# the probe. Since binutils 2.41 and LLD 17 the linker defaults to
+# --no-undefined-version, turning a symbol listed in the script but not built in
+# this configuration into a hard error, so ask for the lenient behaviour where
+# the option exists - older linkers are lenient anyway.
+lc_version_lds = meson.current_source_dir() / 'version.lds'
+lc_lib_link_args = [ '-Wl,--version-script,' + lc_version_lds ]
+if cc.has_link_argument('-Wl,--undefined-version')
+	lc_lib_link_args += [ '-Wl,--undefined-version' ]
+endif
+if not cc.has_multi_link_arguments(lc_lib_link_args)
+	warning('Linker does not support version scripts - libleancrypt.so exports every DSO_PUBLIC symbol')
+	lc_lib_link_args = []
+endif
 
 # BEGIN: Windows MSVC clang-cl
 #	does not support the following, thus enable conditionally
@@ -479,11 +496,13 @@ if (host_machine.system() == 'linux' and
 endif
 
 # Versioning information
-version_array = meson.project_version().split('.')
+project_version = meson.project_version()
+version_array = project_version.split('.')
+soversion = version_array[0] + '.' + version_array[1]
 add_global_arguments(['-DMAJVERSION=' + version_array[0],
 		      '-DMINVERSION=' + version_array[1],
 		      '-DPATCHLEVEL=' + version_array[2],
-		      '-DVERSION="' + meson.project_version() + '"'],
+		      '-DVERSION="' + project_version + '"'],
 		      language : 'c')
 
 if (host_machine.system() == 'sunos' or host_machine.system() == 'windows')
@@ -1047,9 +1066,11 @@ leancrypto_ssp_link = [ ]
 # Link with libssp if present
 # This is needed on Solaris where the libssp provides the __stack_chk_fail
 # and __stack_chk_guard implementations
-leancrypto_ssp_link += cc.find_library( 'ssp_nonshared', required: false)
-leancrypto_ssp_link += cc.find_library( 'ssp', required: false)
-leancrypto_link += leancrypto_ssp_link
+if build_machine.system() == 'sunos'
+	leancrypto_ssp_link += cc.find_library( 'ssp_nonshared', required: false)
+	leancrypto_ssp_link += cc.find_library( 'ssp', required: false)
+	leancrypto_link += leancrypto_ssp_link
+endif
 
 foreach n : subdirs
 	subdir(n)
@@ -1081,8 +1102,9 @@ fips_integrity_hasher_dep = []
 # Build FIPS 140 library
 if build_shared
 	link_args_fips140 = [ ]
+	link_args_fips140 += lc_lib_link_args
 	if fips_integrity_test_enabled
-		link_args_fips140 = [
+		link_args_fips140 += [
 			'-T' + meson.project_source_root() + '/internal/src/fips_integrity_check.ld'
 		]
 	endif
@@ -1101,7 +1123,8 @@ if build_shared
 		leancrypto_both_libs = both_libraries('leancrypto',
 			[ src_wrapper ],
 			include_directories: [ include_dirs, include_internal_dirs ],
-			soversion: version_array[0],
+			soversion: soversion,
+			version: project_version,
 			dependencies: [ leancrypto_link ],
 			link_whole: [ leancrypto_raw_static_lib ],
 			link_args: link_args_fips140,
@@ -1112,7 +1135,8 @@ if build_shared
 		leancrypto_both_libs = both_libraries('leancrypto',
 			[ src_wrapper ],
 			include_directories: [ include_dirs, include_internal_dirs ],
-			soversion: version_array[0],
+			soversion: soversion,
+			version: project_version,
 			dependencies: [ leancrypto_link ],
 			link_whole: [ leancrypto_raw_static_lib ],
 			link_args: link_args_fips140,
@@ -1131,7 +1155,8 @@ if build_shared
 		leancrypto_both_libs_fips = both_libraries('leancrypto-fips',
 			[ src_fips_wrapper ],
 			include_directories: [ include_dirs, include_internal_dirs ],
-			soversion: version_array[0],
+			soversion: soversion,
+			version: project_version,
 			dependencies: [ leancrypto_link ],
 			link_whole: [ leancrypto_raw_static_lib ],
 			link_args: link_args_fips140,
@@ -1142,7 +1167,8 @@ if build_shared
 		leancrypto_both_libs_fips = both_libraries('leancrypto-fips',
 			[ src_fips_wrapper ],
 			include_directories: [ include_dirs, include_internal_dirs ],
-			soversion: version_array[0],
+			soversion: soversion,
+			version: project_version,
 			dependencies: [ leancrypto_link ],
 			link_whole: [ leancrypto_raw_static_lib ],
 			link_args: link_args_fips140,
