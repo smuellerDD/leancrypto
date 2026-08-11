@@ -198,6 +198,11 @@ if (host_machine.system() != 'windows' and
 		     args: [ sha512sum.full_path(), '/usr/bin/sha512sum' ],
 		     suite: regression,
 		     should_fail: fips140_negative_expect_fail)
+
+		test('sha384sum', hasher_test_script,
+		     args: [ sha384sum.full_path(), '/usr/bin/sha384sum' ],
+		     suite: regression,
+		     should_fail: fips140_negative_expect_fail)
 	endif
 
 	if get_option('sha3').enabled()

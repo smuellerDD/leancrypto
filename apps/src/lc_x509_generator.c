@@ -1217,7 +1217,7 @@ static void x509_generator_usage(void)
 
 static void x509_generator_version(void)
 {
-	char version[500];
+	char version[2000];
 
 	memset(version, 0, sizeof(version));
 	lc_status(version, sizeof(version));

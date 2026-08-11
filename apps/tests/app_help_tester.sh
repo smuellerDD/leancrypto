@@ -49,6 +49,14 @@ else
 	echo_pass "Help display of $APP passed"
 fi
 
+run_hasher $APP -v
+if [ $? -ne 0 ]
+then
+	echo_fail "Version display of $APP failed"
+else
+	echo_pass "Version display of $APP passed"
+fi
+
 echo "==================================================================="
 echo "Number of failures: $failures"
 

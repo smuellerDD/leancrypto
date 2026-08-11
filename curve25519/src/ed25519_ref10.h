@@ -103,7 +103,9 @@ typedef struct {
 	fe25519 T2d;
 } ge25519_cached;
 
+#if 0
 void ge25519_tobytes(unsigned char *s, const ge25519_p2 *h);
+#endif
 
 void ge25519_p3_tobytes(unsigned char *s, const ge25519_p3 *h);
 
@@ -127,44 +129,56 @@ void ge25519_double_scalarmult_vartime(ge25519_p2 *r, const unsigned char *a,
 				       const ge25519_p3 *A,
 				       const unsigned char *b);
 
+#if 0
 void ge25519_scalarmult(ge25519_p3 *h, const unsigned char *a,
 			const ge25519_p3 *p);
 
 void ge25519_clear_cofactor(ge25519_p3 *p3);
+#endif
 
 int ge25519_is_canonical(const unsigned char *s);
 
+#if 0
 unsigned int ge25519_is_on_curve(const ge25519_p3 *p);
 
 unsigned int ge25519_is_on_main_subgroup(const ge25519_p3 *p);
+#endif
 
 unsigned int ge25519_has_small_order(const ge25519_p3 *p);
 
+#if 0
 void ge25519_from_uniform(unsigned char s[32], const unsigned char r[32]);
 
+
 void ge25519_from_hash(unsigned char s[32], const unsigned char h[64]);
+#endif
 
 /*
  Ristretto group
  */
-
+#if 0
 int ristretto255_frombytes(ge25519_p3 *h, const unsigned char *s);
 
 void ristretto255_p3_tobytes(unsigned char *s, const ge25519_p3 *h);
 
 void ristretto255_from_hash(unsigned char s[32], const unsigned char h[64]);
+#endif
 
 /*
  The set of scalars is \Z/l
  where l = 2^252 + 27742317777372353535851937790883648493.
  */
 
+#if 0
 void sc25519_invert(unsigned char recip[32], const unsigned char s[32]);
+#endif
 
 void sc25519_reduce(unsigned char s[64]);
 
+#if 0
 void sc25519_mul(unsigned char s[32], const unsigned char a[32],
 		 const unsigned char b[32]);
+#endif
 
 void sc25519_muladd(unsigned char s[32], const unsigned char a[32],
 		    const unsigned char b[32], const unsigned char c[32]);
