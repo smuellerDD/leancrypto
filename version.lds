@@ -1761,12 +1761,6 @@ LIBLEANCRYPTO_PRIVATE_0 {
 		lc_kyber_1024_enc_kdf_c;
 		lc_kyber_768_enc_kdf_c;
 		lc_kyber_512_enc_kdf_c;
-		lc_kyber_ies_dec_final;
-		lc_kyber_ies_dec_init;
-		lc_kyber_ies_dec_update;
-		lc_kyber_ies_enc_final;
-		lc_kyber_ies_enc_init;
-		lc_kyber_ies_enc_update;
 		lc_kyber_1024_keypair_c;
 		lc_kyber_768_keypair_c;
 		lc_kyber_512_keypair_c;
