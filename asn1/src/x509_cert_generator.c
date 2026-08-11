@@ -765,7 +765,7 @@ int lc_x509_extension_critical_enc(void *context, uint8_t *data,
 	} else if (x509_skid_unprocessed(ctx)) {
 		return 0; /* SKID does not have criticality */
 	} else if (x509_akid_unprocessed(ctx)) {
-		return 0; /* SKID does not have criticality */
+		return 0; /* AKID does not have criticality */
 	}
 
 	/* No value was set */

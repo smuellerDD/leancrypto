@@ -46,7 +46,7 @@ struct lc_chacha20_poly1305_cryptor {
 	 sizeof(struct lc_chacha20_poly1305_cryptor) +                         \
 	 LC_CHACHA20_POLY1305_STATE_SIZE)
 
-/* AES-CBC with HMAC based AEAD-algorithm */
+/* ChaCha20-Poly1305 AEAD-algorithm */
 extern LC_DLL_IMPORT const struct lc_aead *lc_chacha20_poly1305_aead;
 
 #define _LC_CHACHA20_POLY1305_SET_CTX(name)                                    \

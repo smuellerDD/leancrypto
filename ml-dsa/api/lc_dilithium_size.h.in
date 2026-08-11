@@ -923,7 +923,7 @@ int @dilithium_name@_ed25519_sign_update(
  *
  * @return 0 (success) or < 0 on error
  */
-int  @dilithium_name@_ed25519_sign_final(
+int @dilithium_name@_ed25519_sign_final(
 	struct @dilithium_name@_ed25519_sig *sig,
 	struct lc_dilithium_ed25519_ctx *ctx,
 	const struct @dilithium_name@_ed25519_sk *sk,
@@ -1252,7 +1252,7 @@ int @dilithium_name@_ed448_sign_update(
  *
  * @return 0 (success) or < 0 on error
  */
-int  @dilithium_name@_ed448_sign_final(
+int @dilithium_name@_ed448_sign_final(
 	struct @dilithium_name@_ed448_sig *sig,
 	struct lc_dilithium_ed448_ctx *ctx,
 	const struct @dilithium_name@_ed448_sk *sk,
