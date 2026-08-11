@@ -1,4 +1,5 @@
 hasher_test_script = find_program('hasher-test.sh', required: true)
+app_help_test_script = find_program('app_help_tester.sh', required: true)
 siggen_test_script = find_program('siggen_tester.sh', required: true)
 csr_test_script = find_program('csr_tester.sh', required: true)
 sbsign_test_script = find_program('sbsign_test.sh', required: true)
@@ -214,7 +215,18 @@ if (host_machine.system() != 'windows' and
 		     should_fail: fips140_negative_expect_fail)
 	endif
 
+	if get_option('ascon').enabled()
+		test('ascon256-sum', hasher_test_script,
+		     args: [ ascon256_sum.full_path() ],
+		     suite: regression,
+		     should_fail: fips140_negative_expect_fail)
+	endif
+
 	if get_option('x509_generator').enabled()
+		test('lc_x509_generator help', app_help_test_script,
+		     args: [ lc_x509_generator.full_path() ],
+		     suite: regression)
+
 		if (dilithium_enabled)
 			test('X.509 Gen Root-CA ML-DSA87',
 				lc_x509_generator,
@@ -447,6 +459,9 @@ if (host_machine.system() != 'windows' and
 
 
 	if get_option('pkcs7_generator').enabled()
+		test('lc_pkcs7_generator help', app_help_test_script,
+		     args: [ lc_pkcs7_generator.full_path() ],
+		     suite: regression)
 
 		test('PKCS7 Gen with SLH-DSA 4-way cert chain',
 			lc_pkcs7_generator,

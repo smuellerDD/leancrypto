@@ -93,7 +93,7 @@ static void hasher_version(const char *name)
 	(void)name;
 #else
 	const char *base;
-	char version[500];
+	char version[2000];
 
 	memset(version, 0, sizeof(version));
 	lc_status(version, sizeof(version));

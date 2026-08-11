@@ -48,6 +48,22 @@ ANOTHER="${TMPDIR}/test.$$"
 touch $ANOTHER
 trap "rm -f $ANOTHER $CHKFILE" 0 1 2 3 15
 
+run_hasher $LC_HASHER --help
+if [ $? -ne 0 ]
+then
+	echo_fail "Help display of $LC_HASHER failed"
+else
+	echo_pass "Help display of $LC_HASHER passed"
+fi
+
+run_hasher $LC_HASHER -v
+if [ $? -ne 0 ]
+then
+	echo_fail "Version display of $LC_HASHER failed"
+else
+	echo_pass "Version display of $LC_HASHER passed"
+fi
+
 >$CHKFILE
 run_hasher $LC_HASHER -c $CHKFILE
 if [ $? -eq 0 ]
