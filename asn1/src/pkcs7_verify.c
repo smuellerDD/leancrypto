@@ -179,11 +179,39 @@ static int pkcs7_find_key(struct lc_pkcs7_message *pkcs7,
 static int lc_pkcs7_verify_pathlen(struct lc_x509_certificate *leaf,
 				   const struct lc_x509_certificate *signer)
 {
+	const uint8_t *skid1, *skid2;
+	size_t skid1len, skid2len;
+	int ret;
+
 	BUILD_BUG_ON(LC_PATHLEN_MAXSIZE < LC_KEY_CA_MAXLEN);
 
 	/* Prevent overflowing the path length */
 	if (leaf->consumed_pathlen >= LC_PATHLEN_MAXSIZE)
 		return -EOVERFLOW;
+
+	/*
+	 * According to RFC5280 section 4.2.1.9, only the intermediate
+	 * certificates are counted for the pathlen verification.
+	 */
+
+	/*
+	 * Check for a self-signed certificate (thus an end of a certificate
+	 * chain): If the signer is self-signed, the pathlen validation is not
+	 * relevant compliant to RFC5280 4.2.1.9.
+	*/
+	CKINT(lc_x509_policy_is_selfsigned(signer));
+	if (ret == LC_X509_POL_TRUE)
+		return 0;
+
+	/*
+	 * Check for a leaf certificate we validate here: that can only happen
+	 * if the leaf and signer are the same. Otherwise we always have an
+	 * intermediate.
+	 */
+	CKINT(lc_x509_cert_get_skid(leaf, &skid1, &skid1len));
+	CKINT(lc_x509_cert_get_skid(signer, &skid2, &skid2len));
+	if (lc_memcmp_secure(skid1, skid1len, skid2, skid2len) == 0)
+		return 0;
 
 	leaf->consumed_pathlen++;
 
@@ -193,13 +221,15 @@ static int lc_pkcs7_verify_pathlen(struct lc_x509_certificate *leaf,
 	 * an unlimited path length.
 	 */
 	if (signer->pub.ca_pathlen &&
-	    (leaf->consumed_pathlen > signer->pub.ca_pathlen)) {
+	    (leaf->consumed_pathlen >= signer->pub.ca_pathlen)) {
 		printf_debug(
 			"- certificate path length too large (current length: %u, allowed length %u)\n",
-			leaf->consumed_pathlen, signer->pub.ca_pathlen);
+			leaf->consumed_pathlen, signer->pub.ca_pathlen - 1);
 		return -EKEYREJECTED;
 	}
-	return 0;
+
+out:
+	return ret;
 }
 
 static int lc_pkcs7_verify_pathlen_truststore(
@@ -245,7 +275,7 @@ int lc_pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 	 * The counting starts with 1 as the start_cert is already the first
 	 * entry in the path.
 	 */
-	start_cert->consumed_pathlen = 1;
+	start_cert->consumed_pathlen = 0;
 
 	for (;;) {
 		bin2print_debug(x509->raw_serial, x509->raw_serial_size, stdout,

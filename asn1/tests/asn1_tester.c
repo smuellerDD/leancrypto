@@ -41,14 +41,20 @@ static int x509_load(const struct x509_checker_options *parsed_opts)
 	};
 	size_t datalen = 0;
 	uint8_t *data = NULL;
+	enum lc_pem_flags flag = lc_pem_flag_certificate;
 	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	CKNULL_LOG(parsed_opts->file, -EINVAL, "Pathname missing\n");
 
-	CKINT_LOG(get_data(parsed_opts->file, &data, &datalen,
-			   lc_pem_flag_nopem),
-		  "mmap failure\n");
+	ret = get_data(parsed_opts->file, &data, &datalen, flag);
+	if (ret == -EINVAL) {
+		flag = lc_pem_flag_nopem;
+		CKINT_LOG(get_data(parsed_opts->file, &data, &datalen,
+				   flag),
+			  "mmap failure\n");
+	}
+	CKINT(ret);
 
 	CKINT_LOG(lc_x509_cert_decode(&ws->x509_msg, data, datalen),
 		  "Parsing of message failed\n");
@@ -56,7 +62,7 @@ static int x509_load(const struct x509_checker_options *parsed_opts)
 	CKINT(apply_checks_x509(&ws->x509_msg, parsed_opts));
 
 out:
-	release_data(data, datalen, lc_pem_flag_nopem);
+	release_data(data, datalen, flag);
 	lc_x509_cert_clear(&ws->x509_msg);
 	LC_RELEASE_MEM(ws);
 	return ret;

@@ -149,7 +149,7 @@ static void print_x509_extensions(const struct lc_x509_certificate *x509)
 		    (uint8_t)LC_KEY_BASIC_CONSTRAINT_CRITICAL)
 			printf(" (critical)");
 		if (pub->ca_pathlen)
-			printf(" (pathlen %u)", pub->ca_pathlen);
+			printf(" (pathlen %u)", pub->ca_pathlen - 1);
 
 		printf("\n");
 	}

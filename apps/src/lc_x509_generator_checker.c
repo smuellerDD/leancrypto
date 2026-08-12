@@ -228,7 +228,7 @@ int apply_checks_x509(const struct lc_x509_certificate *x509,
 			    x509, &search_name,
 			    lc_x509_policy_cert_subject_match_dn_only) ==
 		    LC_X509_POL_FALSE) {
-			printf("Subject mismatch, expected %s, actual \n",
+			printf("Subject mismatch, expected %s, actual ",
 			       parsed_opts->subject_cn);
 			print_x509_name_component(&x509->subject_segments.cn);
 			printf("\n");

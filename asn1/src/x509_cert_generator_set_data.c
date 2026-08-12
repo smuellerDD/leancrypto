@@ -173,7 +173,12 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_set_ca_pathlen,
 		return -EOVERFLOW;
 
 	pub = &cert->pub;
-	pub->ca_pathlen = (uint8_t)ca_pathlen;
+	/*
+	 * ca_pathlen is moved by one
+	 *
+	 * This is consistent with lc_x509_basic_constraints_pathlen
+	 */
+	pub->ca_pathlen = (uint8_t)ca_pathlen + 1;
 
 out:
 	return ret;

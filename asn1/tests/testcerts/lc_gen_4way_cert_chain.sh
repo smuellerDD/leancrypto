@@ -4,7 +4,7 @@
 #
 
 TARGETDIR="$(dirname $0)"
-PATHLEN=0
+PATHLEN=0 # Zero means unset, (> 0 - 1) -> pathlen
 
 if [ -z "$1" ]
 then
@@ -12,6 +12,10 @@ then
 	echo "  SLH-DSA"
 	echo "  ML-DSA"
 	echo "  Composite-ML-DSA"
+	echo "  ML-DSA-passing-pathlen"
+	echo "  ML-DSA-failing-pathlen"
+	echo "  ML-DSA-failing-pathlen-zero"
+	echo "  EDDSA"
 	exit 1
 fi
 
@@ -39,7 +43,7 @@ then
 elif [ x"$1" = x"ML-DSA-passing-pathlen" ]
 then
 # Full ML-DSA-based certificate chain
-	PATHLEN=5
+	PATHLEN=3
 	CA_KEYTYPE="ML-DSA87"
 	INT1_KEYTYPE="ML-DSA65"
 	INT2_KEYTYPE="ML-DSA44"
@@ -47,11 +51,20 @@ then
 elif [ x"$1" = x"ML-DSA-failing-pathlen" ]
 then
 # Full ML-DSA-based certificate chain
-	PATHLEN=3
+	PATHLEN=2
 	CA_KEYTYPE="ML-DSA87"
 	INT1_KEYTYPE="ML-DSA65"
 	INT2_KEYTYPE="ML-DSA44"
 	LEAF_KEYTYPE="ML-DSA87"
+elif [ x"$1" = x"ML-DSA-failing-pathlen-zero" ]
+then
+# Full ML-DSA-based certificate chain
+	PATHLEN=1
+	CA_KEYTYPE="ML-DSA87"
+	INT1_KEYTYPE="ML-DSA65"
+	INT2_KEYTYPE="ML-DSA44"
+	LEAF_KEYTYPE="ML-DSA87"
+
 elif [ x"$1" = x"EDDSA" ]
 then
 # Full EdDSA-based certificate chain
@@ -64,6 +77,9 @@ else
 	echo "  SLH-DSA"
 	echo "  ML-DSA"
 	echo "  Composite-ML-DSA"
+	echo "  ML-DSA-passing-pathlen"
+	echo "  ML-DSA-failing-pathlen"
+	echo "  ML-DSA-failing-pathlen-zero"
 	echo "  EDDSA"
 	exit 1
 fi
@@ -78,16 +94,20 @@ PKCS7_CMD="$(dirname $0)/../../../build/apps/src/lc_pkcs7_generator"
 # Generate CA certificate
 # Private key in DER format and PKCS#8
 CA_FILENAME="$(echo $CA_KEYTYPE | tr '[:upper:]' '[:lower:]' )"
+PATHLENCMDLINE=""
 if [ $PATHLEN -gt 0 ]
 then
-	CA_FILENAME="${CA_FILENAME}_pathlen${PATHLEN}"
+	PATHLEN_USE=$((PATHLEN-1))
+	CA_FILENAME="${CA_FILENAME}_pathlen${PATHLEN_USE}"
+
+	PATHLENCMDLINE="--ca-pathlen $PATHLEN_USE"
 fi
 ${X509_CMD}							\
   --keyusage digitalSignature					\
   --keyusage keyCertSign					\
   --keyusage critical						\
   --ca 								\
-  --ca-pathlen $PATHLEN						\
+  $PATHLENCMDLINE						\
   --valid-from 1729527728					\
   --valid-to 2044210606						\
   --subject-cn "leancrypto test CA"				\
@@ -121,14 +141,15 @@ fi
 INT1_FILENAME="$(echo $INT1_KEYTYPE | tr '[:upper:]' '[:lower:]' )"
 if [ $PATHLEN -gt 0 ]
 then
-	INT1_FILENAME="${INT1_FILENAME}_pathlen${PATHLEN}"
+	PATHLEN_USE=$((PATHLEN-1))
+	INT1_FILENAME="${INT1_FILENAME}_pathlen${PATHLEN_USE}"
 fi
 ${X509_CMD}							\
   --keyusage digitalSignature					\
   --keyusage keyCertSign					\
   --keyusage critical						\
   --ca								\
-  --ca-pathlen $PATHLEN						\
+  $PATHLENCMDLINE						\
   --valid-from 1729527728					\
   --valid-to 2044210606						\
   --subject-cn "leancrypto test int1"				\
@@ -159,14 +180,15 @@ fi
 INT2_FILENAME="$(echo $INT2_KEYTYPE | tr '[:upper:]' '[:lower:]' )"
 if [ $PATHLEN -gt 0 ]
 then
-	INT2_FILENAME="${INT2_FILENAME}_pathlen${PATHLEN}"
+	PATHLEN_USE=$((PATHLEN-1))
+	INT2_FILENAME="${INT2_FILENAME}_pathlen${PATHLEN_USE}"
 fi
 ${X509_CMD}							\
   --keyusage digitalSignature					\
   --keyusage keyCertSign					\
   --keyusage critical						\
   --ca								\
-  --ca-pathlen $PATHLEN						\
+  $PATHLENCMDLINE						\
   --valid-from 1729527728					\
   --valid-to 2044210606						\
   --subject-cn "leancrypto test int2"				\
@@ -196,11 +218,14 @@ fi
 LEAF_FILENAME="$(echo $LEAF_KEYTYPE | tr '[:upper:]' '[:lower:]' )"
 if [ $PATHLEN -gt 0 ]
 then
-	LEAF_FILENAME="${LEAF_FILENAME}_pathlen${PATHLEN}"
+	PATHLEN_USE=$((PATHLEN-1))
+	LEAF_FILENAME="${LEAF_FILENAME}_pathlen${PATHLEN_USE}"
 fi
 ${X509_CMD}							\
   --eku critical						\
   --eku serverAuth						\
+  --eku codeSigning						\
+  --keyusage dataEncipherment					\
   --valid-from 1729527728					\
   --valid-to 2044210606						\
   --san-dns "localhost"						\
@@ -226,7 +251,7 @@ else
 	exit 1
 fi
 
-if [ $PATHLEN -le 4 -a $PATHLEN -gt 0 ]
+if [ $PATHLEN -le 2 -a $PATHLEN -gt 0 ]
 then
 	echo "Prevent to generate the PKCS7 blob for failing path lengths"
 	exit 0
@@ -234,7 +259,8 @@ fi
 PKCS7_FILENAME="$(echo $1 | tr '[:upper:]' '[:lower:]' )"
 if [ $PATHLEN -gt 0 ]
 then
-	PKCS7_FILENAME="${PKCS7_FILENAME}_pathlen${PATHLEN}"
+	PATHLEN_USE=$((PATHLEN-1))
+	PKCS7_FILENAME="${PKCS7_FILENAME}_pathlen${PATHLEN_USE}"
 fi
 ${PKCS7_CMD}							\
   --print							\

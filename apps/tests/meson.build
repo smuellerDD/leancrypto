@@ -48,7 +48,7 @@ x509_rootca_args = [
 	'--check-skid', '0a0b0c0d0e0f',
 	'--check-akid', '0a0b0c0d0e0f',
 	'--check-time',
-	'--check-keyusage', '16548'
+	'--check-keyusage', '16516'
 	]
 
 x509_csr_args = [
@@ -96,7 +96,7 @@ x509_int1_ca_args = [
 	'--check-skid', '0b0c0d0e0f0001',
 	'--check-akid', '0a0b0c0d0e0f',
 	'--check-time',
-	'--check-keyusage', '16548'
+	'--check-keyusage', '16516'
 	]
 
 x509_leaf_args = [
@@ -707,7 +707,7 @@ if (host_machine.system() != 'windows' and
 				'--check-selfsigned',
 				'--check-issuer-cn', 'leancrypto test CA',
 				'--check-subject-cn', 'leancrypto test int1',
-				'--check-keyusage', '16548'
+				'--check-keyusage', '16516'
 
 			],
 			is_parallel: false, timeout: 300, suite: regression,

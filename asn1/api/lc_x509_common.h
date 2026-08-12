@@ -410,7 +410,7 @@ struct lc_x509_certificate {
 	uint8_t x509_version; /* X.509 Version of certificate */
 
 	/* Certificate chain path length up to the CA certificate. */
-#define LC_PATHLEN_MAXSIZE ((1 << (sizeof(uint8_t) << 3)) - 1)
+#define LC_PATHLEN_MAXSIZE ((1 << (sizeof(uint8_t) << 3)) - 2)
 	uint8_t consumed_pathlen;
 
 	unsigned int seen : 1; /* Infinite recursion prevention */

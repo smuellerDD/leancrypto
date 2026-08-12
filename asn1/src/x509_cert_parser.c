@@ -617,13 +617,13 @@ int lc_x509_basic_constraints_pathlen(void *context, size_t hdrlen,
 	pathlen = *(const uint8_t *)value;
 
 	/*
-	 * If pathlen is zero, it is treated as an invalid parameter and we
-	 * silently ignore it.
+	 * If ca_pathlen is zero, no ca_pathlen is set. Otherwise, the
+	 * pathlen is ca_pathlen - 1.
+	 *
+	 * This is consistent with lc_x509_cert_set_ca_pathlen.
 	 */
-	if (!pathlen)
-		return 0;
-
 	pub->ca_pathlen = min_uint8(LC_KEY_CA_MAXLEN, pathlen);
+	pub->ca_pathlen++;
 
 	return 0;
 }

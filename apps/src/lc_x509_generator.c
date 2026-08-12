@@ -347,6 +347,7 @@ static int x509_enc_ca_pathlen(struct x509_generator_opts *opts,
 	char *endptr = NULL;
 	int ret;
 
+	errno = 0;
 	val = strtoul(opt_optarg, &endptr, 10);
 	if (errno || endptr == opt_optarg || *endptr != '\0')
 		return -EINVAL;

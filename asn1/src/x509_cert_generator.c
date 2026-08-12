@@ -228,12 +228,22 @@ int lc_x509_basic_constraints_pathlen_enc(void *context, uint8_t *data,
 	(void)tag;
 
 	if (x509_pathlen_unprocessed(ctx)) {
-		CKRET(*avail_datalen < 1, -EOVERFLOW);
+		/*
+		 * Only set pathlen if it was defined by caller, i.e. > 0
+		 */
+		if (pub->ca_pathlen) {
+			CKRET(*avail_datalen < 1, -EOVERFLOW);
 
-		*data = pub->ca_pathlen;
-		*avail_datalen -= 1;
+			/*
+			 * As defined in lc_x509_basic_constraints_pathlen and
+			 * lc_pkcs7_verify_pathlen, the ca_pathlen is by one
+			 * larger then the actual pathlen.
+			 */
+			*data = pub->ca_pathlen - 1;
+			*avail_datalen -= 1;
+		}
 
-		ctx->pathlen_processed = *data;
+		ctx->pathlen_processed = pub->ca_pathlen;
 	}
 
 out:

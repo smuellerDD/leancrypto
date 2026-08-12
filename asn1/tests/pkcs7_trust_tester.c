@@ -51,13 +51,19 @@ static int pkcs7_trust_store(struct pkcs7_trust_options *opts)
 	uint8_t *verified_data = NULL;
 	size_t verified_datalen = 0;
 	unsigned int i;
+	enum lc_pem_flags flag = lc_pem_flag_certificate;
 	int ret = 0;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	for (i = 0; i < opts->num_files; i++) {
-		CKINT_LOG(get_data(opts->file[i], &data[i], &datalen[i],
-				   lc_pem_flag_nopem),
-			  "Loading of file %s\n", opts->file[i]);
+		ret = get_data(opts->file[i], &data[i], &datalen[i], flag);
+		if (ret == -EINVAL) {
+			flag = lc_pem_flag_nopem;
+			CKINT_LOG(get_data(opts->file[i], &data[i], &datalen[i],
+					flag),
+				"mmap failure\n");
+		}
+		CKINT(ret);
 		CKINT_LOG(lc_x509_cert_decode(&ws->x509[i], data[i],
 					      datalen[i]),
 			  "Parsing of certificate %u\n", i);
@@ -86,7 +92,7 @@ static int pkcs7_trust_store(struct pkcs7_trust_options *opts)
 
 out:
 	for (i = 0; i < opts->num_files; i++) {
-		release_data(data[i], datalen[i], lc_pem_flag_nopem);
+		release_data(data[i], datalen[i], flag);
 		lc_x509_cert_clear(&ws->x509[i]);
 	}
 	release_data(pkcs7_data, pkcs7_datalen, lc_pem_flag_nopem);
