@@ -59,13 +59,12 @@ int public_key_verify_signature_dilithium(
 		struct lc_dilithium_pk dilithium_pk;
 		struct lc_dilithium_sig dilithium_sig;
 	};
-	int ret;
+	int ret = 0;
 	LC_DILITHIUM_CTX_ON_STACK(ctx);
 	LC_DECLARE_MEM(ws, struct workspace, 64);
 
 	/* A signature verification does not work with a private key */
-	if (pkey->key_is_private)
-		return -EKEYREJECTED;
+	CKRET(pkey->key_is_private, -EKEYREJECTED);
 
 	CKINT(lc_dilithium_pk_load(&ws->dilithium_pk, pkey->key, pkey->keylen));
 	CKINT(lc_dilithium_sig_load(&ws->dilithium_sig, sig->s, sig->s_size));
@@ -387,14 +386,13 @@ int lc_x509_mldsa_private_key_seed(void *context, size_t hdrlen,
 	uint8_t *dilithium_src_key;
 	size_t dilithium_src_key_len;
 	enum lc_dilithium_type dilithium_type = LC_DILITHIUM_UNKNOWN;
-	int ret;
+	int ret = 0;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	(void)hdrlen;
 	(void)tag;
 
-	if (vlen != LC_X509_PQC_SK_SEED_SIZE)
-		return -EBADMSG;
+	CKRET((vlen != LC_X509_PQC_SK_SEED_SIZE), -EBADMSG);
 
 	printf_debug("Loaded ML-DSA secret seed of size %u\n",
 		     LC_X509_PQC_SK_SEED_SIZE);

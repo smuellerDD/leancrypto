@@ -57,13 +57,12 @@ int public_key_verify_signature_sphincs(
 		struct lc_sphincs_pk sphincs_pk;
 		struct lc_sphincs_sig sphincs_sig;
 	};
-	int ret;
+	int ret = 0;
 	LC_SPHINCS_CTX_ON_STACK(ctx);
 	LC_DECLARE_MEM(ws, struct workspace, 64);
 
 	/* A signature verification does not work with a private key */
-	if (pkey->key_is_private)
-		return -EKEYREJECTED;
+	CKRET(pkey->key_is_private, -EKEYREJECTED);
 
 	CKINT(lc_sphincs_pk_load(&ws->sphincs_pk, pkey->key, pkey->keylen));
 	if (fast) {
@@ -286,8 +285,7 @@ int asym_set_sphincs_keypair(struct lc_x509_key_data *gen_data,
 
 	CKNULL(gen_data, -EINVAL);
 
-	if (!pk && !sk)
-		return -EINVAL;
+	CKRET((!pk && !sk), -EINVAL);
 
 	if (pk) {
 		sphincs_type = lc_sphincs_pk_type(pk);

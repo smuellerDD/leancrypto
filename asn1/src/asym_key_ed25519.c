@@ -63,10 +63,9 @@ out:
 int public_key_decode_ed25519(struct lc_ed25519_pk *ed25519_pk,
 			      const uint8_t *data, size_t datalen)
 {
-	int ret;
+	int ret = 0;
 
-	if (datalen != LC_ED25519_PUBLICKEYBYTES)
-		return -EINVAL;
+	CKRET((datalen != LC_ED25519_PUBLICKEYBYTES), -EINVAL);
 
 	CKINT(lc_ed25519_pk_load(ed25519_pk, data, LC_ED25519_PUBLICKEYBYTES));
 
@@ -115,18 +114,16 @@ int public_key_verify_signature_ed25519(
 	};
 	const uint8_t *data_ptr;
 	size_t data_len;
-	int ret, authattrs_tag;
+	int ret = 0, authattrs_tag;
 	LC_DECLARE_MEM(ws, struct workspace, 64);
 
 	/* A signature verification does not work with a private key */
-	if (pkey->key_is_private)
-		return -EKEYREJECTED;
+	CKRET(pkey->key_is_private, -EKEYREJECTED);
 
 	CKINT(public_key_ed25519_get_data(&data_ptr, &data_len, &authattrs_tag,
 					  sig));
 
-	if (sig->s_size != LC_ED25519_SIGBYTES)
-		return -EBADMSG;
+	CKRET((sig->s_size != LC_ED25519_SIGBYTES), -EBADMSG);
 
 	CKINT(public_key_decode_ed25519(&ws->pk, pkey->key, pkey->keylen));
 
@@ -199,8 +196,7 @@ int asym_set_ed25519_keypair(struct lc_x509_key_data *gen_data,
 
 	CKNULL(gen_data, -EINVAL);
 
-	if (!pk && !sk)
-		return -EINVAL;
+	CKRET((!pk && !sk), -EINVAL);
 
 	if (pk) {
 		gen_data->pk.ed25519_pk = pk;

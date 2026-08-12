@@ -86,11 +86,11 @@ int private_key_decode_dilithium_ed448(struct lc_x509_key_data *keys,
 	uint8_t *dilithium_src_key;
 	size_t dilithium_src_key_len, ed448_src_key_len;
 	enum lc_dilithium_type dilithium_type = LC_DILITHIUM_UNKNOWN;
-	int ret;
+	int ret = 0;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	if (datalen != LC_ED448_SECRETKEYBYTES + LC_X509_PQC_SK_SEED_SIZE)
-		return -EINVAL;
+	CKRET((datalen != LC_ED448_SECRETKEYBYTES + LC_X509_PQC_SK_SEED_SIZE),
+	      -EINVAL);
 
 	/*
 	 * See draft version 5:
@@ -219,10 +219,9 @@ int public_key_decode_dilithium_ed448(
 {
 	const uint8_t *dilithium_src, *ed448_src;
 	size_t dilithium_src_len, ed448_src_len;
-	int ret;
+	int ret = 0;
 
-	if (datalen < LC_ED448_PUBLICKEYBYTES)
-		return -EINVAL;
+	CKRET((datalen < LC_ED448_PUBLICKEYBYTES), -EINVAL);
 
 	/*
 	 * See draft version 5:
@@ -285,18 +284,16 @@ int public_key_verify_signature_dilithium_ed448(
 	};
 	const uint8_t *dilithium_src, *ed448_src, *data_ptr;
 	size_t dilithium_src_len, ed448_src_len, data_len;
-	int ret, authattrs_tag;
+	int ret = 0, authattrs_tag;
 	LC_DECLARE_MEM(ws, struct workspace, 64);
 
 	/* A signature verification does not work with a private key */
-	if (pkey->key_is_private)
-		return -EKEYREJECTED;
+	CKRET(pkey->key_is_private, -EKEYREJECTED);
 
 	CKINT(public_key_dilithium_ed448_get_data(&data_ptr, &data_len,
 						  &authattrs_tag, sig));
 
-	if (sig->s_size < LC_ED448_SIGBYTES)
-		return -EINVAL;
+	CKRET((sig->s_size < LC_ED448_SIGBYTES), -EINVAL);
 
 	CKINT(public_key_decode_dilithium_ed448(&ws->dilithium_pk, pkey->key,
 						pkey->keylen));
@@ -431,8 +428,7 @@ int asym_set_dilithium_ed448_keypair(struct lc_x509_key_data *gen_data,
 
 	CKNULL(gen_data, -EINVAL);
 
-	if (!pk && !sk)
-		return -EINVAL;
+	CKRET((!pk && !sk), -EINVAL);
 
 	if (pk) {
 		dilithium_ed448_type = lc_dilithium_ed448_pk_type(pk);

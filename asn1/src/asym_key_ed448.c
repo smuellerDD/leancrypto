@@ -63,10 +63,9 @@ out:
 int public_key_decode_ed448(struct lc_ed448_pk *ed448_pk, const uint8_t *data,
 			    size_t datalen)
 {
-	int ret;
+	int ret = 0;
 
-	if (datalen != LC_ED448_PUBLICKEYBYTES)
-		return -EINVAL;
+	CKRET((datalen != LC_ED448_PUBLICKEYBYTES), -EINVAL);
 
 	CKINT(lc_ed448_pk_load(ed448_pk, data, LC_ED448_PUBLICKEYBYTES));
 
@@ -113,18 +112,16 @@ int public_key_verify_signature_ed448(const struct lc_public_key *pkey,
 	};
 	const uint8_t *data_ptr;
 	size_t data_len;
-	int ret, authattrs_tag;
+	int ret = 0, authattrs_tag;
 	LC_DECLARE_MEM(ws, struct workspace, 64);
 
 	/* A signature verification does not work with a private key */
-	if (pkey->key_is_private)
-		return -EKEYREJECTED;
+	CKRET(pkey->key_is_private, -EKEYREJECTED);
 
 	CKINT(public_key_ed448_get_data(&data_ptr, &data_len, &authattrs_tag,
 					sig));
 
-	if (sig->s_size != LC_ED448_SIGBYTES)
-		return -EBADMSG;
+	CKRET((sig->s_size != LC_ED448_SIGBYTES), -EBADMSG);
 
 	CKINT(public_key_decode_ed448(&ws->pk, pkey->key, pkey->keylen));
 
@@ -196,8 +193,7 @@ int asym_set_ed448_keypair(struct lc_x509_key_data *gen_data,
 
 	CKNULL(gen_data, -EINVAL);
 
-	if (!pk && !sk)
-		return -EINVAL;
+	CKRET((!pk && !sk), -EINVAL);
 
 	if (pk) {
 		gen_data->pk.ed448_pk = pk;
