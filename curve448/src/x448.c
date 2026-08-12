@@ -273,6 +273,13 @@ static int lc_x448_ss_nocheck(struct lc_x448_ss *ss,
 	unpoison(ss->ss, LC_X448_SSBYTES);
 
 out:
+	/*
+	 * Protection of bogus state: if caller accidentally uses the shared
+	 * secret, it should not reveal anything about the unsuccessful
+	 * shared secret calculation.
+	 */
+	if (ret)
+		lc_rng_generate(lc_seeded_rng, NULL, 0, ss->ss, sizeof(ss->ss));
 	return ret;
 }
 

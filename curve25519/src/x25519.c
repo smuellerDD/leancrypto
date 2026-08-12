@@ -213,6 +213,13 @@ int lc_x25519_ss_internal(struct lc_x25519_ss *ss,
 	unpoison(ss->ss, LC_X25519_SSBYTES);
 
 out:
+	/*
+	 * Protection of bogus state: if caller accidentally uses the shared
+	 * secret, it should not reveal anything about the unsuccessful
+	 * shared secret calculation.
+	 */
+	if (ret)
+		lc_rng_generate(lc_seeded_rng, NULL, 0, ss->ss, sizeof(ss->ss));
 	return ret;
 }
 
