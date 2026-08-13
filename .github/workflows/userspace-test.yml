@@ -130,13 +130,18 @@ jobs:
           # are still receiving minor releases and deliberately track them - a
           # new compiler landing in RHEL 9 is a thing this job should notice,
           # not something to pin away.
+
           # RHEL7 is currently deactivated as it misses meson
           # - name: RHEL 7
           #   image: registry.access.redhat.com/ubi7/ubi:7.9
+
           # RHEL8 is currently disabled as the linker barfs with an internal
           # error on the FIPS linker script
           # - name: RHEL 8
           #   image: registry.access.redhat.com/ubi8/ubi:latest
+
+          # RHEL9 is currently disabled as the linker barfs with a SIGSEGV
+          # error on the FIPS linker script
           - name: RHEL 9
             image: registry.access.redhat.com/ubi9/ubi:latest
           - name: RHEL 10
