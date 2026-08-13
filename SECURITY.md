@@ -8,6 +8,21 @@ basis.
 If you detect any new security issues, please file a bug report or send
 a private email to <smueller@chronox.de>.
 
+## 2026-08-12
+
+X.509 pathlen enforcer: A pathlen of 0 was treated as no pathlen restriction at all
+
+* With this, when a CA certificate contains a pathlen of 0, an attacker could
+mount a certificate chain extension attack that would not be restricted by
+the set pathlen. However, achieving a certificate chain extension attack in the
+first place and finding a pathlen of 0 is already a feat in itself. Further, the
+pathlen enforcer handled the pathlen > 0 too restrictive (counting the leaf and
+CA certificate with it) - yet, that would only considered a regular "bug".
+
+* Affected version <= 1.8.0
+
+* Credits: Conner Webber
+
 ## 2026-03-29
 
 X.509 Subject parser: Overflow in size parser of a subject name component
