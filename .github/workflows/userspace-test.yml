@@ -142,8 +142,8 @@ jobs:
 
           # RHEL9 is currently disabled as the linker barfs with a SIGSEGV
           # error on the FIPS linker script
-          - name: RHEL 9
-            image: registry.access.redhat.com/ubi9/ubi:latest
+          #- name: RHEL 9
+          #  image: registry.access.redhat.com/ubi9/ubi:latest
           - name: RHEL 10
             image: registry.access.redhat.com/ubi10/ubi:latest
           # BCI publishes no floating major tag - there is no bci-base:15 or
