@@ -254,9 +254,10 @@ int _lc_kyber_dec(
 		/* Will contain key, coins */
 		uint8_t kr[2 * LC_KYBER_SYMBYTES];
 		uint8_t cmp[LC_KYBER_CIPHERTEXTBYTES];
+		int fail;
 	};
 	const uint8_t *pk;
-	int fail, ret;
+	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	if (!ss || !ct || !sk) {
@@ -310,8 +311,8 @@ int _lc_kyber_dec(
 	kyber_print_buffer(ws->cmp, LC_KYBER_CIPHERTEXTBYTES,
 			   "Decapsulation: c'");
 
-	fail = lc_memcmp_secure(ct->ct, LC_KYBER_CIPHERTEXTBYTES, ws->cmp,
-				LC_KYBER_CIPHERTEXTBYTES);
+	ws->fail = lc_memcmp_secure(ct->ct, LC_KYBER_CIPHERTEXTBYTES, ws->cmp,
+				    LC_KYBER_CIPHERTEXTBYTES);
 
 	/* Compute rejection key */
 	CKINT(kyber_shake256_rkprf(
@@ -320,7 +321,7 @@ int _lc_kyber_dec(
 	kyber_print_buffer(ss->ss, LC_KYBER_SYMBYTES, "Decapsulation: Kdash");
 
 	/* Copy true key to return buffer if fail is false */
-	cmov(ss->ss, ws->kr, LC_KYBER_SSBYTES, (uint8_t)(1 - fail));
+	cmov(ss->ss, ws->kr, LC_KYBER_SSBYTES, (uint8_t)(1 - ws->fail));
 	kyber_print_buffer(ss->ss, LC_KYBER_SSBYTES,
 			   "======Decapsulation output: ss");
 
