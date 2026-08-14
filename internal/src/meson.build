@@ -13,9 +13,22 @@ src += files([
 ])
 
 internal_src += files([
-	'architecture.c',
 	'binhexbin_raw.c'
 ])
+
+if get_option('efi').enabled()
+	internal_src += files([
+		'architecture_efi.c'
+	])
+elif host_machine.system() == 'windows'
+	internal_src += files([
+		'architecture_windows.c'
+	])
+else
+	internal_src += files([
+		'architecture_posix.c'
+	])
+endif
 
 if get_option('efi').disabled()
 	internal_src += files([
