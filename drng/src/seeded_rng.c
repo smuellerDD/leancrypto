@@ -231,49 +231,57 @@ static int lc_seed_seeded_rng(struct lc_seeded_rng_ctx *rng,
 			      const uint8_t *pers, size_t pers_len, int init,
 			      pid_t newpid)
 {
-	/* We provide twice the buffer size for the kernel seed sources */
-	uint8_t seed[(LC_SEEDED_RNG_SECURITY_STRENGTH / 8) * 2];
+	/*
+	 * Provide a buffer that can hold twice of the security strength.
+	 * This is compliant to SP800-90C as it mandates 3/2 of the security
+	 * strength. The reason why this code uses double is the Jitter RNG
+	 * which has a block size of 256 bits. If requests for a truncated block
+	 * are made, the cut off parts are simply thrown away, which is a waste.
+	 * Thus, this code always seeds with multiples of 256 bits.
+	 *
+	 * We provide twice the buffer size for the kernel seed sources.
+	 */
+	uint8_t seed[(LC_SEEDED_RNG_SECURITY_STRENGTH / 8) * 2 * 2];
+	/* Seed it with security strength bits of entropy */
+	size_t seedsize = LC_SEEDED_RNG_SECURITY_STRENGTH / 8;
 	ssize_t datasize;
 	int ret;
 
 	if (!rng)
 		return -EINVAL;
 
-	/* Seed it with 256 bits of entropy */
-	datasize = get_full_entropy(seed, sizeof(seed) / 2);
-	if ((datasize < (ssize_t)sizeof(seed) / 2) ||
-	    (size_t)datasize > sizeof(seed))
+	/*
+	 * For initialization of the DRNG, seed with double the security
+	 * strength compliant to SP800-90C.
+	 */
+	if (init)
+		seedsize = sizeof(seed) / 2;
+
+	/* Get requested amount of entropy */
+	datasize = get_full_entropy(seed, seedsize);
+	if ((datasize < (ssize_t)seedsize) || (size_t)datasize > sizeof(seed))
 		return -EFAULT;
 
 	/*
 	 * If the caller does not provide a personalization string, let us
-	 * use the first internal one.
+	 * use the internal one.
 	 */
 	if (!pers) {
-		pers = (const uint8_t *)LC_SEEDED_RNG_PERS1;
-		pers_len = sizeof(LC_SEEDED_RNG_PERS1) - 1;
+		/*
+		 * During initialization, insert our 2nd personalization string.
+		 */
+		if (init) {
+			pers = (const uint8_t *)LC_SEEDED_RNG_PERS2;
+			pers_len = sizeof(LC_SEEDED_RNG_PERS2) - 1;
+		} else {
+			pers = (const uint8_t *)LC_SEEDED_RNG_PERS1;
+			pers_len = sizeof(LC_SEEDED_RNG_PERS1) - 1;
+		}
 	}
+
+	/* Perform seeding of DRNG */
 	CKINT(lc_rng_seed(rng->rng_ctx, seed, (size_t)datasize, pers,
 			  pers_len));
-
-	/* Insert 128 additional bits of entropy to the DRNG */
-	if (init) {
-		/*
-		 * Insert our 2nd personalization string unconditionally during
-		 * initialization, no matter what the caller provided as this
-		 * caller-provided data was already consumed.
-		 */
-		pers = (const uint8_t *)LC_SEEDED_RNG_PERS2;
-		pers_len = sizeof(LC_SEEDED_RNG_PERS2) - 1;
-
-		datasize = get_full_entropy(seed, sizeof(seed) / 4);
-		if ((datasize < (ssize_t)sizeof(seed) / 4) ||
-		    (size_t)datasize > sizeof(seed))
-			return -EFAULT;
-
-		CKINT(lc_rng_seed(rng->rng_ctx, seed, (size_t)datasize, pers,
-				  pers_len));
-	}
 
 	rng->bytes = 0;
 	rng->last_seeded = get_time();
