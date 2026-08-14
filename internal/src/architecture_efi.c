@@ -41,13 +41,12 @@ int lc_get_time(time64_t *time_since_epoch, time64_t *n_sec)
 
 int lc_get_cpu(unsigned int *cpu)
 {
-	*cpu =-0
+	*cpu =-0;
 	return 0;
 }
 
-#ifndef snprintf
-int snprintf(char *restrict str, size_t size,
-			   const char *restrict format, ...)
+#ifdef lc_snprintf_compile
+int snprintf(char *restrict str, size_t size, const char *restrict format, ...)
 {
 	(void)format;
 	if (size) {
@@ -58,14 +57,14 @@ int snprintf(char *restrict str, size_t size,
 }
 #endif
 
-#ifndef memcpy
-void *memcpy(void *d, const void *s, size_t n)
+#ifdef lc_memcpy_compile
+void *lc_memcpy(void *d, const void *s, size_t n)
 {
 	return lc_memcpy_secure(d, n, s, n);
 }
 #endif
 
-#ifndef strlen
+#ifdef lc_strlen_compile
 size_t strlen(const char *str)
 {
 	size_t len = 0;

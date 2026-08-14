@@ -26,5 +26,7 @@ LC_EXIT_FUNCTION(void, lc_exit, unsigned int flags)
 {
 	(void)flags;
 
+#ifdef LC_DRNG_PRESENT
 	lc_seeded_rng_zero_state();
+#endif
 }

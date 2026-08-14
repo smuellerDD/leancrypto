@@ -151,6 +151,22 @@ typedef int ssize_t;
 void *memset(void *d, int c, unsigned long long n);
 #endif
 
+#ifndef snprintf
+#define lc_snprintf_compile
+int snprintf(char *restrict str, size_t size, const char *restrict format, ...);
+#endif
+
+#ifndef memcpy
+#define memcpy lc_memcpy
+#define lc_memcpy_compile
+void *lc_memcpy(void *d, const void *s, size_t n);
+#endif
+
+#ifndef strlen
+#define lc_strlen_compile
+size_t strlen(const char *str);
+#endif
+
 static inline int mlock(const void *ptr, size_t len)
 {
 	(void)ptr;
