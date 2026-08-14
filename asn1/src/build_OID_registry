@@ -45,8 +45,23 @@ if ($#ARGV != 1) {
 # Open the file to read from
 #
 open IN_FILE, "<$ARGV[0]" || die;
+my $in_if0 = 0;
 while (<IN_FILE>) {
     chomp;
+    if (m!\s*#if 0!) {
+	$in_if0 = 1;
+	next;
+    }
+
+    if (m!\s*#endif!) {
+	$in_if0 = 0;
+	next;
+    }
+
+    if ($in_if0 == 1) {
+	next;
+    }
+
     if (m!\s+OID_([a-zA-z][a-zA-Z0-9_]+),\s+/[*]\s+([012][.0-9]*)\s+[*]/!) {
 	push @names, $1;
 	push @oids, $2;
@@ -195,11 +210,12 @@ my @index_table = ( 0 .. $#names );
 print C_FILE "\n";
 print C_FILE "static const struct {\n";
 print C_FILE "\tunsigned char hash;\n";
-if ($#names <= 255) {
-    print C_FILE "\tenum OID oid : 8;\n";
-} else {
+# enum set to 8 bits causes an error with MSVC with clang-cl
+# if ($#names <= 255) {
+#     print C_FILE "\tenum OID oid : 8;\n";
+# } else {
     print C_FILE "\tenum OID oid : 16;\n";
-}
+# }
 print C_FILE "} oid_search_table[OID__NR] = {\n";
 for (my $i = 0; $i <= $#names; $i++) {
     my @octets = @{$encoded_oids[$index_table[$i]]};

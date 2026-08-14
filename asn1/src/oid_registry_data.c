@@ -272,7 +272,7 @@ static const unsigned char oid_data[935] = {
 
 static const struct {
 	unsigned char hash;
-	enum OID oid : 8;
+	enum OID oid : 16;
 } oid_search_table[OID__NR] = {
 	[  0] = {   2, OID_id_Ed448                            }, // 2b6571
 	[  1] = {   3, OID_id_rsassa_pkcs1_v1_5_with_sha3_256  }, // 60864801650304030e

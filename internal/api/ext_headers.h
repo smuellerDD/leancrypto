@@ -298,15 +298,20 @@ typedef long ssize_t;
 #define _SSIZE_T
 #endif
 
+pid_t getpid(void);
 #define strtok_r strtok_s
 #define localtime_r(timep, result) localtime_s((result), (time_t)(timep))
 #define write _write
 #define read _read
 #define close _close
 #define open lc_open
+int lc_open(const char *path, int flags, int mode);
 #define fopen lc_fopen
+FILE *fopen(const char *path, const char *mode);
 
 #else /* __GNUC__ */
+
+/* ....... Other unknown build environments ....... */
 
 #error "Constructor / destructor not defined for compiler"
 
@@ -324,7 +329,8 @@ typedef long ssize_t;
 #ifdef __CYGWIN__
 #include <sys/mman.h>
 #else /* __CYGWIN__ */
-
+int mlock(const void *ptr, size_t len);
+int munlock(const void *ptr, size_t len);
 #endif /* __CYGWIN__ */
 
 #define SYSV_ABI __attribute__((sysv_abi))
