@@ -82,9 +82,12 @@ void seeded_rng_status(char *buf, size_t len)
 	if (!jent)
 		seeded_rng_noise_init();
 
-	if (!IS_ERR_OR_NULL(jent))
-		lc_memcpy_secure(buf, len, "Linux Kernel Jitter RNG\n\0", 25);
-	else
+	if (!IS_ERR_OR_NULL(jent)) {
+		lc_memcpy_secure(buf, len,
+				 "Linux Kernel get_random_bytes || Jitter RNG\n\0",
+				 45);
+	} else {
 		lc_memcpy_secure(buf, len, "Linux Kernel get_random_bytes\n\0",
 				 31);
+	}
 }

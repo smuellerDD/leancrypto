@@ -19,6 +19,7 @@
 
 #include "build_bug_on.h"
 #include "ext_headers_internal.h"
+#include "initialization.h"
 #include "lc_chacha20_drng.h"
 #include "lc_ctr_drbg.h"
 #include "lc_cshake256_drng.h"
@@ -138,6 +139,16 @@
 #define LC_SEEDED_RNG_PERS1 "Seeded RNG 1"
 #define LC_SEEDED_RNG_PERS2 "Seeded RNG 2"
 
+/*
+ * Number of threads supported by the threaded environment
+ *
+ * This value must be 1 or a power of 2 to use a mask to be ANDed.
+ */
+#ifndef LC_SEEDED_RNG_INSTANCES
+#define LC_SEEDED_RNG_INSTANCES 16
+#endif
+#define LC_SEEDED_RNG_INSTANCES_MASK (LC_SEEDED_RNG_INSTANCES - 1)
+
 struct lc_seeded_rng_ctx {
 	struct lc_rng_ctx *rng_ctx;
 	size_t bytes;
@@ -147,18 +158,16 @@ struct lc_seeded_rng_ctx {
 	mutex_w_t lock; /* Lock */
 };
 
-/* DRNG state */
-static LC_ALIGNED_BUFFER(rng_ctx_buf, LC_SEEDED_RNG_CTX_SIZE,
+/* DRNG state buffer for all instances */
+static LC_ALIGNED_BUFFER(rng_ctx_buf,
+			 LC_SEEDED_RNG_CTX_SIZE * LC_SEEDED_RNG_INSTANCES,
 			 LC_HASH_COMMON_ALIGNMENT);
-static struct lc_seeded_rng_ctx seeded_rng = {
-	.rng_ctx = (struct lc_rng_ctx *)rng_ctx_buf,
 
-	/* Initialize the state such that a seed is forced */
-	.bytes = LC_SEEDED_RNG_MAX_CHUNK + 1,
-	.last_seeded = 0,
-	.pid = 0,
-	.lock = __MUTEX_W_INITIALIZER(false),
-};
+/*
+ * Initialize the state such that a seed is forced - this initializes also the
+ * lock.
+ */
+static struct lc_seeded_rng_ctx seeded_rngs[LC_SEEDED_RNG_INSTANCES] = { 0 };
 
 #ifdef LINUX_KERNEL
 
@@ -277,25 +286,25 @@ out:
 	return ret;
 }
 
-static int lc_seeded_rng_init_state(void)
+static int lc_seeded_rng_init_state(struct lc_seeded_rng_ctx *rng)
 {
-	LC_SEEDED_RNG_CTX(seeded_rng.rng_ctx);
+	LC_SEEDED_RNG_CTX(rng->rng_ctx);
 
 	return seeded_rng_noise_init();
 }
 
-LC_DEFINE_DESTRUCTOR(lc_seeded_rng_zero_state);
-void lc_seeded_rng_zero_state(void)
+static void lc_seeded_rng_zero_state_internal(
+	struct lc_seeded_rng_ctx *seeded_rng)
 {
 	struct lc_rng_ctx *rng;
 
-	rng = seeded_rng.rng_ctx;
+	rng = seeded_rng->rng_ctx;
 	if (!rng)
 		return;
 
-	mutex_w_lock(&seeded_rng.lock);
+	mutex_w_lock(&seeded_rng->lock);
 
-	if (seeded_rng.last_seeded)
+	if (seeded_rng->last_seeded)
 		lc_rng_zero(rng);
 
 	/*
@@ -308,11 +317,20 @@ void lc_seeded_rng_zero_state(void)
 	 * seeded.rng does not need to be reinitialized as lc_rng_zero only
 	 * clears the state, but leaves the RNG handle fully in tact.
 	 */
-	seeded_rng.pid = 0;
-	seeded_rng.last_seeded = 0;
-	seeded_rng.bytes = LC_SEEDED_RNG_MAX_CHUNK + 1,
+	seeded_rng->pid = 0;
+	seeded_rng->last_seeded = 0;
+	seeded_rng->bytes = LC_SEEDED_RNG_MAX_CHUNK + 1,
 
-	mutex_w_unlock(&seeded_rng.lock);
+	mutex_w_unlock(&seeded_rng->lock);
+}
+
+LC_DEFINE_DESTRUCTOR(lc_seeded_rng_zero_state);
+void lc_seeded_rng_zero_state(void)
+{
+	unsigned int i;
+
+	for (i = 0; i < LC_SEEDED_RNG_INSTANCES; i++)
+		lc_seeded_rng_zero_state_internal(&seeded_rngs[i]);
 
 	seeded_rng_noise_fini();
 }
@@ -372,23 +390,47 @@ static int lc_check_reseed(struct lc_seeded_rng_ctx *rng, time64_t *curr_time,
 static int lc_get_seeded_rng(struct lc_seeded_rng_ctx **rng_ret,
 			     time64_t *curr_time)
 {
+	struct lc_seeded_rng_ctx *seeded_rng;
+	unsigned int cpu;
 	int ret = 0, init = 0;
 
-	mutex_w_lock(&seeded_rng.lock);
+	ret = lc_get_cpu(&cpu);
+	if (ret < 0)
+		return ret;
+
+	cpu &= LC_SEEDED_RNG_INSTANCES_MASK;
+	seeded_rng = &seeded_rngs[cpu];
+
+	mutex_w_lock(&seeded_rng->lock);
 
 	/* Initialize the DRNG state at the beginning */
-	if (!seeded_rng.last_seeded) {
-		CKINT(lc_seeded_rng_init_state());
-		seeded_rng.pid = getpid();
+	if (!seeded_rng->last_seeded) {
+		uint8_t *rng_ctx_tmp = (uint8_t *)rng_ctx_buf;
+
+		rng_ctx_tmp += cpu * LC_SEEDED_RNG_CTX_SIZE;
+		BUILD_BUG_ON(LC_SEEDED_RNG_CTX_SIZE % sizeof(uint64_t));
+
+		/*
+		 * Due to rng_ctx_buf being aligned to 64 bits and
+		 * LC_SEEDED_RNG_CTX_SIZE being  multiple of 64 bits, this
+		 * cast is appropriate.
+		 */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
+		seeded_rng->rng_ctx = (struct lc_rng_ctx *)rng_ctx_tmp;
+#pragma GCC diagnostic pop
+		seeded_rng->bytes = LC_SEEDED_RNG_MAX_CHUNK + 1;
+		CKINT(lc_seeded_rng_init_state(seeded_rng));
+		seeded_rng->pid = getpid();
 		init = 1;
 	}
 
-	CKINT(lc_check_reseed(&seeded_rng, curr_time, init));
+	CKINT(lc_check_reseed(seeded_rng, curr_time, init));
 
-	*rng_ret = &seeded_rng;
+	*rng_ret = seeded_rng;
 
 out:
-	mutex_w_unlock(&seeded_rng.lock);
+	mutex_w_unlock(&seeded_rng->lock);
 	return ret;
 }
 
@@ -475,7 +517,7 @@ static int lc_seeded_rng_generate(void *_state, const uint8_t *addtl_input,
 		/*
 		 * Check and enforce reseed unconditionally.
 		 */
-		CKINT(lc_check_reseed(&seeded_rng, &curr_time, 0));
+		CKINT(lc_check_reseed(rng, &curr_time, 0));
 	}
 
 out:

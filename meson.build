@@ -386,6 +386,10 @@ endif
 
 if get_option('efi').enabled()
 	add_global_arguments([ '-DLC_EFI' ], language: 'c')
+	# Considering that on EFI we are in a small execution environment
+	# and the fact that on EFI lc_get_cpu returns 0, we only need
+	# one instance of the DRNG
+	add_global_arguments([ '-DLC_SEEDED_RNG_INSTANCES=1' ], language: 'c')
 endif
 
 if (get_option('aes_cbc').enabled() or

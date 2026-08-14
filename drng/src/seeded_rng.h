@@ -31,8 +31,6 @@ int seeded_rng_noise_init(void);
 void seeded_rng_noise_fini(void);
 void seeded_rng_status(char *buf, size_t len);
 
-void lc_seeded_rng_zero_state(void);
-
 #ifdef LC_DRNG_PRESENT
 void lc_seeded_rng_status(char *buf, size_t len);
 #else
