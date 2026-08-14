@@ -423,7 +423,7 @@ static void __exit leancrypto_exit(void)
 	lc_kernel_chacha20_exit();
 	lc_kernel_cc20p1305_exit();
 
-	lc_seeded_rng_zero_state();
+	lc_exit(0);
 	lc_proc_status_show_exit();
 }
 

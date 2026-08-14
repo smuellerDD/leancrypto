@@ -87,6 +87,24 @@ extern "C" {
  */
 int lc_init(unsigned int flags);
 
+/**
+ * @brief Finalization of leancrypto
+ *
+ * This function invokes all necessary initialization functions required at
+ * the unloading time of leancrypto. However, this function is only needed for
+ * environments without a destructor functionality such as the Linux kernel
+ * or the EFI environment.
+ *
+ * For regular environments such as Linux, this function is not required to be
+ * called. But it does not hurt to be called.
+ *
+ * \note If this function is called, no other leancrypto service must be offered
+ * as this function may alter the global leancrypto state.
+ *
+ * @param [in] flags currently unused
+ */
+void lc_exit(unsigned int flags);
+
 #ifdef __cplusplus
 }
 #endif

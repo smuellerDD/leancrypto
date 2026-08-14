@@ -519,6 +519,7 @@ LIBLEANCRYPTO_1.9 {
 		lc_hqc_alg_status;
 
 		/* lc_init.h */
+		lc_exit;
 		lc_init;
 
 		/* lc_kdf_ctr.h */

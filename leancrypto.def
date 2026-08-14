@@ -316,6 +316,7 @@ EXPORTS
 	lc_ed448_sk_ptr
 	lc_ed448_sk_size
 	lc_ed448_verify
+	lc_exit
 	lc_fips_integrity_checker
 	lc_free
 	lc_free_high_aligned

@@ -82,22 +82,6 @@ static inline pid_t getpid(void)
 
 typedef s64 time64_t;
 
-static inline int lc_get_time(time64_t *time_since_epoch, time64_t *n_sec)
-{
-	u64 now = ktime_get_real_ns();
-
-	if (!time_since_epoch)
-		return -EINVAL;
-
-	//*time_since_epoch = (time64_t)(jiffies / HZ);
-	*time_since_epoch =
-		(time64_t)div_u64(ktime_get_real_ns(), NSEC_PER_SEC);
-	if (n_sec)
-		*n_sec = (time64_t)(now - *time_since_epoch);
-
-	return 0;
-}
-
 #define LC_FIPS_RODATA_SECTION
 
 #elif (defined(LC_EFI_ENVIRONMENT))
@@ -179,52 +163,6 @@ static inline pid_t getpid(void)
 	return 0;
 }
 
-#ifndef snprintf
-static inline int snprintf(char *restrict str, size_t size,
-			   const char *restrict format, ...)
-{
-	(void)format;
-	if (size) {
-		memset(str, 0, size);
-		return (int)size - 1;
-	}
-	return 0;
-}
-#endif
-
-#ifndef memcpy
-static inline void *memcpy(void *d, const void *s, size_t n)
-{
-	return lc_memcpy_secure(d, n, s, n);
-}
-#endif
-
-#ifndef strlen
-static inline size_t strlen(const char *str)
-{
-	size_t len = 0;
-
-	while (*str != '\0') {
-		str++;
-		len++;
-	}
-
-	return len;
-}
-#endif
-
-static inline int lc_get_time(time64_t *time_since_epoch, time64_t *n_sec)
-{
-	if (!time_since_epoch)
-		return -22; /* EINVAL */
-
-	*time_since_epoch = -1;
-	if (n_sec)
-		*n_sec = -1;
-
-	return -95; /* EOPNOTSUPP */
-}
-
 #define SYSV_ABI __attribute__((sysv_abi))
 
 /*
@@ -296,7 +234,9 @@ static const int errno_private = 0;
 #endif
 
 #ifdef __GNUC__
+
 /* ....... MinGW ....... */
+
 #if __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7)
 
 #define LC_DEFINE_CONSTRUCTOR(_func)                                           \
@@ -307,24 +247,6 @@ static const int errno_private = 0;
 #include <unistd.h>
 
 typedef int64_t time64_t;
-
-static inline int lc_get_time(time64_t *time_since_epoch, time64_t *n_sec)
-{
-	struct timespec tp = { 0 };
-
-	if (!time_since_epoch)
-		return -EINVAL;
-
-	if (clock_gettime(CLOCK_REALTIME, &tp) == 0) {
-		*time_since_epoch = tp.tv_sec;
-		if (n_sec)
-			*n_sec = tp.tv_nsec;
-		return 0;
-	}
-
-	*time_since_epoch = (time64_t)-1;
-	return -errno;
-}
 
 #else /* __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 7) */
 
@@ -353,33 +275,12 @@ static inline int lc_get_time(time64_t *time_since_epoch, time64_t *n_sec)
 #include <windows.h>
 
 typedef int64_t time64_t;
-static inline int lc_get_time(time64_t *time_since_epoch, time64_t *n_sec)
-{
-	FILETIME ft;
-	ULARGE_INTEGER t;
-
-	GetSystemTimeAsFileTime(&ft);
-
-	t.LowPart = ft.dwLowDateTime;
-	t.HighPart = ft.dwHighDateTime;
-
-	// FILETIME: 100 ns intervals since 1601-01-01
-	t.QuadPart -= 116444736000000000ULL;
-	uint64_t unix_seconds = t.QuadPart / 10000000ULL;
-	*time_since_epoch = (time64_t)unix_seconds;
-	if (n_sec)
-		*n_sec = (time64_t)((t.QuadPart * 100ULL) % 1000000000ULL);
-
-	return 0;
-}
-
 typedef int pid_t;
-static inline pid_t getpid(void)
-{
-	DWORD pid = GetCurrentProcessId();
 
-	return (pid_t)pid;
-}
+#ifndef _SSIZE_T
+typedef long ssize_t;
+#define _SSIZE_T
+#endif
 
 #define strtok_r strtok_s
 #define localtime_r(timep, result) localtime_s((result), (time_t)(timep))
@@ -388,35 +289,6 @@ static inline pid_t getpid(void)
 #define close _close
 #define open lc_open
 #define fopen lc_fopen
-
-static inline int lc_open(const char *path, int flags, int mode)
-{
-	int fd;
-	errno_t err = _sopen_s(&fd, path, flags, _SH_DENYNO, mode);
-
-	if (err != 0) {
-		errno = err;
-		return -1;
-	}
-	return fd;
-}
-
-static inline FILE *fopen(const char *path, const char *mode)
-{
-	FILE *fp;
-	errno_t err = fopen_s(&fp, path, mode);
-
-	if (err != 0) {
-		errno = err;
-		return NULL;
-	}
-	return fp;
-}
-
-#ifndef _SSIZE_T
-typedef long ssize_t;
-#define _SSIZE_T
-#endif
 
 #else /* __GNUC__ */
 
@@ -436,26 +308,6 @@ typedef long ssize_t;
 #ifdef __CYGWIN__
 #include <sys/mman.h>
 #else /* __CYGWIN__ */
-
-static inline int mlock(const void *ptr, size_t len)
-{
-	/* "If the function succeeds, the return value is nonzero" */
-	if (!VirtualLock((void *)ptr, len)) {
-		errno = -EAGAIN;
-		return -1;
-	}
-	return 0;
-}
-
-static inline int munlock(const void *ptr, size_t len)
-{
-	/* "If the function succeeds, the return value is nonzero" */
-	if (!VirtualUnlock((void *)ptr, len)) {
-		errno = -EAGAIN;
-		return -1;
-	}
-	return 0;
-}
 
 #endif /* __CYGWIN__ */
 
@@ -511,6 +363,11 @@ static inline int munlock(const void *ptr, size_t len)
 #include <fcntl.h>
 #include <inttypes.h>
 #include <limits.h>
+
+#if defined(__linux__)
+#include <sched.h>
+#endif
+
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -537,24 +394,6 @@ static inline int munlock(const void *ptr, size_t len)
 #endif
 
 typedef int64_t time64_t;
-
-static inline int lc_get_time(time64_t *time_since_epoch, time64_t *n_sec)
-{
-	struct timespec tp = { 0 };
-
-	if (!time_since_epoch)
-		return -EINVAL;
-
-	if (clock_gettime(CLOCK_REALTIME, &tp) == 0) {
-		*time_since_epoch = tp.tv_sec;
-		if (n_sec)
-			*n_sec = tp.tv_nsec;
-		return 0;
-	}
-
-	*time_since_epoch = (time64_t)-1;
-	return -errno;
-}
 
 /*
  * FIPS 140 integrity check cannot check the .rodata section. Thus move all
@@ -592,5 +431,8 @@ static inline int lc_get_time(time64_t *time_since_epoch, time64_t *n_sec)
 #define ENODATA 251 /* Data not provided */
 #endif
 #endif /* LC_EFI_ENVIRONMENT */
+
+int lc_get_cpu(unsigned int *cpu);
+int lc_get_time(time64_t *time_since_epoch, time64_t *n_sec);
 
 #endif /* EXT_HEADERS_H */

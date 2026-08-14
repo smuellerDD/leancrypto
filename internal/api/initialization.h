@@ -33,6 +33,9 @@ extern "C" {
 /* Last prio is to make the library available */
 #define LC_INIT_PRIO_LIBRARY (103)
 
+/******************************************************************************
+ * Initialization functions
+ ******************************************************************************/
 void ascon_fastest_impl(void);
 void sha256_fastest_impl(void);
 void sha512_fastest_impl(void);
@@ -42,6 +45,11 @@ void kyber_riscv_rvv_selector(void);
 void secure_execution_linux(void);
 void chacha20_fastest_impl(void);
 void lc_activate_library(void);
+
+/******************************************************************************
+ * Exit functions
+ ******************************************************************************/
+void lc_seeded_rng_zero_state(void);
 
 #ifdef __cplusplus
 }

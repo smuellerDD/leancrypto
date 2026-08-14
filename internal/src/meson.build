@@ -2,6 +2,7 @@
 src += files([
 	'compare.c',
 	'fips_mode.c',
+	'leancrypto_exit.c',
 	'leancrypto_init.c',
 	'left_encode.c',
 	'memcpy_secure_c.c',
@@ -12,6 +13,7 @@ src += files([
 ])
 
 internal_src += files([
+	'architecture.c',
 	'binhexbin_raw.c'
 ])
 
