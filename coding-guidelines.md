@@ -48,6 +48,10 @@ The following modules are present:
 
 * `otp`: One-Time-Pad algorithms
 
+* `rust`: Rust wrapper to make the leancrypto API available to Rust
+
+* `rustls`: rustls provider using leancrypto
+
 * `slh-dsa`: FIPS 205 SLH-DSA algorithm
 
 * `sym`: symmetric encryption algorithms with their block chaining modes
