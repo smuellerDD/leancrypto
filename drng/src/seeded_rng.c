@@ -140,7 +140,8 @@
 #define LC_SEEDED_RNG_PERS2 "Seeded RNG 2"
 
 /*
- * Number of threads supported by the threaded environment
+ * Number of seeded DRNG instances supported by leancrypto. The instance to
+ * be used is selected based on the current CPU ANDed with the instance mask.
  *
  * This value must be 1 or a power of 2 to use a mask to be ANDed.
  */
@@ -397,6 +398,11 @@ static int lc_get_seeded_rng(struct lc_seeded_rng_ctx **rng_ret,
 	ret = lc_get_cpu(&cpu);
 	if (ret < 0)
 		return ret;
+
+	/* LC_SEEDED_RNG_INSTANCES must be larger than 0 */
+	BUILD_BUG_ON(LC_SEEDED_RNG_INSTANCES < 1);
+	/* LC_SEEDED_RNG_INSTANCES must be a power of 2 */
+	BUILD_BUG_ON(LC_SEEDED_RNG_INSTANCES & (LC_SEEDED_RNG_INSTANCES - 1));
 
 	cpu &= LC_SEEDED_RNG_INSTANCES_MASK;
 	seeded_rng = &seeded_rngs[cpu];
