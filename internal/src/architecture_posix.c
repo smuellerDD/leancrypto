@@ -45,6 +45,20 @@ int lc_get_time(time64_t *time_since_epoch, time64_t *n_sec)
 	return -errno;
 }
 
+#ifdef __MACH__
+
+int lc_get_cpu(unsigned int *cpu)
+{
+	//TODO: is there an equivalent of sched_getcpu on macOS?
+	static unsigned int ctr = 0;
+
+	*cpu = ctr++;
+
+	return 0;
+}
+
+#else /* __MACH__ */
+
 int lc_get_cpu(unsigned int *cpu)
 {
 	int ret = sched_getcpu();
@@ -55,3 +69,5 @@ int lc_get_cpu(unsigned int *cpu)
 	*cpu = (unsigned int)ret;
 	return 0;
 }
+
+#endif /* __MACH__ */
