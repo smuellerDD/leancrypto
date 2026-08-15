@@ -63,7 +63,7 @@ if cc.has_link_argument('-Wl,--undefined-version')
 	lc_lib_link_args += [ '-Wl,--undefined-version' ]
 endif
 if not cc.has_multi_link_arguments(lc_lib_link_args)
-	warning('Linker does not support version scripts - libleancrypt.so exports every DSO_PUBLIC symbol')
+	message('Linker does not support version scripts - libleancrypt.so exports every DSO_PUBLIC symbol')
 	lc_lib_link_args = []
 endif
 

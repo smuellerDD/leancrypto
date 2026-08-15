@@ -33,7 +33,6 @@
 		// address value as loop termination condition...
 .quad	0,0,0,0,0,0,0,0
 
-SYM_TYPE_OBJ(iotas)
 iotas:
 .quad	0x0000000000000001
 .quad	0x0000000000008082
@@ -59,7 +58,6 @@ iotas:
 .quad	0x8000000000008080
 .quad	0x0000000080000001
 .quad	0x8000000080008008
-SYM_SIZE(iotas)
 
 .align	5
 KeccakF1600_int:
