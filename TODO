@@ -35,4 +35,4 @@
 
 - RHEL8 / 9: Enable github tests after finding out why the linker barfs on the FIPS140 linker script
 
-- macOS: Find a replacement for sched_getcpu to be called in lc_get_cpu
+- lc_get_cpu: Find a replacement for sched_getcpu on the systems using a round-robin schema
