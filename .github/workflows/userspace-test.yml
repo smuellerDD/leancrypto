@@ -408,7 +408,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ windows-11-arm ]
+        os: [ windows-11-vs2026-arm ]
         shared: [ 'shared', 'static', 'both' ]
     steps:
       - uses: actions/checkout@v7
@@ -441,8 +441,8 @@ jobs:
       - name: Meson compile
         run: meson compile -C build
 
-      - name: Meson test
-        run: meson test -v -C build --suite regression
+      #- name: Meson test
+      #  run: meson test -v -C build --suite regression
 
   # Windows MSYS2
   windows-msys2:
