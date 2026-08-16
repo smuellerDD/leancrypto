@@ -128,7 +128,7 @@ NOTE: As the `lc_init` function is only useful in environments without construct
 
 ## Random Number Generator and Entropy Source
 
-Leancrypto offers a fully seeded RNG instance that can readily be used everywhere where a FIPS-approved random number generator is required by using `lc_seeded_rng`.
+Leancrypto offers a set of LC_SEEDED_RNG_INSTANCES fully seeded RNG instances that can readily be used everywhere where a FIPS-approved random number generator is required by using `lc_seeded_rng`. The actual DRNG instance is selected either by the current CPU or a round-robin mechanism, if the CPU cannot be detected (e.g. on BSD, macOS or Windows).
 
 Leancrypto does not implement any entropy source. Yet, it implements support for several entropy sources that can be selected at compile time:
 
@@ -141,6 +141,24 @@ Leancrypto does not implement any entropy source. Yet, it implements support for
 * `jent`: This option uses the [Jitter RNG](http://chronox.de/jent/index.html) as entropy source.
 
 NOTE: The default deterministic random number generator used by leancrypto (and thus by `lc_seeded_rng`) is the XDRBG-256. At the time of writing (September 2025), it is not yet FIPS-approved. However, SP800-90A is subject to revision at the time of writing and it is planned to add the XDRBG as an approved algorithm. Therefore, leancrypto selects XDRBG as default. If that shall be changed, the macros `LC_SEEDED_RNG_CTX_SIZE`, `LC_SEEDED_RNG_CTX` and associated macros found in `drng/src/seeded_rng.c` must be set to either the Hash DRBG, HMAC DRBG, or CTR DRBG at compile time.
+
+### DRNG Seeding Strategy
+
+The seeding strategy is implemented by `lc_seed_seeded_rng`:
+
+- During initial seeding of a DRNG, 512 bits of entropy is pulled from an entropy source (Linux kernel: 512 bits from each of random.c and the in-kernel Jitter RNG which both are concatenated)
+
+- During reseed of a DRNG, 256 bits of entropy is pulled from an entropy source (Linux kernel: 256 bits from each of random.c and the in-kernel Jitter RNG which both are concatenated)
+
+- If the caller provides a prediction resistance / additional information string then it is used during seeding. If none is provided, LC_SEEDED_RNG_PERS1 (during reseed) or LC_SEEDED_RNG_PERS2 (during initial seed) are used.
+
+Forced reseeding is defined by `lc_seeded_rng_must_reseed`:
+
+- If already more data than LC_SEEDED_RNG_MAX_CHUNK is generated, or
+
+- last seeding was more than LC_SEEDED_RNG_MAX_TIME seconds ago, or
+
+- the current PID changed.
 
 ## API and Usage Documentation
 
