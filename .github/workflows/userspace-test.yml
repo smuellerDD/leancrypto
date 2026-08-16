@@ -427,7 +427,7 @@ jobs:
       - name: Meson setup
         shell: cmd
         run: |
-          call "%VSINSTALL%\VC\Auxiliary\Build\vcvarsall.bat" arm64
+          call "C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" amd64_arm64
           echo VSCMD_ARG_TGT_ARCH=%VSCMD_ARG_TGT_ARCH%
           echo VCToolsInstallDir=%VCToolsInstallDir%
           echo LIB=%LIB%
