@@ -425,11 +425,15 @@ jobs:
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Meson setup
-        shell: pwsh
+        shell: cmd
         run: |
-          $env:CC = "clang-cl"
-          $env:CXX = "clang-cl"
-          cmd /c '"C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" arm64 && set > "%TEMP%\vcenv.txt"'
+          call "%ProgramFiles%\Microsoft Visual Studio\2026\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" arm64
+          echo VSCMD_ARG_TGT_ARCH=%VSCMD_ARG_TGT_ARCH%
+          echo VCToolsInstallDir=%VCToolsInstallDir%
+          echo LIB=%LIB%
+          where clang-cl
+          where lld-link
+          where link
           meson setup build -Ddefault_library=${{ matrix.shared }} -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled
 
       - name: Meson compile
