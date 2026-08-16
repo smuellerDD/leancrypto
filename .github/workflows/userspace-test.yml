@@ -365,14 +365,14 @@ jobs:
       - name: Build and test
         run: sh .github/scripts/vm-build-and-test.sh -Dtests=disabled
 
-  # Windows MSVC is the reference Windows toolchain.
+  # Windows x86 MSVC is the reference Windows toolchain.
   windows-msvc:
     name: Windows / MSVC / ${{ matrix.os }} / shared=${{ matrix.shared }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ windows-latest, windows-11-arm ]
+        os: [ windows-latest ]
         shared: [ 'shared', 'static', 'both' ]
     steps:
       - uses: actions/checkout@v7
@@ -393,6 +393,43 @@ jobs:
         run: |
           $env:CC = "clang-cl"
           $env:CXX = "clang-cl"
+          meson setup build -Ddefault_library=${{ matrix.shared }} -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled
+
+      - name: Meson compile
+        run: meson compile -C build
+
+      - name: Meson test
+        run: meson test -v -C build --suite regression
+
+  # Windows ARM MSVC is the reference Windows toolchain.
+  windows-msvc:
+    name: Windows / MSVC / ${{ matrix.os }} / shared=${{ matrix.shared }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ windows-11-vs2026-arm ]
+        shared: [ 'shared', 'static', 'both' ]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.x'
+
+      - name: Install meson
+        run: |
+          python -m pip install --upgrade pip
+          pip install meson ninja
+
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Meson setup
+        shell: pwsh
+        run: |
+          $env:CC = "clang-cl"
+          $env:CXX = "clang-cl"
+          cmd /c '"C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" arm64 && set > "%TEMP%\vcenv.txt"'
           meson setup build -Ddefault_library=${{ matrix.shared }} -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled
 
       - name: Meson compile
