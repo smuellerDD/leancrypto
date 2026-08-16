@@ -408,7 +408,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ windows-11-vs2026-arm ]
+        os: [ windows-11-arm ]
         shared: [ 'shared', 'static', 'both' ]
     steps:
       - uses: actions/checkout@v7
