@@ -434,6 +434,7 @@ jobs:
           where clang-cl
           where lld-link
           where link
+          set PATH="C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Tools\Llvm\ARM64\bin\;%PATH%"
           set CC=clang-cl
           set CXX=clang-cl
           meson setup build -Ddefault_library=${{ matrix.shared }} -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled
@@ -441,8 +442,8 @@ jobs:
       - name: Meson compile
         run: meson compile -C build
 
-      #- name: Meson test
-      #  run: meson test -v -C build --suite regression
+      - name: Meson test
+        run: meson test -v -C build --suite regression
 
   # Windows MSYS2
   windows-msys2:
