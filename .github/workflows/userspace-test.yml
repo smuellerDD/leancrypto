@@ -427,13 +427,15 @@ jobs:
       - name: Meson setup
         shell: cmd
         run: |
-          call "%ProgramFiles%\Microsoft Visual Studio\2026\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" arm64
+          call "%VSINSTALL%\VC\Auxiliary\Build\vcvarsall.bat" arm64
           echo VSCMD_ARG_TGT_ARCH=%VSCMD_ARG_TGT_ARCH%
           echo VCToolsInstallDir=%VCToolsInstallDir%
           echo LIB=%LIB%
           where clang-cl
           where lld-link
           where link
+          set CC=clang-cl
+          set CXX=clang-cl
           meson setup build -Ddefault_library=${{ matrix.shared }} -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled
 
       - name: Meson compile
