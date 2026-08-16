@@ -92,6 +92,18 @@ static inline unsigned long arm_id_aa64isar0_el1_feature(void)
 		if (ret)
 			id_aa64isar0_el1_val |= ARM8_PMULL_FEATURE;
 	}
+
+#elif defined(_WIN32)
+	if (IsProcessorFeaturePresent(PF_ARM_V8_CRYPTO_INSTRUCTIONS_AVAILABLE))
+		id_aa64isar0_el1_val |= ARM8_SHA256_FEATURE | ARM8_AES_FEATURE |
+					ARM8_PMULL_FEATURE;
+
+	if (IsProcessorFeaturePresent(PF_ARM_SHA512_INSTRUCTIONS_AVAILABLE))
+		id_aa64isar0_el1_val |= ARM8_SHA256512_FEATURE;
+
+	if (IsProcessorFeaturePresent(PF_ARM_SHA3_INSTRUCTIONS_AVAILABLE))
+		id_aa64isar0_el1_val |= ARM8_SHA3_FEATURE;
+
 #else
 	__asm__ __volatile__("mrs %0, id_aa64isar0_el1 \n"
 			     : "=r"(id_aa64isar0_el1_val));

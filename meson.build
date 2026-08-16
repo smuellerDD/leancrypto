@@ -1101,6 +1101,10 @@ endif
 # moved to the new version, this check can be dropped.
 vs_module_defs_supported = (meson.version().version_compare('>=1.3.0') and
 			    host_machine.system() == 'windows')
+vs_module_defs_file = 'leancrypto_x86_64.def'
+if (host_machine.cpu_family() == 'aarch64')
+	vs_module_defs_file = 'leancrypto_armv8.def'
+endif
 
 fips_integrity_hasher_dep = []
 # Build FIPS 140 library
@@ -1132,7 +1136,7 @@ if build_shared
 			dependencies: [ leancrypto_link ],
 			link_whole: [ leancrypto_raw_static_lib ],
 			link_args: link_args_fips140,
-			vs_module_defs: 'leancrypto.def',
+			vs_module_defs: vs_module_defs_file,
 			install: true
 			)
 	else
@@ -1164,7 +1168,7 @@ if build_shared
 			dependencies: [ leancrypto_link ],
 			link_whole: [ leancrypto_raw_static_lib ],
 			link_args: link_args_fips140,
-			vs_module_defs: 'leancrypto.def',
+			vs_module_defs: vs_module_defs_file,
 			install: true
 			)
 	else

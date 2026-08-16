@@ -17,7 +17,7 @@ Changes 1.9.0-prerelease
 
 * Fixes to make leancrypto work on: Solaris, Cygwin, RHEL9 (RHEL8 linker has a bug? RHEL7 does not offer meson), FreeBSD, NetBSD, OpenBSD, Dragonfly BSD, Arch Linux and add github workflow to continuously test them
 
-* Add support for native Windows with MSVC using clang-cl (the MSVC compiler is not supported as the assembler structure is different and I am not going to support multiple ASM structures).
+* Add support for native Windows (x86_64, ARMv8) with MSVC using clang-cl (the MSVC compiler is not supported as the assembler structure is different and I am not going to support multiple ASM structures).
 
 * Windows: fix parallel compilation of the assembler code that is compiled once per ML-KEM / ML-DSA parameter set - clang-cl placed the preprocessed intermediate of all of them into the same file.
 

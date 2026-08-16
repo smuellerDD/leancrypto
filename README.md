@@ -190,15 +190,15 @@ considerations must be applied:
 
 ### Native
 
-The `leancrypto` library can be built on Windows natively using `clang-cl`
-along with MSVC. For this, install MSVC and add the support for `clang-cl`
-during its installation.
+The `leancrypto` library can be built on Windows (x86_64 and ARMv8) natively
+using `clang-cl` along with MSVC. For this, install MSVC and add the support
+for `clang-cl` during its installation.
 
-Then install Python followed by `meson`.
+Then install Python to allow `meson` to be executed followed by `meson` itself.
 
 Now you are ready to set up `leancrypto` with meson:
 
-1. `set CC=clang-cl`
+1. cmd: `set CC=clang-cl` or PowerShell: `$Env:CC="clang-cl"`
 
 2. `meson setup build`
 

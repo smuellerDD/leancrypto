@@ -333,7 +333,11 @@ int mlock(const void *ptr, size_t len);
 int munlock(const void *ptr, size_t len);
 #endif /* __CYGWIN__ */
 
+#ifdef __x86_64__
 #define SYSV_ABI __attribute__((sysv_abi))
+#else
+#define SYSV_ABI
+#endif
 
 /*
  * See https://gcc.gnu.org/onlinedocs/gcc/Statement-Attributes.html#Statement-Attributes
