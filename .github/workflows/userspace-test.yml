@@ -402,7 +402,7 @@ jobs:
         run: meson test -v -C build --suite regression
 
   # Windows ARM MSVC is the reference Windows toolchain.
-  windows-msvc:
+  windows-msvc-arm:
     name: Windows / MSVC / ${{ matrix.os }} / shared=${{ matrix.shared }}
     runs-on: ${{ matrix.os }}
     strategy:
