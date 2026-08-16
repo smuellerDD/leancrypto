@@ -402,6 +402,27 @@ jobs:
         run: meson test -v -C build --suite regression
 
   # Windows ARM MSVC is the reference Windows toolchain.
+  # NS with its github runner system is unable to provide a working compile time
+  # environment. Thus, the test is disabled for now.
+  #
+  # During the Setup phase (mind the ARM64 references):
+  # [vcvarsall.bat] Environment initialized for: 'arm64'
+  # VSCMD_ARG_TGT_ARCH=arm64
+  # VCToolsInstallDir=C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Tools\MSVC\14.51.36231\
+  # LIB=C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Tools\MSVC\14.51.36231\ATLMFC\lib\ARM64;C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Tools\MSVC\14.51.36231\lib\ARM64;C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8.1\lib\um\arm64;C:\Program Files (x86)\Windows Kits\10\lib\10.0.26100.0\ucrt\arm64;C:\Program Files (x86)\Windows Kits\10\\lib\10.0.26100.0\\um\arm64;C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Tools\MSVC\14.51.36231\ATLMFC\lib\x64;C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Tools\MSVC\14.51.36231\lib\x64;C:\Program Files (x86)\Windows Kits\NETFXSDK\4.8.1\lib\um\x64;C:\Program Files (x86)\Windows Kits\10\lib\10.0.26100.0\ucrt\x64;C:\Program Files (x86)\Windows Kits\10\\lib\10.0.26100.0\\um\x64
+  # C:\Program Files\LLVM\bin\clang-cl.exe
+  # C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Tools\Llvm\ARM64\bin\clang-cl.exe
+  # C:\Program Files\LLVM\bin\lld-link.exe
+  # C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Tools\Llvm\ARM64\bin\lld-link.exe
+  # C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Tools\MSVC\14.51.36231\bin\HostARM64\arm64\link.exe
+  # C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Tools\MSVC\14.51.36231\bin\Hostx64\x64\link.exe
+  # C:\Program Files\Git\usr\bin\link.exe
+  #
+  # But during link time, the provided libraries are X86
+  # FAILED: [code=1] leancrypto-1.9.dll leancrypto-1.9.pdb
+  # "lld-link"  /MACHINE:arm64 /OUT:leancrypto-1.9.dll leancrypto-1.9.dll.p/internal_src_fips_integrity_checker_none.c.obj "/nologo" "/OPT:REF" "/DEBUG" "/PDB:leancrypto-1.9.pdb" "/DLL" "/DEF:..\leancrypto_armv8.def" "/IMPLIB:leancrypto.lib" "/WHOLEARCHIVE:libleancrypto-raw.a" "libleancrypto-raw.a" "bcrypt.lib" "bcrypt.lib" "/SUBSYSTEM:CONSOLE" "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "comdlg32.lib" "advapi32.lib"
+  # lld-link: error: bcrypt.lib(bcrypt.dll): machine type x64 conflicts with arm64
+
   windows-msvc-arm:
     name: Windows / MSVC / ${{ matrix.os }} / shared=${{ matrix.shared }}
     runs-on: ${{ matrix.os }}
