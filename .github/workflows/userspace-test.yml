@@ -423,47 +423,47 @@ jobs:
   # "lld-link"  /MACHINE:arm64 /OUT:leancrypto-1.9.dll leancrypto-1.9.dll.p/internal_src_fips_integrity_checker_none.c.obj "/nologo" "/OPT:REF" "/DEBUG" "/PDB:leancrypto-1.9.pdb" "/DLL" "/DEF:..\leancrypto_armv8.def" "/IMPLIB:leancrypto.lib" "/WHOLEARCHIVE:libleancrypto-raw.a" "libleancrypto-raw.a" "bcrypt.lib" "bcrypt.lib" "/SUBSYSTEM:CONSOLE" "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "comdlg32.lib" "advapi32.lib"
   # lld-link: error: bcrypt.lib(bcrypt.dll): machine type x64 conflicts with arm64
 
-  windows-msvc-arm:
-    name: Windows / MSVC / ${{ matrix.os }} / shared=${{ matrix.shared }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ windows-11-vs2026-arm ]
-        shared: [ 'shared', 'static', 'both' ]
-    steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-python@v7
-        with:
-          python-version: '3.x'
-
-      - name: Install meson
-        run: |
-          python -m pip install --upgrade pip
-          pip install meson ninja
-
-      - name: Set up MSVC
-        uses: ilammy/msvc-dev-cmd@v1
-
-      - name: Meson setup
-        shell: cmd
-        run: |
-          call "C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" arm64
-          echo VSCMD_ARG_TGT_ARCH=%VSCMD_ARG_TGT_ARCH%
-          echo VCToolsInstallDir=%VCToolsInstallDir%
-          echo LIB=%LIB%
-          where clang-cl
-          where lld-link
-          where link
-          set CC=clang-cl
-          set CXX=clang-cl
-          meson setup build -Ddefault_library=${{ matrix.shared }} -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled
-
-      - name: Meson compile
-        run: meson compile -C build
-
-      - name: Meson test
-        run: meson test -v -C build --suite regression
+  # windows-msvc-arm:
+  #   name: Windows / MSVC / ${{ matrix.os }} / shared=${{ matrix.shared }}
+  #   runs-on: ${{ matrix.os }}
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       os: [ windows-11-vs2026-arm ]
+  #       shared: [ 'shared', 'static', 'both' ]
+  #   steps:
+  #     - uses: actions/checkout@v7
+  #     - uses: actions/setup-python@v7
+  #       with:
+  #         python-version: '3.x'
+  #
+  #     - name: Install meson
+  #       run: |
+  #         python -m pip install --upgrade pip
+  #         pip install meson ninja
+  #
+  #     - name: Set up MSVC
+  #       uses: ilammy/msvc-dev-cmd@v1
+  #
+  #     - name: Meson setup
+  #       shell: cmd
+  #       run: |
+  #         call "C:\Program Files\Microsoft Visual Studio\18\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" arm64
+  #         echo VSCMD_ARG_TGT_ARCH=%VSCMD_ARG_TGT_ARCH%
+  #         echo VCToolsInstallDir=%VCToolsInstallDir%
+  #         echo LIB=%LIB%
+  #         where clang-cl
+  #         where lld-link
+  #         where link
+  #         set CC=clang-cl
+  #         set CXX=clang-cl
+  #         meson setup build -Ddefault_library=${{ matrix.shared }} -Dslh_dsa_ascon_128s=enabled -Dslh_dsa_ascon_128f=enabled
+  #
+  #     - name: Meson compile
+  #       run: meson compile -C build
+  #
+  #     - name: Meson test
+  #       run: meson test -v -C build --suite regression
 
   # Windows MSYS2
   windows-msys2:
