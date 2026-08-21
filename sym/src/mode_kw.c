@@ -227,7 +227,7 @@ static int mode_kw_decrypt_iv_internal(const struct lc_mode_state *ctx,
 	size_t rounded_len;
 	unsigned int i;
 
-	if (!ctx || !ctx->wrappeded_cipher)
+	if (!ctx || !in || !out || !ctx->wrappeded_cipher)
 		return -EINVAL;
 
 	/*
@@ -353,7 +353,7 @@ static int mode_kw_init_iv(const struct lc_mode_state *ctx, uint8_t *iv,
 static int mode_kw_setiv(struct lc_mode_state *ctx, const uint8_t *iv,
 			 size_t ivlen)
 {
-	if (!ctx || ivlen != AES_KW_SEMIBSIZE)
+	if (!ctx || !iv || ivlen != AES_KW_SEMIBSIZE)
 		return -EINVAL;
 
 	ctx->tag = ptr_to_64(iv);
@@ -395,6 +395,8 @@ LC_INTERFACE_FUNCTION(int, lc_aes_kw_encrypt, struct lc_sym_ctx *ctx,
 	int ret;
 
 	CKNULL(ctx, -EINVAL);
+	CKNULL(in, -EINVAL);
+	CKNULL(out, -EINVAL);
 	state = (struct lc_mode_state *)ctx->sym_state;
 
 	/* Output: Tag || Ciphertext */
@@ -409,9 +411,13 @@ LC_INTERFACE_FUNCTION(int, lc_aes_kw_decrypt, struct lc_sym_ctx *ctx,
 		      const uint8_t *in, uint8_t *out, size_t len)
 {
 	struct lc_mode_state *state;
-	int ret;
+	int ret = 0;
 
 	CKNULL(ctx, -EINVAL);
+	CKNULL(in, -EINVAL);
+	CKNULL(out, -EINVAL);
+	CKRET(len < AES_KW_SEMIBSIZE, -EINVAL);
+
 	state = (struct lc_mode_state *)ctx->sym_state;
 
 	ret = mode_kw_setiv(state, in, AES_KW_SEMIBSIZE);
