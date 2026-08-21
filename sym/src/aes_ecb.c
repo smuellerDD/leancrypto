@@ -41,7 +41,7 @@ static int aes_ecb_encrypt(struct lc_sym_state *ctx, const uint8_t *in,
 	const struct aes_block_ctx *block_ctx;
 	size_t i, rounded_len = len & ~(AES_BLOCKLEN - 1);
 
-	if (!ctx)
+	if (!ctx || (len & (AES_BLOCKLEN - 1)))
 		return -EINVAL;
 	block_ctx = &ctx->block_ctx;
 
@@ -61,7 +61,7 @@ static int aes_ecb_decrypt(struct lc_sym_state *ctx, const uint8_t *in,
 	const struct aes_block_ctx *block_ctx;
 	size_t i, rounded_len = len & ~(AES_BLOCKLEN - 1);
 
-	if (!ctx)
+	if (!ctx || (len & (AES_BLOCKLEN - 1)))
 		return -EINVAL;
 	block_ctx = &ctx->block_ctx;
 
