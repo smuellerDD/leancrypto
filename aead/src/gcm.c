@@ -420,7 +420,11 @@ static int gcm_setiv(struct lc_aes_gcm_cryptor *ctx, const uint8_t *iv,
 	if (!iv)
 		return 0;
 
-	if (iv_len < 4)
+	/*
+	 * IV is not allowed to be larger than UINT_MAX / 8 since its length
+	 * is treated in bits as 32 bit value in the be32_to_ptr below.
+	 */
+	if (iv_len < 4 || iv_len > (0xffffffffU >> 3))
 		return -EINVAL;
 
 	/*
