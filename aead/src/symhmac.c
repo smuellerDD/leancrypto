@@ -285,8 +285,9 @@ static int lc_sh_encrypt(void *state, const uint8_t *plaintext,
 	struct lc_sym_ctx *sym = &sh->sym;
 	const struct lc_sym *sym_algo = sym->sym;
 	size_t trailing_bytes = datalen % sym_algo->blocksize;
+	int ret;
 
-	lc_sym_encrypt(sym, plaintext, ciphertext, datalen);
+	CKINT(lc_sym_encrypt(sym, plaintext, ciphertext, datalen));
 
 	/* Safety-measure to avoid leaking data */
 	if (trailing_bytes) {
@@ -300,7 +301,8 @@ static int lc_sh_encrypt(void *state, const uint8_t *plaintext,
 	 */
 	lc_hmac_update(auth_ctx, ciphertext, datalen);
 
-	return 0;
+out:
+	return ret;
 }
 
 static int lc_sh_decrypt(void *state, const uint8_t *ciphertext,
@@ -311,13 +313,14 @@ static int lc_sh_decrypt(void *state, const uint8_t *ciphertext,
 	struct lc_sym_ctx *sym = &sh->sym;
 	const struct lc_sym *sym_algo = sym->sym;
 	size_t trailing_bytes = datalen % sym_algo->blocksize;
+	int ret;
 
 	/*
 	 * Calculate the authentication tag over the ciphertext
 	 * Perform the reverse of an Encrypt-Then-MAC operation.
 	 */
 	lc_hmac_update(auth_ctx, ciphertext, datalen);
-	lc_sym_decrypt(sym, ciphertext, plaintext, datalen);
+	CKINT(lc_sym_decrypt(sym, ciphertext, plaintext, datalen));
 
 	/* Safety-measure to avoid leaking data */
 	if (trailing_bytes) {
@@ -325,7 +328,8 @@ static int lc_sh_decrypt(void *state, const uint8_t *ciphertext,
 				 trailing_bytes);
 	}
 
-	return 0;
+out:
+	return ret;
 }
 
 static int lc_sh_encrypt_oneshot(void *state, const uint8_t *plaintext,
