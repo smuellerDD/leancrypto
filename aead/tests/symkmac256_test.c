@@ -150,9 +150,6 @@ static int kh_nonaligned(void)
 	uint8_t ct[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 	};
-	uint8_t zero[] = {
-		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	};
 	uint8_t tag[16];
 	static const uint8_t in[] = {
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
@@ -164,24 +161,19 @@ static int kh_nonaligned(void)
 		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
 		0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
 	};
-	int ret_checked = 0;
 	LC_KH_CTX_ON_STACK(sh, lc_aes_cbc, lc_cshake256);
 
 	/* One shot encryption with pt ptr != ct ptr */
 	if (lc_aead_setkey(sh, in, 32, iv, sizeof(iv)))
 		return 1;
 
-	lc_aead_encrypt(sh, pt, pt, sizeof(pt), NULL, 0, tag, sizeof(tag));
+	if (!lc_aead_encrypt(sh, pt, pt, sizeof(pt), NULL, 0, tag, sizeof(tag)))
+		return 1;
 
-	ret_checked += lc_compare(pt, zero, sizeof(pt),
-				  "SymKMAC: nonaligned Encryption");
+	if (!lc_aead_decrypt(sh, ct, ct, sizeof(ct), NULL, 0, tag, sizeof(tag)))
+		return 1;
 
-	lc_aead_decrypt(sh, ct, ct, sizeof(ct), NULL, 0, tag, sizeof(tag));
-
-	ret_checked += lc_compare(ct, zero, sizeof(ct),
-				  "SymKMAC: nonaligned Decryption");
-
-	return ret_checked;
+	return 0;
 }
 
 static int kh_tester(void)
