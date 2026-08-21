@@ -95,7 +95,7 @@ static int alloc_aligned_secure_internal(void **memptr, size_t alignment,
 		if (ret && errno != EPERM && errno != EAGAIN) {
 			int errsv = errno;
 
-			lc_free(ptr);
+			free(ptr);
 			return -errsv;
 		}
 	}
