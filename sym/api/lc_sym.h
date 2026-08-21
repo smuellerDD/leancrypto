@@ -280,6 +280,14 @@ int lc_sym_decrypt(struct lc_sym_ctx *ctx, const uint8_t *in, uint8_t *out,
  *    is always a multiple of 16 bytes.
  * 2. Only the last invocation is allowed to be not a multiple of 16 bytes for
  *    algorithms that allow it (e.g. XTS, CTR)
+ * 3. For ChaCha20, the following consideration applies: If the IV is only 12
+ *    bytes in size, the trailing 32 bits are always initialized to 0x1 by this
+ *    API. Thus if the caller wishes to implement a full streaming behavior with
+ *    this API and ChaCha20, the caller must use a 16 byte IV (e.g. when only
+ *    a 12 byte IV is in use, the caller must initialize before the first call:
+ *    16-byte IV = 12-byte IV || 0x00000001). This first 16 byte IV is given
+ *    to this API during the first call. The returned 16 byte IV is then
+ *    to be reinserted to the next invocation of this API.
  *
  * \note The IV must be initialized with \p lc_sym_init_iv before the first use.
  *
@@ -316,6 +324,14 @@ int lc_sym_encrypt_iv(const struct lc_sym_ctx *ctx, const uint8_t *in,
  *    is always a multiple of 16 bytes.
  * 2. Only the last invocation is allowed to be not a multiple of 16 bytes for
  *    algorithms that allow it (e.g. XTS, CTR)
+ * 3. For ChaCha20, the following consideration applies: If the IV is only 12
+ *    bytes in size, the trailing 32 bits are always initialized to 0x1 by this
+ *    API. Thus if the caller wishes to implement a full streaming behavior with
+ *    this API and ChaCha20, the caller must use a 16 byte IV (e.g. when only
+ *    a 12 byte IV is in use, the caller must initialize before the first call:
+ *    16-byte IV = 12-byte IV || 0x00000001). This first 16 byte IV is given
+ *    to this API during the first call. The returned 16 byte IV is then
+ *    to be reinserted to the next invocation of this API.
  *
  * \note The IV must be initialized with \p lc_sym_init_iv before the first use.
  *
