@@ -246,7 +246,7 @@ static int mode_cbc_init_iv(const struct lc_mode_state *ctx, uint8_t *iv,
 static int mode_cbc_setiv(struct lc_mode_state *ctx, const uint8_t *iv,
 			  size_t ivlen)
 {
-	if (!ctx || ivlen != AES_BLOCKLEN)
+	if (!ctx || !iv || ivlen != AES_BLOCKLEN)
 		return -EINVAL;
 
 	memcpy(ctx->iv, iv, AES_BLOCKLEN);
