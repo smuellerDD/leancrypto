@@ -43,7 +43,7 @@ static int aes_aesni_cbc_encrypt_iv(const struct lc_sym_state *ctx,
 {
 	size_t round_len = len & ~(AES_BLOCKLEN - 1);
 
-	if (!ctx || ivlen != AES_BLOCKLEN)
+	if (!ctx || ivlen != AES_BLOCKLEN || (len & (AES_BLOCKLEN - 1)))
 		return -EINVAL;
 
 	LC_FPU_ENABLE;
@@ -76,7 +76,7 @@ static int aes_aesni_cbc_decrypt_iv(const struct lc_sym_state *ctx,
 {
 	size_t round_len = len & ~(AES_BLOCKLEN - 1);
 
-	if (!ctx || ivlen != AES_BLOCKLEN)
+	if (!ctx || ivlen != AES_BLOCKLEN || (len & (AES_BLOCKLEN - 1)))
 		return -EINVAL;
 
 	LC_FPU_ENABLE;
