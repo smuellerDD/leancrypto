@@ -463,11 +463,13 @@ static int mode_xts_setkey(struct lc_mode_state *ctx, const uint8_t *key,
 {
 	const struct lc_sym *wrapped_cipher;
 	size_t one_keylen;
-	int ret;
+	int ret = 0;
 
 	CKNULL(ctx, -EINVAL);
 	CKNULL(ctx->wrapped_cipher, -EINVAL);
 	CKNULL(ctx->tweak_cipher_ctx, -EINVAL);
+	/* Ensure that key is not an odd number of bytes */
+	CKRET((keylen & 1), -EINVAL);
 
 	one_keylen = keylen >> 1;
 
