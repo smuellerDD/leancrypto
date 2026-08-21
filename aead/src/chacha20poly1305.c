@@ -326,6 +326,8 @@ static int lc_chacha20_poly1305_encrypt_tag(void *state, uint8_t *tag,
 	if (taglen < 8)
 		return -EINVAL;
 
+	lc_chacha20_poly1305_aad_pad(cc20p1305);
+
 	if (padlen) {
 		padlen = 16 - padlen;
 		lc_poly1305_update(poly1305, null_buffer, padlen);
@@ -363,6 +365,8 @@ static int lc_chacha20_poly1305_decrypt_authenticate(void *state,
 
 	if (taglen < 8)
 		return -EINVAL;
+
+	lc_chacha20_poly1305_aad_pad(cc20p1305);
 
 	if (taglen > sizeof(calctag))
 		taglen = sizeof(calctag);
