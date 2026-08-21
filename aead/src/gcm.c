@@ -592,6 +592,21 @@ static int gcm_aad(void *state, const uint8_t *aad, size_t aad_len)
 	return 0;
 }
 
+static void gcm_finalize_aad(struct lc_aes_gcm_cryptor *ctx)
+{
+	struct lc_gcm_ctx *gcm_ctx = &ctx->gcm_ctx;
+
+	/* Finalize the AAD processing */
+	if (!gcm_ctx->rem_aad_inserted) {
+		uint8_t rem_aad = gcm_ctx->aad_len & (AES_BLOCKSIZE - 1);
+
+		if (rem_aad) {
+			gcm_mult(ctx, gcm_ctx->buf, gcm_ctx->buf);
+			gcm_ctx->rem_aad_inserted = 1;
+		}
+	}
+}
+
 /*
  * GCM update
  *
@@ -606,7 +621,7 @@ static int gcm_enc_update(void *state, const uint8_t *plaintext,
 {
 	struct lc_aes_gcm_cryptor *ctx = state;
 	struct lc_gcm_ctx *gcm_ctx;
-	uint8_t use_len, i, non_align, rem_aad;
+	uint8_t use_len, i, non_align;
 	int ret = 0;
 
 	/*
@@ -618,15 +633,9 @@ static int gcm_enc_update(void *state, const uint8_t *plaintext,
 		return -EINVAL;
 	}
 
+	gcm_finalize_aad(ctx);
+
 	gcm_ctx = &ctx->gcm_ctx;
-	rem_aad = gcm_ctx->aad_len & (AES_BLOCKSIZE - 1);
-
-	/* Finalize the AAD processing */
-	if (rem_aad && !gcm_ctx->rem_aad_inserted) {
-		gcm_mult(ctx, gcm_ctx->buf, gcm_ctx->buf);
-		gcm_ctx->rem_aad_inserted = 1;
-	}
-
 	non_align = gcm_ctx->len & (AES_BLOCKSIZE - 1);
 
 	/* bump the GCM context's running length count */
@@ -713,7 +722,7 @@ static int gcm_dec_update(void *state, const uint8_t *ciphertext,
 {
 	struct lc_aes_gcm_cryptor *ctx = state;
 	struct lc_gcm_ctx *gcm_ctx;
-	uint8_t use_len, i, non_align, rem_aad;
+	uint8_t use_len, i, non_align;
 	int ret = 0;
 
 	if (!ctx) {
@@ -721,15 +730,9 @@ static int gcm_dec_update(void *state, const uint8_t *ciphertext,
 		return -EINVAL;
 	}
 
+	gcm_finalize_aad(ctx);
+
 	gcm_ctx = &ctx->gcm_ctx;
-	rem_aad = gcm_ctx->aad_len & (AES_BLOCKSIZE - 1);
-
-	/* Finalize the AAD processing */
-	if (rem_aad && !gcm_ctx->rem_aad_inserted) {
-		gcm_mult(ctx, gcm_ctx->buf, gcm_ctx->buf);
-		gcm_ctx->rem_aad_inserted = 1;
-	}
-
 	non_align = gcm_ctx->len & (AES_BLOCKSIZE - 1);
 
 	/* bump the GCM context's running length count */
@@ -827,6 +830,8 @@ static int gcm_enc_final(void *state, uint8_t *tag, size_t tag_len)
 	struct lc_gcm_ctx *gcm_ctx;
 	uint64_t orig_len, orig_aad_len;
 	unsigned int min_taglen = 32 / 8;
+
+	gcm_finalize_aad(ctx);
 
 	/* The Linxu kernel wants 32 bit tag sizes */
 	if (fips140_mode_enabled())
