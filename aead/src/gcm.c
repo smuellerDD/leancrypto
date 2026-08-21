@@ -946,7 +946,7 @@ static void gcm_zero_ctx(void *state)
 	struct lc_aes_gcm_cryptor *ctx = state;
 
 	/* zero the context originally provided to us */
-	memset(&ctx->gcm_ctx, 0, sizeof(struct lc_gcm_ctx));
+	lc_memset_secure(&ctx->gcm_ctx, 0, sizeof(struct lc_gcm_ctx));
 	lc_sym_zero(&ctx->sym_ctx);
 }
 
