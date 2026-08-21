@@ -128,7 +128,7 @@ NOTE: As the `lc_init` function is only useful in environments without construct
 
 ## Random Number Generator and Entropy Source
 
-Leancrypto offers a set of LC_SEEDED_RNG_INSTANCES fully seeded RNG instances that can readily be used everywhere where a FIPS-approved random number generator is required by using `lc_seeded_rng`. The actual DRNG instance is selected either by the current CPU or a round-robin mechanism, if the CPU cannot be detected (e.g. on BSD, macOS or Windows).
+Leancrypto offers a set of LC_SEEDED_RNG_INSTANCES fully seeded RNG instances that can readily be used everywhere where a FIPS-approved random number generator is required by using `lc_seeded_rng`. The actual DRNG instance is selected by a round-robin mechanism.
 
 Leancrypto does not implement any entropy source. Yet, it implements support for several entropy sources that can be selected at compile time:
 

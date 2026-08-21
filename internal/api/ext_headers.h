@@ -458,7 +458,6 @@ typedef int64_t time64_t;
 #endif
 #endif /* LC_EFI_ENVIRONMENT */
 
-int lc_get_cpu(unsigned int *cpu);
 int lc_get_time(time64_t *time_since_epoch, time64_t *n_sec);
 
 #endif /* EXT_HEADERS_H */

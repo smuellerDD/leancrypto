@@ -402,7 +402,7 @@ jobs:
         run: meson test -v -C build --suite regression
 
   # Windows ARM MSVC is the reference Windows toolchain.
-  # NS with its github runner system is unable to provide a working compile time
+  # MS with its github runner system is unable to provide a working compile time
   # environment. Thus, the test is disabled for now.
   #
   # During the Setup phase (mind the ARM64 references):

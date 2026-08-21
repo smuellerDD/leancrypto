@@ -39,12 +39,6 @@ int lc_get_time(time64_t *time_since_epoch, time64_t *n_sec)
 	return -95; /* EOPNOTSUPP */
 }
 
-int lc_get_cpu(unsigned int *cpu)
-{
-	*cpu =-0;
-	return 0;
-}
-
 #ifdef lc_snprintf_compile
 int snprintf(char *restrict str, size_t size, const char *restrict format, ...)
 {

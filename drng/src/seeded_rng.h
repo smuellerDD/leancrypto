@@ -26,6 +26,18 @@
 extern "C" {
 #endif
 
+/*
+ * Number of seeded DRNG instances supported by leancrypto. The instance to
+ * be used is selected based on the a round robin mechanisms ANDed with the
+ * instance mask.
+ *
+ * This value must be 1 or a power of 2 to use a mask to be ANDed.
+ */
+#ifndef LC_SEEDED_RNG_INSTANCES
+#define LC_SEEDED_RNG_INSTANCES 8
+#endif
+#define LC_SEEDED_RNG_INSTANCES_MASK (LC_SEEDED_RNG_INSTANCES - 1)
+
 ssize_t get_full_entropy(uint8_t *buffer, size_t bufferlen);
 int seeded_rng_noise_init(void);
 void seeded_rng_noise_fini(void);

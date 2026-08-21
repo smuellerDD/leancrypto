@@ -54,23 +54,7 @@
 #define LC_DRNG_XDRBG128
 #endif
 
-// TODO Those are not yet defined in Kbuild
-#ifdef CONFIG_LEANCRYPTO_KMAC_DRNG
-#define LC_DRNG_KMAC
-#endif
-#ifdef CONFIG_LEANCRYPTO_CSHAKE_DRNG
-#define LC_DRNG_CSHAKE
-#endif
-#ifdef CONFIG_LEANCRYPTO_HASH_DRBG
-#define LC_DRNG_HASH_DRBG
-#endif
-#ifdef CONFIG_LEANCRYPTO_HMAC_DRBG
-#define LC_DRNG_HMAC_DRBG
-#endif
-#ifdef CONFIG_LEANCRYPTO_CTR_DRBG
-#define LC_DRNG_CTR_DRBG
-#endif
-#endif
+#endif /* LINUX_KERNEL */
 
 #ifdef LC_DRNG_XDRBG256
 #define LC_SEEDED_RNG_CTX_SIZE LC_XDRBG256_DRNG_CTX_SIZE
@@ -146,7 +130,7 @@
  * This value must be 1 or a power of 2 to use a mask to be ANDed.
  */
 #ifndef LC_SEEDED_RNG_INSTANCES
-#define LC_SEEDED_RNG_INSTANCES 16
+#define LC_SEEDED_RNG_INSTANCES 8
 #endif
 #define LC_SEEDED_RNG_INSTANCES_MASK (LC_SEEDED_RNG_INSTANCES - 1)
 
@@ -162,13 +146,48 @@ struct lc_seeded_rng_ctx {
 /* DRNG state buffer for all instances */
 static LC_ALIGNED_BUFFER(rng_ctx_buf,
 			 LC_SEEDED_RNG_CTX_SIZE * LC_SEEDED_RNG_INSTANCES,
-			 LC_HASH_COMMON_ALIGNMENT);
+			 sizeof(uint64_t));
 
 /*
  * Initialize the state such that a seed is forced - this initializes also the
  * lock.
  */
 static struct lc_seeded_rng_ctx seeded_rngs[LC_SEEDED_RNG_INSTANCES] = { 0 };
+
+/******************************************************************************
+ * Debugging support
+ ******************************************************************************/
+
+/*
+ * When enabling the debug mode, the following log should be provided
+$ build/drng/tests/seeded_rng_tester
+Select DRNG 1                                    <- Select secondary instance
+Initialize DRNG 1                                <- Initialize DRNG
+Seed DRNG due to reaching bytes threshold        <- Seeding of the DRNG required
+Pulling 64 bytes from entropy source             <- Attempt to pull from ES
+DRNG successfully seeded with 64 bytes from entropy source <- DRNG is seeded
+Generate 64 output date for caller from DRNG     <- Generate random bits
+Force the DRNG to appear insufficiently seeded - MANUALLY VERIFY that the next call indicates the DRNG to be reseeded
+Seed DRNG due to reaching time threshold         <- DRNG must reseed
+Pulling 32 bytes from entropy source             <- Attempt to pull seed from ES
+DRNG successfully seeded with 32 bytes from entropy source <- DRNG is seeded
+*/
+
+#undef LC_SEEDED_DRNG_DEBUG
+
+#ifdef LC_SEEDED_DRNG_DEBUG
+#define SEEDED_RNG_LOG(...)                                                    \
+	do {                                                                   \
+		printf(__VA_ARGS__);                                           \
+	} while (0)
+#else
+#define SEEDED_RNG_LOG(...)                                                    \
+	do { } while(0)
+#endif
+
+/******************************************************************************
+ * Helper
+ ******************************************************************************/
 
 #ifdef LINUX_KERNEL
 
@@ -183,7 +202,14 @@ static int time64_after(time64_t curr, time64_t base)
 
 static time64_t get_time(void)
 {
-	return (time64_t)(jiffies / HZ);
+	time64_t t = (time64_t)(jiffies / HZ);
+
+	/*
+	 * Safety measure: return 1 to ensure the DRNG is considered initialized
+	 */
+	if (!t)
+		return 1;
+	return t;
 }
 
 #elif defined(LC_EFI_ENVIRONMENT)
@@ -201,7 +227,8 @@ static int time64_after(time64_t curr, time64_t base)
 
 static time64_t get_time(void)
 {
-	return 0;
+	/* Return 1 to ensure the DRNG is considered initialized */
+	return 1;
 }
 
 #else /* LINUX_KERNEL */
@@ -219,13 +246,20 @@ static time64_t get_time(void)
 {
 	time64_t t;
 
+	/*
+	 * Safety measure: return 1 to ensure the DRNG is considered initialized
+	 */
 	if (lc_get_time(&t, NULL))
-		return 0;
+		return 1;
 
 	return t;
 }
 
 #endif /* LINUX_KERNEL */
+
+/******************************************************************************
+ * Reseeding strategy
+ ******************************************************************************/
 
 static int lc_seed_seeded_rng(struct lc_seeded_rng_ctx *rng,
 			      const uint8_t *pers, size_t pers_len, int init,
@@ -256,6 +290,8 @@ static int lc_seed_seeded_rng(struct lc_seeded_rng_ctx *rng,
 	 */
 	if (init)
 		seedsize = sizeof(seed) / 2;
+
+	SEEDED_RNG_LOG("Pulling %zu bytes from entropy source\n", seedsize);
 
 	/* Get requested amount of entropy */
 	datasize = get_full_entropy(seed, seedsize);
@@ -290,17 +326,126 @@ static int lc_seed_seeded_rng(struct lc_seeded_rng_ctx *rng,
 	if (newpid)
 		rng->pid = newpid;
 
+	SEEDED_RNG_LOG("DRNG successfully seeded with %zd bytes from entropy source\n",
+		       datasize);
+
 out:
 	lc_memset_secure(seed, 0, sizeof(seed));
 	return ret;
 }
 
+static time64_t time_after_now(time64_t base, time64_t *curr_time)
+{
+	time64_t curr = get_time();
+
+	*curr_time = curr;
+	return time64_after(curr, base) ? (curr - base) : 0;
+}
+
+static int lc_seeded_rng_must_reseed(struct lc_seeded_rng_ctx *rng,
+				     pid_t *newpid, time64_t *curr_time)
+{
+	pid_t pid;
+
+	/* Reseed if ... */
+
+	/* ... we generated too much data ... */
+	if (rng->bytes > LC_SEEDED_RNG_MAX_CHUNK) {
+		SEEDED_RNG_LOG("Seed DRNG due to reaching bytes threshold\n");
+		return 1;
+	}
+
+	/* ... or the DRNG had an (accidental?) wrap of the time ...*/
+	if (rng->last_seeded < 0) {
+		SEEDED_RNG_LOG("Seed DRNG as its time wrapped\n");
+		return 1;
+	}
+
+	/* ... or our seeding was too long ago ... */
+	if (time_after_now(rng->last_seeded + LC_SEEDED_RNG_MAX_TIME,
+			   curr_time)) {
+		SEEDED_RNG_LOG("Seed DRNG due to reaching time threshold\n");
+		return 1;
+	}
+
+	/*
+	 * ... or we detected a fork (do not set the pid here. It is only set if
+	 * the reseed was successful).
+	 */
+	pid = getpid();
+	if (rng->pid != pid) {
+		SEEDED_RNG_LOG("Seed DRNG due to reaching time threshold\n");
+		*newpid = pid;
+		return 1;
+	}
+
+	SEEDED_RNG_LOG("DRNG does not need to be seeded\n");
+	return 0;
+}
+
+/* Caller must have the rng ctx locked */
+static int lc_check_reseed(struct lc_seeded_rng_ctx *rng, time64_t *curr_time,
+			   int init)
+{
+	pid_t newpid = 0;
+
+	/* Force reseed if needed using the time stamp as additional data. */
+	if (lc_seeded_rng_must_reseed(rng, &newpid, curr_time)) {
+		return lc_seed_seeded_rng(rng, (uint8_t *)curr_time,
+					  sizeof(*curr_time), init, newpid);
+	}
+
+	return 0;
+}
+
+/******************************************************************************
+ * Impelementations dependet on number of instances
+ ******************************************************************************/
+
+#if (LC_SEEDED_RNG_INSTANCES > 1)
+/* Initialize the noise source guaranteeing they are only called once */
+static inline int lc_seeded_rng_init_noise_source(void)
+{
+	static int noise_source_init = 0;
+
+	if (!noise_source_init) {
+		noise_source_init = 1;
+		return seeded_rng_noise_init();
+	}
+	return 0;
+}
+
+#else /* (LC_SEEDED_RNG_INSTANCES > 1) */
+
+/* Here we have only one DRNG instance */
+
+/*
+ * Get the seed data from the entropy source - use a define to ensure the
+ * debug logging in lc_seed_seeded_rng refers to the correct seed source.
+ */
+#define lc_get_seeddata get_full_entropy
+
+/* Initialize the noise source guaranteeing they are only called once */
+static inline int lc_seeded_rng_init_noise_source(void)
+{
+	/* This function is guaranteed to be called only once */
+	return seeded_rng_noise_init();
+}
+
+#endif /* (LC_SEEDED_RNG_INSTANCES > 1) */
+
+/* Initialize the seeded_rng_context. */
 static int lc_seeded_rng_init_state(struct lc_seeded_rng_ctx *rng)
 {
 	LC_SEEDED_RNG_CTX(rng->rng_ctx);
-
-	return seeded_rng_noise_init();
+	rng->bytes = LC_SEEDED_RNG_MAX_CHUNK + 1;
+	rng->pid = getpid();
+	return lc_seeded_rng_init_noise_source();
 }
+
+/******************************************************************************
+ * Zeroization of DRNGs
+ ******************************************************************************/
 
 static void lc_seeded_rng_zero_state_internal(
 	struct lc_seeded_rng_ctx *seeded_rng)
@@ -344,76 +489,55 @@ void lc_seeded_rng_zero_state(void)
 	seeded_rng_noise_fini();
 }
 
-static time64_t time_after_now(time64_t base, time64_t *curr_time)
+/******************************************************************************
+ * Select the appropriate DRNG instance
+ ******************************************************************************/
+
+static inline unsigned int lc_get_drng_instance(void)
 {
-	time64_t curr = get_time();
+	/* LC_SEEDED_RNG_INSTANCES must be larger than 0 */
+	BUILD_BUG_ON(LC_SEEDED_RNG_INSTANCES < 1);
+	/* LC_SEEDED_RNG_INSTANCES must be a power of 2 */
+	BUILD_BUG_ON(LC_SEEDED_RNG_INSTANCES & (LC_SEEDED_RNG_INSTANCES - 1));
 
-	*curr_time = curr;
-	return time64_after(curr, base) ? (curr - base) : 0;
-}
+#if (LC_SEEDED_RNG_INSTANCES > 1)
+	static atomic_t ctr = ATOMIC_INIT(0);
+	unsigned int instance;
 
-static int lc_seeded_rng_must_reseed(struct lc_seeded_rng_ctx *rng,
-				     pid_t *newpid, time64_t *curr_time)
-{
-	pid_t pid;
+#ifdef LINUX_KERNEL
+	/*
+	 * The Linux kernel atomic_inc implementation does not support returning
+	 * the value after increment. Thus, this code performs the read / inc
+	 * dual step.
+	 */
+	atomic_inc(&ctr);
+	instance = (unsigned int)atomic_read(&ctr);
+#else /* LINUX_KERNEL */
+	instance = (unsigned int)atomic_inc(&ctr);
+#endif /* LINUX_KERNEL */
 
-	/* Reseed if ... */
-
-	/* ... we generated too much data ... */
-	if (rng->bytes > LC_SEEDED_RNG_MAX_CHUNK)
-		return 1;
-
-	/* ... or our seeding was too long ago ... */
-	if (time_after_now(rng->last_seeded + LC_SEEDED_RNG_MAX_TIME,
-			   curr_time))
-		return 1;
+	instance &= LC_SEEDED_RNG_INSTANCES_MASK;
 
 	/*
-	 * ... or we detected a fork (do not set the pid here. It is only set if
-	 * the reseed was successful).
+	 * Round-robin mechanism returning the DRNG instance to be used
 	 */
-	pid = getpid();
-	if (rng->pid != pid) {
-		*newpid = pid;
-		return 1;
-	}
-
+	return instance;
+#else
+	/* If there is only one instance, there is nothing to select */
 	return 0;
-}
-
-/* Caller must have the rng ctx locked */
-static int lc_check_reseed(struct lc_seeded_rng_ctx *rng, time64_t *curr_time,
-			   int init)
-{
-	pid_t newpid = 0;
-
-	/* Force reseed if needed using the time stamp as additional data. */
-	if (lc_seeded_rng_must_reseed(rng, &newpid, curr_time)) {
-		return lc_seed_seeded_rng(rng, (uint8_t *)curr_time,
-					  sizeof(*curr_time), init, newpid);
-	}
-
-	return 0;
+#endif
 }
 
 static int lc_get_seeded_rng(struct lc_seeded_rng_ctx **rng_ret,
 			     time64_t *curr_time)
 {
 	struct lc_seeded_rng_ctx *seeded_rng;
-	unsigned int cpu;
+	unsigned int instance = lc_get_drng_instance();
 	int ret = 0, init = 0;
 
-	ret = lc_get_cpu(&cpu);
-	if (ret < 0)
-		return ret;
+	SEEDED_RNG_LOG("Select DRNG %u\n", instance);
 
-	/* LC_SEEDED_RNG_INSTANCES must be larger than 0 */
-	BUILD_BUG_ON(LC_SEEDED_RNG_INSTANCES < 1);
-	/* LC_SEEDED_RNG_INSTANCES must be a power of 2 */
-	BUILD_BUG_ON(LC_SEEDED_RNG_INSTANCES & (LC_SEEDED_RNG_INSTANCES - 1));
-
-	cpu &= LC_SEEDED_RNG_INSTANCES_MASK;
-	seeded_rng = &seeded_rngs[cpu];
+	seeded_rng = &seeded_rngs[instance];
 
 	mutex_w_lock(&seeded_rng->lock);
 
@@ -421,7 +545,9 @@ static int lc_get_seeded_rng(struct lc_seeded_rng_ctx **rng_ret,
 	if (!seeded_rng->last_seeded) {
 		uint8_t *rng_ctx_tmp = (uint8_t *)rng_ctx_buf;
 
-		rng_ctx_tmp += cpu * LC_SEEDED_RNG_CTX_SIZE;
+		SEEDED_RNG_LOG("Initialize DRNG %u\n", instance);
+
+		rng_ctx_tmp += instance * LC_SEEDED_RNG_CTX_SIZE;
 		BUILD_BUG_ON(LC_SEEDED_RNG_CTX_SIZE % sizeof(uint64_t));
 
 		/*
@@ -433,9 +559,7 @@ static int lc_get_seeded_rng(struct lc_seeded_rng_ctx **rng_ret,
 #pragma GCC diagnostic ignored "-Wcast-align"
 		seeded_rng->rng_ctx = (struct lc_rng_ctx *)rng_ctx_tmp;
 #pragma GCC diagnostic pop
-		seeded_rng->bytes = LC_SEEDED_RNG_MAX_CHUNK + 1;
 		CKINT(lc_seeded_rng_init_state(seeded_rng));
-		seeded_rng->pid = getpid();
 		init = 1;
 	}
 
@@ -448,7 +572,9 @@ out:
 	return ret;
 }
 
-/****************************** lc_rng Interface ******************************/
+/******************************************************************************
+ * lc_rng Interface
+ ******************************************************************************/
 
 void lc_seeded_rng_status(char *buf, size_t len)
 {
@@ -474,6 +600,9 @@ static int lc_seeded_rng_generate(void *_state, const uint8_t *addtl_input,
 
 	/* Get the DRNG state that is fully seeded */
 	CKINT(lc_get_seeded_rng(&rng, &curr_time));
+
+	SEEDED_RNG_LOG("Generate %zu output date for caller from DRNG\n",
+		       outlen);
 
 	mutex_w_lock(&rng->lock);
 
@@ -531,6 +660,10 @@ static int lc_seeded_rng_generate(void *_state, const uint8_t *addtl_input,
 		/*
 		 * Check and enforce reseed unconditionally.
 		 */
+#ifdef LC_SEEDED_DRNG_DEBUG
+		SEEDED_RNG_LOG("Force the DRNG to appear insufficiently seeded - MANUALLY VERIFY that the next call indicates the DRNG to be reseeded\n");
+		rng->last_seeded -= LC_SEEDED_RNG_MAX_TIME + 1;
+#endif
 		CKINT(lc_check_reseed(rng, &curr_time, 0));
 	}
 

@@ -22,7 +22,6 @@
 #endif
 
 #include "ext_headers.h"
-#include "atomic.h"
 
 /******************************************************************************
  * POSIX
@@ -45,31 +44,3 @@ int lc_get_time(time64_t *time_since_epoch, time64_t *n_sec)
 	*time_since_epoch = (time64_t)-1;
 	return -errno;
 }
-
-#if (defined(__MACH__) || defined(__OpenBSD__) || defined(__NetBSD__) ||       \
-     defined(__sun))
-
-int lc_get_cpu(unsigned int *cpu)
-{
-	//TODO: is there an equivalent of sched_getcpu on the given OSes?
-	static atomic_t ctr = ATOMIC_INIT(0);
-
-	*cpu = atomic_inc(&ctr);
-
-	return 0;
-}
-
-#else /* __MACH__ */
-
-int lc_get_cpu(unsigned int *cpu)
-{
-	int ret = sched_getcpu();
-
-	if (ret < 0)
-		return -errno;
-
-	*cpu = (unsigned int)ret;
-	return 0;
-}
-
-#endif /* __MACH__ */

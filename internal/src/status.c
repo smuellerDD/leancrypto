@@ -180,6 +180,7 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 	len = strlen(outbuf);
 	snprintf(
 		outbuf + len, outlen - len,
+		"Seeded RNG instances: %u\n"
 		"FIPS 140 Mode: %s\n"
 		"Acceleration support:\n"
 #ifdef LC_AES
@@ -219,6 +220,7 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 		" Curve448: %s\n"
 #endif
 		" GF: %s%s%s\n",
+		LC_SEEDED_RNG_INSTANCES,
 		fips140_mode_enabled() ? "yes" : "no"
 
 	/* AES */

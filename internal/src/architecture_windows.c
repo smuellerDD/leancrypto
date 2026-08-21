@@ -22,7 +22,6 @@
 #endif
 
 #include "ext_headers.h"
-#include "atomic.h"
 
 /******************************************************************************
  * Windows
@@ -70,26 +69,9 @@ int lc_get_time(time64_t *time_since_epoch, time64_t *n_sec)
 	return -errno;
 }
 
-
-int lc_get_cpu(unsigned int *cpu)
-{
-	//TODO: is there an equivalent of sched_getcpu on MSYS2 / Cygwin?
-	static atomic_t ctr = ATOMIC_INIT(0);
-
-	*cpu = atomic_inc(&ctr);
-
-	return 0;
-}
-
 #elif defined(_MSC_VER)
 
 /* ....... MSVC including optionally clang ....... */
-
-int lc_get_cpu(unsigned int *cpu)
-{
-	*cpu = GetCurrentProcessorNumber();
-	return 0;
-}
 
 int lc_get_time(time64_t *time_since_epoch, time64_t *n_sec)
 {

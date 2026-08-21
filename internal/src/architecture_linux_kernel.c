@@ -42,17 +42,3 @@ int lc_get_time(time64_t *time_since_epoch, time64_t *n_sec)
 
 	return 0;
 }
-
-int lc_get_cpu(unsigned int *cpu)
-{
-	int ret;
-
-	/*
-	 * This code does not preemt_disable() as we just use the returned
-	 * CPU information to select a seeded_drng instance which is
-	 * then locking its operation.
-	 */
-	ret = smp_processor_id();
-	*cpu = (unsigned int)ret;
-	return 0;
-}
