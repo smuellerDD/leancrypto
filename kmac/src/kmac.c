@@ -219,10 +219,11 @@ static int lc_kmac_final_internal(struct lc_kmac_ctx *kmac_ctx, uint8_t *mac,
 	struct lc_hash_ctx *hash_ctx;
 	uint8_t buf[sizeof(size_t) + 1];
 	size_t len;
-	int ret;
+	int ret = 0;
 
 	CKNULL(kmac_ctx, -EINVAL);
 	CKNULL(mac, -EINVAL);
+	CKRET(maclen > SIZE_MAX / 8, -EOVERFLOW);
 
 	hash_ctx = &kmac_ctx->hash_ctx;
 
