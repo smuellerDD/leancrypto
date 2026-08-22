@@ -51,8 +51,13 @@ int fips_integrity_check(const struct lc_fips_integrity_sections *secs,
 	for (i = 0; i < n_secs; i++, secs++) {
 		const uint8_t *start = secs->section_start_p,
 			      *end = secs->section_end_p;
-		size_t section_length = (size_t)(end - start);
+		size_t section_length;
 
+		/* Safety check as a defense-in-depth - should never happen */
+		if (end <= start)
+			return -EINVAL;
+
+		section_length = (size_t)(end - start);
 		lc_hash_update(hash_ctx, start, section_length);
 	}
 
