@@ -31,6 +31,7 @@
 #include "fips_mode.h"
 #include "helper.h"
 #include "lc_status.h"
+#include "ret_checkers.h"
 #include "seeded_rng.h"
 #include "sha256_arm_ce.h"
 #include "sha256_arm_neon.h"
@@ -159,6 +160,13 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 		    status_error_len = LC_STATUS_ALG_SIZE,
 		    status_untested_len = LC_STATUS_ALG_SIZE;
 	LC_DECLARE_MEM(ws, struct workspace, 8);
+	int ret;
+
+	/*
+	 * Prevent strlen on an empty buffer which reads caller memory till
+	 * finding NULL.
+	 */
+	CKRET(!outlen, -EINVAL);
 
 	snprintf(outbuf, outlen, "leancrypto %u.%u.%u\n", MAJVERSION,
 		 MINVERSION, PATCHLEVEL);
@@ -372,6 +380,7 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 #pragma GCC diagnostic pop
 #endif
 
+out:
 	LC_RELEASE_MEM(ws);
-	return 0;
+	return ret;
 }

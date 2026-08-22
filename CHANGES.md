@@ -39,6 +39,8 @@ Changes 1.9.0-prerelease
 
 * Seeded RNG: initialization now seeds the DRNG with 512 bits of data in one RNG seed invocation to make implementation 100% compliant with SP800-90C
 
+* Linux: when enabling the secure execution support, the L1D cache flush is NOT enabled by default any more as it is a heavy performance drag. If you need it, you MUST enable it with lc_init(LC_INIT_LINUX_L1D_FLUSH)
+
 Changes 1.8.0
 * X.509: provide a common automated serial number generator which is the 20 leftmost bytes of the SHA3-256 hash of the certificate DER blob with the serial number being 20 bytes of 0xff and the signature part equally a range of 0xff bytes
 
