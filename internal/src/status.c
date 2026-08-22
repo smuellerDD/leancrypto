@@ -160,7 +160,7 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 		    status_error_len = LC_STATUS_ALG_SIZE,
 		    status_untested_len = LC_STATUS_ALG_SIZE;
 	LC_DECLARE_MEM(ws, struct workspace, 8);
-	int ret;
+	int ret = 0;
 
 	/*
 	 * Prevent strlen on an empty buffer which reads caller memory till
