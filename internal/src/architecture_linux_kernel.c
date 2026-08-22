@@ -35,10 +35,9 @@ int lc_get_time(time64_t *time_since_epoch, time64_t *n_sec)
 		return -EINVAL;
 
 	//*time_since_epoch = (time64_t)(jiffies / HZ);
-	*time_since_epoch =
-		(time64_t)div_u64(ktime_get_real_ns(), NSEC_PER_SEC);
+	*time_since_epoch = (time64_t)div_u64(now, NSEC_PER_SEC);
 	if (n_sec)
-		*n_sec = (time64_t)(now - *time_since_epoch);
+		*n_sec = (time64_t)(now - (*time_since_epoch * NSEC_PER_SEC));
 
 	return 0;
 }
