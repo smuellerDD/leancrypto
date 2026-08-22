@@ -32,7 +32,6 @@ static unsigned int lc_init_flags = 0;
 module_param(lc_init_flags, uint, S_IRUSR | S_IRGRP | S_IROTH);
 MODULE_PARM_DESC(lc_init_flags, "lc_init flags");
 
-EXPORT_SYMBOL(lc_disable_selftest);
 #ifdef LC_CURVE25519
 EXPORT_SYMBOL(crypto_scalarmult_curve25519);
 EXPORT_SYMBOL(crypto_scalarmult_curve25519_base);

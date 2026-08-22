@@ -1236,8 +1236,6 @@ static int kyber_kem_double_enc_tester(void)
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 
-	lc_disable_selftest();
-
 	// Encapsulation
 	CKINT(lc_kyber_x25519_enc_kdf_internal(
 		&ws->ct, ws->ss1, sizeof(ws->ss1),
@@ -1259,8 +1257,6 @@ static int kyber_kem_double_dec_tester(void)
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 
-	lc_disable_selftest();
-
 	// Decapsulation
 	CKINT(lc_kyber_x25519_dec_kdf(
 		ws->ss1, sizeof(ws->ss1), &ws->ct,
@@ -1281,7 +1277,6 @@ static int kyber_kem_double_keygen_tester(void)
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 
-	lc_disable_selftest();
 	CKINT(lc_kyber_x25519_keypair(&ws->pk, &ws->sk, selftest_rng));
 
 out:

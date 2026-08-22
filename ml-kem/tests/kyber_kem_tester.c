@@ -83,8 +83,6 @@ int _kyber_kem_enc_tester(int (*_lc_kyber_enc)(struct lc_kyber_ct *ct,
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 
-	lc_disable_selftest();
-
 #ifndef GENERATE_VECTORS
 	// Encapsulation
 	CKINT(_lc_kyber_enc(&ws->ct, &ws->key_b,
@@ -93,6 +91,7 @@ int _kyber_kem_enc_tester(int (*_lc_kyber_enc)(struct lc_kyber_ct *ct,
 
 out:
 #else
+	lc_disable_selftest();
 	(void)_lc_kyber_enc;
 #endif
 	LC_RELEASE_MEM(ws);
@@ -110,8 +109,6 @@ int _kyber_kem_dec_tester(int (*_lc_kyber_dec)(struct lc_kyber_ss *ss,
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 
-	lc_disable_selftest();
-
 #ifndef GENERATE_VECTORS
 	// Decapsulation
 	CKINT(_lc_kyber_dec(
@@ -121,6 +118,7 @@ int _kyber_kem_dec_tester(int (*_lc_kyber_dec)(struct lc_kyber_ss *ss,
 
 out:
 #else
+	lc_disable_selftest();
 	(void)_lc_kyber_dec;
 #endif
 	LC_RELEASE_MEM(ws);
@@ -138,8 +136,6 @@ int _kyber_kem_keygen_tester(
 	int ret = 0;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
-
-	lc_disable_selftest();
 
 	CKINT(_lc_kyber_keypair(&ws->pk, &ws->sk, selftest_rng));
 
