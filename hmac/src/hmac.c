@@ -67,6 +67,9 @@ LC_INTERFACE_FUNCTION(int, lc_hmac_setkey, struct lc_hmac_key *hmac_key,
 	int ret = 0;
 
 	CKNULL(hash, -EINVAL);
+	/* Prevent blocksize to not overflow hmac_key->k_opad */
+	CKRET(hash->sponge_rate > LC_SHA_MAX_SIZE_BLOCK, -EOPNOTSUPP);
+
 	const unsigned int blocksize = hash->sponge_rate;
 	const size_t digestsize = hash->get_digestsize(NULL);
 
