@@ -31,7 +31,7 @@ int mlock(const void *ptr, size_t len)
 {
 	/* "If the function succeeds, the return value is nonzero" */
 	if (!VirtualLock((void *)ptr, len)) {
-		errno = -EAGAIN;
+		errno = EAGAIN;
 		return -1;
 	}
 	return 0;
@@ -41,7 +41,7 @@ int munlock(const void *ptr, size_t len)
 {
 	/* "If the function succeeds, the return value is nonzero" */
 	if (!VirtualUnlock((void *)ptr, len)) {
-		errno = -EAGAIN;
+		errno = EAGAIN;
 		return -1;
 	}
 	return 0;
