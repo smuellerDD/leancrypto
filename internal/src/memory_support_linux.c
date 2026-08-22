@@ -104,9 +104,11 @@ LC_INTERFACE_FUNCTION(int, lc_alloc_aligned_secure, void **memptr,
 {
 	struct lc_mem_def *mem = NULL;
 	size_t full_size;
+	long pagesize = sysconf(_SC_PAGESIZE);
 	int fd;
 
-	if (!lc_alloc_have_memfd_secret)
+	if (!lc_alloc_have_memfd_secret || pagesize <= 0 ||
+	    alignment > (unsigned int)pagesize)
 		return alloc_aligned_secure_internal(memptr, alignment, size,
 						     1);
 
