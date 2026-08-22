@@ -28,7 +28,7 @@
 extern "C" {
 #endif
 
-#if !defined(CONVERSION_TEST) && (defined(__gcc__) || defined(__clang__))
+#if !defined(CONVERSION_TEST) && (defined(__GNUC__) || defined(__clang__))
 #define __HAVE_BUILTIN_BSWAP16__
 #define __HAVE_BUILTIN_BSWAP32__
 #define __HAVE_BUILTIN_BSWAP64__
