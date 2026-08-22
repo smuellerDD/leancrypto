@@ -160,6 +160,9 @@ int lc_hash_set_ctx(const struct lc_hash *hash, struct lc_hash_ctx *hash_ctx);
  *			perform hash calculation with.
  * @param [in] in Buffer holding the data whose MAC shall be calculated
  * @param [in] inlen Length of the input buffer
+ *
+ * \note The entire message inserted into the digest shall not be larger than
+ * 2^61 bytes for SHA2.
  */
 void lc_hash_update(struct lc_hash_ctx *hash_ctx, const uint8_t *in,
 		    size_t inlen);
@@ -299,6 +302,9 @@ void lc_hash_zero_free(struct lc_hash_ctx *hash_ctx);
  *
  * The hash calculation operates entirely on the stack.
  *
+ * \note The entire message inserted into the digest shall not be larger than
+ * 2^61 bytes for SHA2.
+ *
  * @return 0 on success; < 0 on error
  */
 int lc_hash(const struct lc_hash *hash, const uint8_t *in, size_t inlen,
@@ -316,6 +322,9 @@ int lc_hash(const struct lc_hash *hash, const uint8_t *in, size_t inlen,
  * @param [in] digestlen Size of the message digest to calculate.
  *
  * The hash calculation operates entirely on the stack.
+ *
+ * \note The entire message inserted into the digest shall not be larger than
+ * 2^61 bytes for SHA2.
  *
  * @return 0 on success; < 0 on error
  */
