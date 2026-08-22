@@ -40,6 +40,14 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	if (!ret)
 		printf("time UUID %s\n", uuid_str);
 
+	ret = lc_uuid_hex2bin("b25eda5b-8cf3-4b6f-ad71-c7b48c4fef9\0", 36,
+			      uuid2);
+	if (ret != -EINVAL) {
+		printf("UUID parsing of unparsable data did not return expected result: %d\n",
+		       ret);
+		return -1;
+	}
+
 #ifdef LC_DRNG_PRESENT
 	lc_rng_generate(lc_seeded_rng, NULL, 0, uuid, 16);
 	lc_uuid_bin2hex(uuid, uuid_str);

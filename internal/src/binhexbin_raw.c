@@ -27,7 +27,7 @@ static uint8_t bin_char(const char hex)
 		return (uint8_t)(hex - 55);
 	if (97 <= hex && 102 >= hex)
 		return (uint8_t)(hex - 87);
-	return 0;
+	return 0xff;
 }
 
 /*
@@ -38,8 +38,8 @@ static uint8_t bin_char(const char hex)
  * @binlen length of already allocated bin buffer (should be at least
  *	   half of hexlen -- if not, only a fraction of hexlen is converted)
  */
-void lc_hex2bin(const char *hex, const size_t hexlen, uint8_t *bin,
-		const size_t binlen)
+int lc_hex2bin_err(const char *hex, const size_t hexlen, uint8_t *bin,
+		   const size_t binlen)
 {
 	size_t i;
 	size_t chars, bl = binlen, hl = hexlen;
@@ -50,8 +50,10 @@ void lc_hex2bin(const char *hex, const size_t hexlen, uint8_t *bin,
 	 */
 	if (hl & 1) {
 		if (!bl)
-			return;
+			return 0;
 		bin[0] = bin_char(hex[0]);
+		if (bin[0] == 0xff)
+			return -EINVAL;
 		bin++;
 		hex++;
 		hl--;
@@ -61,9 +63,25 @@ void lc_hex2bin(const char *hex, const size_t hexlen, uint8_t *bin,
 	chars = (bl > (hl / 2)) ? (hl / 2) : bl;
 
 	for (i = 0; i < chars; i++) {
-		bin[i] = (uint8_t)(bin_char(hex[(i * 2)]) << 4);
-		bin[i] |= bin_char(hex[((i * 2) + 1)]);
+		uint8_t tmp = bin_char(hex[(i * 2)]);
+
+		if (tmp == 0xff)
+			return -EINVAL;
+		bin[i] = (uint8_t)(tmp << 4);
+
+		tmp = bin_char(hex[((i * 2) + 1)]);
+		if (tmp == 0xff)
+			return -EINVAL;
+		bin[i] |= tmp;
 	}
+
+	return 0;
+}
+
+void lc_hex2bin(const char *hex, const size_t hexlen, uint8_t *bin,
+		const size_t binlen)
+{
+	lc_hex2bin_err(hex, hexlen, bin, binlen);
 }
 
 #if 0

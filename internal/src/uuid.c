@@ -49,28 +49,31 @@ LC_INTERFACE_FUNCTION(void, lc_uuid_bin2hex, const uint8_t uuid[16],
 LC_INTERFACE_FUNCTION(int, lc_uuid_hex2bin, const char *uuid_str,
 		      size_t uuid_strlen, uint8_t uuid[16])
 {
+	int ret;
+
 	if (uuid_strlen < 36)
 		return -EINVAL;
 
-	lc_hex2bin(uuid_str, 8, uuid, 4);
+	CKINT(lc_hex2bin_err(uuid_str, 8, uuid, 4));
 	if (uuid_str[8] != 0x2d)
 		return -EINVAL;
 
-	lc_hex2bin(uuid_str + 9, 4, uuid + 4, 2);
+	CKINT(lc_hex2bin_err(uuid_str + 9, 4, uuid + 4, 2));
 	if (uuid_str[13] != 0x2d)
 		return -EINVAL;
 
-	lc_hex2bin(uuid_str + 14, 4, uuid + 6, 2);
+	CKINT(lc_hex2bin_err(uuid_str + 14, 4, uuid + 6, 2));
 	if (uuid_str[18] != 0x2d)
 		return -EINVAL;
 
-	lc_hex2bin(uuid_str + 19, 4, uuid + 8, 2);
+	CKINT(lc_hex2bin_err(uuid_str + 19, 4, uuid + 8, 2));
 	if (uuid_str[23] != 0x2d)
 		return -EINVAL;
 
-	lc_hex2bin(uuid_str + 24, 12, uuid + 10, 6);
+	CKINT(lc_hex2bin_err(uuid_str + 24, 12, uuid + 10, 6));
 
-	return 0;
+out:
+	return ret;
 }
 
 /******************************************************************************/

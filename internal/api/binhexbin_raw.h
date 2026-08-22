@@ -26,6 +26,8 @@
 extern "C" {
 #endif
 
+int lc_hex2bin_err(const char *hex, const size_t hexlen, uint8_t *bin,
+		   const size_t binlen);
 void lc_hex2bin(const char *hex, const size_t hexlen, uint8_t *bin,
 		const size_t binlen);
 void lc_bin2hex(const uint8_t *bin, const size_t binlen, char *hex,
