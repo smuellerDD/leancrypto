@@ -29,7 +29,10 @@
 #include "lc_memset_secure.h"
 #include "visibility.h"
 
+#define LC_MEMORY_MAGIC 0x538DA356
+
 struct lc_mem_def {
+	uint32_t magic;
 	int fd;
 	size_t size;
 	unsigned int secure : 1;
@@ -82,6 +85,7 @@ static int alloc_aligned_secure_internal(void **memptr, size_t alignment,
 	}
 
 	mem = ptr;
+	mem->magic = LC_MEMORY_MAGIC;
 	mem->size = full_size;
 	mem->fd = -1;
 	mem->secure = !!secure;
@@ -103,12 +107,19 @@ LC_INTERFACE_FUNCTION(int, lc_alloc_aligned_secure, void **memptr,
 		      size_t alignment, size_t size)
 {
 	struct lc_mem_def *mem = NULL;
+	static size_t pagesize = 0;
 	size_t full_size;
-	long pagesize = sysconf(_SC_PAGESIZE);
 	int fd;
 
-	if (!lc_alloc_have_memfd_secret || pagesize <= 0 ||
-	    alignment > (unsigned int)pagesize)
+	if (pagesize == 0) {
+		long sysconf_res = sysconf(_SC_PAGESIZE);
+
+		if (sysconf_res < 0)
+			return -EFAULT;
+		pagesize = (size_t)sysconf_res;
+	}
+
+	if (!lc_alloc_have_memfd_secret || alignment > pagesize)
 		return alloc_aligned_secure_internal(memptr, alignment, size,
 						     1);
 
@@ -131,6 +142,7 @@ LC_INTERFACE_FUNCTION(int, lc_alloc_aligned_secure, void **memptr,
 		goto err;
 
 	mem->fd = fd;
+	mem->magic = LC_MEMORY_MAGIC;
 	mem->size = full_size;
 	mem->secure = 1;
 	*memptr = ((uint8_t *)mem) + LC_MEM_DEF_ALIGNED_OFFSET;
@@ -179,6 +191,11 @@ static void lc_free_internal(void *ptr)
 	mem = (struct lc_mem_def *)(((uint8_t *)ptr) -
 				    LC_MEM_DEF_ALIGNED_OFFSET);
 #pragma GCC diagnostic pop
+
+	if (mem->magic != LC_MEMORY_MAGIC) {
+		printf("Memory management error: attempt to free buffer not allocated by leancrypto! Memory deallocation request ignored to prevent memory corruption, but possibility of memory leak!\n");
+		return;
+	}
 
 	size = mem->size;
 	fd = mem->fd;
