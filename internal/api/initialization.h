@@ -46,6 +46,29 @@ void secure_execution_linux(void);
 void chacha20_fastest_impl(void);
 void lc_activate_library(void);
 
+#ifdef LC_SECEXEC_LINUX
+
+void secure_execution_linux_store_bypass(void);
+void secure_execution_linux_indirect_branch(void);
+
+/* Should not be called by default, but available via lc_init() */
+int secure_execution_linux_l1d_flush(void);
+
+#else /* LC_SECEXEC_LINUX */
+
+static inline void secure_execution_linux_store_bypass(void)
+{
+}
+static inline void secure_execution_linux_indirect_branch(void)
+{
+}
+static inline int secure_execution_linux_l1d_flush(void)
+{
+	return 0;
+}
+
+#endif /* LC_SECEXEC_LINUX */
+
 /******************************************************************************
  * Exit functions
  ******************************************************************************/

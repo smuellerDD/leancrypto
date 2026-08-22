@@ -30,6 +30,7 @@
 LC_INIT_FUNCTION(int, lc_init, unsigned int flags)
 {
 	int aes_done __maybe_unused = 0;
+	int ret;
 
 	switch (flags & LC_INIT_AES_MASK) {
 #if (defined(LC_AES) || defined(CONFIG_LEANCRYPTO_AES))
@@ -53,6 +54,12 @@ LC_INIT_FUNCTION(int, lc_init, unsigned int flags)
 
 	if (flags & LC_INIT_NON_PQC_ENABLED)
 		non_pqc_algs_enable();
+
+	if (flags & LC_INIT_LINUX_L1D_FLUSH) {
+		ret = secure_execution_linux_l1d_flush();
+		if (ret)
+			return ret;
+	}
 
 	/*
 	 * Handle graceful the invocation of this functions multiple times
@@ -94,6 +101,9 @@ LC_INIT_FUNCTION(int, lc_init, unsigned int flags)
 #if (defined(LC_CHACHA20) || defined(CONFIG_LEANCRYPTO_CHACHA20))
 	chacha20_fastest_impl();
 #endif
+
+	secure_execution_linux_store_bypass();
+	secure_execution_linux_indirect_branch();
 
 	lc_activate_library_internal();
 

@@ -20,24 +20,29 @@
 #include <linux/prctl.h>
 #include <sys/prctl.h>
 
+#include "ext_headers_internal.h"
 #include "initialization.h"
 #include "visibility.h"
 
-LC_CONSTRUCTOR(secure_execution_linux, LC_INIT_PRIO_ALGO)
+/*
+ * Disable CPU speculation-related options: see the kernel
+ * documentation: Documentation/userspace-api/spec_ctrl.rst
+ *
+ * - Speculative Store Bypass
+ * - Indirect Branch Speculation
+ * - Flush L1D Cache on context switch out of the task
+ */
+
+LC_CONSTRUCTOR(secure_execution_linux_store_bypass, LC_INIT_PRIO_ALGO)
 {
-	/*
-	 * Disable CPU speculation-related options: see the kernel
-	 * documentation: Documentation/userspace-api/spec_ctrl.rst
-	 *
-	 * - Speculative Store Bypass
-	 * - Indirect Branch Speculation
-	 * - Flush L1D Cache on context switch out of the task
-	 */
 #ifdef PR_SPEC_STORE_BYPASS
 	prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_STORE_BYPASS,
 	      PR_SPEC_FORCE_DISABLE, 0, 0);
 #endif
+}
 
+LC_CONSTRUCTOR(secure_execution_linux_indirect_branch, LC_INIT_PRIO_ALGO)
+{
 #ifdef PR_SPEC_INDIRECT_BRANCH
 	prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_INDIRECT_BRANCH,
 	      PR_SPEC_FORCE_DISABLE, 0, 0);
@@ -47,4 +52,15 @@ LC_CONSTRUCTOR(secure_execution_linux, LC_INIT_PRIO_ALGO)
 	prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_L1D_FLUSH, PR_SPEC_FORCE_DISABLE,
 	      0, 0);
 #endif
+}
+
+/* Do not enable it by default, as this is very expensive */
+int secure_execution_linux_l1d_flush(void)
+{
+#ifdef PR_SPEC_L1D_FLUSH
+	if (prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_L1D_FLUSH,
+		  PR_SPEC_FORCE_DISABLE, 0, 0) == -1)
+		return -errno;
+#endif
+	return 0;
 }

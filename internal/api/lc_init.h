@@ -68,6 +68,16 @@ extern "C" {
 #define LC_INIT_NON_PQC_ENABLED (1 << 2)
 
 /**
+ * Flush L1D Cache on context switch out of the task
+ *
+ * On Linux, this can be enabled if its functionality was compiled during
+ * compile time.
+ *
+ * Otherwise this is a noop.
+ */
+#define LC_INIT_LINUX_L1D_FLUSH (1 << 3)
+
+/**
  * @brief Initialization of leancrypto
  *
  * This function invokes all necessary initialization functions required at
