@@ -1,6 +1,6 @@
 curve25519_base = 0
 
-if get_option('kyber_x25519').enabled()
+if get_option('x25519').enabled()
 	src += files([
 		'x25519.c',
 		'x25519_scalarmult_c.c',
@@ -34,7 +34,7 @@ if get_option('kyber_x25519').enabled()
 	curve25519_base = 1
 endif
 
-if get_option('dilithium_ed25519').enabled()
+if get_option('ed25519').enabled()
 	src += files([
 		'ed25519.c',
 	])

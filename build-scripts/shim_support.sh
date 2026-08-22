@@ -59,6 +59,8 @@ DISABLE_KEM="
  -Dhqc_256=disabled
  -Dhqc_192=disabled
  -Dhqc_128=disabled
+ -Dx25519=disabled
+ -Dx448=disabled
 "
 
 DISABLE_DRNG="
@@ -114,7 +116,7 @@ fi
 # -Dsphincs_shake_256s=disabled -Dsphincs_shake_256f=disabled
 # -Dsphincs_shake_192s=disabled -Dsphincs_shake_192f=disabled
 # -Dsphincs_shake_128s=disabled -Dsphincs_shake_128f=disabled
-# -Ddilithium_ed25519=disabled -Ddilithium_ed448=disabled
+# -Ddilithium_ed25519=disabled -Ddilithium_ed448=disabled -Ded25519=disabled -Ded448=disabled
 # -Ddilithium_87=disabled -Ddilithium_65=disabled -Ddilithium_44=disabled
 
 CFLAGS="-I/usr/include/efi/x86_64 -I/usr/include/efi/aarch64" \

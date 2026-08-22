@@ -51,5 +51,11 @@ jobs:
       run: meson compile -C leancrypto-build-shim
     - name: Shim Boot Loader Support test
       run: meson test -C leancrypto-build-shim --suite=regression
+    - name: ED/X25519/448 Meson setup ${{ matrix.default-library }}
+      run: bash build-scripts/25519_448_only.sh -Ddefault_library=${{ matrix.default-library }}
+    - name: ED/X25519/448 Meson compile
+      run: meson compile -C build-25519_448-only
+    - name: ED/X25519/448 test
+      run: meson test -C build-25519_448-only --suite=regression
 
 

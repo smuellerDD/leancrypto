@@ -20,7 +20,7 @@
 #ifndef ED25519_COMPOSITE_H
 #define ED25519_COMPOSITE_H
 
-#include "dilithium_type.h"
+#include "lc_dilithium_common.h"
 #include "ed25519_ctx.h"
 
 #ifdef __cplusplus

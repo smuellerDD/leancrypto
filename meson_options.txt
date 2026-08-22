@@ -304,6 +304,19 @@ These include the known sha*sum applications.
 ''')
 
 ################################################################################
+# Non-PQC options
+################################################################################
+option('ed25519', type: 'feature', value: 'enabled',
+       description: 'ED25519 Signature')
+option('x25519', type: 'feature', value: 'enabled',
+       description: 'x25519 ECDH')
+
+option('ed448', type: 'feature', value: 'enabled',
+       description: 'ED448 Signature')
+option('x448', type: 'feature', value: 'enabled',
+       description: 'x448 ECDH')
+
+################################################################################
 # Entropy Source: Jitter RNG specific options
 #
 # These options only apply when setting the option seedsource=jent

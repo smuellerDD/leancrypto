@@ -41,6 +41,8 @@ DISABLE_SIGNATURE="
  -Ddilithium_87=disabled
  -Ddilithium_65=disabled
  -Ddilithium_44=disabled
+ -Ded25519=disabled
+ -Ded448=disabled
 "
 
 DISABLE_KEM="
@@ -55,6 +57,8 @@ DISABLE_KEM="
  -Dhqc_256=disabled
  -Dhqc_192=disabled
  -Dhqc_128=disabled
+ -Dx25519=disabled
+ -Dx448=disabled
 "
 
 DISABLE_DRNG="

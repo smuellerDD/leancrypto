@@ -1,5 +1,5 @@
 curve448_base = 0
-if get_option('dilithium_ed448').enabled()
+if get_option('ed448').enabled()
 	src += files([
 		'ed448.c',
 	])
@@ -10,7 +10,7 @@ if get_option('dilithium_ed448').enabled()
 
 	curve448_base = 1
 endif
-if get_option('kyber_x448').enabled()
+if get_option('x448').enabled()
 	src += files([
 		'x448_scalarmult_c.c',
 		'x448.c'

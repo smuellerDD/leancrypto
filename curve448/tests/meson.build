@@ -1,4 +1,4 @@
-if get_option('kyber_x448').enabled()
+if get_option('x448').enabled()
 	x448_tester = executable('x448_tester',
 			[ 'x448_tester.c',
 				internal_src ],
@@ -40,7 +40,7 @@ if get_option('kyber_x448').enabled()
 	test('ECDH X448 Disabled', x448_disabled_tester, suite: regression)
 endif
 
-if get_option('dilithium_ed448').enabled()
+if get_option('ed448').enabled()
 	ed448_tester = executable('ed448_tester',
 			[ 'ed448_tester.c',
 				internal_src ],

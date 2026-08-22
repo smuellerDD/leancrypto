@@ -356,16 +356,32 @@ if get_option('sphincs_shake_128f').enabled()
 	add_global_arguments([ '-DLC_SPHINCS_SHAKE_128F_OPT_ENABLED' ], language: 'c')
 endif
 
-if get_option('kyber_x25519').enabled()
+if get_option('x25519').enabled()
 	add_global_arguments([ '-DLC_CURVE25519' ], language: 'c')
+endif
+
+if get_option('ed25519').enabled()
+	add_global_arguments([ '-DLC_ED25519' ], language: 'c')
+endif
+
+if get_option('kyber_x25519').enabled()
+	add_global_arguments([ '-DLC_KYBER_CURVE25519' ], language: 'c')
 endif
 
 if get_option('dilithium_ed25519').enabled()
 	add_global_arguments([ '-DLC_DILITHIUM_ED25519' ], language: 'c')
 endif
 
-if get_option('kyber_x448').enabled()
+if get_option('x448').enabled()
 	add_global_arguments([ '-DLC_CURVE448' ], language: 'c')
+endif
+
+if get_option('ed448').enabled()
+	add_global_arguments([ '-DLC_ED448' ], language: 'c')
+endif
+
+if get_option('kyber_x448').enabled()
+	add_global_arguments([ '-DLC_KYBER_CURVE448' ], language: 'c')
 endif
 
 if get_option('dilithium_ed448').enabled()
@@ -820,10 +836,36 @@ if (get_option('sha3').disabled() and
 	error('HQC support requires SHA-3')
 endif
 
-if ((get_option('dilithium_ed25519').enabled() or
-     get_option('kyber_x25519').enabled()) and
+if (get_option('kyber_x25519').enabled() and
+    get_option('x25519').disabled())
+	error('Kyber-x25519 hybrid requires x25519 support')
+endif
+
+if (get_option('kyber_x448').enabled() and
+    get_option('x448').disabled())
+	error('Kyber-x448 hybrid requires x448 support')
+endif
+
+if (get_option('dilithium_ed25519').enabled() and
+    get_option('ed25519').disabled())
+	error('Dilithium-ED25519 hybrid requires ED25519 support')
+endif
+
+if (get_option('dilithium_ed448').enabled() and
+    get_option('ed448').disabled())
+	error('Dilithium-ED448 hybrid requires ED448 support')
+endif
+
+if ((get_option('ed25519').enabled() or
+     get_option('x25519').enabled()) and
      get_option('sha2-512').disabled())
 	error('Curve 25519 support requires SHA2-512')
+endif
+
+if ((get_option('ed448').enabled() or
+     get_option('x448').enabled()) and
+     get_option('sha3').disabled())
+	error('Curve 448 support requires SHA3')
 endif
 
 if get_option('sha3').disabled() and get_option('ascon_keccak').enabled()

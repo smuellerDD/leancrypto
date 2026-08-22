@@ -1,4 +1,4 @@
-if get_option('kyber_x25519').enabled()
+if get_option('x25519').enabled()
 
 	x25519_c_tester = executable('x25519_c_tester',
 				[ 'x25519_c_tester.c', internal_src ],
@@ -76,7 +76,7 @@ if get_option('kyber_x25519').enabled()
 
 endif
 
-if get_option('dilithium_ed25519').enabled()
+if get_option('ed25519').enabled()
 	ed25519_tester = executable('ed25519_tester',
 			[ 'ed25519_tester.c' ],
 			include_directories: [

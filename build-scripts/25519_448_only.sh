@@ -2,19 +2,13 @@
 
 #
 # This script defines the option set required for building leancrypto to only
-# offer AES-GCM
-#
-# The following support is enabled with C and accelerated implementations:
-#
-# - SHA-3 support to provide primitives to XDRBG
-# - XDRBG / seeded RNG to provide entropy to internal GCM IV generation
-# - AES-GCM
-# - FIPS 140 integrity checker for ELF
+# offer SHA2-256
 #
 
 DISABLE_AEAD="
  -Dascon=disabled
  -Dascon_keccak=disabled
+ -Daes_gcm=disabled
  -Dchacha20poly1305=disabled
  -Dhash_crypt=disabled
 "
@@ -30,7 +24,6 @@ DISABLE_SYM="
 
 DISABLE_HASH="
  -Dsha2-256=disabled
- -Dsha2-512=disabled
 "
 
 DISABLE_SIGNATURE="
@@ -47,8 +40,6 @@ DISABLE_SIGNATURE="
  -Ddilithium_87=disabled
  -Ddilithium_65=disabled
  -Ddilithium_44=disabled
- -Ded25519=disabled
- -Ded448=disabled
 "
 
 DISABLE_KEM="
@@ -63,8 +54,6 @@ DISABLE_KEM="
  -Dhqc_256=disabled
  -Dhqc_192=disabled
  -Dhqc_128=disabled
- -Dx25519=disabled
- -Dx448=disabled
 "
 
 DISABLE_DRNG="
@@ -106,7 +95,7 @@ DISABLE_MISC="
 FORCE_SEEDSOURCE="
 "
 
-meson setup build-aesgcm-only \
+meson setup build-25519_448-only \
  $DISABLE_AEAD \
  $DISABLE_SYM \
  $DISABLE_HASH \

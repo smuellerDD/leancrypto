@@ -245,12 +245,12 @@ static const struct alg_status_show alg_status_show_sig_pqc[] = {
 };
 
 static const struct alg_status_show alg_status_show_sig_classic[] = {
-#if (defined(LC_DILITHIUM_ED25519) || defined(LC_CURVE25519))
+#if (defined(LC_ED25519) || defined(LC_CURVE25519))
 { .flag = LC_ALG_STATUS_ED25519_KEYGEN | LC_ALG_STATUS_FIPS, .alg_name = "ED25519-Keygen", .strlen = 14 },
 { .flag = LC_ALG_STATUS_ED25519_SIGGEN | LC_ALG_STATUS_FIPS, .alg_name = "ED25519-Sig", .strlen = 11 },
 { .flag = LC_ALG_STATUS_ED25519_SIGVER | LC_ALG_STATUS_FIPS, .alg_name = "ED25519-Ver", .strlen = 11 },
 #endif
-#if (defined(LC_DILITHIUM_ED448) || defined(LC_CURVE448))
+#if (defined(LC_ED448) || defined(LC_CURVE448))
 { .flag = LC_ALG_STATUS_ED448_KEYGEN | LC_ALG_STATUS_FIPS, .alg_name = "ED448-Keygen", .strlen = 12 },
 { .flag = LC_ALG_STATUS_ED448_SIGGEN | LC_ALG_STATUS_FIPS, .alg_name = "ED448-Sig", .strlen = 9 },
 { .flag = LC_ALG_STATUS_ED448_SIGVER | LC_ALG_STATUS_FIPS, .alg_name = "ED448-Ver", .strlen = 9 },

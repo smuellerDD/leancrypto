@@ -20,7 +20,7 @@
 #ifndef ED448_COMPOSITE_H
 #define ED448_COMPOSITE_H
 
-#include "dilithium_type.h"
+#include "lc_dilithium_common.h"
 #include "ed448_ctx.h"
 
 #ifdef __cplusplus
