@@ -58,18 +58,17 @@ LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 		if (c & HWCAP_ASIMD)
 			features |= LC_CPU_FEATURE_ARM_NEON;
 		if (c & HWCAP_AES)
-			features |= LC_CPU_FEATURE_ARM;
+			features |= LC_CPU_FEATURE_ARM_AES;
 		if (c & HWCAP_PMULL)
-			features |= LC_CPU_FEATURE_ARM;
+			features |= LC_CPU_FEATURE_ARM_PMULL;
 		if (c & HWCAP_SHA1)
 			features |= LC_CPU_FEATURE_ARM;
 		if (c & HWCAP_SHA2)
-			features |= LC_CPU_FEATURE_ARM;
+			features |= LC_CPU_FEATURE_ARM_SHA2;
 		if (c & HWCAP_SHA512)
-			features |= LC_CPU_FEATURE_ARM;
+			features |= LC_CPU_FEATURE_ARM_SHA2_512;
 		if (c & HWCAP_SHA3)
-			features |=
-				LC_CPU_FEATURE_ARM_SHA3 | LC_CPU_FEATURE_ARM;
+			features |= LC_CPU_FEATURE_ARM_SHA3;
 	}
 	return features;
 }
