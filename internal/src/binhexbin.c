@@ -45,6 +45,8 @@ int hex2bin_alloc(const char *hex, const size_t hexlen, uint8_t **bin,
 
 	if (!hexlen)
 		return -EINVAL;
+	if (hexlen == SIZE_MAX)
+		return -EOVERFLOW;
 
 	outlen = (hexlen + 1) / 2;
 
