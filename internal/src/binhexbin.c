@@ -131,6 +131,13 @@ static int _bin2hex_html(const unsigned char *str, size_t strlen, char *html,
 			 size_t htmllen, size_t *reqlen, const char *unreserved,
 			 size_t unreservedlen)
 {
+	/*
+	 * strlen can overflow (*reqlen += hexbytes) which can wrap for
+	 * strlen > SIZE_MAX/3
+	 */
+	if (strlen > SIZE_MAX / 3)
+		return -EOVERFLOW;
+
 	while (strlen) {
 		unsigned int charbytes;
 		unsigned int hexbytes;
