@@ -165,17 +165,28 @@ LC_INTERFACE_FUNCTION(int, lc_hmac_init_with_hmac_key,
 LC_INTERFACE_FUNCTION(void, lc_hmac_update, struct lc_hmac_ctx *hmac_ctx,
 		      const uint8_t *in, size_t inlen)
 {
-	struct lc_hash_ctx *hash_ctx = &hmac_ctx->hash_ctx;
+	struct lc_hash_ctx *hash_ctx;
 
+	if (!hmac_ctx)
+		return;
+
+	hash_ctx = &hmac_ctx->hash_ctx;
 	lc_hash_update(hash_ctx, in, inlen);
 }
 
 LC_INTERFACE_FUNCTION(void, lc_hmac_final, struct lc_hmac_ctx *hmac_ctx,
 		      uint8_t *mac)
 {
-	struct lc_hash_ctx *hash_ctx = &hmac_ctx->hash_ctx;
-	const struct lc_hmac_key *key = hmac_ctx->key;
-	const uint8_t *k_opad = key->k_opad;
+	struct lc_hash_ctx *hash_ctx;
+	const struct lc_hmac_key *key;
+	const uint8_t *k_opad;
+
+	if (!hmac_ctx)
+		return;
+
+	hash_ctx = &hmac_ctx->hash_ctx;
+	key = hmac_ctx->key;
+	k_opad = key->k_opad;
 
 	lc_hash_final(hash_ctx, mac);
 
