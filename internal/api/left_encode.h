@@ -28,6 +28,8 @@ extern "C" {
 
 /**
  * @brief - left_encode operation defined in SP800-185
+ *
+ * Caller must provide at least sizeof(size_t)+1 bytes with \p buf
  */
 unsigned int lc_left_encode(uint8_t *buf, size_t val);
 
