@@ -322,9 +322,10 @@ static int lc_chacha20_poly1305_encrypt_tag(void *state, uint8_t *tag,
 	struct lc_poly1305_context *poly1305 = &cc20p1305->poly1305_ctx;
 	size_t padlen = cc20p1305->datalen % 16;
 	uint8_t length[8];
+	int ret = 0;
 
-	if (taglen < 8)
-		return -EINVAL;
+	CKRET(taglen < 8, -EINVAL);
+	CKRET(taglen > LC_POLY1305_TAGSIZE, -EINVAL);
 
 	lc_chacha20_poly1305_aad_pad(cc20p1305);
 
@@ -352,7 +353,8 @@ static int lc_chacha20_poly1305_encrypt_tag(void *state, uint8_t *tag,
 		unpoison(tag, LC_POLY1305_TAGSIZE);
 	}
 
-	return 0;
+out:
+	return ret;
 }
 
 static int lc_chacha20_poly1305_decrypt_authenticate(void *state,
