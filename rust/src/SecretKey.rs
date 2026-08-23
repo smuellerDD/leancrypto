@@ -37,10 +37,9 @@ impl SecretKey {
 
 impl Drop for SecretKey {
     fn drop(&mut self) {
-        // Zeroize before freeing
-        let zero = vec![0u8; self.data.len()];
-
-        unsafe { std::ptr::write_volatile(&mut self.data, zero) };
+        for b in self.data.iter_mut() {
+            unsafe { std::ptr::write_volatile(b, 0u8) };
+        }
         atomic::compiler_fence(atomic::Ordering::SeqCst);
     }
 }
