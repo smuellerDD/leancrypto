@@ -281,8 +281,7 @@ static int lc_seed_seeded_rng(struct lc_seeded_rng_ctx *rng,
 	ssize_t datasize;
 	int ret;
 
-	if (!rng)
-		return -EINVAL;
+	CKNULL(rng, -EINVAL);
 
 	/*
 	 * For initialization of the DRNG, seed with double the security
