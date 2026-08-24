@@ -20,6 +20,34 @@
 #ifndef RET_CHECKERS_H
 #define RET_CHECKERS_H
 
+/*
+ * CKRET_HARDENED replaces these with real conditional branches for fault
+ * injection resistance. This introduces two related problems:
+ *
+ * First, the return value of lc_memcmp_secure is derived from secret data (the
+ * computed tag) but represents a public observable (pass/fail verdict). It must
+ * be explicitly declassified with unpoison() before CKRET_HARDENED branches on
+ * it -  otherwise Valgrind flags the branch as a conditional jump on tainted
+ * data, regardless of the timecop build setting.
+ *
+ * Second, even with unpoison() in place, it is a no-op unless leancrypto was
+ * built with timecop=enabled. Any caller running TIMECOP tests against a
+ * production leancrypto build (timecop=disabled, the current default) will
+ * therefore still see false positives. Without CKRET_HARDENED this was not an
+ * issue because the branchless ternary required no declassification at all.
+ *
+ * Thus, define a local variant of the unpoison that is unconditionally applied
+ * when the Valgrind header files are present.
+ */
+#if defined __has_include
+#if __has_include(<valgrind/memcheck.h>)
+#include <valgrind/memcheck.h>
+#define __lc_ret_unpoison(addr, len) VALGRIND_MAKE_MEM_DEFINED(addr, len)
+#else
+#define __lc_ret_unpoison(addr, len) (void)addr
+#endif
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -118,7 +146,7 @@ extern "C" {
  *  // Start of exit handler without error
  *  2a4:   4f00041f        movi    v31.4s, #0x0
  *
- * // check agaisnt unhardened operation
+ *  // check against unhardened operation
  *  // Invoke ge25519_has_small_order - central check for signaturevalidity
  *  3c4:   94000000        bl      0 <ge25519_has_small_order>
  *  // Set return code
@@ -135,7 +163,7 @@ extern "C" {
  *
  * Clang 22.1.5 shows a similar assembly output
  */
-#define CKRET_HARDENED(cond, err)                                              \
+#define CKRET_HARDENED_UNPOISONED(cond, err)                                   \
 	do {                                                                   \
 		volatile unsigned long __hardened_ret = (unsigned long)-1;     \
 		ret = err;                                                     \
@@ -150,6 +178,13 @@ extern "C" {
 		goto out;                                                      \
 	} while (0)
 
+#define CKRET_HARDENED(cond, err)                                              \
+	do {                                                                   \
+		int __cond_ret = cond;                                         \
+		__lc_ret_unpoison(&__cond_ret, sizeof(__cond_ret));            \
+		CKRET_HARDENED_UNPOISONED(__cond_ret, err);                    \
+	} while (0)
+
 /*
  * Hardened version of CKINT
  */
@@ -158,6 +193,7 @@ extern "C" {
 		ret = (cond);                                                  \
 		CKRET_HARDENED(ret, ret);                                      \
 	} while (0)
+
 /*
  * Use this ret-checker for all int functions EXCEPT policy checkers (i.e.
  * function returning lc_x509_pol_ret_t - they must be handled with
