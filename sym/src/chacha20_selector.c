@@ -32,7 +32,8 @@ LC_CONSTRUCTOR(chacha20_fastest_impl, LC_INIT_PRIO_ALGO)
 	enum lc_cpu_features feat = lc_cpu_feature_available();
 
 #define LC_FILL_ACCEL_WITH_DEFAULT(accel, dflt)                                \
-	lc_chacha20_##accel = lc_chacha20_##dflt;
+	lc_chacha20_##accel = lc_chacha20_##dflt;                              \
+	lc_chacha20_64_##accel = lc_chacha20_64_##dflt;
 
 #define LC_FILL_ACCEL_WITH_C(accel) LC_FILL_ACCEL_WITH_DEFAULT(accel, c)
 
@@ -47,7 +48,9 @@ LC_CONSTRUCTOR(chacha20_fastest_impl, LC_INIT_PRIO_ALGO)
 	LC_FILL_ACCEL_NULL(avx2)
 	LC_FILL_ACCEL_NULL(riscv64_v_zbb)
 
-#define LC_FILL_DFLT_IMPL(accel) lc_chacha20 = lc_chacha20_##accel;
+#define LC_FILL_DFLT_IMPL(accel)                                               \
+	lc_chacha20 = lc_chacha20_##accel;                                     \
+	lc_chacha20_64 = lc_chacha20_64_##accel;
 
 	/*
 	 * Set accelerated modes: The fastest implementations are at the top

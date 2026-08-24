@@ -72,3 +72,22 @@ static const struct lc_sym _lc_chacha20_riscv64_v_zbb = {
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *,
 		    lc_chacha20_riscv64_v_zbb) = &_lc_chacha20_riscv64_v_zbb;
+
+static const struct lc_sym _lc_chacha20_64_riscv64_v_zbb = {
+	.init = cc20_init,
+	.setkey = cc20_setkey,
+	.setiv = cc20_setiv_64bit_ctr,
+	.getiv = cc20_getiv,
+	.encrypt = cc20_crypt_riscv64_v_zbb,
+	.decrypt = cc20_crypt_riscv64_v_zbb,
+
+	.init_iv = cc20_init_iv,
+	.encrypt_iv = cc20_crypt_iv_riscv64_v_zbb,
+	.decrypt_iv = cc20_crypt_iv_riscv64_v_zbb,
+
+	.statesize = LC_CC20_STATE_SIZE,
+	.blocksize = 1,
+	.algorithm_type = LC_ALG_STATUS_CHACHA20
+};
+LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_chacha20_riscv64_64_v_zbb) =
+						&_lc_chacha20_riscv64_64_v_zbb;

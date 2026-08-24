@@ -392,6 +392,13 @@ int cc20_init_iv(const struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen)
 int cc20_check_overflow(struct lc_sym_state *ctx, size_t datalen)
 {
 	/*
+	 * When the ChaCha20 state is defined for 64 bit IV handling, no
+	 * overflow protection needed.
+	 */
+	if (ctx->datalen == LC_CC20_64BIT_IV_FLAG)
+		return 0;
+
+	/*
 	 * According to RFC7539, only the IV of 32 bits shall be incremented.
 	 * Therefore, a check is mandatory that at most 2^32 - 1 blocks are
 	 * en/decrypted as otherwise the counter will wrap and a catastrophic
@@ -404,11 +411,9 @@ int cc20_check_overflow(struct lc_sym_state *ctx, size_t datalen)
 	return 0;
 }
 
-int cc20_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen)
+static int cc20_setiv_common(struct lc_sym_state *ctx, const uint8_t *iv,
+			     size_t ivlen)
 {
-	if (!ctx)
-		return -EINVAL;
-
 	/* IV is counter + nonce */
 	switch (ivlen) {
 	case 12:
@@ -428,9 +433,25 @@ int cc20_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen)
 	}
 
 	ctx->keystream_ptr = 0;
-	ctx->datalen = 0;
 
 	return 0;
+}
+
+int cc20_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen)
+{
+	if (!ctx)
+		return -EINVAL;
+	ctx->datalen = 0;
+	return cc20_setiv_common(ctx, iv, ivlen);
+}
+
+int cc20_setiv_64bit_ctr(struct lc_sym_state *ctx, const uint8_t *iv,
+			 size_t ivlen)
+{
+	if (!ctx)
+		return -EINVAL;
+	ctx->datalen = LC_CC20_64BIT_IV_FLAG;
+	return cc20_setiv_common(ctx, iv, ivlen);
 }
 
 int cc20_getiv(const struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen)
@@ -460,6 +481,7 @@ int cc20_getiv(const struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen)
 
 	return 0;
 }
+
 static const struct lc_sym _lc_chacha20 = { .init = cc20_init,
 					    .setkey = cc20_setkey,
 					    .setiv = cc20_setiv,
@@ -478,3 +500,22 @@ static const struct lc_sym _lc_chacha20 = { .init = cc20_init,
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_chacha20_c) = &_lc_chacha20;
 
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_chacha20) = &_lc_chacha20;
+
+static const struct lc_sym _lc_chacha20_64 = { .init = cc20_init,
+					       .setkey = cc20_setkey,
+					       .setiv = cc20_setiv_64bit_ctr,
+					       .getiv = cc20_getiv,
+					       .encrypt = cc20_crypt,
+					       .decrypt = cc20_crypt,
+
+					       .init_iv = cc20_init_iv,
+					       .encrypt_iv = cc20_crypt_iv,
+					       .decrypt_iv = cc20_crypt_iv,
+
+					       .statesize = LC_CC20_STATE_SIZE,
+					       .blocksize = 1,
+					       .algorithm_type =
+						    LC_ALG_STATUS_CHACHA20 };
+LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_chacha20_64_c) = &_lc_chacha20_64;
+
+LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_chacha20_64) = &_lc_chacha20_64;

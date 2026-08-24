@@ -377,8 +377,10 @@ static int chacha20_enc_selftest(const struct lc_sym *chacha20_sym,
 	char str[30];
 	LC_SYM_CTX_ON_STACK(chacha20, chacha20_sym);
 
-	printf("ChaCha20 %s ctx size: %u\n", name,
-	       (unsigned int)LC_SYM_CTX_SIZE);
+	printf("ChaCha20 %s ctx size: %u (%s implementation)\n", name,
+	       (unsigned int)LC_SYM_CTX_SIZE,
+	       chacha20_sym == lc_chacha20_c ? "C" :
+	       chacha20_sym == lc_chacha20_64_c ? "C" : "accelerated");
 
 	/* Encrypt */
 	CKINT(lc_sym_init(chacha20));
@@ -524,6 +526,12 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_EXEC_ONE_TEST(lc_chacha20_riscv64_v_zbb)
 	LC_EXEC_ONE_TEST(lc_chacha20_avx2)
 	LC_EXEC_ONE_TEST(lc_chacha20_avx512)
+	LC_EXEC_ONE_TEST(lc_chacha20_64)
+	LC_EXEC_ONE_TEST(lc_chacha20_64_c)
+	LC_EXEC_ONE_TEST(lc_chacha20_64_neon)
+	LC_EXEC_ONE_TEST(lc_chacha20_64_riscv64_v_zbb)
+	LC_EXEC_ONE_TEST(lc_chacha20_64_avx2)
+	LC_EXEC_ONE_TEST(lc_chacha20_64_avx512)
 	ret += chacha20_stream_test_common();
 
 	ret = test_validate_status(ret, LC_ALG_STATUS_CHACHA20, 0);

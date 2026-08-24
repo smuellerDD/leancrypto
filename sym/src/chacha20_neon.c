@@ -75,3 +75,22 @@ static const struct lc_sym _lc_chacha20_neon = {
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *,
 		    lc_chacha20_neon) = &_lc_chacha20_neon;
+
+static const struct lc_sym _lc_chacha20_64_neon = {
+	.init = cc20_init,
+	.setkey = cc20_setkey,
+	.setiv = cc20_setiv_64bit_ctr,
+	.getiv = cc20_getiv,
+	.encrypt = cc20_crypt_neon,
+	.decrypt = cc20_crypt_neon,
+
+	.init_iv = cc20_init_iv,
+	.encrypt_iv = cc20_crypt_iv_neon,
+	.decrypt_iv = cc20_crypt_iv_neon,
+
+	.statesize = LC_CC20_STATE_SIZE,
+	.blocksize = 1,
+	.algorithm_type = LC_ALG_STATUS_CHACHA20
+};
+LC_INTERFACE_SYMBOL(const struct lc_sym *,
+		    lc_chacha20_64_neon) = &_lc_chacha20_64_neon;

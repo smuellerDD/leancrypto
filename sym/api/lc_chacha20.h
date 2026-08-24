@@ -27,7 +27,15 @@
 extern "C" {
 #endif
 
+/**
+ * ChaCha20 Compliant to RFC7539 with 32 bit IV handling
+ */
 extern LC_DLL_IMPORT const struct lc_sym *lc_chacha20;
+
+/**
+ * ChaCha20 with 64 bit IV handling
+ */
+extern LC_DLL_IMPORT const struct lc_sym *lc_chacha20_64;
 
 #define LC_CC20_STATE_SIZE (144)
 
@@ -42,13 +50,7 @@ extern LC_DLL_IMPORT const struct lc_sym *lc_chacha20;
  */
 void cc20_block(struct lc_sym_state *state, uint32_t *stream);
 
-/**
- * @ingroup Symmetric
- * @brief Allocate stack memory for the ChaCha20 context
- *
- * @param [in] name Name of the stack variable
- */
-#define LC_CC20_CTX_ON_STACK(name)                                             \
+#define LC_CC20_CTX_ON_STACK_COMMPN(name, algorithm_ref)                       \
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")             \
@@ -57,9 +59,27 @@ void cc20_block(struct lc_sym_state *state, uint32_t *stream);
 				LC_SYM_CTX_SIZE_LEN(LC_CC20_STATE_SIZE),       \
 				LC_SYM_COMMON_ALIGNMENT);                      \
 	struct lc_sym_ctx *name = (struct lc_sym_ctx *)name##_ctx_buf;         \
-	LC_SYM_SET_CTX(name, lc_chacha20);                                     \
+	LC_SYM_SET_CTX(name, algorithm_ref);                                   \
 	lc_sym_zero(name);                                                     \
 	_Pragma("GCC diagnostic pop")
+
+/**
+ * @ingroup Symmetric
+ * @brief Allocate stack memory for the ChaCha20 context with 32 bit IV handling
+ *
+ * @param [in] name Name of the stack variable
+ */
+#define LC_CC20_CTX_ON_STACK(name)                                             \
+	LC_CC20_CTX_ON_STACK_COMMPN(name, lc_chacha20)
+
+/**
+ * @ingroup Symmetric
+ * @brief Allocate stack memory for the ChaCha20 context with 64 bit IV handling
+ *
+ * @param [in] name Name of the stack variable
+ */
+#define LC_CC20_64_CTX_ON_STACK(name)                                          \
+	LC_CC20_CTX_ON_STACK_COMMPN(name, lc_chacha20_64)
 
 #ifdef __cplusplus
 }

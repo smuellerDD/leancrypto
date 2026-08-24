@@ -37,6 +37,8 @@ int cc20_setkey(struct lc_sym_state *ctx, const uint8_t *key, size_t keylen);
 int cc20_init_iv(const struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen);
 int cc20_check_overflow(struct lc_sym_state *ctx, size_t datalen);
 int cc20_setiv(struct lc_sym_state *ctx, const uint8_t *iv, size_t ivlen);
+int cc20_setiv_64bit_ctr(struct lc_sym_state *ctx, const uint8_t *iv,
+			 size_t ivlen);
 int cc20_getiv(const struct lc_sym_state *ctx, uint8_t *iv, size_t ivlen);
 int cc20_init(struct lc_sym_state *ctx);
 void cc20_crypt_remaining(struct lc_sym_state *ctx, const uint8_t **in,

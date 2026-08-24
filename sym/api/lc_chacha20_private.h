@@ -61,6 +61,8 @@ struct __attribute__((aligned(4))) lc_sym_state {
 
 #define LC_CC20_STATE_SIZE_PRIVATE (sizeof(struct lc_sym_state))
 
+#define LC_CC20_64BIT_IV_FLAG 0xffffffffffffffffULL
+
 static inline void cc20_init_constants(struct lc_sym_state *ctx)
 {
 	if (!ctx)
@@ -73,25 +75,11 @@ static inline void cc20_init_constants(struct lc_sym_state *ctx)
 	ctx->constants[3] = 0x6b206574;
 }
 
-/* This overflow handling is not needed due to cc20_check_overflow */
-#if 0
-static inline void cc20_counter_overflow(struct lc_sym_state *ctx)
-{
-	if (ctx->counter[0] == 0) {
-		ctx->counter[1]++;
-		if (ctx->counter[1] == 0) {
-			ctx->counter[2]++;
-			if (ctx->counter[2] == 0)
-				ctx->counter[3]++;
-		}
-	}
-}
-#endif
-
 static inline void cc20_inc_counter(struct lc_sym_state *ctx)
 {
 	ctx->counter[0]++;
-	//cc20_counter_overflow(ctx);
+	if (ctx->counter[0] == 0 && ctx->datalen == LC_CC20_64BIT_IV_FLAG)
+		ctx->counter[1]++;
 }
 
 static inline void cc20_resetkey(struct lc_sym_state *ctx)

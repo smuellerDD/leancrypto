@@ -22,3 +22,4 @@
 #include "visibility.h"
 
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_chacha20_riscv64_v_zbb) = NULL;
+LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_chacha20_64_riscv64_v_zbb) = NULL;

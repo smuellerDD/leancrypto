@@ -898,6 +898,12 @@ EXPORTS
 	lc_chacha20_neon DATA
 	lc_chacha20_poly1305_aead DATA
 	lc_chacha20_riscv64_v_zbb DATA
+	lc_chacha20_64 DATA
+	lc_chacha20_64_avx2 DATA
+	lc_chacha20_64_avx512 DATA
+	lc_chacha20_64_c DATA
+	lc_chacha20_64_neon DATA
+	lc_chacha20_64_riscv64_v_zbb DATA
 	lc_cshake128 DATA
 	lc_cshake128_arm_asm DATA
 	lc_cshake128_arm_ce DATA

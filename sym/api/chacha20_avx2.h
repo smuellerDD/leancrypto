@@ -27,6 +27,7 @@ extern "C" {
 #endif
 
 extern LC_DLL_IMPORT const struct lc_sym *lc_chacha20_avx2;
+extern LC_DLL_IMPORT const struct lc_sym *lc_chacha20_64_avx2;
 
 #ifdef __cplusplus
 }

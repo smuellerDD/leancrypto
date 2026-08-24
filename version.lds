@@ -1336,6 +1336,12 @@ LIBLEANCRYPTO_1.9 {
 		lc_chacha20_neon;
 		lc_chacha20_poly1305_aead;
 		lc_chacha20_riscv64_v_zbb;
+		lc_chacha20_64;
+		lc_chacha20_64_avx2;
+		lc_chacha20_64_avx512;
+		lc_chacha20_64_c;
+		lc_chacha20_64_neon;
+		lc_chacha20_64_riscv64_v_zbb;
 		lc_cshake128;
 		lc_cshake128_arm_asm;
 		lc_cshake128_arm_ce;
