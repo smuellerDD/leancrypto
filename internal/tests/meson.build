@@ -1,3 +1,5 @@
+json_test_script = find_program('status_tester_json.sh', required: true)
+
 conversion_be_le = executable('conversion_be_le',
 			      [ 'conversion_be_le.c', internal_src ],
 			      include_directories: [ include_internal_dirs ],
@@ -34,6 +36,8 @@ status_tester = executable('status_tester',
 			   dependencies: leancrypto
 			  )
 test('Status', status_tester, suite: regression)
+test('Status JSON', json_test_script, args: [ status_tester.full_path() ],
+     suite: regression)
 
 uuid_tester = executable('uuid_tester',
 			   [ 'uuid_tester.c', internal_src ],

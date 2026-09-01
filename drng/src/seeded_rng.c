@@ -577,12 +577,17 @@ out:
 
 void lc_seeded_rng_status(char *buf, size_t len)
 {
-	if (len < 17)
+	if (len < 20 || !buf)
 		return;
 
 	/* Add the \0 as a safety-measure */
-	lc_memcpy_secure(buf, len, "Entropy Source: \0", 17);
-	seeded_rng_status(buf + 16, len - 16);
+	lc_memcpy_secure(buf, len, "  \"entropySource\": \"\0", 21);
+	seeded_rng_status(buf + 20, len - 20);
+
+	size_t len2 = strlen(buf);
+	if (len2 > len - 4)
+		return;
+	lc_memcpy_secure(buf + len2 - 1, len - len2, "\",\n\0", 4);
 }
 
 static int lc_seeded_rng_generate(void *_state, const uint8_t *addtl_input,

@@ -770,12 +770,15 @@ void alg_status_unset_result_all(void)
 static void alg_status_one(const struct alg_status_show *alg_status_show_arr,
 			   size_t array_size, uint64_t flag, atomic_t *status,
 			   char **test_completed, size_t *test_completed_len,
-			   char **test_open, size_t *test_open_len,
-			   char **errorbuf, size_t *errorbuf_len)
+			   int *comma_comp, char **test_open,
+			   size_t *test_open_len, int *comma_pen,
+			   char **errorbuf, size_t *errorbuf_len,
+			   int *comma_err)
 {
 	const struct alg_status_show *alg_status_show;
 	size_t i;
 	enum lc_alg_status_result res;
+	int *comma_p;
 
 	for (i = 0, alg_status_show = alg_status_show_arr; i < array_size;
 	     i++, alg_status_show++) {
@@ -791,14 +794,17 @@ static void alg_status_one(const struct alg_status_show *alg_status_show_arr,
 					       ~LC_ALG_STATUS_TYPE_MASK));
 		switch (res) {
 		case lc_alg_status_result_passed:
+			comma_p = comma_comp;
 			outbuf = test_completed;
 			outbuf_len = test_completed_len;
 			break;
 		case lc_alg_status_result_failed:
+			comma_p = comma_err;
 			outbuf = errorbuf;
 			outbuf_len = errorbuf_len;
 			break;
 		case lc_alg_status_result_pending:
+			comma_p = comma_pen;
 			outbuf = test_open;
 			outbuf_len = test_open_len;
 			break;
@@ -807,22 +813,52 @@ static void alg_status_one(const struct alg_status_show *alg_status_show_arr,
 			continue;
 		}
 
-		/* No overflow */
-		if (*outbuf_len < (size_t)alg_status_show->strlen + 2)
-			continue;
+		if (*comma_p) {
+			/* No overflow */
+			if (*outbuf_len < (size_t)alg_status_show->strlen + 5)
+				continue;
 
-		memcpy(*outbuf, alg_status_show->alg_name,
-		       alg_status_show->strlen);
+			/* Comma */
+			*(*outbuf) = 0x2c;
+			/* Space */
+			*(*outbuf + 1) = 0x20;
 
-		/* Space */
-		*(*outbuf + alg_status_show->strlen) = 0x20;
+			/* Double quotes */
+			*(*outbuf + 2) = 0x22;
+			memcpy(*outbuf + 3, alg_status_show->alg_name,
+			alg_status_show->strlen);
 
-		/* String Terminator */
-		*(*outbuf + alg_status_show->strlen + 1) = '\0';
+			/* Double quotes */
+			*(*outbuf + 3 + alg_status_show->strlen) = 0x22;
 
-		/* Advance pointer, but ignore terminator */
-		*outbuf += alg_status_show->strlen + 1;
-		*outbuf_len -= alg_status_show->strlen + 1;
+			/* String Terminator */
+			*(*outbuf + 4 + alg_status_show->strlen) = '\0';
+
+			/* Advance pointer, but ignore terminator */
+			*outbuf += alg_status_show->strlen + 4;
+			*outbuf_len -= alg_status_show->strlen + 4;
+		} else {
+			*comma_p = 1;
+
+			/* No overflow */
+			if (*outbuf_len < (size_t)alg_status_show->strlen + 3)
+				continue;
+
+			/* Double quotes */
+			*(*outbuf) = 0x22;
+			memcpy(*outbuf + 1, alg_status_show->alg_name,
+			alg_status_show->strlen);
+
+			/* Double quotes */
+			*(*outbuf + 1 + alg_status_show->strlen) = 0x22;
+
+			/* String Terminator */
+			*(*outbuf + 2 + alg_status_show->strlen) = '\0';
+
+			/* Advance pointer, but ignore terminator */
+			*outbuf += alg_status_show->strlen + 2;
+			*outbuf_len -= alg_status_show->strlen + 2;
+		}
 	}
 }
 
@@ -830,6 +866,8 @@ void alg_status_print(uint64_t flag, char *test_completed,
 		      size_t test_completed_len, char *test_open,
 		      size_t test_open_len, char *errorbuf, size_t errorbuf_len)
 {
+	int comma_comp = 0, comma_err = 0, comma_pen = 0;
+
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_AEAD) {
 		alg_status_one(
 			/*
@@ -841,64 +879,75 @@ void alg_status_print(uint64_t flag, char *test_completed,
 			alg_status_show_aead,
 			ARRAY_SIZE(alg_status_show_aead) - 1, flag,
 			&lc_alg_status_aead, &test_completed,
-			&test_completed_len, &test_open, &test_open_len,
-			&errorbuf, &errorbuf_len);
+			&test_completed_len, &comma_comp, &test_open,
+			&test_open_len, &comma_pen, &errorbuf, &errorbuf_len,
+			&comma_err);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_KEM_PQC) {
 		alg_status_one(alg_status_show_kem_pqc,
 			       ARRAY_SIZE(alg_status_show_kem_pqc) - 1, flag,
 			       &lc_alg_status_kem_pqc, &test_completed,
-			       &test_completed_len, &test_open, &test_open_len,
-			       &errorbuf, &errorbuf_len);
+			       &test_completed_len, &comma_comp, &test_open,
+			       &test_open_len, &comma_pen, &errorbuf,
+			       &errorbuf_len, &comma_err);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_KEM_CLASSIC) {
 		alg_status_one(alg_status_show_kem_classic,
 			       ARRAY_SIZE(alg_status_show_kem_classic) - 1,
 			       flag, &lc_alg_status_kem_classic,
-			       &test_completed, &test_completed_len, &test_open,
-			       &test_open_len, &errorbuf, &errorbuf_len);
+			       &test_completed, &test_completed_len,
+			       &comma_comp, &test_open, &test_open_len,
+			       &comma_pen, &errorbuf, &errorbuf_len,
+			       &comma_err);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_SIG_PQC) {
 		alg_status_one(alg_status_show_sig_pqc,
 			       ARRAY_SIZE(alg_status_show_sig_pqc) - 1, flag,
 			       &lc_alg_status_sig_pqc, &test_completed,
-			       &test_completed_len, &test_open, &test_open_len,
-			       &errorbuf, &errorbuf_len);
+			       &test_completed_len, &comma_comp, &test_open,
+			       &test_open_len, &comma_pen, &errorbuf,
+			       &errorbuf_len, &comma_err);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_SIG_CLASSIC) {
 		alg_status_one(alg_status_show_sig_classic,
 			       ARRAY_SIZE(alg_status_show_sig_classic) - 1,
 			       flag, &lc_alg_status_sig_classic,
-			       &test_completed, &test_completed_len, &test_open,
-			       &test_open_len, &errorbuf, &errorbuf_len);
+			       &test_completed, &test_completed_len,
+			       &comma_comp, &test_open, &test_open_len,
+			       &comma_pen, &errorbuf, &errorbuf_len,
+			       &comma_err);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_RNG) {
 		alg_status_one(alg_status_show_rng,
 			       ARRAY_SIZE(alg_status_show_rng) - 1, flag,
 			       &lc_alg_status_rng, &test_completed,
-			       &test_completed_len, &test_open, &test_open_len,
-			       &errorbuf, &errorbuf_len);
+			       &test_completed_len, &comma_comp, &test_open,
+			       &test_open_len, &comma_pen, &errorbuf,
+			       &errorbuf_len, &comma_err);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_DIGEST) {
 		alg_status_one(alg_status_show_digest,
 			       ARRAY_SIZE(alg_status_show_digest) - 1, flag,
 			       &lc_alg_status_digest, &test_completed,
-			       &test_completed_len, &test_open, &test_open_len,
-			       &errorbuf, &errorbuf_len);
+			       &test_completed_len, &comma_comp, &test_open,
+			       &test_open_len, &comma_pen, &errorbuf,
+			       &errorbuf_len, &comma_err);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_SYM) {
 		alg_status_one(alg_status_show_sym,
 			       ARRAY_SIZE(alg_status_show_sym) - 1, flag,
 			       &lc_alg_status_sym, &test_completed,
-			       &test_completed_len, &test_open, &test_open_len,
-			       &errorbuf, &errorbuf_len);
+			       &test_completed_len, &comma_comp, &test_open,
+			       &test_open_len, &comma_pen, &errorbuf,
+			       &errorbuf_len, &comma_err);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_AUX) {
 		alg_status_one(alg_status_show_aux,
 			       ARRAY_SIZE(alg_status_show_aux) - 1, flag,
 			       &lc_alg_status_aux, &test_completed,
-			       &test_completed_len, &test_open, &test_open_len,
-			       &errorbuf, &errorbuf_len);
+			       &test_completed_len, &comma_comp, &test_open,
+			       &test_open_len, &comma_pen, &errorbuf,
+			       &errorbuf_len, &comma_err);
 	}
 }
 
