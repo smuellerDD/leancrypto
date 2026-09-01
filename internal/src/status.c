@@ -65,7 +65,7 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 	const char __maybe_unused *avx2 =
 #if defined(LC_HOST_X86_64) || defined(CONFIG_X86_64)
 		(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2) ?
-			"AVX2 " :
+			", \"AVX2\"" :
 			"";
 #else
 		"";
@@ -74,7 +74,7 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 #if defined(LC_HOST_X86_64) || defined(CONFIG_X86_64)
 		((lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX512) &&
 		 (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_VPCLMUL)) ?
-			"AVX512 " :
+			", \"AVX512\"" :
 			"";
 #else
 		"";
@@ -82,7 +82,7 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 	const char __maybe_unused *pclmulqdq =
 #if defined(LC_HOST_X86_64) || defined(CONFIG_X86_64)
 		(lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_PCLMUL) ?
-			"PCLMULQDQ " :
+			", \"PCLMULQDQ\"" :
 			"";
 #else
 		"";
@@ -90,7 +90,7 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 	const char __maybe_unused *pmull =
 #if defined(LC_HOST_AARCH64) || defined(CONFIG_ARM64)
 		(lc_cpu_feature_available() & LC_CPU_FEATURE_ARM_PMULL) ?
-			"PMULL " :
+			", \"PMULL\"" :
 			"";
 #else
 		"";
@@ -98,7 +98,7 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 	const char __maybe_unused *riscv64_rvv =
 #if defined(LC_HOST_RISCV64) || defined(CONFIG_RISCV)
 		(lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV_ASM_RVV) ?
-			"RISCV64-RVV " :
+			", \"RISCV64-RVV\"" :
 			"";
 #else
 		"";
@@ -108,16 +108,16 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 		(lc_cpu_feature_available() & LC_CPU_FEATURE_RISCV) ?
 			(lc_cpu_feature_available() &
 			 LC_CPU_FEATURE_RISCV_ASM_ZBB) ?
-			"RISCV64-Zbb " :
-			"RISCV64 " :
+			", \"RISCV64-Zbb\"" :
+			", \"RISCV64\"" :
 			"";
 #else
 		"";
 #endif
 	const char __maybe_unused *riscv64_rvv_vlen =
 #if defined(LC_KYBER) && (defined(LC_HOST_RISCV64) || defined(CONFIG_RISCV))
-		lc_riscv_rvv_is_vlen128() ? "RISV64-RVV128 " :
-		lc_riscv_rvv_is_vlen256() ? "RISV64-RVV256 " :
+		lc_riscv_rvv_is_vlen128() ? ", \"RISV64-RVV128\"" :
+		lc_riscv_rvv_is_vlen256() ? ", \"RISV64-RVV256\"" :
 					    "";
 #else
 		"";
@@ -126,21 +126,21 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 	LC_FIPS_RODATA_SECTION
 	static const char __maybe_unused armv8[] =
 #if defined(LC_HOST_AARCH64) || defined(CONFIG_ARM64)
-		"ARMv8 ";
+		", \"ARMv8\"";
 #else
 		"";
 #endif
 	LC_FIPS_RODATA_SECTION
 	static const char __maybe_unused armv7[] =
 #if defined(LC_HOST_ARM32_NEON) || defined(CONFIG_ARM)
-		"ARMv7 ";
+		", \"ARMv7\"";
 #else
 		"";
 #endif
 	LC_FIPS_RODATA_SECTION
 	static const char __maybe_unused riscv64[] =
 #if defined(LC_HOST_RISCV64) || defined(CONFIG_RISCV)
-		"RISCV64 ";
+		", \"RISCV64\"";
 #else
 		"";
 #endif
@@ -168,8 +168,8 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 	 */
 	CKRET(!outlen, -EINVAL);
 
-	snprintf(outbuf, outlen, "leancrypto %u.%u.%u\n", MAJVERSION,
-		 MINVERSION, PATCHLEVEL);
+	snprintf(outbuf, outlen, "{\n  \"version\": \"leancrypto %u.%u.%u\",\n",
+		 MAJVERSION, MINVERSION, PATCHLEVEL);
 
 	alg_status_print((uint64_t)-1, ws->status_pass, status_pass_len,
 			 ws->status_untested, status_untested_len,
@@ -177,9 +177,9 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 
 	len = strlen(outbuf);
 	snprintf(outbuf + len, outlen - len,
-		 "Self-Test Passed: %s\n"
-		 "Self-Test Not Executed: %s\n"
-		 "Self-Test Failed: %s\n",
+		 "  \"selfTestPassed\": [ %s ],\n"
+		 "  \"selfTestNotExecuted\": [ %s ],\n"
+		 "  \"selfTestFailed\": [ %s ],\n",
 		 ws->status_pass, ws->status_untested, ws->status_error);
 
 	len = strlen(outbuf);
@@ -188,151 +188,161 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 	len = strlen(outbuf);
 	snprintf(
 		outbuf + len, outlen - len,
-		"Seeded RNG instances: %u\n"
-		"FIPS 140 Mode: %s\n"
-		"Acceleration support:\n"
+		"  \"seededRNGInstances\": %u,\n"
+		"  \"FIPS140Mode\": %s,\n"
+		"  \"accelerationSupport\": {\n"
 #ifdef LC_AES
-		" AES: %s%s%s%s\n"
+		"    \"AES\": [ %s%s%s%s ],\n"
 #endif
 #ifdef LC_CHACHA20
-		" ChaCha20: %s%s%s%s\n"
+		"    \"ChaCha20\": [ %s%s%s%s%s ],\n"
 #endif
 #ifdef LC_SHA2_256
-		" SHA2-256: %s%s%s%s%s%s\n"
+		"    \"SHA2-256\": [ %s%s%s%s%s%s%s ],\n"
 #endif
 #ifdef LC_SHA2_512
-		" SHA2-512: %s%s%s%s%s%s\n"
+		"    \"SHA2-512\": [ %s%s%s%s%s%s%s ],\n"
 #endif
 #ifdef LC_SHA3
-		" SHA3 family: %s%s%s%s%s%s%s\n"
+		"    \"SHA3 family\": [ %s%s%s%s%s%s%s%s ],\n"
 #endif
 #ifdef LC_KYBER
-		" ML-KEM: %s%s%s%s%s\n"
+		"    \"ML-KEM\": [ %s%s%s%s%s%s ],\n"
 #endif
 #ifdef LC_DILITHIUM
-		" ML-DSA: %s%s%s%s%s\n"
+		"    \"ML-DSA\": [ %s%s%s%s%s%s ],\n"
 #endif
 #ifdef LC_SPHINCS
-		" SLH-DSA: %s%s\n"
+		"    \"SLH-DSA\": [ %s%s%s ],\n"
 #endif
 #ifdef LC_BIKE
-		" BIKE: %s%s\n"
+		"    \"BIKE\": [ %s%s%s ],\n"
 #endif
 #ifdef LC_HQC
-		" HQC: %s\n"
+		"    \"HQC\": [ %s%s ],\n"
 #endif
 #ifdef LC_CURVE25519
-		" Curve25519: %s%s%s\n"
+		"    \"Curve25519\": [ %s%s%s%s ],\n"
 #endif
 #ifdef LC_CURVE448
-		" Curve448: %s\n"
+		"    \"Curve448\": [ %s%s ],\n"
 #endif
-		" GF: %s%s%s\n",
+		"    \"GF\": [ %s%s%s%s ]\n"
+		"  }\n"
+		"}\n",
 		LC_SEEDED_RNG_INSTANCES,
-		fips140_mode_enabled() ? "yes" : "no"
+		fips140_mode_enabled() ? "true" : "false"
 
 	/* AES */
 #ifdef LC_AES
 		,
-		(lc_aes_c == lc_aes_sbox) ? "C=SBox " : "C=CT ",
-		(lc_aes_aesni && lc_aes_aesni != lc_aes_c) ? "AESNI " : "",
-		(lc_aes_armce && lc_aes_armce != lc_aes_c) ? "ARM-CE " : "",
-		(lc_aes_riscv64 && lc_aes_riscv64 != lc_aes_c) ? "RISCV64 " : ""
+		(lc_aes_c == lc_aes_sbox) ? "\"C=SBox\"" : "\"C=CT\"",
+		(lc_aes_aesni && lc_aes_aesni != lc_aes_c) ? ", \"AESNI\"" : "",
+		(lc_aes_armce && lc_aes_armce != lc_aes_c) ? ", \"ARM-CE\"" : "",
+		(lc_aes_riscv64 && lc_aes_riscv64 != lc_aes_c) ? ", \"RISCV64\"" : ""
 #endif
 
 	/* ChaCha20 */
 #ifdef LC_CHACHA20
 		,
+		"\"C\"",
 		(lc_chacha20_neon && lc_chacha20_neon != lc_chacha20_c) ?
-			"Neon " :
+			", \"Neon\"" :
 			"",
 		(lc_chacha20_avx512 && lc_chacha20_avx512 != lc_chacha20_c) ?
-			"AVX512 " :
+			", \"AVX512\"" :
 			"",
 		(lc_chacha20_avx2 && lc_chacha20_avx2 != lc_chacha20_c) ?
-			"AVX2 " :
+			", \"AVX2\"" :
 			"",
 		(lc_chacha20_riscv64_v_zbb &&
 		 lc_chacha20_riscv64_v_zbb != lc_chacha20_c) ?
-			"RISCV64-Zbb " :
+			", \"RISCV64-Zbb\"" :
 			""
 #endif
 
 	/* SHA2-256 */
 #ifdef LC_SHA2_256
 		,
-		(lc_sha256_shani && lc_sha256_shani != lc_sha256_c) ? "SHANI " :
-								      "",
-		(lc_sha256_avx2 && lc_sha256_avx2 != lc_sha256_c) ? "AVX2 " :
-								    "",
+		"\"C\"",
+		(lc_sha256_shani && lc_sha256_shani != lc_sha256_c) ?
+			", \"SHANI\"" :
+			"",
+		(lc_sha256_avx2 && lc_sha256_avx2 != lc_sha256_c) ?
+			", \"AVX2\"" :
+			"",
 		(lc_sha256_arm_ce && lc_sha256_arm_ce != lc_sha256_c) ?
-			"ARM-CE " :
+			", \"ARM-CE\"" :
 			"",
 		(lc_sha256_arm_neon && lc_sha256_arm_neon != lc_sha256_c) ?
-			"ARM-Neon " :
+			", \"ARM-Neon\"" :
 			"",
 		(lc_sha256_riscv && lc_sha256_riscv != lc_sha256_c) ?
-			"RISCV64 " :
+			", \"RISCV64\"" :
 			"",
 		(lc_sha256_riscv_zbb && lc_sha256_riscv_zbb != lc_sha256_c) ?
-			"RISCV64-Zbb " :
+			", \"RISCV64-Zbb\"" :
 			""
 #endif
 
 	/* SHA2-512 */
 #ifdef LC_SHA2_512
 		,
+		"\"C\"",
 		(lc_sha512_shani && lc_sha512_shani != lc_sha512_c) ?
-			"SHANI-512 " :
+			", \"SHANI-512\"" :
 			"",
-		(lc_sha512_avx2 && lc_sha512_avx2 != lc_sha512_c) ? "AVX2 " :
-								    "",
+		(lc_sha512_avx2 && lc_sha512_avx2 != lc_sha512_c) ?
+			", \"AVX2\"" :
+			"",
 		(lc_sha512_arm_ce && lc_sha512_arm_ce != lc_sha512_c) ?
-			"ARM-CE " :
+			", \"ARM-CE\"" :
 			"",
 		(lc_sha512_arm_neon && lc_sha512_arm_neon != lc_sha512_c) ?
-			"ARM-Neon " :
+			", \"ARM-Neon\"" :
 			"",
 		(lc_sha512_riscv && lc_sha512_riscv != lc_sha512_c) ?
-			"RISCV64 " :
+			", \"RISCV64\"" :
 			"",
 		(lc_sha512_riscv_zbb && lc_sha512_riscv_zbb != lc_sha512_c) ?
-			"RISCV64-Zbb " :
+			", \"RISCV64-Zbb\"" :
 			""
 #endif
 
 	/* SHA3 */
 #ifdef LC_SHA3
 		,
+		"\"C\"",
 		(lc_sha3_256_avx512 && lc_sha3_256_avx512 != lc_sha3_256_c) ?
-			"AVX512 " :
+			", \"AVX512\"" :
 			"",
 		(lc_sha3_256_avx2 && lc_sha3_256_avx2 != lc_sha3_256_c) ?
-			"AVX2 AVX2-4x " :
+			", \"AVX2\", \"AVX2-4x\"" :
 			"",
 		(lc_sha3_256_arm_neon &&
 		 lc_sha3_256_arm_neon != lc_sha3_256_c) ?
-			"ARM-Neon " :
+			", \"ARM-Neon\"" :
 			"",
 		(lc_sha3_256_arm_ce && lc_sha3_256_arm_ce != lc_sha3_256_c) ?
-			"ARM-CE " :
+			", \"ARM-CE\"" :
 			"",
 		(lc_sha3_256_arm_asm && lc_sha3_256_arm_asm != lc_sha3_256_c) ?
-			"ARMv8 ARMv8-2x " :
+			", \"ARMv8\", \"ARMv8-2x\"" :
 			"",
 		(lc_sha3_256_riscv_asm_zbb &&
 		 lc_sha3_256_riscv_asm_zbb != lc_sha3_256_c) ?
-			"RISCV64-Zbb " :
+			", \"RISCV64-Zbb\"" :
 			"",
 		(lc_sha3_256_riscv_asm &&
 		 lc_sha3_256_riscv_asm != lc_sha3_256_c) ?
-			"RISCV64 " :
+			", \"RISCV64\"" :
 			""
 #endif
 
 	/* Kyber */
 #ifdef LC_KYBER
 		,
+		"\"C\"",
 		avx2, armv7, armv8, riscv64, riscv64_rvv_vlen
 
 #endif /* LC_KYBER */
@@ -340,40 +350,47 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 	/* Dilithium */
 #ifdef LC_DILITHIUM
 		,
+		"\"C\"",
 		avx2, armv7, armv8, riscv64, riscv64_rvv
 #endif /* LC_DILITHIUM */
 
 	/* Sphincs+ */
 #ifdef LC_SPHINCS
 		,
+		"\"C\"",
 		avx2, armv8
 #endif /* LC_DILITHIUM */
 
 	/* Bike */
 #ifdef LC_BIKE
 		,
+		"\"C\"",
 		avx2, avx512
 #endif /* LC_BIKE */
 	/* HQC */
 #ifdef LC_HQC
 		,
+		"\"C\"",
 		avx2
 #endif /* LC_HQC */
 
 	/* Curve25519 */
 #ifdef LC_CURVE25519
 		,
+		"\"C\"",
 		avx2, armv7, armv8
 #endif /* LC_CURVE25519 */
 
 	/* Curve448 */
 #ifdef LC_CURVE448
 		,
+		"\"C\"",
 		avx2
 #endif /* LC_CURVE448 */
 
 		/* GF */
 		,
+		"\"C\"",
 		pclmulqdq, pmull, riscv64_rvv_zbb);
 
 #ifdef __clang__

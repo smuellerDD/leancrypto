@@ -101,7 +101,7 @@ static inline int test_print_status(void)
 		ret += 1;
 		goto out;
 	}
-	printf("Status information from leancrypto:\n%s", ws->status);
+	printf("%s", ws->status);
 
 out:
 	LC_RELEASE_MEM(ws);

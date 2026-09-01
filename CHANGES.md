@@ -43,6 +43,8 @@ Changes 1.9.0-prerelease
 
 * ChaCha20: During the development of version 1.8.0, the counter size was reduced to 32 bits to be compliant to RFC7539 and to cover the Wycheproof test vectors. However, that caused a regression for users that want to utilize ChaCha20 with a 64 bit counter. To alleviate the regression and yet comply with RFC7539, leancrypto now implements lc_chacha20_64 which provides the ChaCha20 with 64 bit IV handling. Every else is identical for both ChaCha20 implementations.
 
+* Status listing is now JSON to allow easier technical parsing
+
 Changes 1.8.0
 * X.509: provide a common automated serial number generator which is the 20 leftmost bytes of the SHA3-256 hash of the certificate DER blob with the serial number being 20 bytes of 0xff and the signature part equally a range of 0xff bytes
 
