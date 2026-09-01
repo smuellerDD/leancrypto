@@ -52,6 +52,8 @@ The following modules are present:
 
 * `slh-dsa`: FIPS 205 SLH-DSA algorithm
 
+* `sntrup`: SNTRUP algorithm
+
 * `sym`: symmetric encryption algorithms with their block chaining modes
 
 ## Module Directories

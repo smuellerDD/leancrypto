@@ -400,6 +400,16 @@ if (get_option('hqc_256').enabled() or
 	add_global_arguments([ '-DLC_HQC' ], language: 'c')
 endif
 
+sntrup_enabled = false
+if (get_option('sntrup_1277').enabled() or
+    get_option('sntrup_1013').enabled() or
+    get_option('sntrup_953').enabled() or
+    get_option('sntrup_857').enabled() or
+    get_option('sntrup_761').enabled())
+	add_global_arguments([ '-DLC_SNTRUP' ], language: 'c')
+	sntrup_enabled = true
+endif
+
 if get_option('efi').enabled()
 	add_global_arguments([ '-DLC_EFI' ], language: 'c')
 	# Considering that on EFI we are in a small execution environment
@@ -673,6 +683,7 @@ include_dirs = include_directories([ 'aead/api',
 				     'slh-dsa/api',
 				     'sym/api',
 				     'asn1/api',
+				     'sntrup/api'
 				   ])
 
 include_files = [ ]
@@ -704,7 +715,9 @@ subdirs = [
 	    'slh-dsa/src',
 	    'sym/src',
 	    'asn1/src',
-	    'efi/src'
+	    'efi/src',
+	    'sntrup/api',
+	    'sntrup/src'
 	  ]
 
 testdirs = [ 'apps/tests',
@@ -723,7 +736,8 @@ testdirs = [ 'apps/tests',
 	     'slh-dsa/tests',
 	     'sym/tests',
 	     'asn1/tests',
-	     'efi/tests'
+	     'efi/tests',
+	     'sntrup/tests'
 	   ]
 
 appdirs = [ 'apps/src' ]
@@ -880,6 +894,10 @@ endif
 if (get_option('slh_dsa_ascon_128f').enabled() and
     get_option('ascon').disabled())
 	error('SLH-DSA-Ascon-128f support requires Ascon')
+endif
+
+if (sntrup_enabled == true and get_option('sha2-512').disabled())
+	error('SNTRUP requires SHA2-512 support')
 endif
 
 if get_option('x509_parser').disabled() and get_option('pkcs7_parser').enabled()

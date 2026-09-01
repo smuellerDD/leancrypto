@@ -1,0 +1,152 @@
+/*
+ * Copyright (C) 2026, Stephan Mueller <smueller@chronox.de>
+ *
+ * License: see LICENSE file in root directory
+ *
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, ALL OF
+ * WHICH ARE HEREBY DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+ * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+ * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ */
+
+#ifndef LC_SNTRUP_@sntrup_header@H
+#define LC_SNTRUP_@sntrup_header@H
+
+#include "ext_headers_internal.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/*
+ * SNTRUP parameter set definition
+ */
+#define LC_SNTRUP_MODE @sntrup_mode@
+
+#if LC_SNTRUP_MODE == 1277
+#define LC_SNTRUP_SECRETKEYBYTES 3059
+#define LC_SNTRUP_PUBLICKEYBYTES 2067
+#define LC_SNTRUP_CIPHERTEXTBYTES 1847
+#define LC_SNTRUP_SSBYTES 32
+
+#elif LC_SNTRUP_MODE == 1013
+#define LC_SNTRUP_SECRETKEYBYTES 2417
+#define LC_SNTRUP_PUBLICKEYBYTES 1623
+#define LC_SNTRUP_CIPHERTEXTBYTES 1455
+#define LC_SNTRUP_SSBYTES 32
+
+#elif LC_SNTRUP_MODE == 953
+#define LC_SNTRUP_SECRETKEYBYTES 2254
+#define LC_SNTRUP_PUBLICKEYBYTES 1505
+#define LC_SNTRUP_CIPHERTEXTBYTES 1349
+#define LC_SNTRUP_SSBYTES 32
+
+#elif LC_SNTRUP_MODE == 857
+#define LC_SNTRUP_SECRETKEYBYTES 1999
+#define LC_SNTRUP_PUBLICKEYBYTES 1322
+#define LC_SNTRUP_CIPHERTEXTBYTES 1184
+#define LC_SNTRUP_SSBYTES 32
+
+#elif LC_SNTRUP_MODE == 761
+#define LC_SNTRUP_SECRETKEYBYTES 1763
+#define LC_SNTRUP_PUBLICKEYBYTES 1158
+#define LC_SNTRUP_CIPHERTEXTBYTES 1039
+#define LC_SNTRUP_SSBYTES 32
+
+#else
+#error "Unknown LC_SNTRUP_MODE"
+#endif
+
+struct @sntrup_name@_sk {
+	uint8_t sk[LC_SNTRUP_SECRETKEYBYTES];
+};
+
+struct @sntrup_name@_pk {
+	uint8_t pk[LC_SNTRUP_PUBLICKEYBYTES];
+};
+
+struct @sntrup_name@_ct {
+	uint8_t ct[LC_SNTRUP_CIPHERTEXTBYTES];
+};
+
+struct @sntrup_name@_ss {
+	uint8_t ss[LC_SNTRUP_SSBYTES];
+};
+
+
+/**
+ * @ingroup SNTRUP
+ * @brief Generates SNTRUP public and private key.
+ *
+ * @param [out] pk pointer to allocated output public key
+ * @param [out] sk pointer to allocated output private key
+ * @param [in] rng_ctx pointer to seeded random number generator context
+ *
+ * @return 0 (success) or < 0 on error
+ */
+int @sntrup_name@_kem_keypair(struct @sntrup_name@_pk *pk,
+			      struct @sntrup_name@_sk *sk,
+			      struct lc_rng_ctx *rng_ctx);
+
+/**
+ * @ingroup SNTRUP
+ * @brief SNTRUP Key encapsulation
+ *
+ * Generates cipher text and shared secret for given public key.
+ *
+ * @param [out] ct pointer to output cipher text to used for decapsulation
+ * @param [out] ss pointer to output shared secret that will be also produced
+ *		   during decapsulation
+ * @param [in] pk pointer to input public key
+ *
+ * Returns 0 (success) or < 0 on error
+ */
+int @sntrup_name@_kem_enc(struct @sntrup_name@_ct *ct,
+			  struct @sntrup_name@_ss *ss,
+			  const struct @sntrup_name@_pk *pk);
+
+/**
+ * @ingroup SNTRUP
+ * @brief SNTRUP Key decapsulation
+ *
+ * Generates shared secret for given cipher text and private key
+ *
+ * @param [out] ss pointer to output shared secret that is the same as produced
+ *		   during encapsulation
+ * @param [in] ct pointer to input cipher text generated during encapsulation
+ * @param [in] sk pointer to input private key
+ *
+ * @return 0
+ *
+ * On failure, ss will contain a pseudo-random value.
+ */
+int @sntrup_name@_kem_dec(struct @sntrup_name@_ss *ss,
+			  const struct @sntrup_name@_ct *ct,
+			  const struct @sntrup_name@_sk *sk);
+
+/*
+ * To allow including the different lc_sntrup_*.h files, these macros need to
+ * be undefined. Only during compilation of leancrypto, these macros remain
+ * defined as this header file is not included multiple times.
+ */
+#ifndef LC_SNTRUP_INTERNAL
+#undef LC_SNTRUP_MODE
+#undef LC_SNTRUP_SECRETKEYBYTES
+#undef LC_SNTRUP_PUBLICKEYBYTES
+#undef LC_SNTRUP_CIPHERTEXTBYTES
+#undef LC_SNTRUP_SSBYTES
+#endif /* LC_SNTRUP_INTERNAL */
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* LC_SNTRUP_@sntrup_header@H */

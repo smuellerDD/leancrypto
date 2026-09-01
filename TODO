@@ -36,3 +36,13 @@
 - RHEL8 / 9: Enable github tests after finding out why the linker barfs on the FIPS140 linker script
 
 - Enable Windows-ARM64 once Github provides a usable runner
+
+- sntrup:
+  - timecop
+  - linux kernel
+  - CAST
+  - performance tests
+  - documentation
+  - status
+  - FIPS status
+  - accelerations

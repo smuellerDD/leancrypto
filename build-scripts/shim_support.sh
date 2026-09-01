@@ -61,6 +61,10 @@ DISABLE_KEM="
  -Dhqc_128=disabled
  -Dx25519=disabled
  -Dx448=disabled
+ -Dsntrup_1277=disabled
+ -Dsntrup_1013=disabled
+ -Dsntrup_953=disabled
+ -Dsntrup_761=disabled
 "
 
 DISABLE_DRNG="
