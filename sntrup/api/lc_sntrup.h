@@ -75,9 +75,9 @@ enum lc_sntrup_type {
  * mentioned purpose.
  *
  * * lc_sntrup.h: This API is the generic API allowing the caller to select
- *   which SNTRUP type (SNTRUP-1277, -1013, -953 or -761) are to be used. The
- *   selection is made either with the flag specified during key generation or
- *   by matching the size of the imported data with the different
+ *   which SNTRUP type (SNTRUP-1277, -1013, -953, -857 or -761) are to be used.
+ *   The selection is made either with the flag specified during key generation
+ *   or by matching the size of the imported data with the different
  *   lc_sntrup_*_load API calls. All remaining APIs take the information about
  *   the SNTRUP type from the provided input data.
  *
@@ -89,6 +89,8 @@ enum lc_sntrup_type {
  * * lc_sntrup_1013.h: Direct access to SNTRUP-1013.
  *
  * * lc_sntrup_953.h: Direct access to SNTRUP-953.
+ *
+ * * lc_sntrup_857.h: Direct access to SNTRUP-857.
  *
  * * lc_sntrup_761.h: Direct access to SNTRUP-761.
  */
