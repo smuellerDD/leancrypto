@@ -45,6 +45,8 @@ Changes 1.9.0-prerelease
 
 * Status listing is now JSON to allow easier technical parsing
 
+* bug fix: lc_memcmp_secure returns negative error on string mismatch to align its return code with the rest of leancrypto (reported by Conner Webber)
+
 Changes 1.8.0
 * X.509: provide a common automated serial number generator which is the 20 leftmost bytes of the SHA3-256 hash of the certificate DER blob with the serial number being 20 bytes of 0xff and the signature part equally a range of 0xff bytes
 

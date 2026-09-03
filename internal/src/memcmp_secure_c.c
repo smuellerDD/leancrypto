@@ -34,5 +34,5 @@ LC_INTERFACE_FUNCTION(int, lc_memcmp_secure, const void *s1, size_t s1n,
 
 	ret |= memcmp_secure_64(s1, s2, n);
 
-	return ret;
+	return ret ? -EBADMSG : 0;
 }
