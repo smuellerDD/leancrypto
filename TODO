@@ -40,9 +40,6 @@
 - sntrup:
   - timecop
   - linux kernel
-  - CAST
   - performance tests
   - documentation
-  - status
-  - FIPS status
   - accelerations

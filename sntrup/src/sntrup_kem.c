@@ -28,6 +28,7 @@
  */
 
 #include "build_bug_on.h"
+#include "compare.h"
 #include "lc_rng.h"
 #include "lc_sha512.h"
 #include "params.h"
@@ -171,9 +172,9 @@ static void Hide(uint8_t *x, uint8_t *c, uint8_t *r_enc, const Inputs r,
 	Hash(c + Ciphertexts_bytes, x, 1 + Hash_bytes * 2);
 }
 
-LC_INTERFACE_FUNCTION(int, sntrup_kem_keypair, struct CRYPTO_NAMESPACE(pk) * pk,
-		      struct CRYPTO_NAMESPACE(sk) * sk,
-		      struct lc_rng_ctx *rng_ctx)
+int sntrup_kem_keypair_internal(struct CRYPTO_NAMESPACE(pk) * pk,
+				struct CRYPTO_NAMESPACE(sk) * sk,
+				struct lc_rng_ctx *rng_ctx)
 {
 	struct workspace {
 		union {
@@ -245,6 +246,17 @@ out:
 	return ret;
 }
 
+LC_INTERFACE_FUNCTION(int, sntrup_kem_keypair, struct CRYPTO_NAMESPACE(pk) * pk,
+		      struct CRYPTO_NAMESPACE(sk) * sk,
+		      struct lc_rng_ctx *rng_ctx)
+{
+	sntrup_selftest_keygen();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SNTRUP_KEYGEN);
+
+	return sntrup_kem_keypair_internal(pk, sk, rng_ctx);
+}
+
+
 int sntrup_kem_enc_internal(struct CRYPTO_NAMESPACE(ct) * ct,
 			    struct CRYPTO_NAMESPACE(ss) * ss,
 			    const struct CRYPTO_NAMESPACE(pk) * pk,
@@ -300,12 +312,15 @@ LC_INTERFACE_FUNCTION(int, sntrup_kem_enc, struct CRYPTO_NAMESPACE(ct) * ct,
 		      struct CRYPTO_NAMESPACE(ss) * ss,
 		      const struct CRYPTO_NAMESPACE(pk) * pk)
 {
+	sntrup_selftest_enc();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SNTRUP_ENC);
+
 	return sntrup_kem_enc_internal(ct, ss, pk, lc_seeded_rng);
 }
 
-LC_INTERFACE_FUNCTION(int, sntrup_kem_dec, struct CRYPTO_NAMESPACE(ss) * ss,
-		      const struct CRYPTO_NAMESPACE(ct) * ct,
-		      const struct CRYPTO_NAMESPACE(sk) * sk)
+int sntrup_kem_dec_internal(struct CRYPTO_NAMESPACE(ss) * ss,
+			    const struct CRYPTO_NAMESPACE(ct) * ct,
+			    const struct CRYPTO_NAMESPACE(sk) * sk)
 {
 	const uint8_t *pk = sk->sk + SecretKeys_bytes;
 	const uint8_t *rho = pk + PublicKeys_bytes;
@@ -373,4 +388,14 @@ LC_INTERFACE_FUNCTION(int, sntrup_kem_dec, struct CRYPTO_NAMESPACE(ss) * ss,
 
 	LC_RELEASE_MEM(ws);
 	return 0;
+}
+
+LC_INTERFACE_FUNCTION(int, sntrup_kem_dec, struct CRYPTO_NAMESPACE(ss) * ss,
+		      const struct CRYPTO_NAMESPACE(ct) * ct,
+		      const struct CRYPTO_NAMESPACE(sk) * sk)
+{
+	sntrup_selftest_dec();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_SNTRUP_DEC);
+
+	return sntrup_kem_dec_internal(ss, ct, sk);
 }

@@ -25,6 +25,7 @@ if sntrup_enabled == true
 		'encode_xfreeze.c',
 		'encode_xint16.c',
 		'sntrup_kem.c',
+		'sntrup_selftest.c',
 		'verify.c'
 	])
 

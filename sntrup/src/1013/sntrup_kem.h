@@ -36,9 +36,11 @@
 #define CRYPTO_NAMESPACE(name) lc_sntrup_1013_##name
 
 #define sntrup_kem_keypair CRYPTO_NAMESPACE(kem_keypair)
+#define sntrup_kem_keypair_internal CRYPTO_NAMESPACE(kem_keypair_internal)
 #define sntrup_kem_enc CRYPTO_NAMESPACE(kem_enc)
 #define sntrup_kem_enc_internal CRYPTO_NAMESPACE(kem_enc_internal)
 #define sntrup_kem_dec CRYPTO_NAMESPACE(kem_dec)
+#define sntrup_kem_dec_internal CRYPTO_NAMESPACE(kem_dec_internal)
 
 #define sntrup_kem_sntrup1013_SECRETKEYBYTES 2417
 #define sntrup_kem_sntrup1013_PUBLICKEYBYTES 1623
@@ -49,9 +51,22 @@
 #define sntrup_kem_CIPHERTEXTBYTES 1455
 #define sntrup_kem_BYTES 32
 
+int sntrup_kem_keypair_internal(struct CRYPTO_NAMESPACE(pk) * pk,
+				struct CRYPTO_NAMESPACE(sk) * sk,
+				struct lc_rng_ctx *rng_ctx);
 int sntrup_kem_enc_internal(struct CRYPTO_NAMESPACE(ct) * ct,
 			    struct CRYPTO_NAMESPACE(ss) * ss,
 			    const struct CRYPTO_NAMESPACE(pk) * pk,
 			    struct lc_rng_ctx *rng_ctx);
+int sntrup_kem_dec_internal(struct CRYPTO_NAMESPACE(ss) * ss,
+			    const struct CRYPTO_NAMESPACE(ct) * ct,
+			    const struct CRYPTO_NAMESPACE(sk) * sk);
+
+#define sntrup_selftest_keygen CRYPTO_NAMESPACE(sntrup_selftest_keygen)
+#define sntrup_selftest_enc CRYPTO_NAMESPACE(sntrup_selftest_enc)
+#define sntrup_selftest_dec CRYPTO_NAMESPACE(sntrup_selftest_dec)
+void sntrup_selftest_keygen(void);
+void sntrup_selftest_enc(void);
+void sntrup_selftest_dec(void);
 
 #endif /* sntrup_kem_1013_h */
