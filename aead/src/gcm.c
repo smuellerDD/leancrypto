@@ -897,7 +897,9 @@ static int gcm_dec_final(void *state, const uint8_t *tag, size_t taglen)
 {
 	/* the tag generated and returned by decryption */
 	uint8_t check_tag[AES_BLOCKSIZE] __align(8);
-	int ret;
+	int ret = 0;
+
+	CKRET(taglen > sizeof(check_tag), -EINVAL);
 
 	CKINT(gcm_enc_final(state, check_tag, taglen));
 
