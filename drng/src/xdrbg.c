@@ -259,8 +259,6 @@ int lc_xdrbg_drng_seed_nocheck(void *_state, const uint8_t *seed,
 	 */
 	if (initially_seeded)
 		lc_hash_update(xof_ctx, state->v, keysize);
-	else
-		state->status |= LC_XDRBG_DRNG_INITIALLY_SEEDED;
 
 	/* Insert the seed data into the XOF state. */
 	lc_hash_update(xof_ctx, seed, seedlen);
@@ -272,6 +270,9 @@ int lc_xdrbg_drng_seed_nocheck(void *_state, const uint8_t *seed,
 
 	/* Generate the V to store in the state and overwrite V'. */
 	lc_xdrbg_xof_final(xof_ctx, state->v, keysize);
+
+	/* At this point, we are initially seeded (this is a noop on reseed) */
+	state->status |= LC_XDRBG_DRNG_INITIALLY_SEEDED;
 
 out:
 	/* Clear the XOF state which is not needed any more. */
