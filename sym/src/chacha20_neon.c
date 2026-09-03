@@ -24,6 +24,7 @@
 #include "lc_chacha20_private.h"
 #include "status_algorithms.h"
 #include "lc_sym.h"
+#include "timecop.h"
 #include "visibility.h"
 
 #ifdef LC_HOST_ARM32_NEON
@@ -41,6 +42,9 @@ static int cc20_crypt_neon(struct lc_sym_state *ctx, const uint8_t *in,
 	ret = cc20_crypt_asm(ctx, in, out, len, ChaCha20_neon);
 	LC_NEON_DISABLE;
 
+	/* Timecop: output is not sensitive regarding side-channels. */
+	unpoison(out, len);
+
 	return ret;
 }
 
@@ -53,6 +57,9 @@ static int cc20_crypt_iv_neon(const struct lc_sym_state *ctx, const uint8_t *in,
 	LC_NEON_ENABLE;
 	ret = cc20_crypt_iv_asm(ctx, in, out, len, iv, ivlen, ChaCha20_neon);
 	LC_NEON_DISABLE;
+
+	/* Timecop: output is not sensitive regarding side-channels. */
+	unpoison(out, len);
 
 	return ret;
 }
