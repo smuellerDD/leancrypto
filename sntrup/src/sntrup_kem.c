@@ -34,6 +34,7 @@
 #include "ret_checkers.h"
 #include "small_stack_support.h"
 #include "sntrup_kem.h"
+#include "sntrup_pct.h"
 #include "sntrup_sort_uint32.h"
 #include "timecop.h"
 #include "visibility.h"
@@ -236,6 +237,8 @@ LC_INTERFACE_FUNCTION(int, sntrup_kem_keypair, struct CRYPTO_NAMESPACE(pk) * pk,
 					      PublicKeys_bytes,
 				      Small_bytes));
 	}
+
+	CKINT(lc_sntrup_pct_fips(pk, sk));
 
 out:
 	LC_RELEASE_MEM(ws);

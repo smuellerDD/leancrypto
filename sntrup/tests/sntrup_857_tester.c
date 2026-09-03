@@ -23,6 +23,7 @@
 #include "lc_rng.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"
+#include "test_helper_common.h"
 #include "visibility.h"
 
 #include "../src/857/sntrup_kem.h"
@@ -593,6 +594,7 @@ static int sntrup_857_tester(void)
 
 	CKINT(sntrup_857_pct_tester());
 	rc += _sntrup_857_tester();
+	rc += test_print_status();
 
 out:
 	return ret ? ret : rc;
