@@ -85,6 +85,9 @@ static int aes_armce_ctr_crypt_iv(const struct lc_sym_state *ctx,
 		aes_v8_ctr32_encrypt_blocks(in, out, todo, &ctx->enc_block_ctx,
 					    iv);
 
+		/* Timecop: output is not sensitive regarding side-channels. */
+		unpoison(out, todo * AES_BLOCKLEN);
+
 		/* CTR is not updated by cipher operation */
 		be32_to_ptr(&iv[12], ctr32);
 		if (ctr32 == 0)
@@ -114,6 +117,9 @@ static int aes_armce_ctr_crypt_iv(const struct lc_sym_state *ctx,
 
 		aes_v8_ctr32_encrypt_blocks(buffer, buffer, 1,
 					    &ctx->enc_block_ctx, iv);
+		/* Timecop: output is not sensitive regarding side-channels. */
+		unpoison(buffer, sizeof(buffer));
+
 		memcpy(out, buffer, residual_len);
 
 		lc_memset_secure(buffer, 0, sizeof(buffer));
