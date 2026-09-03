@@ -311,8 +311,8 @@ int _lc_kyber_dec(
 	kyber_print_buffer(ws->cmp, LC_KYBER_CIPHERTEXTBYTES,
 			   "Decapsulation: c'");
 
-	ws->fail = lc_memcmp_secure(ct->ct, LC_KYBER_CIPHERTEXTBYTES, ws->cmp,
-				    LC_KYBER_CIPHERTEXTBYTES);
+	ws->fail = !!lc_memcmp_secure(ct->ct, LC_KYBER_CIPHERTEXTBYTES, ws->cmp,
+				      LC_KYBER_CIPHERTEXTBYTES);
 
 	/* Compute rejection key */
 	CKINT(kyber_shake256_rkprf(

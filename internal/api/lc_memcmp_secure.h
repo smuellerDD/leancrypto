@@ -34,7 +34,7 @@ extern "C" {
  * @param s2 Second string
  * @param s2n Size of second string
  *
- * @return 0 on string match, != 0 when strings do not match
+ * @return 0 on string match, -EBADMSG when strings do not match
  */
 int lc_memcmp_secure(const void *s1, size_t s1n, const void *s2, size_t s2n);
 
