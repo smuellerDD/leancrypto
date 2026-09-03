@@ -19,6 +19,7 @@
 
 #include "ext_headers_x86.h"
 #include "memcmp_secure_internal.h"
+#include "sidechannel_resistance.h"
 #include "visibility.h"
 
 #ifndef ARRAY_SIZE
@@ -85,6 +86,9 @@ LC_INTERFACE_FUNCTION(int, lc_memcmp_secure, const void *s1, size_t s1n,
 	}
 
 	ret |= memcmp_secure_256(s1, s2, n);
+
+	/* Side-channel resistant return information */
+	cmov_int(&ret, -EBADMSG, (uint16_t)!!ret);
 
 	return ret;
 }

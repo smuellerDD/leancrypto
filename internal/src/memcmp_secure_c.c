@@ -18,6 +18,7 @@
  */
 
 #include "memcmp_secure_internal.h"
+#include "sidechannel_resistance.h"
 #include "visibility.h"
 
 LC_INTERFACE_FUNCTION(int, lc_memcmp_secure, const void *s1, size_t s1n,
@@ -34,5 +35,8 @@ LC_INTERFACE_FUNCTION(int, lc_memcmp_secure, const void *s1, size_t s1n,
 
 	ret |= memcmp_secure_64(s1, s2, n);
 
-	return ret ? -EBADMSG : 0;
+	/* Side-channel resistant return information */
+	cmov_int(&ret, -EBADMSG, (uint16_t)!!ret);
+
+	return ret;
 }

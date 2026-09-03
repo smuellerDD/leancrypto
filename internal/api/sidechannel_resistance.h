@@ -115,8 +115,8 @@ static inline void cmov_uint8(uint8_t *r, uint8_t v, uint8_t b)
  * @brief cmov_int - Copy input v to *r if b is 1, don't modify *r if b is 0.
  *		       Requires b to be in {0,1}; Runs in constant time.
  *
- * @param [out] r pointer to output int16_t
- * @param [in] v input int16_t
+ * @param [out] r pointer to output int
+ * @param [in] v input int
  * @param [in] b Condition bit; has to be in {0,1}
  */
 static inline void cmov_int(int *r, int v, uint16_t b)
