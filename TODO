@@ -40,6 +40,5 @@
 - sntrup:
   - timecop
   - linux kernel
-  - performance tests
   - documentation
   - accelerations
