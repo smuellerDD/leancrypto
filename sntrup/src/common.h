@@ -32,13 +32,19 @@
 
 #include "ext_headers_internal.h"
 
+#ifdef LC_HOST_X86_64
+#include "ext_headers_x86.h"
+typedef __m256i vec256;
+#endif
+
 /* ----- arithmetic mod 3 */
 typedef int8_t small;
 
 /* F3 is always represented as -1,0,1 */
 typedef int16_t Fq;
 
-extern int sntrup_verify_clen(const uint8_t *, const uint8_t *);
+int sntrup_verify_clen(const uint8_t *, const uint8_t *);
+int sntrup_verify_clen_avx2(const uint8_t *x, const uint8_t *y);
 void Small_encode(uint8_t *s, const void *v);
 void Small_decode(void *v, const uint8_t *s);
 void sntrup_encode_pxfreeze3(uint8_t *s, const void *v);
@@ -63,11 +69,37 @@ struct ws_core_inv {
 extern void sntrup_core_inv(uint8_t *, const uint8_t *, const uint8_t *,
 			    const uint8_t *, struct ws_core_inv *ws);
 
-struct ws_core_inv3 {
+#ifdef LC_HOST_X86_64
+struct ws_core_inv3_avx2 {
+	vec256 F0[numvec];
+	vec256 F1[numvec];
+	vec256 G0[numvec];
+	vec256 G1[numvec];
+	vec256 V0[numvec];
+	vec256 V1[numvec];
+	vec256 R0[numvec];
+	vec256 R1[numvec];
+	vec256 c0vec, c1vec;
+	vec256 swapvec;
+};
+#endif
+
+struct ws_core_inv3_ref {
 	bitvec f0, f1, g0, g1, v0, v1, r0, r1;
+};
+
+struct ws_core_inv3 {
+	union {
+#ifdef LC_HOST_X86_64
+		struct ws_core_inv3_avx2 avx2;
+#endif
+		struct ws_core_inv3_ref ref;
+	} u;
 };
 extern void sntrup_core_inv3(uint8_t *, const uint8_t *, const uint8_t *,
 			     const uint8_t *, struct ws_core_inv3 *ws);
+extern void sntrup_core_inv3_avx2(uint8_t *, const uint8_t *, const uint8_t *,
+				  const uint8_t *, struct ws_core_inv3 *ws);
 
 struct ws_core_mutl3 {
 	small f[p];

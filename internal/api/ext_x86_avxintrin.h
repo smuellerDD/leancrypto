@@ -265,6 +265,14 @@ extern __inline __m256i
 	return (__m256i)__builtin_ia32_lddqu256((char const *)__P);
 }
 
+extern __inline int
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm256_extract_epi8(__m256i __X, int const __N)
+{
+	__m128i __Y = _mm256_extractf128_si256(__X, __N >> 4);
+	return _mm_extract_epi8(__Y, __N % 16);
+}
+
 #endif
 
 #undef __DEFAULT_FN_ATTRS

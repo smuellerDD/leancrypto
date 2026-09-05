@@ -61,13 +61,13 @@ LC_TEST_FUNC(int, main, int argc, char *argv[])
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	if (argc < 1) {
-		printf("TInvoke tester with parameter type\n");
+		printf("Invoke tester with parameter type\n");
 		return -EOPNOTSUPP;
 	}
 
 	type = strtoul(argv[1], NULL, 10);
 	if (type > 10) {
-		printf("TInvoke tester with parameter type\n");
+		printf("Invoke tester with parameter type\n");
 		return -EOPNOTSUPP;
 	}
 

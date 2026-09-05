@@ -29,6 +29,8 @@
 
 #include "build_bug_on.h"
 #include "compare.h"
+#include "cpufeatures.h"
+#include "helper.h"
 #include "lc_rng.h"
 #include "lc_sha512.h"
 #include "params.h"
@@ -39,6 +41,32 @@
 #include "sntrup_sort_uint32.h"
 #include "timecop.h"
 #include "visibility.h"
+
+struct lc_sntrup_accel {
+	void (*core_inv3)(uint8_t *outbytes, const uint8_t *inbytes,
+			  const uint8_t *kbytes, const uint8_t *cbytes,
+			  struct ws_core_inv3 *ws);
+	int (*verify)(const uint8_t *x, const uint8_t *y);
+};
+
+static const struct lc_sntrup_accel f_ctx_c = {
+	.core_inv3 = sntrup_core_inv3,
+	.verify = sntrup_verify_clen,
+};
+
+static const struct lc_sntrup_accel f_ctx_avx2 __maybe_unused = {
+	.core_inv3 = sntrup_core_inv3_avx2,
+	.verify = sntrup_verify_clen_avx2,
+};
+
+static const struct lc_sntrup_accel *sntrup_get_accel(void)
+{
+#ifdef LC_HOST_X86_64
+	if (lc_cpu_feature_available() & LC_CPU_FEATURE_INTEL_AVX2)
+		return &f_ctx_avx2;
+#endif /* LC_HOST_X86_64 */
+	return &f_ctx_c;
+}
 
 /* ----- arithmetic mod q */
 
@@ -191,7 +219,9 @@ int sntrup_kem_keypair_internal(struct CRYPTO_NAMESPACE(pk) * pk,
 			small f[p];
 		} v;
 	};
-	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
+	const struct lc_sntrup_accel *sntrup_accel = sntrup_get_accel();
+	/* Alignment for AVX2 variables */
+	LC_DECLARE_MEM(ws, struct workspace, 32);
 	int ret;
 
 	BUILD_BUG_ON(sizeof(struct CRYPTO_NAMESPACE(sk)) !=
@@ -203,9 +233,10 @@ int sntrup_kem_keypair_internal(struct CRYPTO_NAMESPACE(pk) * pk,
 		Small_random(ws->g, rng_ctx, &ws->u.ws_small_random);
 		{
 			small vp;
-			sntrup_core_inv3((uint8_t *)ws->v.v,
-					 (const uint8_t *)ws->g, 0, 0,
-					 &ws->u.ws_core_inv3);
+
+			sntrup_accel->core_inv3((uint8_t *)ws->v.v,
+						(const uint8_t *)ws->g, 0, 0,
+						&ws->u.ws_core_inv3);
 			vp = ws->v.v[p];
 			unpoison(&vp, sizeof(vp));
 			if (vp == 0) {
@@ -218,8 +249,8 @@ int sntrup_kem_keypair_internal(struct CRYPTO_NAMESPACE(pk) * pk,
 		Short_random(ws->v.f, rng_ctx, &ws->u.ws_short_random);
 		Small_encode(sk->sk, ws->v.f);
 		{
-			Rq_recip3(ws->h, ws->v.f,
-				  &ws->u.ws_core_inv); /* always works */
+			/* always works */
+			Rq_recip3(ws->h, ws->v.f, &ws->u.ws_core_inv);
 			Rq_mult_small(ws->h, ws->g, &ws->u.ws_core_mult);
 			Rq_encode(pk->pk, ws->h);
 		}
@@ -227,6 +258,7 @@ int sntrup_kem_keypair_internal(struct CRYPTO_NAMESPACE(pk) * pk,
 	{
 		unsigned int i;
 		uint8_t sksave = sk->sk[SecretKeys_bytes - 1];
+
 		for (i = 0; i < PublicKeys_bytes; ++i)
 			sk->sk[SecretKeys_bytes + i] = pk->pk[i];
 		sk->sk[SecretKeys_bytes - 1] = 4;
@@ -255,7 +287,6 @@ LC_INTERFACE_FUNCTION(int, sntrup_kem_keypair, struct CRYPTO_NAMESPACE(pk) * pk,
 
 	return sntrup_kem_keypair_internal(pk, sk, rng_ctx);
 }
-
 
 int sntrup_kem_enc_internal(struct CRYPTO_NAMESPACE(ct) * ct,
 			    struct CRYPTO_NAMESPACE(ss) * ss,
@@ -347,6 +378,7 @@ int sntrup_kem_dec_internal(struct CRYPTO_NAMESPACE(ss) * ss,
 		Inputs r;
 		uint8_t x[1 + Hash_bytes + Ciphertexts_bytes + Confirm_bytes];
 	};
+	const struct lc_sntrup_accel *sntrup_accel = sntrup_get_accel();
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	unsigned int i;
 	int mask;
@@ -369,11 +401,10 @@ int sntrup_kem_dec_internal(struct CRYPTO_NAMESPACE(ss) * ss,
 	}
 	{
 		/* XXX: can use incremental hashing to reduce x size */
-
 		Hide(ws->x, ws->union_v.cnew, ws->union_x.r_enc, ws->r, pk,
 		     cache, &ws->u.ws_core_mult, &ws->ws_hide,
 		     &ws->ws_round_encode);
-		mask = sntrup_verify_clen(ct->ct, ws->union_v.cnew);
+		mask = sntrup_accel->verify(ct->ct, ws->union_v.cnew);
 		for (i = 0; i < Small_bytes; ++i)
 			ws->union_x.r_enc[i + 1] ^=
 				(uint8_t)(mask &

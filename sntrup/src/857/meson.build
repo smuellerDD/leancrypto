@@ -5,3 +5,7 @@ sntrup_857_files += files([
 	'encode_857x1723round.c',
 	'encode_857x5167.c',
 ])
+
+sntrup_857_avx2_files += files([
+	'avx2/core_inv3sntrup_857.c',
+])

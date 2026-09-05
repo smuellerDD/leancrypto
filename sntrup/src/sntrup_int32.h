@@ -130,4 +130,42 @@ static inline void sntrup_int32_minmax(int32_t *sntrup_int32_p,
 #endif
 }
 
+__attribute__((unused)) static inline int32_t
+sntrup_int32_bottombit_mask(int32_t crypto_int32_x)
+{
+#if (defined(__GNUASM__) || (defined(__GNUC__) && !defined(__FILC__))) &&      \
+	defined(__x86_64__)
+	__asm__("andl $1,%0" : "+r"(crypto_int32_x) : : "cc");
+	return -crypto_int32_x;
+#elif (defined(__GNUASM__) || (defined(__GNUC__) && !defined(__FILC__))) &&    \
+	defined(__aarch64__)
+	int32_t crypto_int32_y;
+	__asm__("sbfx %w0,%w1,0,1"
+		: "=r"(crypto_int32_y)
+		: "r"(crypto_int32_x)
+		:);
+	return crypto_int32_y;
+#elif (defined(__GNUASM__) || (defined(__GNUC__) && !defined(__FILC__))) &&    \
+	defined(__arm__) && defined(__ARM_ARCH) && (__ARM_ARCH >= 6) &&        \
+	!defined(__thumb__)
+	int32_t crypto_int32_y;
+	__asm__("and %0,%1,#1\n neg %0,%0"
+		: "=r"(crypto_int32_y)
+		: "r"(crypto_int32_x)
+		:);
+	return crypto_int32_y;
+#elif (defined(__GNUASM__) || (defined(__GNUC__) && !defined(__FILC__))) &&    \
+	defined(__sparc_v8__)
+	int32_t crypto_int32_y;
+	__asm__("and %1,1,%0\n neg %0,%0"
+		: "=r"(crypto_int32_y)
+		: "r"(crypto_int32_x)
+		:);
+	return crypto_int32_y;
+#else
+	crypto_int32_x &= 1 + (int32_t)optimization_blocker_uint64;
+	return -crypto_int32_x;
+#endif
+}
+
 #endif

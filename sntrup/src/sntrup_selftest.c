@@ -38,7 +38,8 @@ static int _sntrup_selftest_keygen(void)
 	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	CKINT(CRYPTO_NAMESPACE(kem_keypair_internal)(&ws->pk, &ws->sk, selftest_rng));
+	CKINT(CRYPTO_NAMESPACE(kem_keypair_internal)(&ws->pk, &ws->sk,
+						     selftest_rng));
 
 	/*
 	 * IG 10.3.A: it is not required to validate ek as it is part of dk.
@@ -55,7 +56,6 @@ static int _sntrup_selftest_keygen(void)
 	lc_compare_selftest(LC_ALG_STATUS_SNTRUP_KEYGEN, ws->sk.sk,
 			    sntrup_testvectors[0].sk.sk,
 			    sntrup_kem_SECRETKEYBYTES, "SNTRUP keygen SK");
-
 
 out:
 	LC_RELEASE_MEM(ws);
@@ -80,8 +80,7 @@ static int _sntrup_selftest_enc(void)
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
 	CKINT(CRYPTO_NAMESPACE(kem_enc_internal)(
-		&ws->ct, &ws->ss,
-		&sntrup_testvectors[0].pk, selftest_rng));
+		&ws->ct, &ws->ss, &sntrup_testvectors[0].pk, selftest_rng));
 
 	/* Timecop: Selftest does not contain secrets */
 	unpoison(&ws->ct.ct, sntrup_kem_CIPHERTEXTBYTES);
@@ -122,8 +121,8 @@ static int _sntrup_selftest_dec(void)
 	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	CKINT(CRYPTO_NAMESPACE(kem_dec_internal)(&ws->ss, &sntrup_testvectors[0].ct,
-				    &sntrup_testvectors[0].sk));
+	CKINT(CRYPTO_NAMESPACE(kem_dec_internal)(
+		&ws->ss, &sntrup_testvectors[0].ct, &sntrup_testvectors[0].sk));
 
 	/* Timecop: Selftest does not contain secrets */
 	unpoison(ws->ss.ss, sntrup_kem_BYTES);
@@ -131,8 +130,8 @@ static int _sntrup_selftest_dec(void)
 				sntrup_testvectors[0].ss.ss, sntrup_kem_BYTES,
 				"SNTRUP dec SS"))
 
-out:
-	LC_RELEASE_MEM(ws);
+	out:
+		LC_RELEASE_MEM(ws);
 	lc_rng_zero(selftest_rng);
 	return ret;
 }

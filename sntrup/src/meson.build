@@ -29,59 +29,118 @@ if sntrup_enabled == true
 		'verify.c'
 	])
 
+	sntrup_avx2_src = files([
+		'avx2/verify.c'
+	])
+
 	if get_option('sntrup_1277').enabled()
 		sntrup_1277_files = sntrup_ref_src
+		sntrup_1277_avx2_files = sntrup_avx2_src
 		subdir('1277')
 
 		leancrypto_sntrup_1277_lib = static_library(
 			'leancrypto_sntrup_1277_lib', [sntrup_1277_files],
 			include_directories :
 			[include_dirs, include_internal_dirs, '1277'], )
-			leancrypto_support_libs += leancrypto_sntrup_1277_lib
+		leancrypto_support_libs += leancrypto_sntrup_1277_lib
+
+		if x86_64_asm
+			leancrypto_sntrup_1277_avx2_lib = static_library(
+				'leancrypto_sntrup_1277_avx2_lib', [sntrup_1277_avx2_files],
+				include_directories :
+				[include_dirs, include_internal_dirs, '1277'],
+				c_args : [ cc_avx2_args ]
+				)
+			leancrypto_support_libs += leancrypto_sntrup_1277_avx2_lib
+		endif
 	endif
 
 	if get_option('sntrup_1013').enabled()
 		sntrup_1013_files = sntrup_ref_src
+		sntrup_1013_avx2_files = sntrup_avx2_src
 		subdir('1013')
 
 		leancrypto_sntrup_1013_lib = static_library(
 			'leancrypto_sntrup_1013_lib', [sntrup_1013_files],
 			include_directories :
 			[include_dirs, include_internal_dirs, '1013'], )
-			leancrypto_support_libs += leancrypto_sntrup_1013_lib
+		leancrypto_support_libs += leancrypto_sntrup_1013_lib
+
+		if x86_64_asm
+			leancrypto_sntrup_1013_avx2_lib = static_library(
+				'leancrypto_sntrup_1013_avx2_lib', [sntrup_1013_avx2_files],
+				include_directories :
+				[include_dirs, include_internal_dirs, '1013'],
+				c_args : [ cc_avx2_args ]
+				)
+			leancrypto_support_libs += leancrypto_sntrup_1013_avx2_lib
+		endif
 	endif
 
 	if get_option('sntrup_953').enabled()
 		sntrup_953_files = sntrup_ref_src
+		sntrup_953_avx2_files = sntrup_avx2_src
 		subdir('953')
 
 		leancrypto_sntrup_953_lib = static_library(
 			'leancrypto_sntrup_953_lib', [sntrup_953_files],
 			include_directories :
 			[include_dirs, include_internal_dirs, '953'], )
-			leancrypto_support_libs += leancrypto_sntrup_953_lib
+		leancrypto_support_libs += leancrypto_sntrup_953_lib
+
+		if x86_64_asm
+			leancrypto_sntrup_953_avx2_lib = static_library(
+				'leancrypto_sntrup_953_avx2_lib', [sntrup_953_avx2_files],
+				include_directories :
+				[include_dirs, include_internal_dirs, '953'],
+				c_args : [ cc_avx2_args ]
+				)
+			leancrypto_support_libs += leancrypto_sntrup_953_avx2_lib
+		endif
 	endif
 
 	if get_option('sntrup_857').enabled()
 		sntrup_857_files = sntrup_ref_src
+		sntrup_857_avx2_files = sntrup_avx2_src
 		subdir('857')
 
 		leancrypto_sntrup_857_lib = static_library(
 			'leancrypto_sntrup_857_lib', [sntrup_857_files],
 			include_directories :
 			[include_dirs, include_internal_dirs, '857'], )
-			leancrypto_support_libs += leancrypto_sntrup_857_lib
+		leancrypto_support_libs += leancrypto_sntrup_857_lib
+
+		if x86_64_asm
+			leancrypto_sntrup_857_avx2_lib = static_library(
+				'leancrypto_sntrup_857_avx2_lib', [sntrup_857_avx2_files],
+				include_directories :
+				[include_dirs, include_internal_dirs, '857'],
+				c_args : [ cc_avx2_args ]
+				)
+			leancrypto_support_libs += leancrypto_sntrup_857_avx2_lib
+		endif
 	endif
 
 	if get_option('sntrup_761').enabled()
 		sntrup_761_files = sntrup_ref_src
+		sntrup_761_avx2_files = sntrup_avx2_src
 		subdir('761')
 
 		leancrypto_sntrup_761_lib = static_library(
 			'leancrypto_sntrup_761_lib', [sntrup_761_files],
 			include_directories :
 			[include_dirs, include_internal_dirs, '761'], )
-			leancrypto_support_libs += leancrypto_sntrup_761_lib
+		leancrypto_support_libs += leancrypto_sntrup_761_lib
+
+		if x86_64_asm
+			leancrypto_sntrup_761_avx2_lib = static_library(
+				'leancrypto_sntrup_761_avx2_lib', [sntrup_761_avx2_files],
+				include_directories :
+				[include_dirs, include_internal_dirs, '761'],
+				c_args : [ cc_avx2_args ]
+				)
+			leancrypto_support_libs += leancrypto_sntrup_761_avx2_lib
+		endif
 	endif
 
 endif

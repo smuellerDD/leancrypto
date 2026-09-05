@@ -71,6 +71,19 @@ extern __inline long long
 }
 #endif
 
+#ifdef __OPTIMIZE__
+extern __inline int
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm_extract_epi8(__m128i __X, const int __N)
+{
+	return (unsigned char)__builtin_ia32_vec_ext_v16qi((__v16qi)__X, __N);
+}
+#else
+#define _mm_extract_epi8(X, N)                                                 \
+	((int)(unsigned char)__builtin_ia32_vec_ext_v16qi(                     \
+		(__v16qi)(__m128i)(X), (int)(N)))
+#endif
+
 #undef __DEFAULT_FN_ATTRS
 
 #endif /* EXT_X86_SMMINTRIN_H */

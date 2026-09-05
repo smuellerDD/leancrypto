@@ -106,8 +106,9 @@ static void bitvec_eliminate(bitvec f0, bitvec f1, bitvec g0, bitvec g1,
 /* byte p of output is 0 if recip succeeded; else -1 */
 void sntrup_core_inv3(uint8_t *outbytes, const uint8_t *inbytes,
 		      const uint8_t *kbytes, const uint8_t *cbytes,
-		      struct ws_core_inv3 *ws)
+		      struct ws_core_inv3 *ws_full)
 {
+	struct ws_core_inv3_ref *ws = &ws_full->u.ref;
 	int8_t *out = (int8_t *)outbytes;
 	int8_t *in = (int8_t *)inbytes;
 	unsigned int i, loop;

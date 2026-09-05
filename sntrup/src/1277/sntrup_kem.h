@@ -62,9 +62,9 @@ int sntrup_kem_dec_internal(struct CRYPTO_NAMESPACE(ss) * ss,
 			    const struct CRYPTO_NAMESPACE(ct) * ct,
 			    const struct CRYPTO_NAMESPACE(sk) * sk);
 
-#define sntrup_selftest_keygen CRYPTO_NAMESPACE(sntrup_selftest_keygen)
-#define sntrup_selftest_enc CRYPTO_NAMESPACE(sntrup_selftest_enc)
-#define sntrup_selftest_dec CRYPTO_NAMESPACE(sntrup_selftest_dec)
+#define sntrup_selftest_keygen CRYPTO_NAMESPACE(selftest_keygen)
+#define sntrup_selftest_enc CRYPTO_NAMESPACE(selftest_enc)
+#define sntrup_selftest_dec CRYPTO_NAMESPACE(selftest_dec)
 void sntrup_selftest_keygen(void);
 void sntrup_selftest_enc(void);
 void sntrup_selftest_dec(void);

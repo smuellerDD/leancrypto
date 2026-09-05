@@ -37,6 +37,7 @@
 #define w 322
 
 #define ppadsort 857
+#define numvec 4
 
 #define sntrup_encode_857x5167_STRBYTES 1322
 #define Rq_bytes sntrup_encode_857x5167_STRBYTES
@@ -61,6 +62,7 @@ extern void sntrup_encode_857x1723round(uint8_t *, const void *,
 					struct ws_round_encode *ws);
 
 #define sntrup_verify_clen sntrup_verify_1184
+#define sntrup_verify_clen_avx2 sntrup_verify_1184_avx2
 #define sntrup_encode_857x3_STRBYTES 215
 #define Small_bytes sntrup_encode_857x3_STRBYTES
 #define Small_encode sntrup_encode_857x3
@@ -73,6 +75,7 @@ extern void sntrup_encode_857x1723round(uint8_t *, const void *,
 #define sntrup_core_scale3 sntrup_core_scale3sntrup857
 #define sntrup_core_inv sntrup_core_invsntrup857
 #define ppad 865
+#define ppadavx2 1024
 #define qinv -19761 /* reciprocal of q mod 2^16 */
 #define q14 3 /* closest integer to 2^14/q */
 #define q18 51 /* closest integer to 2^18/q */
@@ -80,6 +83,7 @@ extern void sntrup_encode_857x1723round(uint8_t *, const void *,
 #define q31 415615 /* floor(2^31/q) */
 
 #define sntrup_core_inv3 sntrup_core_inv3sntrup857
+#define sntrup_core_inv3_avx2 sntrup_core_inv3sntrup857_avx2
 #define ppad64 897
 #define bitvec_len (ppad64 >> 6)
 typedef uint64_t bitvec[bitvec_len];
