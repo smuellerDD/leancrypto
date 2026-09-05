@@ -14,9 +14,9 @@ openssl							\
   -quiet						\
   -port $PORT						\
   -cert ${DIR}ed25519_leaf.der				\
-  -certform DER						\
+  -certform PEM						\
   -key ${DIR}ed25519_leaf.privkey			\
-  -keyform DER						\
+  -keyform PEM						\
   -www							\
   -no_cache -tls1_3					\
   -ciphersuites TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_128_GCM_SHA256 \

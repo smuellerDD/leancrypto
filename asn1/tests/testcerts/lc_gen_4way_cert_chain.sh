@@ -162,7 +162,6 @@ ${X509_CMD}							\
   -o ${TARGETDIR}/${INT1_FILENAME}_int1.der			\
   --sk-file ${TARGETDIR}/${INT1_FILENAME}_int1.privkey		\
   --create-keypair-pkcs8 ${INT1_KEYTYPE}			\
-  --pem-output							\
   --x509-signer ${TARGETDIR}/${CA_FILENAME}_cacert.der		\
   --signer-sk-file ${TARGETDIR}/${CA_FILENAME}_cacert.privkey	\
   --enable-non-pqc-algoritms
@@ -213,8 +212,9 @@ else
 	exit 1
 fi
 
-# Generate Leaf certificate
-# Private key in raw DER format
+# Generate Leaf certificate (key usage / EKU compliant
+# to RFC9295)
+# Private key in PEM format
 LEAF_FILENAME="$(echo $LEAF_KEYTYPE | tr '[:upper:]' '[:lower:]' )"
 if [ $PATHLEN -gt 0 ]
 then
@@ -224,8 +224,8 @@ fi
 ${X509_CMD}							\
   --eku critical						\
   --eku serverAuth						\
-  --eku codeSigning						\
-  --keyusage dataEncipherment					\
+  --keyusage digitalSignature					\
+  --keyusage critical						\
   --valid-from 1729527728					\
   --valid-to 2044210606						\
   --san-dns "localhost"						\
@@ -239,6 +239,7 @@ ${X509_CMD}							\
   -o ${TARGETDIR}/${LEAF_FILENAME}_leaf.der			\
   --sk-file ${TARGETDIR}/${LEAF_FILENAME}_leaf.privkey		\
   --create-keypair-pkcs8 ${LEAF_KEYTYPE}			\
+  --pem-output							\
   --x509-signer ${TARGETDIR}/${INT2_FILENAME}_int2.der		\
   --signer-sk-file ${TARGETDIR}/${INT2_FILENAME}_int2.privkey	\
   --enable-non-pqc-algoritms
