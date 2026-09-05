@@ -119,10 +119,10 @@ static inline void cmov_uint8(uint8_t *r, uint8_t v, uint8_t b)
  * @param [in] v input int
  * @param [in] b Condition bit; has to be in {0,1}
  */
-static inline void cmov_int(int *r, int v, uint16_t b)
+static inline void cmov_int(int *r, int v, uint32_t b)
 {
-	b = (uint16_t)-b;
-	*r ^= (int)(b & ((*r) ^ v));
+	b = (uint32_t)-b;
+	*r ^= (int)b & ((*r) ^ v);
 }
 
 static inline uint8_t value_barrier_u8(uint8_t b)

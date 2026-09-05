@@ -17,6 +17,7 @@
  * DAMAGE.
  */
 
+use leancrypto_sys::error::X448Error;
 use leancrypto_sys::lcr_x448::lcr_x448;
 use wycheproof::{
     xdh::{TestName, TestSet},
@@ -47,14 +48,29 @@ fn wycheproof_x448() {
                     assert!(result.is_err());
                 }
                 TestResult::Valid | TestResult::Acceptable => {
-                    assert_eq!(result, Ok(()));
-                    let ss_slice = x448.get_ss().expect("get_ss");
-                    assert_eq!(
-                        ss_slice.get_ref()[..],
-                        test.shared_secret[..],
-                        "Derived incorrect secret: {:?}",
-                        test
-                    );
+                    // leancrypto will randomize the shared secret on error
+                    // In addition, wycheproof tests 32 and 33 insert a key that
+                    // is not good, but expects a valid output. Thus, we
+                    // simply ignore the error and present a zero buffer to
+                    // whycheproof.
+                    if result == Err(X448Error::ProcessingError(-14)) {
+                        let zero = vec![0u8; 56];
+                        assert_eq!(
+                            zero[..],
+                            test.shared_secret[..],
+                            "Derived incorrect secret: {:?}",
+                            test
+                        );
+                    } else {
+                        assert_eq!(result, Ok(()));
+                        let ss_slice = x448.get_ss().expect("get_ss");
+                        assert_eq!(
+                            ss_slice.get_ref()[..],
+                            test.shared_secret[..],
+                            "Derived incorrect secret: {:?}",
+                            test
+                        );
+                    }
                 }
             }
         }
