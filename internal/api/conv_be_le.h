@@ -28,6 +28,15 @@
 extern "C" {
 #endif
 
+#ifdef LINUX_KERNEL
+#include <linux/swab.h>
+
+#define _lc_swap16(x) (uint16_t)__swab16((uint16_t)(x))
+#define _lc_swap32(x) (uint32_t)__swab32((uint32_t)(x))
+#define _lc_swap64(x) (uint64_t)__swab64((uint64_t)(x))
+
+#else /* LINUX_KERNEL */
+
 #if !defined(CONVERSION_TEST) && (defined(__GNUC__) || defined(__clang__))
 #define __HAVE_BUILTIN_BSWAP16__
 #define __HAVE_BUILTIN_BSWAP32__
@@ -65,6 +74,8 @@ static inline uint64_t _lc_bswap64(uint64_t x)
 #else
 #define _lc_swap64(x) (uint64_t)__builtin_bswap64((uint64_t)(x))
 #endif
+
+#endif /* LINUX_KERNEL */
 
 /* Endian dependent byte swap operations.  */
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
