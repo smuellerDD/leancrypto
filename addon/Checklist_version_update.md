@@ -6,7 +6,7 @@ The version number is to be updated in the following files:
 
 - meson.build: project.version
 
-- leancrypto.spec
+- leancrypto.spec (update all Package versions! E.g. s/1_9/1_10/g)
 
 - linux_kernel/Kbuild.version
 

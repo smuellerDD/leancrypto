@@ -89,5 +89,5 @@ static const struct lc_sym _lc_chacha20_64_riscv64_v_zbb = {
 	.blocksize = 1,
 	.algorithm_type = LC_ALG_STATUS_CHACHA20
 };
-LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_chacha20_riscv64_64_v_zbb) =
-						&_lc_chacha20_riscv64_64_v_zbb;
+LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_chacha20_64_riscv64_v_zbb) =
+						&_lc_chacha20_64_riscv64_v_zbb;

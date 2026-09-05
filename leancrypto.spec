@@ -22,12 +22,12 @@ algorithms. Further it only has POSIX dependencies, and allows all algorithms
 to be used on stack as well as on heap. Accelerated algorithms are transparently
 enabled if possible.
 
-%package -n lib%{name}1
+%package -n lib%{name}1_9
 Summary:        Cryptographic library with stack-only support and PQC-safe algorithms
 Provides:       %{name} = %{version}-%{release}
 Obsoletes:      %{name} < %{version}-%{release}
 
-%description -n lib%{name}1
+%description -n lib%{name}1_9
 Leancrypto provides a general-purpose cryptographic library with PQC-safe
 algorithms. Further it only has POSIX dependencies, and allows all algorithms
 to be used on stack as well as on heap. Accelerated algorithms are transparently
@@ -36,7 +36,7 @@ enabled if possible.
 %package devel
 Summary:        Development files for leancrypto, a cryptographic library
 Requires:       glibc-devel
-Requires:       lib%{name}1 = %{version}
+Requires:       lib%{name}1_9 = %{version}
 # Cannot be noarch due to leancrypto.so symlink
 #BuildArch:      noarch
 #BuildArchitectures: noarch
@@ -63,12 +63,12 @@ enabled if possible.
 This subpackage contains the static version of the library
 used for development.
 
-%package -n lib%{name}-fips1
+%package -n lib%{name}-fips1_9
 Summary:        Cryptographic library with stack-only support and PQC-safe algorithms
 Provides:       %{name} = %{version}-%{release}
 Obsoletes:      %{name} < %{version}-%{release}
 
-%description -n lib%{name}-fips1
+%description -n lib%{name}-fips1_9
 Leancrypto provides a general-purpose cryptographic library with PQC-safe
 algorithms. Further it only has POSIX dependencies, and allows all algorithms
 to be used on stack as well as on heap. Accelerated algorithms are transparently
@@ -79,7 +79,7 @@ This subpackage contains the FIPS 140 compliant version of the library.
 %package -n %{name}-tools
 Summary:        Applications provided by leancrypto
 Requires:       glibc-devel
-Requires:       lib%{name}1 = %{version}
+Requires:       lib%{name}1_9 = %{version}
 
 %description -n %{name}-tools
 Leancrypto provides a general-purpose cryptographic library with PQC-safe
@@ -92,7 +92,7 @@ This subpackage holds the tools provided by the library, such as sha*sum.
 # %package -n %{name}-sbsigntools
 # Summary:        Secure Boot signature tools provided by leancrypto
 # Requires:       glibc-devel
-# Requires:       lib%{name}1 = %{version}
+# Requires:       lib%{name}1_9 = %{version}
 #
 # %description -n %{name}-sbsigntools
 # Leancrypto provides a general-purpose cryptographic library with PQC-safe
@@ -106,10 +106,10 @@ This subpackage holds the tools provided by the library, such as sha*sum.
 
 %kernel_module_package
 
-%package -n lib%{name}1-kernel
+%package -n lib%{name}1_9-kernel
 Summary:	Cryptographic library with PQC-safe algorithms Kernel Module Package
 
-%description -n lib%{name}1-kernel
+%description -n lib%{name}1_9-kernel
 Leancrypto provides a general-purpose cryptographic library with PQC-safe
 algorithms. Further it only has POSIX dependencies, and allows all algorithms
 to be used on stack as well as on heap. Accelerated algorithms are transparently
@@ -149,10 +149,10 @@ for flavor in %flavors_to_build; do
 	make -C obj/$flavor/linux_kernel modules_install M=$PWD/obj/$flavor KERNELRELEASE=$KERNELRELEASE
 done
 
-%post -n lib%{name}1 -p /sbin/ldconfig
-%postun -n lib%{name}1 -p /sbin/ldconfig
+%post -n lib%{name}1_9 -p /sbin/ldconfig
+%postun -n lib%{name}1_9 -p /sbin/ldconfig
 
-%files -n lib%{name}1
+%files -n lib%{name}1_9
 %license LICENSE LICENSE.bsd LICENSE.gplv2
 %{_libdir}/lib%{name}.so.*
 %{_libdir}/pkgconfig/%{name}.pc
@@ -168,7 +168,7 @@ done
 %{_libdir}/lib%{name}.a
 %{_libdir}/lib%{name}-fips.a
 
-%files -n lib%{name}-fips1
+%files -n lib%{name}-fips1_9
 %{_libdir}/lib%{name}-fips.so.*
 %{_libdir}/pkgconfig/%{name}-fips.pc
 
