@@ -1,4 +1,4 @@
-Changes 1.9.0-prerelease
+Changes 1.9.0
 * GCM: fix edge case in initialization of memory
 
 * GCM: add maximum decryption size check mirroring encryption
