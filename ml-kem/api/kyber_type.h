@@ -76,6 +76,10 @@ extern "C" {
 #include "lc_kyber_512.h"
 
 #else
+
+#if defined __has_include
+#if __has_include("lc_kyber_1024.h")
+
 #define KYBER_F(name) lc_kyber_1024_##name
 #define KEX_F(name) lc_kex_1024_##name
 #define lc_kyber_pk lc_kyber_1024_pk
@@ -93,6 +97,18 @@ extern "C" {
 
 #include "lc_kyber_1024.h"
 
+#elif __has_include("lc_kyber_768.h")
+#define KYBER_F(name) lc_kyber_768_##name
+#define KEX_F(name) lc_kex_768_##name
+#include "lc_kyber_768.h"
+#elif __has_include("lc_kyber_512.h")
+#define KYBER_F(name) lc_kyber_512_##name
+#define KEX_F(name) lc_kex_512_##name
+#include "lc_kyber_512.h"
+#else
+#error "Wrong ML-KEM definition"
+#endif
+#endif
 #endif
 
 /*

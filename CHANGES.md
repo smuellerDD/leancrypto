@@ -1,3 +1,6 @@
+Changes 1.9.1-prerelease
+* Fixes in small compilation support
+
 Changes 1.9.0
 * GCM: fix edge case in initialization of memory
 

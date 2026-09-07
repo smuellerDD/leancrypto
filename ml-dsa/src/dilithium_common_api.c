@@ -26,8 +26,8 @@
  */
 
 #include "ext_headers_internal.h"
+#include "fips_mode.h"
 #include "lc_dilithium.h"
-#include "ed25519_pct.h"
 #include "visibility.h"
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_ctx_alloc,
@@ -472,6 +472,8 @@ LC_INTERFACE_FUNCTION(enum lc_alg_status_val, lc_dilithium_alg_status,
 /****************************** Dilithium ED25510 *****************************/
 
 #ifdef LC_DILITHIUM_ED25519_SIG
+
+#include "ed25519_pct.h"
 
 LC_INTERFACE_FUNCTION(int, lc_dilithium_ed25519_ctx_alloc,
 		      struct lc_dilithium_ed25519_ctx **ctx)
