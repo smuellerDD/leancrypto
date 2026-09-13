@@ -39,7 +39,7 @@ typedef __m256i vec256;
 #endif
 
 /* ----- arithmetic mod 3 */
-typedef int8_t small;
+typedef int8_t lc_small;
 
 /* F3 is always represented as -1,0,1 */
 typedef int16_t Fq;
@@ -169,11 +169,11 @@ struct ws_core_inv3_avx2 {
 	vec256 f0, f4;
 	vec256 g0, g4;
 	vec256 h;
-	small srev[ppadavx2 + (ppadavx2 - p)];
-	small si;
-	small s0[ppadavx2];
-	small s1[ppadavx2];
-	small v[ppadavx2];
+	lc_small srev[ppadavx2 + (ppadavx2 - p)];
+	lc_small si;
+	lc_small s0[ppadavx2];
+	lc_small s1[ppadavx2];
+	lc_small v[ppadavx2];
 };
 #endif
 
@@ -212,8 +212,8 @@ struct ws_core_mult3_avx2 {
 #endif
 
 struct ws_core_mult3_ref {
-	small f[p];
-	small g[p];
+	lc_small f[p];
+	lc_small g[p];
 	int16_t fg[p + p - 1];
 };
 

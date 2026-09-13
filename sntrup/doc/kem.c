@@ -604,7 +604,7 @@ static void drbg_ctr_aes256_random(uint8_t *dst, size_t n)
 /******************************************************************************/
 /* ----- arithmetic mod 3 */
 
-typedef int8 small;
+typedef int8 lc_small;
 /* F3 is always represented as -1,0,1 */
 
 /* ----- arithmetic mod q */
@@ -615,13 +615,13 @@ typedef int16 Fq;
 /* ----- small polynomials */
 
 /* R3_fromR(R_fromRq(r)) */
-static void R3_fromRq(small *out, const Fq *r)
+static void R3_fromRq(lc_small *out, const Fq *r)
 {
 	crypto_encode_pxfreeze3((unsigned char *)out, (unsigned char *)r);
 }
 
 /* h = f*g in the ring R3 */
-static void R3_mult(small *h, const small *f, const small *g)
+static void R3_mult(lc_small *h, const lc_small *f, const lc_small *g)
 {
 	crypto_core_mult3((unsigned char *)h, (const unsigned char *)f,
 			  (const unsigned char *)g, 0);
@@ -630,7 +630,7 @@ static void R3_mult(small *h, const small *f, const small *g)
 /* ----- polynomials mod q */
 
 /* h = h*g in the ring Rq */
-static void Rq_mult_small(Fq *h, const small *g)
+static void Rq_mult_small(Fq *h, const lc_small *g)
 {
 	crypto_encode_pxint16((unsigned char *)h, h);
 	crypto_core_mult((unsigned char *)h, (const unsigned char *)h,
@@ -648,7 +648,7 @@ static void Rq_mult3(Fq *h, const Fq *f)
 
 /* out = 1/(3*in) in Rq */
 /* caller must have 2p+1 bytes free in out, not just 2p */
-static void Rq_recip3(Fq *out, const small *in)
+static void Rq_recip3(Fq *out, const lc_small *in)
 {
 	crypto_core_inv((unsigned char *)out, (const unsigned char *)in, 0, 0);
 	/* could check byte 2*p for failure; but, in context, inv always works */
@@ -670,7 +670,7 @@ static void Hash(unsigned char *out, const unsigned char *in, int inlen)
 
 /* ----- higher-level randomness */
 
-static void Short_random(small *out)
+static void Short_random(lc_small *out)
 {
 	uint32 L[ppadsort];
 	int i;
@@ -688,7 +688,7 @@ static void Short_random(small *out)
 		out[i] = (L[i] & 3) - 1;
 }
 
-static void Small_random(small *out)
+static void Small_random(lc_small *out)
 {
 	uint32 L[p];
 	int i;
@@ -701,7 +701,7 @@ static void Small_random(small *out)
 
 /* ----- Streamlined NTRU Prime */
 
-typedef small Inputs[p]; /* passed by reference */
+typedef lc_small Inputs[p]; /* passed by reference */
 #define Ciphertexts_bytes Rounded_bytes
 #define SecretKeys_bytes (2 * Small_bytes)
 #define PublicKeys_bytes Rq_bytes
@@ -734,12 +734,12 @@ static void Hide(unsigned char *x, unsigned char *c, unsigned char *r_enc,
 void crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 {
 	unsigned int i;
-	small g[p];
+	lc_small g[p];
 	for (;;) {
 		Small_random(g);
 		{
-			small v[p + 1];
-			small vp;
+			lc_small v[p + 1];
+			lc_small vp;
 			crypto_core_inv3((unsigned char *)v,
 					 (const unsigned char *)g, 0, 0);
 			vp = v[p];
@@ -752,7 +752,7 @@ void crypto_kem_keypair(unsigned char *pk, unsigned char *sk)
 	}
 
 	{
-		small f[p];
+		lc_small f[p];
 		Short_random(f);
 		Small_encode(sk, f);
 		{
@@ -849,14 +849,14 @@ void crypto_kem_dec(unsigned char *k, const unsigned char *c,
 		Fq d[p];
 		Rounded_decode(d, c);
 		{
-			small f[p];
+			lc_small f[p];
 			Small_decode(f, sk);
 			Rq_mult_small(d, f);
 			Rq_mult3(d, d);
 		}
 		{
-			small e[p];
-			small v[p];
+			lc_small e[p];
+			lc_small v[p];
 			R3_fromRq(e, d);
 			Small_decode(v, sk + Small_bytes);
 			R3_mult(r, e, v);

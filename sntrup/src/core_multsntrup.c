@@ -57,8 +57,8 @@ void sntrup_core_mult(uint8_t *outbytes, const uint8_t *inbytes,
 	for (i = 0; i < p + p - 1; ++i)
 		ws->fg[i] = 0;
 	for (j = 0; j < p; ++j) {
-		small gjx = (small)kbytes[j];
-		small gj0 = sntrup_int8_bottombit_01(gjx);
+		lc_small gjx = (lc_small)kbytes[j];
+		lc_small gj0 = sntrup_int8_bottombit_01(gjx);
 		int32_t gj = gj0 - (gjx & (gj0 << 1));
 		for (i = 0; i < p; ++i)
 			ws->fg[i + j] += ws->f32[i] * gj;

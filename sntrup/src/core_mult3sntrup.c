@@ -31,9 +31,9 @@
 #include "sntrup_int8.h"
 
 /* works for -16384 <= x < 16384 */
-static small F3_freeze(int16_t x)
+static lc_small F3_freeze(int16_t x)
 {
-	return (small)(x - 3 * ((10923 * x + 16384) >> 15));
+	return (lc_small)(x - 3 * ((10923 * x + 16384) >> 15));
 }
 
 void sntrup_core_mult3(uint8_t *outbytes, const uint8_t *inbytes,
@@ -41,20 +41,20 @@ void sntrup_core_mult3(uint8_t *outbytes, const uint8_t *inbytes,
 		       struct ws_core_mult3 *ws_full)
 {
 	struct ws_core_mult3_ref *ws = &ws_full->u.ref;
-	small *h = (small *)outbytes;
+	lc_small *h = (lc_small *)outbytes;
 	unsigned int i, j;
 
 	(void)cbytes;
 
 	for (i = 0; i < p; ++i) {
-		small fi = (small)inbytes[i];
-		small fi0 = sntrup_int8_bottombit_01(fi);
-		ws->f[i] = (small)(fi0 - (fi & (fi0 << 1)));
+		lc_small fi = (lc_small)inbytes[i];
+		lc_small fi0 = sntrup_int8_bottombit_01(fi);
+		ws->f[i] = (lc_small)(fi0 - (fi & (fi0 << 1)));
 	}
 	for (i = 0; i < p; ++i) {
-		small gi = (small)kbytes[i];
-		small gi0 = sntrup_int8_bottombit_01(gi);
-		ws->g[i] = gi0 - (small)(gi & (gi0 << 1));
+		lc_small gi = (lc_small)kbytes[i];
+		lc_small gi0 = sntrup_int8_bottombit_01(gi);
+		ws->g[i] = gi0 - (lc_small)(gi & (gi0 << 1));
 	}
 
 	//TODO memset(0)

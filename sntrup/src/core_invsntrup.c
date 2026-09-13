@@ -126,7 +126,7 @@ void sntrup_core_inv(uint8_t *outbytes, const uint8_t *inbytes,
 		     const uint8_t *kbytes, const uint8_t *cbytes,
 		     struct ws_core_inv *ws)
 {
-	small *in = (small *)inbytes;
+	lc_small *in = (lc_small *)inbytes;
 	unsigned int loop, i;
 	int delta = 1;
 	int minusdelta;

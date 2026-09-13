@@ -149,7 +149,7 @@ void sntrup_core_inv_avx2(uint8_t *outbytes, const uint8_t *inbytes,
 			  const uint8_t *kbytes, const uint8_t *cbytes,
 			  struct ws_core_inv *ws)
 {
-	small *in = (small *)inbytes;
+	lc_small *in = (lc_small *)inbytes;
 	int loop;
 	int i;
 	int delta = 1;

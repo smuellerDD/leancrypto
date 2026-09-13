@@ -44,7 +44,7 @@ is optimized in light of costs of vector instructions:
   3,7,...,255 in 64-bit word.
 */
 
-static inline void vec256_frombits(vec256 *v, const small *b,
+static inline void vec256_frombits(vec256 *v, const lc_small *b,
 				   struct ws_core_inv3_avx2 *ws)
 {
 	int i;
@@ -112,7 +112,7 @@ static inline void vec256_frombits(vec256 *v, const small *b,
 	}
 }
 
-static inline void vec256_tobits(const vec256 *v, small *b,
+static inline void vec256_tobits(const vec256 *v, lc_small *b,
 				 struct ws_core_inv3_avx2 *ws)
 {
 	int i;
@@ -180,7 +180,7 @@ static inline void vec256_tobits(const vec256 *v, small *b,
 	}
 }
 
-static void vec256_init(vec256 *G0, vec256 *G1, const small *s,
+static void vec256_init(vec256 *G0, vec256 *G1, const lc_small *s,
 			struct ws_core_inv3_avx2 *ws)
 {
 	int i;
@@ -202,7 +202,7 @@ static void vec256_init(vec256 *G0, vec256 *G1, const small *s,
 	vec256_frombits(G1, ws->s1, ws);
 }
 
-static void vec256_final(small *out, const vec256 *V0, const vec256 *V1,
+static void vec256_final(lc_small *out, const vec256 *V0, const vec256 *V1,
 			 struct ws_core_inv3_avx2 *ws)
 {
 	int i;
@@ -211,7 +211,7 @@ static void vec256_final(small *out, const vec256 *V0, const vec256 *V1,
 	vec256_tobits(V1, ws->s1, ws);
 
 	for (i = 0; i < ppadavx2; ++i)
-		ws->v[i] = (small)(ws->s0[i] + 2 * ws->s1[i] -
+		ws->v[i] = (lc_small)(ws->s0[i] + 2 * ws->s1[i] -
 				   4 * (ws->s0[i] & ws->s1[i]));
 
 	for (i = 0; i < ppadavx2; ++i)
@@ -493,8 +493,8 @@ void sntrup_core_inv3_avx2(uint8_t *outbytes, const uint8_t *inbytes,
 			   struct ws_core_inv3 *ws_full)
 {
 	struct ws_core_inv3_avx2 *ws = &ws_full->u.avx2;
-	small *out = (small *)outbytes;
-	small *in = (small *)inbytes;
+	lc_small *out = (lc_small *)outbytes;
+	lc_small *in = (lc_small *)inbytes;
 	int loop;
 	int c0, c1;
 	int minusdelta = -1;
@@ -755,7 +755,7 @@ void sntrup_core_inv3_avx2(uint8_t *outbytes, const uint8_t *inbytes,
 	vec256_scale(ws->V0, ws->V1, ws->c0vec, ws->c1vec);
 
 	vec256_final(out, ws->V0, ws->V1, ws);
-	out[p] = (small)sntrup_int32_negative_mask(minusdelta);
+	out[p] = (lc_small)sntrup_int32_negative_mask(minusdelta);
 
 	LC_FPU_DISABLE;
 }

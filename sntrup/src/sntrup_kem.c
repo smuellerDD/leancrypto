@@ -123,7 +123,7 @@ static const struct lc_sntrup_accel *sntrup_get_accel(void)
 /* ----- small polynomials */
 
 /* R3_fromR(R_fromRq(r)) */
-static void R3_fromRq(small *out, const Fq *r,
+static void R3_fromRq(lc_small *out, const Fq *r,
 		      const struct lc_sntrup_accel *accel,
 		      struct ws_encode_pxfreeze3 *ws)
 {
@@ -131,7 +131,7 @@ static void R3_fromRq(small *out, const Fq *r,
 }
 
 /* h = f*g in the ring R3 */
-static void R3_mult(small *h, const small *f, const small *g,
+static void R3_mult(lc_small *h, const lc_small *f, const lc_small *g,
 		    const struct lc_sntrup_accel *accel,
 		    struct ws_core_mult3 *ws)
 {
@@ -142,7 +142,7 @@ static void R3_mult(small *h, const small *f, const small *g,
 /* ----- polynomials mod q */
 
 /* h = h*g in the ring Rq */
-static void Rq_mult_small(Fq *h, const small *g,
+static void Rq_mult_small(Fq *h, const lc_small *g,
 			  const struct lc_sntrup_accel *accel,
 			  struct ws_core_mult *ws)
 {
@@ -163,7 +163,7 @@ static void Rq_mult3(Fq *h, const Fq *f, const struct lc_sntrup_accel *accel,
 
 /* out = 1/(3*in) in Rq */
 /* caller must have 2p+1 bytes free in out, not just 2p */
-static void Rq_recip3(Fq *out, const small *in,
+static void Rq_recip3(Fq *out, const lc_small *in,
 		      const struct lc_sntrup_accel *accel,
 		      struct ws_core_inv *ws)
 {
@@ -190,7 +190,7 @@ static void Hash(uint8_t *out, const uint8_t *in, size_t inlen)
 struct ws_short_random {
 	uint32_t L[ppadsort];
 };
-static int Short_random(small *out, struct lc_rng_ctx *rng_ctx,
+static int Short_random(lc_small *out, struct lc_rng_ctx *rng_ctx,
 			struct ws_short_random *ws)
 {
 	unsigned int i;
@@ -206,7 +206,7 @@ static int Short_random(small *out, struct lc_rng_ctx *rng_ctx,
 		ws->L[i] = 0xffffffff;
 	sntrup_sort_uint32(ws->L, ppadsort);
 	for (i = 0; i < p; ++i)
-		out[i] = (small)((ws->L[i] & 3) - 1);
+		out[i] = (lc_small)((ws->L[i] & 3) - 1);
 
 out:
 	return ret;
@@ -215,7 +215,7 @@ out:
 struct ws_small_random {
 	uint32_t L[p];
 };
-static int Small_random(small *out, struct lc_rng_ctx *rng_ctx,
+static int Small_random(lc_small *out, struct lc_rng_ctx *rng_ctx,
 			struct ws_small_random *ws)
 {
 	unsigned int i;
@@ -225,7 +225,7 @@ static int Small_random(small *out, struct lc_rng_ctx *rng_ctx,
 			      sizeof(ws->L)));
 	sntrup_decode_pxint32(ws->L, (uint8_t *)ws->L);
 	for (i = 0; i < p; ++i)
-		out[i] = (small)((((ws->L[i] & 0x3fffffff) * 3) >> 30) - 1);
+		out[i] = (lc_small)((((ws->L[i] & 0x3fffffff) * 3) >> 30) - 1);
 
 out:
 	return ret;
@@ -233,7 +233,7 @@ out:
 
 /* ----- Streamlined NTRU Prime */
 
-typedef small Inputs[p]; /* passed by reference */
+typedef lc_small Inputs[p]; /* passed by reference */
 #define Ciphertexts_bytes Rounded_bytes
 #define SecretKeys_bytes (2 * Small_bytes)
 #define PublicKeys_bytes Rq_bytes
@@ -284,10 +284,10 @@ int sntrup_kem_keypair_internal(struct CRYPTO_NAMESPACE(pk) * pk,
 			struct ws_short_random ws_short_random;
 		} u;
 		Fq h[p + 1];
-		small g[p];
+		lc_small g[p];
 		union {
-			small v[p + 1];
-			small f[p];
+			lc_small v[p + 1];
+			lc_small f[p];
 		} v;
 	};
 	const struct lc_sntrup_accel *sntrup_accel = sntrup_get_accel();
@@ -305,7 +305,7 @@ int sntrup_kem_keypair_internal(struct CRYPTO_NAMESPACE(pk) * pk,
 		/* Timecop: Mark the seed. */
 		poison(ws->g, sizeof(ws->g));
 		{
-			small vp;
+			lc_small vp;
 
 			/* Next call assumes a zero buffer */
 			memset(&ws->u.ws_small_random, 0,
@@ -485,12 +485,12 @@ int sntrup_kem_dec_internal(struct CRYPTO_NAMESPACE(ss) * ss,
 		struct ws_hide ws_hide;
 		Fq d[p];
 		union {
-			small f[p];
-			small e[p];
+			lc_small f[p];
+			lc_small e[p];
 			uint8_t cnew[Ciphertexts_bytes + Confirm_bytes];
 		} union_v;
 		union {
-			small v[p];
+			lc_small v[p];
 			uint8_t r_enc[1 + Small_bytes];
 		} union_x;
 
