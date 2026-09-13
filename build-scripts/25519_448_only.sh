@@ -57,6 +57,7 @@ DISABLE_KEM="
  -Dsntrup_1277=disabled
  -Dsntrup_1013=disabled
  -Dsntrup_953=disabled
+ -Dsntrup_857=disabled
  -Dsntrup_761=disabled
 "
 
