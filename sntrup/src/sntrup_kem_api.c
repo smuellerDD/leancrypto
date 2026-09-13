@@ -629,7 +629,7 @@ LC_INTERFACE_FUNCTION(int, lc_sntrup_keypair, struct lc_sntrup_pk *pk,
 #ifdef LC_SNTRUP_1277_ENABLED
 		pk->sntrup_type = sntrup_type;
 		sk->sntrup_type = sntrup_type;
-		return lc_sntrup_1277_kem_keypair(&pk->key.pk_sntrup_1277,
+		return lc_sntrup_1277_keypair(&pk->key.pk_sntrup_1277,
 						  &sk->key.sk_sntrup_1277,
 						  rng_ctx);
 #else
@@ -639,7 +639,7 @@ LC_INTERFACE_FUNCTION(int, lc_sntrup_keypair, struct lc_sntrup_pk *pk,
 #ifdef LC_SNTRUP_1013_ENABLED
 		pk->sntrup_type = sntrup_type;
 		sk->sntrup_type = sntrup_type;
-		return lc_sntrup_1013_kem_keypair(&pk->key.pk_sntrup_1013,
+		return lc_sntrup_1013_keypair(&pk->key.pk_sntrup_1013,
 						  &sk->key.sk_sntrup_1013,
 						  rng_ctx);
 #else
@@ -649,7 +649,7 @@ LC_INTERFACE_FUNCTION(int, lc_sntrup_keypair, struct lc_sntrup_pk *pk,
 #ifdef LC_SNTRUP_953_ENABLED
 		pk->sntrup_type = sntrup_type;
 		sk->sntrup_type = sntrup_type;
-		return lc_sntrup_953_kem_keypair(&pk->key.pk_sntrup_953,
+		return lc_sntrup_953_keypair(&pk->key.pk_sntrup_953,
 						 &sk->key.sk_sntrup_953,
 						 rng_ctx);
 #else
@@ -659,7 +659,7 @@ LC_INTERFACE_FUNCTION(int, lc_sntrup_keypair, struct lc_sntrup_pk *pk,
 #ifdef LC_SNTRUP_857_ENABLED
 		pk->sntrup_type = sntrup_type;
 		sk->sntrup_type = sntrup_type;
-		return lc_sntrup_857_kem_keypair(&pk->key.pk_sntrup_857,
+		return lc_sntrup_857_keypair(&pk->key.pk_sntrup_857,
 						 &sk->key.sk_sntrup_857,
 						 rng_ctx);
 #else
@@ -669,7 +669,7 @@ LC_INTERFACE_FUNCTION(int, lc_sntrup_keypair, struct lc_sntrup_pk *pk,
 #ifdef LC_SNTRUP_761_ENABLED
 		pk->sntrup_type = sntrup_type;
 		sk->sntrup_type = sntrup_type;
-		return lc_sntrup_761_kem_keypair(&pk->key.pk_sntrup_761,
+		return lc_sntrup_761_keypair(&pk->key.pk_sntrup_761,
 						 &sk->key.sk_sntrup_761,
 						 rng_ctx);
 #else
@@ -740,7 +740,7 @@ LC_INTERFACE_FUNCTION(int, lc_sntrup_enc, struct lc_sntrup_ct *ct,
 #ifdef LC_SNTRUP_1277_ENABLED
 		ct->sntrup_type = LC_SNTRUP_1277;
 		ss->sntrup_type = LC_SNTRUP_1277;
-		return lc_sntrup_1277_kem_enc(&ct->key.ct_sntrup_1277,
+		return lc_sntrup_1277_enc(&ct->key.ct_sntrup_1277,
 					      &ss->key.ss_sntrup_1277,
 					      &pk->key.pk_sntrup_1277);
 #else
@@ -750,7 +750,7 @@ LC_INTERFACE_FUNCTION(int, lc_sntrup_enc, struct lc_sntrup_ct *ct,
 #ifdef LC_SNTRUP_1013_ENABLED
 		ct->sntrup_type = LC_SNTRUP_1013;
 		ss->sntrup_type = LC_SNTRUP_1013;
-		return lc_sntrup_1013_kem_enc(&ct->key.ct_sntrup_1013,
+		return lc_sntrup_1013_enc(&ct->key.ct_sntrup_1013,
 					      &ss->key.ss_sntrup_1013,
 					      &pk->key.pk_sntrup_1013);
 #else
@@ -760,7 +760,7 @@ LC_INTERFACE_FUNCTION(int, lc_sntrup_enc, struct lc_sntrup_ct *ct,
 #ifdef LC_SNTRUP_953_ENABLED
 		ct->sntrup_type = LC_SNTRUP_953;
 		ss->sntrup_type = LC_SNTRUP_953;
-		return lc_sntrup_953_kem_enc(&ct->key.ct_sntrup_953,
+		return lc_sntrup_953_enc(&ct->key.ct_sntrup_953,
 					     &ss->key.ss_sntrup_953,
 					     &pk->key.pk_sntrup_953);
 #else
@@ -770,7 +770,7 @@ LC_INTERFACE_FUNCTION(int, lc_sntrup_enc, struct lc_sntrup_ct *ct,
 #ifdef LC_SNTRUP_857_ENABLED
 		ct->sntrup_type = LC_SNTRUP_857;
 		ss->sntrup_type = LC_SNTRUP_857;
-		return lc_sntrup_857_kem_enc(&ct->key.ct_sntrup_857,
+		return lc_sntrup_857_enc(&ct->key.ct_sntrup_857,
 					     &ss->key.ss_sntrup_857,
 					     &pk->key.pk_sntrup_857);
 #else
@@ -780,7 +780,7 @@ LC_INTERFACE_FUNCTION(int, lc_sntrup_enc, struct lc_sntrup_ct *ct,
 #ifdef LC_SNTRUP_761_ENABLED
 		ct->sntrup_type = LC_SNTRUP_761;
 		ss->sntrup_type = LC_SNTRUP_761;
-		return lc_sntrup_761_kem_enc(&ct->key.ct_sntrup_761,
+		return lc_sntrup_761_enc(&ct->key.ct_sntrup_761,
 					     &ss->key.ss_sntrup_761,
 					     &pk->key.pk_sntrup_761);
 #else
@@ -803,7 +803,7 @@ LC_INTERFACE_FUNCTION(int, lc_sntrup_dec, struct lc_sntrup_ss *ss,
 	case LC_SNTRUP_1277:
 #ifdef LC_SNTRUP_1277_ENABLED
 		ss->sntrup_type = LC_SNTRUP_1277;
-		return lc_sntrup_1277_kem_dec(&ss->key.ss_sntrup_1277,
+		return lc_sntrup_1277_dec(&ss->key.ss_sntrup_1277,
 					      &ct->key.ct_sntrup_1277,
 					      &sk->key.sk_sntrup_1277);
 #else
@@ -812,7 +812,7 @@ LC_INTERFACE_FUNCTION(int, lc_sntrup_dec, struct lc_sntrup_ss *ss,
 	case LC_SNTRUP_1013:
 #ifdef LC_SNTRUP_1013_ENABLED
 		ss->sntrup_type = LC_SNTRUP_1013;
-		return lc_sntrup_1013_kem_dec(&ss->key.ss_sntrup_1013,
+		return lc_sntrup_1013_dec(&ss->key.ss_sntrup_1013,
 					      &ct->key.ct_sntrup_1013,
 					      &sk->key.sk_sntrup_1013);
 #else
@@ -821,7 +821,7 @@ LC_INTERFACE_FUNCTION(int, lc_sntrup_dec, struct lc_sntrup_ss *ss,
 	case LC_SNTRUP_953:
 #ifdef LC_SNTRUP_953_ENABLED
 		ss->sntrup_type = LC_SNTRUP_953;
-		return lc_sntrup_953_kem_dec(&ss->key.ss_sntrup_953,
+		return lc_sntrup_953_dec(&ss->key.ss_sntrup_953,
 					     &ct->key.ct_sntrup_953,
 					     &sk->key.sk_sntrup_953);
 #else
@@ -830,7 +830,7 @@ LC_INTERFACE_FUNCTION(int, lc_sntrup_dec, struct lc_sntrup_ss *ss,
 	case LC_SNTRUP_857:
 #ifdef LC_SNTRUP_857_ENABLED
 		ss->sntrup_type = LC_SNTRUP_857;
-		return lc_sntrup_857_kem_dec(&ss->key.ss_sntrup_857,
+		return lc_sntrup_857_dec(&ss->key.ss_sntrup_857,
 					     &ct->key.ct_sntrup_857,
 					     &sk->key.sk_sntrup_857);
 #else
@@ -839,7 +839,7 @@ LC_INTERFACE_FUNCTION(int, lc_sntrup_dec, struct lc_sntrup_ss *ss,
 	case LC_SNTRUP_761:
 #ifdef LC_SNTRUP_761_ENABLED
 		ss->sntrup_type = LC_SNTRUP_761;
-		return lc_sntrup_761_kem_dec(&ss->key.ss_sntrup_761,
+		return lc_sntrup_761_dec(&ss->key.ss_sntrup_761,
 					     &ct->key.ct_sntrup_761,
 					     &sk->key.sk_sntrup_761);
 #else

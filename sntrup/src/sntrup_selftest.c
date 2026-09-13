@@ -38,8 +38,8 @@ static int _sntrup_selftest_keygen(void)
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 
-	CKINT(CRYPTO_NAMESPACE(kem_keypair_internal)(&ws->pk, &ws->sk,
-						     selftest_rng));
+	CKINT(CRYPTO_NAMESPACE(keypair_internal)(&ws->pk, &ws->sk,
+						 selftest_rng));
 
 	/*
 	 * IG 10.3.A: it is not required to validate ek as it is part of dk.
@@ -82,7 +82,7 @@ static int _sntrup_selftest_enc(void)
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 
-	CKINT(CRYPTO_NAMESPACE(kem_enc_internal)(
+	CKINT(CRYPTO_NAMESPACE(enc_internal)(
 		&ws->ct, &ws->ss, &sntrup_testvectors[0].pk, selftest_rng));
 
 	/* Timecop: Selftest does not contain secrets */
@@ -127,7 +127,7 @@ static int _sntrup_selftest_dec(void)
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 	LC_SELFTEST_DRNG_CTX_ON_STACK(selftest_rng);
 
-	CKINT(CRYPTO_NAMESPACE(kem_dec_internal)(
+	CKINT(CRYPTO_NAMESPACE(dec_internal)(
 		&ws->ss, &sntrup_testvectors[0].ct, &sntrup_testvectors[0].sk));
 
 	/* Timecop: Selftest does not contain secrets */

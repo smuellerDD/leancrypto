@@ -92,9 +92,9 @@ struct @sntrup_name@_ss {
  *
  * @return 0 (success) or < 0 on error
  */
-int @sntrup_name@_kem_keypair(struct @sntrup_name@_pk *pk,
-			      struct @sntrup_name@_sk *sk,
-			      struct lc_rng_ctx *rng_ctx);
+int @sntrup_name@_keypair(struct @sntrup_name@_pk *pk,
+			  struct @sntrup_name@_sk *sk,
+			  struct lc_rng_ctx *rng_ctx);
 
 /**
  * @ingroup SNTRUP
@@ -109,9 +109,8 @@ int @sntrup_name@_kem_keypair(struct @sntrup_name@_pk *pk,
  *
  * Returns 0 (success) or < 0 on error
  */
-int @sntrup_name@_kem_enc(struct @sntrup_name@_ct *ct,
-			  struct @sntrup_name@_ss *ss,
-			  const struct @sntrup_name@_pk *pk);
+int @sntrup_name@_enc(struct @sntrup_name@_ct *ct, struct @sntrup_name@_ss *ss,
+		      const struct @sntrup_name@_pk *pk);
 
 /**
  * @ingroup SNTRUP
@@ -128,9 +127,9 @@ int @sntrup_name@_kem_enc(struct @sntrup_name@_ct *ct,
  *
  * On failure, ss will contain a pseudo-random value.
  */
-int @sntrup_name@_kem_dec(struct @sntrup_name@_ss *ss,
-			  const struct @sntrup_name@_ct *ct,
-			  const struct @sntrup_name@_sk *sk);
+int @sntrup_name@_dec(struct @sntrup_name@_ss *ss,
+		      const struct @sntrup_name@_ct *ct,
+		      const struct @sntrup_name@_sk *sk);
 
 /*
  * To allow including the different lc_sntrup_*.h files, these macros need to

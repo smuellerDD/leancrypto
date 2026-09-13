@@ -45,8 +45,8 @@ static inline int _lc_sntrup_pct_fips(const struct CRYPTO_NAMESPACE(pk) * pk,
 	int ret;
 	LC_DECLARE_MEM(ws, struct workspace, sizeof(uint64_t));
 
-	CKINT(CRYPTO_NAMESPACE(kem_enc)(&ws->ct, &ws->ss1, pk));
-	CKINT(CRYPTO_NAMESPACE(kem_dec)(&ws->ss2, &ws->ct, sk));
+	CKINT(CRYPTO_NAMESPACE(enc)(&ws->ct, &ws->ss1, pk));
+	CKINT(CRYPTO_NAMESPACE(dec)(&ws->ss2, &ws->ct, sk));
 
 	ss1_p = ws->ss1.ss;
 	ss1_size = sizeof(ws->ss1.ss);

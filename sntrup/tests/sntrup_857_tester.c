@@ -536,9 +536,9 @@ static int _sntrup_857_tester(void)
 	rc += lc_compare(ptr, sk, len, "SNTRUP 857 SK");
 
 	/* Verify encap */
-	CKINT(lc_sntrup_857_kem_enc_internal(&ws->ct.key.ct_sntrup_857,
-					     &ws->ss1.key.ss_sntrup_857,
-					     &ws->pk.key.pk_sntrup_857, drbg));
+	CKINT(lc_sntrup_857_enc_internal(&ws->ct.key.ct_sntrup_857,
+					 &ws->ss1.key.ss_sntrup_857,
+					 &ws->pk.key.pk_sntrup_857, drbg));
 	ws->ct.sntrup_type = LC_SNTRUP_857;
 	ws->ss1.sntrup_type = LC_SNTRUP_857;
 	CKINT(lc_sntrup_ct_ptr(&ptr, &len, &ws->ct));

@@ -35,12 +35,12 @@
 
 #define CRYPTO_NAMESPACE(name) lc_sntrup_1013_##name
 
-#define sntrup_kem_keypair CRYPTO_NAMESPACE(kem_keypair)
-#define sntrup_kem_keypair_internal CRYPTO_NAMESPACE(kem_keypair_internal)
-#define sntrup_kem_enc CRYPTO_NAMESPACE(kem_enc)
-#define sntrup_kem_enc_internal CRYPTO_NAMESPACE(kem_enc_internal)
-#define sntrup_kem_dec CRYPTO_NAMESPACE(kem_dec)
-#define sntrup_kem_dec_internal CRYPTO_NAMESPACE(kem_dec_internal)
+#define sntrup_kem_keypair CRYPTO_NAMESPACE(keypair)
+#define sntrup_kem_keypair_internal CRYPTO_NAMESPACE(keypair_internal)
+#define sntrup_kem_enc CRYPTO_NAMESPACE(enc)
+#define sntrup_kem_enc_internal CRYPTO_NAMESPACE(enc_internal)
+#define sntrup_kem_dec CRYPTO_NAMESPACE(dec)
+#define sntrup_kem_dec_internal CRYPTO_NAMESPACE(dec_internal)
 
 #define sntrup_kem_sntrup1013_SECRETKEYBYTES 2417
 #define sntrup_kem_sntrup1013_PUBLICKEYBYTES 1623
