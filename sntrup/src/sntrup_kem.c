@@ -190,12 +190,13 @@ static void Hash(uint8_t *out, const uint8_t *in, size_t inlen)
 struct ws_short_random {
 	uint32_t L[ppadsort];
 };
-static void Short_random(small *out, struct lc_rng_ctx *rng_ctx,
-			 struct ws_short_random *ws)
+static int Short_random(small *out, struct lc_rng_ctx *rng_ctx,
+			struct ws_short_random *ws)
 {
 	unsigned int i;
+	int ret;
 
-	lc_rng_generate(rng_ctx, NULL, 0, (uint8_t *)ws->L, 4 * p);
+	CKINT(lc_rng_generate(rng_ctx, NULL, 0, (uint8_t *)ws->L, 4 * p));
 	sntrup_decode_pxint32(ws->L, (uint8_t *)ws->L);
 	for (i = 0; i < w; ++i)
 		ws->L[i] = ws->L[i] & (uint32_t)-2;
@@ -206,20 +207,28 @@ static void Short_random(small *out, struct lc_rng_ctx *rng_ctx,
 	sntrup_sort_uint32(ws->L, ppadsort);
 	for (i = 0; i < p; ++i)
 		out[i] = (small)((ws->L[i] & 3) - 1);
+
+out:
+	return ret;
 }
 
 struct ws_small_random {
 	uint32_t L[p];
 };
-static void Small_random(small *out, struct lc_rng_ctx *rng_ctx,
-			 struct ws_small_random *ws)
+static int Small_random(small *out, struct lc_rng_ctx *rng_ctx,
+			struct ws_small_random *ws)
 {
-	int i;
+	unsigned int i;
+	int ret;
 
-	lc_rng_generate(rng_ctx, NULL, 0, (uint8_t *)ws->L, sizeof(ws->L));
+	CKINT(lc_rng_generate(rng_ctx, NULL, 0, (uint8_t *)ws->L,
+			      sizeof(ws->L)));
 	sntrup_decode_pxint32(ws->L, (uint8_t *)ws->L);
 	for (i = 0; i < p; ++i)
 		out[i] = (small)((((ws->L[i] & 0x3fffffff) * 3) >> 30) - 1);
+
+out:
+	return ret;
 }
 
 /* ----- Streamlined NTRU Prime */
@@ -292,7 +301,7 @@ int sntrup_kem_keypair_internal(struct CRYPTO_NAMESPACE(pk) * pk,
 		     sntrup_kem_PUBLICKEYBYTES);
 
 	for (;;) {
-		Small_random(ws->g, rng_ctx, &ws->u.ws_small_random);
+		CKINT(Small_random(ws->g, rng_ctx, &ws->u.ws_small_random));
 		/* Timecop: Mark the seed. */
 		poison(ws->g, sizeof(ws->g));
 		{
@@ -315,7 +324,7 @@ int sntrup_kem_keypair_internal(struct CRYPTO_NAMESPACE(pk) * pk,
 		}
 	}
 	{
-		Short_random(ws->v.f, rng_ctx, &ws->u.ws_short_random);
+		CKINT(Short_random(ws->v.f, rng_ctx, &ws->u.ws_short_random));
 		/* Timecop: Mark the seed. */
 		poison(ws->v.f, sizeof(ws->v.f));
 		sntrup_accel->small_encode(sk->sk, ws->v.f,
@@ -403,6 +412,7 @@ int sntrup_kem_enc_internal(struct CRYPTO_NAMESPACE(ct) * ct,
 	const struct lc_sntrup_accel *sntrup_accel = sntrup_get_accel();
 	LC_DECLARE_MEM(ws, struct workspace, 32);
 	unsigned int i;
+	int ret;
 
 	BUILD_BUG_ON(sizeof(struct CRYPTO_NAMESPACE(ct)) !=
 		     sntrup_kem_CIPHERTEXTBYTES);
@@ -415,7 +425,8 @@ int sntrup_kem_enc_internal(struct CRYPTO_NAMESPACE(ct) * ct,
 		Hash(ws->cache, ws->union_v.y, sizeof(ws->union_v.y));
 	}
 	{
-		Short_random(ws->union_v.r, rng_ctx, &ws->u.ws_short_random);
+		CKINT(Short_random(ws->union_v.r, rng_ctx,
+				   &ws->u.ws_short_random));
 		/* Timecop: Mark the seed. */
 		poison(ws->union_v.r, sizeof(ws->union_v.r));
 		{
@@ -434,8 +445,9 @@ int sntrup_kem_enc_internal(struct CRYPTO_NAMESPACE(ct) * ct,
 	unpoison(ct, sntrup_kem_CIPHERTEXTBYTES);
 	unpoison(ss, sntrup_kem_BYTES);
 
+out:
 	LC_RELEASE_MEM(ws);
-	return 0;
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, sntrup_kem_enc, struct CRYPTO_NAMESPACE(ct) * ct,

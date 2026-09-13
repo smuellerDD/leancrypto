@@ -12,9 +12,11 @@ if get_option('drbg_ctr').enabled()
 				include_internal_dirs
 			],
 			dependencies : leancrypto_static_lib)
-		test('SNTRUP 1277 Accel', sntrup_1277_tester, suite : regression)
+		test('SNTRUP 1277 Accel', sntrup_1277_tester, suite : regression,
+		     should_fail: fips140_negative_expect_fail)
 		test('SNTRUP 1277 C', sntrup_1277_tester, args : [ 'c' ],
-		     suite : regression)
+		     suite : regression,
+		     should_fail: fips140_negative_expect_fail)
 	endif
 
 	if get_option('sntrup_1013').enabled()
@@ -26,9 +28,11 @@ if get_option('drbg_ctr').enabled()
 				include_internal_dirs
 			],
 			dependencies : leancrypto_static_lib)
-		test('SNTRUP 1013 Accel', sntrup_1013_tester, suite : regression)
+		test('SNTRUP 1013 Accel', sntrup_1013_tester, suite : regression,
+		     should_fail: fips140_negative_expect_fail)
 		test('SNTRUP 1013 C', sntrup_1013_tester, args : [ 'c' ],
-		     suite : regression)
+		     suite : regression,
+		     should_fail: fips140_negative_expect_fail)
 	endif
 
 	if get_option('sntrup_953').enabled()
@@ -40,9 +44,11 @@ if get_option('drbg_ctr').enabled()
 				include_internal_dirs
 			],
 			dependencies : leancrypto_static_lib)
-		test('SNTRUP 953 Accel', sntrup_953_tester, suite : regression)
+		test('SNTRUP 953 Accel', sntrup_953_tester, suite : regression,
+		     should_fail: fips140_negative_expect_fail)
 		test('SNTRUP 953 C', sntrup_953_tester, args : [ 'c' ],
-		     suite : regression)
+		     suite : regression,
+		     should_fail: fips140_negative_expect_fail)
 	endif
 
 	if get_option('sntrup_857').enabled()
@@ -54,9 +60,11 @@ if get_option('drbg_ctr').enabled()
 				include_internal_dirs
 			],
 			dependencies : leancrypto_static_lib)
-		test('SNTRUP 857 Accel', sntrup_857_tester, suite : regression)
+		test('SNTRUP 857 Accel', sntrup_857_tester, suite : regression,
+		     should_fail: fips140_negative_expect_fail)
 		test('SNTRUP 857 C', sntrup_857_tester, args : [ 'c' ],
-		     suite : regression)
+		     suite : regression,
+		     should_fail: fips140_negative_expect_fail)
 	endif
 
 	if get_option('sntrup_761').enabled()
@@ -68,9 +76,11 @@ if get_option('drbg_ctr').enabled()
 				include_internal_dirs
 			],
 			dependencies : leancrypto_static_lib)
-		test('SNTRUP 761 Accel', sntrup_761_tester, suite : regression)
+		test('SNTRUP 761 Accel', sntrup_761_tester, suite : regression,
+		     should_fail: fips140_negative_expect_fail)
 		test('SNTRUP 761 C', sntrup_761_tester, args : [ 'c' ],
-		     suite : regression)
+		     suite : regression,
+		     should_fail: fips140_negative_expect_fail)
 
 	endif
 endif

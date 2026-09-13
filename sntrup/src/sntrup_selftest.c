@@ -66,7 +66,10 @@ out:
 void sntrup_selftest_keygen(void)
 {
 	LC_SELFTEST_RUN(LC_ALG_STATUS_SNTRUP_KEYGEN);
-	_sntrup_selftest_keygen();
+	if (_sntrup_selftest_keygen() < 0) {
+		alg_status_set_result(lc_alg_status_result_failed,
+				      LC_ALG_STATUS_SNTRUP_KEYGEN);
+	}
 }
 
 static int _sntrup_selftest_enc(void)
@@ -109,7 +112,10 @@ out:
 void sntrup_selftest_enc(void)
 {
 	LC_SELFTEST_RUN(LC_ALG_STATUS_SNTRUP_ENC);
-	_sntrup_selftest_enc();
+	if (_sntrup_selftest_enc() < 0) {
+		alg_status_set_result(lc_alg_status_result_failed,
+				      LC_ALG_STATUS_SNTRUP_ENC);
+	}
 }
 
 static int _sntrup_selftest_dec(void)
@@ -139,5 +145,8 @@ out:
 void sntrup_selftest_dec(void)
 {
 	LC_SELFTEST_RUN(LC_ALG_STATUS_SNTRUP_DEC);
-	_sntrup_selftest_dec();
+	if (_sntrup_selftest_dec() < 0) {
+		alg_status_set_result(lc_alg_status_result_failed,
+				      LC_ALG_STATUS_SNTRUP_DEC);
+	}
 }
