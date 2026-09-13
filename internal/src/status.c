@@ -221,6 +221,9 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 #ifdef LC_HQC
 		"    \"HQC\": [ %s%s ],\n"
 #endif
+#ifdef LC_SNTRUP
+		"    \"SNTRUP\": [ %s%s ],\n"
+#endif
 #ifdef LC_CURVE25519
 		"    \"Curve25519\": [ %s%s%s%s ],\n"
 #endif
@@ -367,12 +370,20 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 		"\"C\"",
 		avx2, avx512
 #endif /* LC_BIKE */
+
 	/* HQC */
 #ifdef LC_HQC
 		,
 		"\"C\"",
 		avx2
 #endif /* LC_HQC */
+
+	/* SNTRUP */
+#ifdef LC_SNTRUP
+		,
+		"\"C\"",
+		avx2
+#endif /* LC_SNTRUP */
 
 	/* Curve25519 */
 #ifdef LC_CURVE25519

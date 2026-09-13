@@ -318,6 +318,36 @@ CONFIG_LEANCRYPTO_CTR_DRBG=y
 #
 # CONFIG_LEANCRYPTO_KEM_HQC_128=y
 
+#
+# Enable Key Encapsulation Mechanism provided by SNTRUP-1277
+# Dependencies: CONFIG_LEANCRYPTO_SHA2_512
+#
+# CONFIG_LEANCRYPTO_KEM_SNTRUP_1277=y
+
+#
+# Enable Key Encapsulation Mechanism provided by SNTRUP-1013
+# Dependencies: CONFIG_LEANCRYPTO_SHA2_512
+#
+# CONFIG_LEANCRYPTO_KEM_SNTRUP_1013=y
+
+#
+# Enable Key Encapsulation Mechanism provided by SNTRUP-953
+# Dependencies: CONFIG_LEANCRYPTO_SHA2_512
+#
+# CONFIG_LEANCRYPTO_KEM_SNTRUP_953=y
+
+#
+# Enable Key Encapsulation Mechanism provided by SNTRUP-857
+# Dependencies: CONFIG_LEANCRYPTO_SHA2_512
+#
+# CONFIG_LEANCRYPTO_KEM_SNTRUP_857=y
+
+#
+# Enable Key Encapsulation Mechanism provided by SNTRUP-761
+# Dependencies: CONFIG_LEANCRYPTO_SHA2_512
+#
+# CONFIG_LEANCRYPTO_KEM_SNTRUP_761=y
+
 ############################## Digital Signatures ##############################
 
 #

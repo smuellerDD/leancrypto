@@ -355,6 +355,8 @@ Leancrypto offers various cryptographic algorithms:
 
   * HQC Key Encapsulation Mechanism (KEM) (NIST round 4 winner)
 
+  * SNTRUP 761, 857, 953, 1013, 1277
+
 * One-Time Password (OTP) algorithms
 
   * HMAC-based One-Time Password Algorithm (HOTP)
@@ -440,9 +442,9 @@ default. Currently supported options:
 * Linux: enabling of the following
 
     - Speculative Store Bypass
-    
+
     - Indirect Branch Speculation
-    
+
     - Flush L1D Cache on context switch out of the task
 
 # Testing

@@ -1,0 +1,1 @@
+../../sntrup/src/sntrup_selftest.c

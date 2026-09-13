@@ -180,6 +180,64 @@ $(obj)/lc_hqc_128.h: $(src)/../hqc/api/lc_hqc_size.h.in FORCE
 	$(call if_changed,build_lc_hqc_128)
 
 
+# SNTRUP
+
+ifdef CONFIG_LEANCRYPTO_KEM_SNTRUP_1277
+$(obj)/leancrypto_kernel.o: $(obj)/lc_sntrup_1277.h
+targets += lc_sntrup_1277.h
+clean-files += $(obj)/lc_sntrup_1277.h
+endif
+
+ifdef CONFIG_LEANCRYPTO_KEM_SNTRUP_1013
+$(obj)/leancrypto_kernel.o: $(obj)/lc_sntrup_1013.h
+targets += lc_sntrup_1013.h
+clean-files += $(obj)/lc_sntrup_1013.h
+endif
+
+ifdef CONFIG_LEANCRYPTO_KEM_SNTRUP_953
+$(obj)/leancrypto_kernel.o: $(obj)/lc_sntrup_953.h
+targets += lc_sntrup_953.h
+clean-files += $(obj)/lc_sntrup_953.h
+endif
+
+ifdef CONFIG_LEANCRYPTO_KEM_SNTRUP_857
+$(obj)/leancrypto_kernel.o: $(obj)/lc_sntrup_857.h
+targets += lc_sntrup_857.h
+clean-files += $(obj)/lc_sntrup_857.h
+endif
+
+ifdef CONFIG_LEANCRYPTO_KEM_SNTRUP_761
+$(obj)/leancrypto_kernel.o: $(obj)/lc_sntrup_761.h
+targets += lc_sntrup_761.h
+clean-files += $(obj)/lc_sntrup_761.h
+endif
+
+quiet_cmd_build_lc_sntrup_1277 = GEN     $@
+      cmd_build_lc_sntrup_1277 = awk -f $(src)/lc_sntrup_1277.h.awk $< > $@
+$(obj)/lc_sntrup_1277.h: $(src)/../sntrup/api/lc_sntrup_size.h.in FORCE
+	$(call if_changed,build_lc_sntrup_1277)
+
+quiet_cmd_build_lc_sntrup_1013 = GEN     $@
+      cmd_build_lc_sntrup_1013 = awk -f $(src)/lc_sntrup_1013.h.awk $< > $@
+$(obj)/lc_sntrup_1013.h: $(src)/../sntrup/api/lc_sntrup_size.h.in FORCE
+	$(call if_changed,build_lc_sntrup_1013)
+
+quiet_cmd_build_lc_sntrup_953 = GEN     $@
+      cmd_build_lc_sntrup_953 = awk -f $(src)/lc_sntrup_953.h.awk $< > $@
+$(obj)/lc_sntrup_953.h: $(src)/../sntrup/api/lc_sntrup_size.h.in FORCE
+	$(call if_changed,build_lc_sntrup_953)
+
+quiet_cmd_build_lc_sntrup_857 = GEN     $@
+      cmd_build_lc_sntrup_857 = awk -f $(src)/lc_sntrup_857.h.awk $< > $@
+$(obj)/lc_sntrup_857.h: $(src)/../sntrup/api/lc_sntrup_size.h.in FORCE
+	$(call if_changed,build_lc_sntrup_857)
+
+quiet_cmd_build_lc_sntrup_761 = GEN     $@
+      cmd_build_lc_sntrup_761 = awk -f $(src)/lc_sntrup_761.h.awk $< > $@
+$(obj)/lc_sntrup_761.h: $(src)/../sntrup/api/lc_sntrup_size.h.in FORCE
+	$(call if_changed,build_lc_sntrup_761)
+
+
 # Sphincs+
 
 ifdef CONFIG_LEANCRYPTO_SPHINCS_256s

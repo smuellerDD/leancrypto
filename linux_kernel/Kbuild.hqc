@@ -42,7 +42,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM_HQC_192)				       \
 				   hqc192/leancrypto_kernel_hqc.o
 
 ifndef CONFIG_X86_64
-leancrypto-$(CONFIG_LEANCRYPTO_KEM_HQC_256)				       \
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_HQC_192)				       \
 				+= hqc192/hqc_kem_api_c.o
 endif
 
@@ -76,7 +76,7 @@ leancrypto-$(CONFIG_LEANCRYPTO_KEM_HQC_128)				       \
 				   hqc128/leancrypto_kernel_hqc.o
 
 ifndef CONFIG_X86_64
-leancrypto-$(CONFIG_LEANCRYPTO_KEM_HQC_256)				       \
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_HQC_128)				       \
 				+= hqc128/hqc_kem_api_c.o
 endif
 

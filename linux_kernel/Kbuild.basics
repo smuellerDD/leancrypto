@@ -26,6 +26,7 @@ ccflags-y			+= -I$(src)				       \
 				   -I$(src)/../hash/src			       \
 				   -I$(src)/../hmac/api			       \
 				   -I$(src)/../hqc/api			       \
+				   -I$(src)/../sntrup/api		       \
 				   -I$(src)/../ml-kem/api		       \
 				   -I$(src)/../kdf/api			       \
 				   -I$(src)/../kmac/api			       \
@@ -51,6 +52,7 @@ asflags-y			+= -I$(src)				       \
 				   -I$(src)/../hash/api			       \
 				   -I$(src)/../hmac/api			       \
 				   -I$(src)/../hqc/api			       \
+				   -I$(src)/../sntrup/api		       \
 				   -I$(src)/../ml-kem/api		       \
 				   -I$(src)/../kdf/api			       \
 				   -I$(src)/../kmac/api			       \

@@ -53,6 +53,9 @@ pub mod lcr_hmac;
 /// Leancrypto wrapper for lc_hqc
 pub mod lcr_hqc;
 
+/// Leancrypto wrapper for lc_sntrup
+pub mod lcr_sntrup;
+
 /// Leancrypto wrapper for lc_kmac
 pub mod lcr_kmac;
 

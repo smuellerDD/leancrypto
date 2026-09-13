@@ -1,0 +1,462 @@
+################################################################################
+# SNTRUP implementation
+
+ccflags-$(CONFIG_LEANCRYPTO_KEM_SNTRUP) += -I$(src)/../sntrup/src
+
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_SNTRUP)				       \
+				+= ../sntrup/src/decode_int16.o		       \
+				   ../sntrup/src/encode_int16.o		       \
+				   ../sntrup/src/sntrup_kem_api.o	       \
+				   ../sntrup/src/sort_int32.o		       \
+				   ../sntrup/src/sort_uint32.o		       \
+				   ../drng/src/selftest_rng.o
+
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_SNTRUP_1277)				       \
+				+= ../sntrup/src/core_invsntrup.o	       \
+				   ../sntrup/src/core_inv3sntrup.o	       \
+				   ../sntrup/src/core_mult3sntrup.o	       \
+				   ../sntrup/src/core_multsntrup.o	       \
+				   ../sntrup/src/core_scale3sntrup.o	       \
+				   ../sntrup/src/core_weightsntrup.o	       \
+				   ../sntrup/src/core_wforcesntrup.o	       \
+				   ../sntrup/src/decode_x3.o		       \
+				   ../sntrup/src/decode_xint16.o	       \
+				   ../sntrup/src/decode_xint32.o	       \
+				   ../sntrup/src/encode_x3.o		       \
+				   ../sntrup/src/encode_xfreeze.o	       \
+				   ../sntrup/src/encode_xint16.o	       \
+				   ../sntrup/src/sntrup_kem.o		       \
+				   ../sntrup/src/sntrup_selftest.o	       \
+				   ../sntrup/src/verify.o		       \
+				   ../sntrup/src/1277/decode_1277x2627.o       \
+				   ../sntrup/src/1277/decode_1277x7879.o       \
+				   ../sntrup/src/1277/encode_1277x2627.o       \
+				   ../sntrup/src/1277/encode_1277x2627round.o  \
+				   ../sntrup/src/1277/encode_1277x7879.o
+
+sntrup_1277_args = -I../sntrup/api/ -I../sntrup/src/1277
+CFLAGS_../sntrup/src/core_invsntrup.o			= $(sntrup_1277_args)
+CFLAGS_../sntrup/src/core_inv3sntrup.o			= $(sntrup_1277_args)
+CFLAGS_../sntrup/src/core_mult3sntrup.o			= $(sntrup_1277_args)
+CFLAGS_../sntrup/src/core_multsntrup.o			= $(sntrup_1277_args)
+CFLAGS_../sntrup/src/core_scale3sntrup.o		= $(sntrup_1277_args)
+CFLAGS_../sntrup/src/core_weightsntrup.o		= $(sntrup_1277_args)
+CFLAGS_../sntrup/src/core_wforcesntrup.o		= $(sntrup_1277_args)
+CFLAGS_../sntrup/src/decode_x3.o			= $(sntrup_1277_args)
+CFLAGS_../sntrup/src/decode_xint16.o			= $(sntrup_1277_args)
+CFLAGS_../sntrup/src/decode_xint32.o			= $(sntrup_1277_args)
+CFLAGS_../sntrup/src/encode_x3.o			= $(sntrup_1277_args)
+CFLAGS_../sntrup/src/encode_xfreeze.o			= $(sntrup_1277_args)
+CFLAGS_../sntrup/src/encode_xint16.o			= $(sntrup_1277_args)
+CFLAGS_../sntrup/src/sntrup_kem.o			= $(sntrup_1277_args)
+CFLAGS_../sntrup/src/sntrup_selftest.o			= $(sntrup_1277_args)
+CFLAGS_../sntrup/src/verify.o				= $(sntrup_1277_args)
+CFLAGS_../sntrup/src/1277/decode_1277x2627.o		= $(sntrup_1277_args)
+CFLAGS_../sntrup/src/1277/decode_1277x7879.o		= $(sntrup_1277_args)
+CFLAGS_../sntrup/src/1277/encode_1277x2627.o		= $(sntrup_1277_args)
+CFLAGS_../sntrup/src/1277/encode_1277x2627round.o	= $(sntrup_1277_args)
+CFLAGS_../sntrup/src/1277/encode_1277x7879.o		= $(sntrup_1277_args)
+
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_SNTRUP_1013)				       \
+				+= sntrup1013/core_invsntrup.o		       \
+				   sntrup1013/core_inv3sntrup.o		       \
+				   sntrup1013/core_mult3sntrup.o	       \
+				   sntrup1013/core_multsntrup.o		       \
+				   sntrup1013/core_scale3sntrup.o	       \
+				   sntrup1013/core_weightsntrup.o	       \
+				   sntrup1013/core_wforcesntrup.o	       \
+				   sntrup1013/decode_x3.o		       \
+				   sntrup1013/decode_xint16.o		       \
+				   sntrup1013/decode_xint32.o		       \
+				   sntrup1013/encode_x3.o		       \
+				   sntrup1013/encode_xfreeze.o		       \
+				   sntrup1013/encode_xint16.o		       \
+				   sntrup1013/encode_xint16.o		       \
+				   sntrup1013/sntrup_kem.o		       \
+				   sntrup1013/sntrup_selftest.o		       \
+				   sntrup1013/verify.o			       \
+				   sntrup1013/1013/decode_1013x2393.o	       \
+				   sntrup1013/1013/decode_1013x7177.o	       \
+				   sntrup1013/1013/encode_1013x2393.o	       \
+				   sntrup1013/1013/encode_1013x2393round.o     \
+				   sntrup1013/1013/encode_1013x7177.o
+
+sntrup_1013_args = -I../sntrup/api/ -I../sntrup/src/1013
+CFLAGS_sntrup1013/core_invsntrup.o			= $(sntrup_1013_args)
+CFLAGS_sntrup1013/core_inv3sntrup.o			= $(sntrup_1013_args)
+CFLAGS_sntrup1013/core_mult3sntrup.o			= $(sntrup_1013_args)
+CFLAGS_sntrup1013/core_multsntrup.o			= $(sntrup_1013_args)
+CFLAGS_sntrup1013/core_scale3sntrup.o			= $(sntrup_1013_args)
+CFLAGS_sntrup1013/core_weightsntrup.o			= $(sntrup_1013_args)
+CFLAGS_sntrup1013/core_wforcesntrup.o			= $(sntrup_1013_args)
+CFLAGS_sntrup1013/decode_x3.o				= $(sntrup_1013_args)
+CFLAGS_sntrup1013/decode_xint16.o			= $(sntrup_1013_args)
+CFLAGS_sntrup1013/decode_xint32.o			= $(sntrup_1013_args)
+CFLAGS_sntrup1013/encode_x3.o				= $(sntrup_1013_args)
+CFLAGS_sntrup1013/encode_xfreeze.o			= $(sntrup_1013_args)
+CFLAGS_sntrup1013/encode_xint16.o			= $(sntrup_1013_args)
+CFLAGS_sntrup1013/encode_xint16.o			= $(sntrup_1013_args)
+CFLAGS_sntrup1013/sntrup_kem.o				= $(sntrup_1013_args)
+CFLAGS_sntrup1013/sntrup_selftest.o			= $(sntrup_1013_args)
+CFLAGS_sntrup1013/verify.o				= $(sntrup_1013_args)
+CFLAGS_sntrup1013/1013/decode_1013x2393.o		= $(sntrup_1013_args)
+CFLAGS_sntrup1013/1013/decode_1013x7177.o		= $(sntrup_1013_args)
+CFLAGS_sntrup1013/1013/encode_1013x2393.o		= $(sntrup_1013_args)
+CFLAGS_sntrup1013/1013/encode_1013x2393round.o		= $(sntrup_1013_args)
+CFLAGS_sntrup1013/1013/encode_1013x7177.o		= $(sntrup_1013_args)
+
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_SNTRUP_953)				       \
+				+= sntrup953/core_invsntrup.o		       \
+				   sntrup953/core_inv3sntrup.o		       \
+				   sntrup953/core_mult3sntrup.o		       \
+				   sntrup953/core_multsntrup.o		       \
+				   sntrup953/core_scale3sntrup.o	       \
+				   sntrup953/core_weightsntrup.o	       \
+				   sntrup953/core_wforcesntrup.o	       \
+				   sntrup953/decode_x3.o		       \
+				   sntrup953/decode_xint16.o		       \
+				   sntrup953/decode_xint32.o		       \
+				   sntrup953/encode_x3.o		       \
+				   sntrup953/encode_xfreeze.o		       \
+				   sntrup953/encode_xint16.o		       \
+				   sntrup953/encode_xint16.o		       \
+				   sntrup953/sntrup_kem.o		       \
+				   sntrup953/sntrup_selftest.o		       \
+				   sntrup953/verify.o			       \
+				   sntrup953/953/decode_953x2115.o	       \
+				   sntrup953/953/decode_953x6343.o	       \
+				   sntrup953/953/encode_953x2115.o	       \
+				   sntrup953/953/encode_953x2115round.o	       \
+				   sntrup953/953/encode_953x6343.o
+
+sntrup_953_args = -I../sntrup/api/ -I../sntrup/src/953
+CFLAGS_sntrup953/core_invsntrup.o			= $(sntrup_953_args)
+CFLAGS_sntrup953/core_inv3sntrup.o			= $(sntrup_953_args)
+CFLAGS_sntrup953/core_mult3sntrup.o			= $(sntrup_953_args)
+CFLAGS_sntrup953/core_multsntrup.o			= $(sntrup_953_args)
+CFLAGS_sntrup953/core_scale3sntrup.o			= $(sntrup_953_args)
+CFLAGS_sntrup953/core_weightsntrup.o			= $(sntrup_953_args)
+CFLAGS_sntrup953/core_wforcesntrup.o			= $(sntrup_953_args)
+CFLAGS_sntrup953/decode_x3.o				= $(sntrup_953_args)
+CFLAGS_sntrup953/decode_xint16.o			= $(sntrup_953_args)
+CFLAGS_sntrup953/decode_xint32.o			= $(sntrup_953_args)
+CFLAGS_sntrup953/encode_x3.o				= $(sntrup_953_args)
+CFLAGS_sntrup953/encode_xfreeze.o			= $(sntrup_953_args)
+CFLAGS_sntrup953/encode_xint16.o			= $(sntrup_953_args)
+CFLAGS_sntrup953/encode_xint16.o			= $(sntrup_953_args)
+CFLAGS_sntrup953/sntrup_kem.o				= $(sntrup_953_args)
+CFLAGS_sntrup953/sntrup_selftest.o			= $(sntrup_953_args)
+CFLAGS_sntrup953/verify.o				= $(sntrup_953_args)
+CFLAGS_sntrup953/953/decode_953x2393.o			= $(sntrup_953_args)
+CFLAGS_sntrup953/953/decode_953x7177.o			= $(sntrup_953_args)
+CFLAGS_sntrup953/953/encode_953x2393.o			= $(sntrup_953_args)
+CFLAGS_sntrup953/953/encode_953x2393round.o		= $(sntrup_953_args)
+CFLAGS_sntrup953/953/encode_953x7177.o			= $(sntrup_953_args)
+
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_SNTRUP_857)				       \
+				+= sntrup857/core_invsntrup.o		       \
+				   sntrup857/core_inv3sntrup.o		       \
+				   sntrup857/core_mult3sntrup.o		       \
+				   sntrup857/core_multsntrup.o		       \
+				   sntrup857/core_scale3sntrup.o	       \
+				   sntrup857/core_weightsntrup.o	       \
+				   sntrup857/core_wforcesntrup.o	       \
+				   sntrup857/decode_x3.o		       \
+				   sntrup857/decode_xint16.o		       \
+				   sntrup857/decode_xint32.o		       \
+				   sntrup857/encode_x3.o		       \
+				   sntrup857/encode_xfreeze.o		       \
+				   sntrup857/encode_xint16.o		       \
+				   sntrup857/encode_xint16.o		       \
+				   sntrup857/sntrup_kem.o		       \
+				   sntrup857/sntrup_selftest.o		       \
+				   sntrup857/verify.o			       \
+				   sntrup857/857/decode_857x1723.o	       \
+				   sntrup857/857/decode_857x5167.o	       \
+				   sntrup857/857/encode_857x1723.o	       \
+				   sntrup857/857/encode_857x1723round.o	       \
+				   sntrup857/857/encode_857x5167.o
+
+sntrup_857_args = -I../sntrup/api/ -I../sntrup/src/857
+CFLAGS_sntrup857/core_invsntrup.o			= $(sntrup_857_args)
+CFLAGS_sntrup857/core_inv3sntrup.o			= $(sntrup_857_args)
+CFLAGS_sntrup857/core_mult3sntrup.o			= $(sntrup_857_args)
+CFLAGS_sntrup857/core_multsntrup.o			= $(sntrup_857_args)
+CFLAGS_sntrup857/core_scale3sntrup.o			= $(sntrup_857_args)
+CFLAGS_sntrup857/core_weightsntrup.o			= $(sntrup_857_args)
+CFLAGS_sntrup857/core_wforcesntrup.o			= $(sntrup_857_args)
+CFLAGS_sntrup857/decode_x3.o				= $(sntrup_857_args)
+CFLAGS_sntrup857/decode_xint16.o			= $(sntrup_857_args)
+CFLAGS_sntrup857/decode_xint32.o			= $(sntrup_857_args)
+CFLAGS_sntrup857/encode_x3.o				= $(sntrup_857_args)
+CFLAGS_sntrup857/encode_xfreeze.o			= $(sntrup_857_args)
+CFLAGS_sntrup857/encode_xint16.o			= $(sntrup_857_args)
+CFLAGS_sntrup857/encode_xint16.o			= $(sntrup_857_args)
+CFLAGS_sntrup857/sntrup_kem.o				= $(sntrup_857_args)
+CFLAGS_sntrup857/sntrup_selftest.o			= $(sntrup_857_args)
+CFLAGS_sntrup857/verify.o				= $(sntrup_857_args)
+CFLAGS_sntrup857/857/decode_857x2393.o			= $(sntrup_857_args)
+CFLAGS_sntrup857/857/decode_857x7177.o			= $(sntrup_857_args)
+CFLAGS_sntrup857/857/encode_857x2393.o			= $(sntrup_857_args)
+CFLAGS_sntrup857/857/encode_857x2393round.o		= $(sntrup_857_args)
+CFLAGS_sntrup857/857/encode_857x7177.o			= $(sntrup_857_args)
+
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_SNTRUP_761)				       \
+				+= sntrup761/core_invsntrup.o		       \
+				   sntrup761/core_inv3sntrup.o		       \
+				   sntrup761/core_mult3sntrup.o		       \
+				   sntrup761/core_multsntrup.o		       \
+				   sntrup761/core_scale3sntrup.o	       \
+				   sntrup761/core_weightsntrup.o	       \
+				   sntrup761/core_wforcesntrup.o	       \
+				   sntrup761/decode_x3.o		       \
+				   sntrup761/decode_xint16.o		       \
+				   sntrup761/decode_xint32.o		       \
+				   sntrup761/encode_x3.o		       \
+				   sntrup761/encode_xfreeze.o		       \
+				   sntrup761/encode_xint16.o		       \
+				   sntrup761/encode_xint16.o		       \
+				   sntrup761/sntrup_kem.o		       \
+				   sntrup761/sntrup_selftest.o		       \
+				   sntrup761/verify.o			       \
+				   sntrup761/761/decode_761x1531.o	       \
+				   sntrup761/761/decode_761x4591.o	       \
+				   sntrup761/761/encode_761x1531.o	       \
+				   sntrup761/761/encode_761x1531round.o	       \
+				   sntrup761/761/encode_761x4591.o
+
+sntrup_761_args = -I../sntrup/api/ -I../sntrup/src/761
+CFLAGS_sntrup761/core_invsntrup.o			= $(sntrup_761_args)
+CFLAGS_sntrup761/core_inv3sntrup.o			= $(sntrup_761_args)
+CFLAGS_sntrup761/core_mult3sntrup.o			= $(sntrup_761_args)
+CFLAGS_sntrup761/core_multsntrup.o			= $(sntrup_761_args)
+CFLAGS_sntrup761/core_scale3sntrup.o			= $(sntrup_761_args)
+CFLAGS_sntrup761/core_weightsntrup.o			= $(sntrup_761_args)
+CFLAGS_sntrup761/core_wforcesntrup.o			= $(sntrup_761_args)
+CFLAGS_sntrup761/decode_x3.o				= $(sntrup_761_args)
+CFLAGS_sntrup761/decode_xint16.o			= $(sntrup_761_args)
+CFLAGS_sntrup761/decode_xint32.o			= $(sntrup_761_args)
+CFLAGS_sntrup761/encode_x3.o				= $(sntrup_761_args)
+CFLAGS_sntrup761/encode_xfreeze.o			= $(sntrup_761_args)
+CFLAGS_sntrup761/encode_xint16.o			= $(sntrup_761_args)
+CFLAGS_sntrup761/encode_xint16.o			= $(sntrup_761_args)
+CFLAGS_sntrup761/sntrup_kem.o				= $(sntrup_761_args)
+CFLAGS_sntrup761/sntrup_selftest.o			= $(sntrup_761_args)
+CFLAGS_sntrup761/verify.o				= $(sntrup_761_args)
+CFLAGS_sntrup761/761/decode_761x2393.o			= $(sntrup_761_args)
+CFLAGS_sntrup761/761/decode_761x7177.o			= $(sntrup_761_args)
+CFLAGS_sntrup761/761/encode_761x2393.o			= $(sntrup_761_args)
+CFLAGS_sntrup761/761/encode_761x2393round.o		= $(sntrup_761_args)
+CFLAGS_sntrup761/761/encode_761x7177.o			= $(sntrup_761_args)
+
+################################################################################
+# AVX2 Implementation
+################################################################################
+ifdef CONFIG_X86_64
+
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_SNTRUP)				       \
+				+= ../sntrup/src/avx2/ntt.o
+
+sntrup_avx2_args = -mavx2 -mbmi2 -mpopcnt
+CFLAGS_../sntrup/src/avx2/ntt.c	=			 $(sntrup_avx2_args)
+
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_SNTRUP_1277)				       \
+				+= ../sntrup/src/avx2/core_invsntrup.o	       \
+				   ../sntrup/src/avx2/core_scale3sntrup.o      \
+				   ../sntrup/src/avx2/core_weightsntrup.o      \
+				   ../sntrup/src/avx2/core_wforcesntrup.o      \
+				   ../sntrup/src/avx2/decode_x3.o	       \
+				   ../sntrup/src/avx2/encode_x3.o	       \
+				   ../sntrup/src/avx2/encode_xfreeze.o	       \
+				   ../sntrup/src/avx2/verify.o		       \
+				   ../sntrup/src/1277/avx2/core_inv3sntrup_1277.o\
+				   ../sntrup/src/1277/avx2/core_mult3sntrup_1277.o\
+				   ../sntrup/src/1277/avx2/core_multsntrup_1277.o\
+				   ../sntrup/src/1277/avx2/decode_1277x2627.o   \
+				   ../sntrup/src/1277/avx2/decode_1277x7879.o   \
+				   ../sntrup/src/1277/avx2/encode_1277x2627round.o\
+				   ../sntrup/src/1277/avx2/encode_1277x7879.o
+
+sntrup_1277_avx2_args = -mavx2 -mbmi2 -mpopcnt -I../sntrup/api/ -I../sntrup/src/avx2 -I../sntrup/src/1277
+CFLAGS_../sntrup/src/avx2/core_invsntrup.o		= $(sntrup_1277_avx2_args)
+CFLAGS_../sntrup/src/avx2/core_scale3sntrup.o		= $(sntrup_1277_avx2_args)
+CFLAGS_../sntrup/src/avx2/core_weightsntrup.o		= $(sntrup_1277_avx2_args)
+CFLAGS_../sntrup/src/avx2/core_wforcesntrup.o		= $(sntrup_1277_avx2_args)
+CFLAGS_../sntrup/src/avx2/decode_x3.o			= $(sntrup_1277_avx2_args)
+CFLAGS_../sntrup/src/avx2/encode_x3.o			= $(sntrup_1277_avx2_args)
+CFLAGS_../sntrup/src/avx2/encode_xfreeze.o		= $(sntrup_1277_avx2_args)
+CFLAGS_../sntrup/src/avx2/verify.o			= $(sntrup_1277_avx2_args)
+CFLAGS_../sntrup/src/1277/avx2/core_inv3sntrup_1277.o	= $(sntrup_1277_avx2_args)
+CFLAGS_../sntrup/src/1277/avx2/core_mult3sntrup_1277.o	= $(sntrup_1277_avx2_args)
+CFLAGS_../sntrup/src/1277/avx2/core_multsntrup_1277.o	= $(sntrup_1277_avx2_args)
+CFLAGS_../sntrup/src/1277/avx2/decode_1277x2627.o	= $(sntrup_1277_avx2_args)
+CFLAGS_../sntrup/src/1277/avx2/decode_1277x7879.o	= $(sntrup_1277_avx2_args)
+CFLAGS_../sntrup/src/1277/avx2/encode_1277x2627round.o	= $(sntrup_1277_avx2_args)
+CFLAGS_../sntrup/src/1277/avx2/encode_1277x7879.o	= $(sntrup_1277_avx2_args)
+
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_SNTRUP_1013)				       \
+				+= sntrup1013/avx2/core_invsntrup.o	       \
+				   sntrup1013/avx2/core_scale3sntrup.o	       \
+				   sntrup1013/avx2/core_weightsntrup.o	       \
+				   sntrup1013/avx2/core_wforcesntrup.o	       \
+				   sntrup1013/avx2/decode_x3.o		       \
+				   sntrup1013/avx2/encode_x3.o		       \
+				   sntrup1013/avx2/encode_xfreeze.o	       \
+				   sntrup1013/avx2/verify.o		       \
+				   sntrup1013/1013/avx2/core_inv3sntrup_1013.o \
+				   sntrup1013/1013/avx2/core_mult3sntrup_1013.o\
+				   sntrup1013/1013/avx2/core_multsntrup_1013.o \
+				   sntrup1013/1013/avx2/decode_1013x2393.o     \
+				   sntrup1013/1013/avx2/decode_1013x7177.o     \
+				   sntrup1013/1013/avx2/encode_1013x2393round.o\
+				   sntrup1013/1013/avx2/encode_1013x7177.o
+
+sntrup_1013_avx2_args = -mavx2 -mbmi2 -mpopcnt -I../sntrup/api/ -I../sntrup/src/avx2 -I../sntrup/src/1013
+CFLAGS_sntrup1013/avx2/core_invsntrup.o			= $(sntrup_1013_avx2_args)
+CFLAGS_sntrup1013/avx2/core_scale3sntrup.o		= $(sntrup_1013_avx2_args)
+CFLAGS_sntrup1013/avx2/core_weightsntrup.o		= $(sntrup_1013_avx2_args)
+CFLAGS_sntrup1013/avx2/core_wforcesntrup.o		= $(sntrup_1013_avx2_args)
+CFLAGS_sntrup1013/avx2/decode_x3.o			= $(sntrup_1013_avx2_args)
+CFLAGS_sntrup1013/avx2/encode_x3.o			= $(sntrup_1013_avx2_args)
+CFLAGS_sntrup1013/avx2/encode_xfreeze.o			= $(sntrup_1013_avx2_args)
+CFLAGS_sntrup1013/avx2/verify.o				= $(sntrup_1013_avx2_args)
+CFLAGS_sntrup1013/1013/avx2/core_inv3sntrup_1013.o	= $(sntrup_1013_avx2_args)
+CFLAGS_sntrup1013/1013/avx2/core_mult3sntrup_1013.o	= $(sntrup_1013_avx2_args)
+CFLAGS_sntrup1013/1013/avx2/core_multsntrup_1013.o	= $(sntrup_1013_avx2_args)
+CFLAGS_sntrup1013/1013/avx2/decode_1013x2393.o		= $(sntrup_1013_avx2_args)
+CFLAGS_sntrup1013/1013/avx2/decode_1013x7177.o		= $(sntrup_1013_avx2_args)
+CFLAGS_sntrup1013/1013/avx2/encode_1013x2393round.o	= $(sntrup_1013_avx2_args)
+CFLAGS_sntrup1013/1013/avx2/encode_1013x7177.o		= $(sntrup_1013_avx2_args)
+
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_SNTRUP_953)				       \
+				+= sntrup953/avx2/core_invsntrup.o	       \
+				   sntrup953/avx2/core_scale3sntrup.o	       \
+				   sntrup953/avx2/core_weightsntrup.o	       \
+				   sntrup953/avx2/core_wforcesntrup.o	       \
+				   sntrup953/avx2/decode_x3.o		       \
+				   sntrup953/avx2/encode_x3.o		       \
+				   sntrup953/avx2/encode_xfreeze.o	       \
+				   sntrup953/avx2/verify.o		       \
+				   sntrup953/953/avx2/core_inv3sntrup_953.o    \
+				   sntrup953/953/avx2/core_mult3sntrup_953.o   \
+				   sntrup953/953/avx2/core_multsntrup_953.o    \
+				   sntrup953/953/avx2/decode_953x2115.o        \
+				   sntrup953/953/avx2/decode_953x6343.o        \
+				   sntrup953/953/avx2/encode_953x2115round.o   \
+				   sntrup953/953/avx2/encode_953x6343.o
+
+sntrup_953_avx2_args = -mavx2 -mbmi2 -mpopcnt -I../sntrup/api/ -I../sntrup/src/avx2 -I../sntrup/src/953
+CFLAGS_sntrup953/avx2/core_invsntrup.o			= $(sntrup_953_avx2_args)
+CFLAGS_sntrup953/avx2/core_scale3sntrup.o		= $(sntrup_953_avx2_args)
+CFLAGS_sntrup953/avx2/core_weightsntrup.o		= $(sntrup_953_avx2_args)
+CFLAGS_sntrup953/avx2/core_wforcesntrup.o		= $(sntrup_953_avx2_args)
+CFLAGS_sntrup953/avx2/decode_x3.o			= $(sntrup_953_avx2_args)
+CFLAGS_sntrup953/avx2/encode_x3.o			= $(sntrup_953_avx2_args)
+CFLAGS_sntrup953/avx2/encode_xfreeze.o			= $(sntrup_953_avx2_args)
+CFLAGS_sntrup953/avx2/verify.o				= $(sntrup_953_avx2_args)
+CFLAGS_sntrup953/953/avx2/core_inv3sntrup_953.o		= $(sntrup_953_avx2_args)
+CFLAGS_sntrup953/953/avx2/core_mult3sntrup_953.o	= $(sntrup_953_avx2_args)
+CFLAGS_sntrup953/953/avx2/core_multsntrup_953.o		= $(sntrup_953_avx2_args)
+CFLAGS_sntrup953/953/avx2/decode_953x2115.o		= $(sntrup_953_avx2_args)
+CFLAGS_sntrup953/953/avx2/decode_953x6343.o		= $(sntrup_953_avx2_args)
+CFLAGS_sntrup953/953/avx2/encode_953x2115round.o	= $(sntrup_953_avx2_args)
+CFLAGS_sntrup953/953/avx2/encode_953x6343.o		= $(sntrup_953_avx2_args)
+
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_SNTRUP_857)				       \
+				+= sntrup857/avx2/core_invsntrup.o	       \
+				   sntrup857/avx2/core_scale3sntrup.o	       \
+				   sntrup857/avx2/core_weightsntrup.o	       \
+				   sntrup857/avx2/core_wforcesntrup.o	       \
+				   sntrup857/avx2/decode_x3.o		       \
+				   sntrup857/avx2/encode_x3.o		       \
+				   sntrup857/avx2/encode_xfreeze.o	       \
+				   sntrup857/avx2/verify.o		       \
+				   sntrup857/857/avx2/core_inv3sntrup_857.o    \
+				   sntrup857/857/avx2/core_mult3sntrup_857.o   \
+				   sntrup857/857/avx2/core_multsntrup_857.o    \
+				   sntrup857/857/avx2/decode_857x1723.o        \
+				   sntrup857/857/avx2/decode_857x5167.o        \
+				   sntrup857/857/avx2/encode_857x1723round.o   \
+				   sntrup857/857/avx2/encode_857x5167.o
+
+sntrup_857_avx2_args = -mavx2 -mbmi2 -mpopcnt -I../sntrup/api/ -I../sntrup/src/avx2 -I../sntrup/src/857
+CFLAGS_sntrup857/avx2/core_invsntrup.o			= $(sntrup_857_avx2_args)
+CFLAGS_sntrup857/avx2/core_scale3sntrup.o		= $(sntrup_857_avx2_args)
+CFLAGS_sntrup857/avx2/core_weightsntrup.o		= $(sntrup_857_avx2_args)
+CFLAGS_sntrup857/avx2/core_wforcesntrup.o		= $(sntrup_857_avx2_args)
+CFLAGS_sntrup857/avx2/decode_x3.o			= $(sntrup_857_avx2_args)
+CFLAGS_sntrup857/avx2/encode_x3.o			= $(sntrup_857_avx2_args)
+CFLAGS_sntrup857/avx2/encode_xfreeze.o			= $(sntrup_857_avx2_args)
+CFLAGS_sntrup857/avx2/verify.o				= $(sntrup_857_avx2_args)
+CFLAGS_sntrup857/857/avx2/core_inv3sntrup_857.o		= $(sntrup_857_avx2_args)
+CFLAGS_sntrup857/857/avx2/core_mult3sntrup_857.o	= $(sntrup_857_avx2_args)
+CFLAGS_sntrup857/857/avx2/core_multsntrup_857.o		= $(sntrup_857_avx2_args)
+CFLAGS_sntrup857/857/avx2/decode_857x1723.o		= $(sntrup_857_avx2_args)
+CFLAGS_sntrup857/857/avx2/decode_857x5167.o		= $(sntrup_857_avx2_args)
+CFLAGS_sntrup857/857/avx2/encode_857x1723round.o	= $(sntrup_857_avx2_args)
+CFLAGS_sntrup857/857/avx2/encode_857x5167.o		= $(sntrup_857_avx2_args)
+
+leancrypto-$(CONFIG_LEANCRYPTO_KEM_SNTRUP_761)				       \
+				+= sntrup761/avx2/core_invsntrup.o	       \
+				   sntrup761/avx2/core_scale3sntrup.o	       \
+				   sntrup761/avx2/core_weightsntrup.o	       \
+				   sntrup761/avx2/core_wforcesntrup.o	       \
+				   sntrup761/avx2/decode_x3.o		       \
+				   sntrup761/avx2/encode_x3.o		       \
+				   sntrup761/avx2/encode_xfreeze.o	       \
+				   sntrup761/avx2/verify.o		       \
+				   sntrup761/761/avx2/core_inv3sntrup_761.o    \
+				   sntrup761/761/avx2/core_mult3sntrup_761.o   \
+				   sntrup761/761/avx2/core_multsntrup_761.o    \
+				   sntrup761/761/avx2/decode_761x1531.o        \
+				   sntrup761/761/avx2/decode_761x4591.o        \
+				   sntrup761/761/avx2/encode_761x1531round.o   \
+				   sntrup761/761/avx2/encode_761x4591.o
+
+sntrup_761_avx2_args = -mavx2 -mbmi2 -mpopcnt -I../sntrup/api/ -I../sntrup/src/avx2 -I../sntrup/src/761
+CFLAGS_sntrup761/avx2/core_invsntrup.o			= $(sntrup_761_avx2_args)
+CFLAGS_sntrup761/avx2/core_scale3sntrup.o		= $(sntrup_761_avx2_args)
+CFLAGS_sntrup761/avx2/core_weightsntrup.o		= $(sntrup_761_avx2_args)
+CFLAGS_sntrup761/avx2/core_wforcesntrup.o		= $(sntrup_761_avx2_args)
+CFLAGS_sntrup761/avx2/decode_x3.o			= $(sntrup_761_avx2_args)
+CFLAGS_sntrup761/avx2/encode_x3.o			= $(sntrup_761_avx2_args)
+CFLAGS_sntrup761/avx2/encode_xfreeze.o			= $(sntrup_761_avx2_args)
+CFLAGS_sntrup761/avx2/verify.o				= $(sntrup_761_avx2_args)
+CFLAGS_sntrup761/761/avx2/core_inv3sntrup_761.o		= $(sntrup_761_avx2_args)
+CFLAGS_sntrup761/761/avx2/core_mult3sntrup_761.o	= $(sntrup_761_avx2_args)
+CFLAGS_sntrup761/761/avx2/core_multsntrup_761.o		= $(sntrup_761_avx2_args)
+CFLAGS_sntrup761/761/avx2/decode_761x1531.o		= $(sntrup_761_avx2_args)
+CFLAGS_sntrup761/761/avx2/decode_761x4591.o		= $(sntrup_761_avx2_args)
+CFLAGS_sntrup761/761/avx2/encode_761x1531round.o	= $(sntrup_761_avx2_args)
+CFLAGS_sntrup761/761/avx2/encode_761x4591.o		= $(sntrup_761_avx2_args)
+
+endif
+
+################################################################################
+# Testing Code
+################################################################################
+
+ifdef CONFIG_LEANCRYPTO_KEM_SNTRUP_1277
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= sntrup_1277_tester.o
+sntrup_1277_tester-y		+= ../sntrup/tests/sntrup_1277_tester.o
+endif
+
+ifdef CONFIG_LEANCRYPTO_KEM_SNTRUP_1013
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= sntrup_1013_tester.o
+sntrup_1013_tester-y		+= ../sntrup/tests/sntrup_1013_tester.o
+endif
+
+ifdef CONFIG_LEANCRYPTO_KEM_SNTRUP_953
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= sntrup_953_tester.o
+sntrup_953_tester-y		+= ../sntrup/tests/sntrup_953_tester.o
+endif
+
+ifdef CONFIG_LEANCRYPTO_KEM_SNTRUP_857
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= sntrup_857_tester.o
+sntrup_857_tester-y		+= ../sntrup/tests/sntrup_857_tester.o
+endif
+
+ifdef CONFIG_LEANCRYPTO_KEM_SNTRUP_761
+obj-$(CONFIG_LEANCRYPTO_TEST_MODULES)	+= sntrup_761_tester.o
+sntrup_761_tester-y		+= ../sntrup/tests/sntrup_761_tester.o
+endif

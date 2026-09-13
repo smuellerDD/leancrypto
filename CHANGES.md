@@ -1,6 +1,8 @@
 Changes 1.9.1-prerelease
 * Fixes in small compilation support
 
+* Add SNTRUP 761, 857, 953, 1013, 1277 C and AVX2 including Linux kernel support
+
 Changes 1.9.0
 * GCM: fix edge case in initialization of memory
 

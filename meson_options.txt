@@ -201,6 +201,22 @@ same API, but instead of the prefix lc_hqc_5, all APIs use lc_hqc_1. This
 algorithm has 128 bits of security strength.
 ''')
 
+option('sntrup_1277', type: 'feature', value: 'enabled',
+       description: '''SNTRUP 1277 KEM Support
+''')
+option('sntrup_1013', type: 'feature', value: 'enabled',
+       description: '''SNTRUP 1013 KEM Support
+''')
+option('sntrup_953', type: 'feature', value: 'enabled',
+       description: '''SNTRUP 953 KEM Support
+''')
+option('sntrup_857', type: 'feature', value: 'enabled',
+       description: '''SNTRUP 857 KEM Support
+''')
+option('sntrup_761', type: 'feature', value: 'enabled',
+       description: '''SNTRUP 761 KEM Support
+''')
+
 option('sphincs_shake_256s', type: 'feature', value: 'enabled',
        description: '''Sphincs Plus 256 small signature (SLH-DSA-SHAKE-256s)
 

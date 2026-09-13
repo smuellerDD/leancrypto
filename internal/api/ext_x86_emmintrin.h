@@ -278,6 +278,37 @@ extern __inline __m128i
 	return *__P;
 }
 
+extern __inline __m128i
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm_packs_epi16(__m128i __A, __m128i __B)
+{
+	return (__m128i)__builtin_ia32_packsswb128((__v8hi)__A, (__v8hi)__B);
+}
+
+#ifdef __OPTIMIZE__
+extern __inline int
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm_extract_epi16(__m128i const __A, int const __N)
+{
+	return (unsigned short)__builtin_ia32_vec_ext_v8hi((__v8hi)__A, __N);
+}
+
+#else
+#define _mm_extract_epi16(A, N)                                                \
+	((int)(unsigned short)__builtin_ia32_vec_ext_v8hi(                     \
+		(__v8hi)(__m128i)(A), (int)(N)))
+#endif
+
+#ifdef __x86_64__
+/* Intel intrinsic.  */
+extern __inline long long
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm_cvtsi128_si64(__m128i __A)
+{
+	return ((__v2di)__A)[0];
+}
+#endif
+
 #undef __DEFAULT_FN_ATTRS
 
 #endif /* EXT_X86_EMMINTRIN_H */

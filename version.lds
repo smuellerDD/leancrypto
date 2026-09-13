@@ -920,6 +920,52 @@ LIBLEANCRYPTO_1.9 {
 
 		/* lc_sha512.h */
 
+		/* lc_sntrup.h */
+		lc_sntrup_sk_type;
+		lc_sntrup_pk_type;
+		lc_sntrup_ct_type;
+		lc_sntrup_ss_type;
+		lc_sntrup_sk_size;
+		lc_sntrup_pk_size;
+		lc_sntrup_ct_size;
+		lc_sntrup_ss_size;
+		lc_sntrup_sk_load;
+		lc_sntrup_pk_load;
+		lc_sntrup_ct_load;
+		lc_sntrup_ss_load;
+		lc_sntrup_sk_ptr;
+		lc_sntrup_pk_ptr;
+		lc_sntrup_ct_ptr;
+		lc_sntrup_ss_ptr;
+		lc_sntrup_dec;
+		lc_sntrup_enc;
+		lc_sntrup_keypair;
+
+		/* lc_sntrup_1277.h */
+		lc_sntrup_1277_dec;
+		lc_sntrup_1277_enc;
+		lc_sntrup_1277_keypair;
+
+		/* lc_sntrup_1013.h */
+		lc_sntrup_1013_dec;
+		lc_sntrup_1013_enc;
+		lc_sntrup_1013_keypair;
+
+		/* lc_sntrup_953.h */
+		lc_sntrup_953_dec;
+		lc_sntrup_953_enc;
+		lc_sntrup_953_keypair;
+
+                /* lc_sntrup_857.h */
+		lc_sntrup_857_dec;
+		lc_sntrup_857_enc;
+		lc_sntrup_857_keypair;
+
+		/* lc_sntrup_761.h */
+		lc_sntrup_761_dec;
+		lc_sntrup_761_enc;
+		lc_sntrup_761_keypair;
+
 		/* lc_sphincs_ascon_128f.h */
 		lc_sphincs_ascon_128f_keypair;
 		lc_sphincs_ascon_128f_keypair_from_seed;

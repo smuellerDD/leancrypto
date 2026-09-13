@@ -54,6 +54,10 @@ DISABLE_KEM="
  -Dhqc_256=disabled
  -Dhqc_192=disabled
  -Dhqc_128=disabled
+ -Dsntrup_1277=disabled
+ -Dsntrup_1013=disabled
+ -Dsntrup_953=disabled
+ -Dsntrup_761=disabled
 "
 
 DISABLE_DRNG="

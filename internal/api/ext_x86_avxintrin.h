@@ -265,6 +265,52 @@ extern __inline __m256i
 	return (__m256i)__builtin_ia32_lddqu256((char const *)__P);
 }
 
+extern __inline int
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm256_extract_epi8(__m256i __X, int const __N)
+{
+	__m128i __Y = _mm256_extractf128_si256(__X, __N >> 4);
+	return _mm_extract_epi8(__Y, __N % 16);
+}
+
+extern __inline int
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm256_extract_epi16(__m256i __X, int const __N)
+{
+	__m128i __Y = _mm256_extractf128_si256(__X, __N >> 3);
+	return _mm_extract_epi16(__Y, __N % 8);
+}
+
+#ifdef __OPTIMIZE__
+extern __inline int
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm256_extract_epi32(__m256i __X, int const __N)
+{
+	__m128i __Y = _mm256_extractf128_si256(__X, __N >> 2);
+	return _mm_extract_epi32(__Y, __N % 4);
+}
+#else
+#define _mm256_extract_epi32(X, N)                                             \
+	(__extension__({                                                       \
+		__m128i __Y = _mm256_extractf128_si256((X), (N) >> 2);         \
+		_mm_extract_epi32(__Y, (N) % 4);                               \
+	}))
+#endif
+
+#ifdef __OPTIMIZE__
+extern __inline __m256i
+	__attribute__((__gnu_inline__, __always_inline__, __artificial__))
+	_mm256_permute2f128_si256(__m256i __X, __m256i __Y, const int __C)
+{
+	return (__m256i)__builtin_ia32_vperm2f128_si256((__v8si)__X,
+							(__v8si)__Y, __C);
+}
+#else
+#define _mm256_permute2f128_si256(X, Y, C)                                     \
+	((__m256i)__builtin_ia32_vperm2f128_si256(                             \
+		(__v8si)(__m256i)(X), (__v8si)(__m256i)(Y), (int)(C)))
+#endif
+
 #endif
 
 #undef __DEFAULT_FN_ATTRS

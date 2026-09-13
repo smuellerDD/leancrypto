@@ -91,6 +91,8 @@ static atomic_t lc_alg_status_kem_pqc =
 static atomic_t lc_alg_status_kem_pqc = ALG_SET_ALL_BITS;
 #endif
 
+static atomic_t lc_alg_status_kem_pqc2 = ALG_SET_ALL_BITS;
+
 static atomic_t lc_alg_status_kem_classic = ALG_SET_ALL_BITS;
 
 /* Disable selftests */
@@ -216,6 +218,20 @@ static const struct alg_status_show alg_status_show_kem_pqc[] = {
 { .flag = 0, .alg_name = NULL, .strlen = 0 }
 };
 
+static const struct alg_status_show alg_status_show_kem_pqc2[] = {
+#if (defined(LC_SNTRUP) ||                                                     \
+     defined(CONFIG_LEANCRYPTO_KEM_SNTRUP_1277) ||                             \
+     defined(CONFIG_LEANCRYPTO_KEM_SNTRUP_1013) ||                             \
+     defined(CONFIG_LEANCRYPTO_KEM_SNTRUP_953) ||                              \
+     defined(CONFIG_LEANCRYPTO_KEM_SNTRUP_857) ||                              \
+     defined(CONFIG_LEANCRYPTO_KEM_SNTRUP_761))
+{ .flag = LC_ALG_STATUS_SNTRUP_KEYGEN, .alg_name = "SNTRUP-Keygen", .strlen = 13 },
+{ .flag = LC_ALG_STATUS_SNTRUP_ENC, .alg_name = "SNTRUP-Enc", .strlen = 10 },
+{ .flag = LC_ALG_STATUS_SNTRUP_DEC, .alg_name = "SNTRUP-Dec", .strlen = 10 },
+#endif
+/* Make sure this array is never empty */
+{ .flag = 0, .alg_name = NULL, .strlen = 0 }
+};
 static const struct alg_status_show alg_status_show_kem_classic[] = {
 #ifdef LC_CURVE25519
 { .flag = LC_ALG_STATUS_X25519_KEYGEN, .alg_name = "X25519-Keygen", .strlen = 13 },
@@ -371,6 +387,8 @@ static inline void alg_status_set_common(alg_status_t common_value,
 	atomic_set(&lc_alg_status_kem_pqc, (int)common_value);
 #endif
 
+	atomic_set(&lc_alg_status_kem_pqc2, (int)common_value);
+
 	atomic_set(&lc_alg_status_kem_classic, (int)common_value);
 
 #ifndef LC_DILITHIUM_DEBUG
@@ -428,6 +446,8 @@ void alg_status_set_all_passed_state(void)
 #ifndef LC_KYBER_DEBUG
 	atomic_or(all_passed, &lc_alg_status_kem_pqc);
 #endif
+
+	atomic_or(all_passed, &lc_alg_status_kem_pqc2);
 
 	atomic_or(all_passed, &lc_alg_status_kem_classic);
 
@@ -580,6 +600,9 @@ enum lc_alg_status_result alg_status_get_result(uint64_t flag)
 	case LC_ALG_STATUS_TYPE_KEM_PQC:
 		return alg_status_result(&lc_alg_status_kem_pqc, alg);
 		break;
+	case LC_ALG_STATUS_TYPE_KEM_PQC2:
+		return alg_status_result(&lc_alg_status_kem_pqc2, alg);
+		break;
 	case LC_ALG_STATUS_TYPE_KEM_CLASSIC:
 		return alg_status_result(&lc_alg_status_kem_classic, alg);
 		break;
@@ -615,6 +638,10 @@ void alg_status_set_result(enum lc_alg_status_result test_ret, uint64_t flag)
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_KEM_PQC) {
 		alg_status_set_testresult(test_ret, flag,
 					  &lc_alg_status_kem_pqc);
+	}
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_KEM_PQC2) {
+		alg_status_set_testresult(test_ret, flag,
+					  &lc_alg_status_kem_pqc2);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_KEM_CLASSIC) {
 		alg_status_set_testresult(test_ret, flag,
@@ -652,6 +679,9 @@ void alg_status_unset_result(uint64_t flag)
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_KEM_PQC) {
 		alg_status_unset_testresult_one(alg, &lc_alg_status_kem_pqc);
+	}
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_KEM_PQC2) {
+		alg_status_unset_testresult_one(alg, &lc_alg_status_kem_pqc2);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_KEM_CLASSIC) {
 		alg_status_unset_testresult_one(alg,
@@ -691,6 +721,12 @@ enum lc_alg_status_val alg_status(uint64_t flag)
 			flag, alg_status_show_kem_pqc,
 			ARRAY_SIZE(alg_status_show_kem_pqc) - 1,
 			&lc_alg_status_kem_pqc);
+	}
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_KEM_PQC2) {
+		return alg_status_is_fips_one(
+			flag, alg_status_show_kem_pqc2,
+			ARRAY_SIZE(alg_status_show_kem_pqc2) - 1,
+			&lc_alg_status_kem_pqc2);
 	}
 	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_KEM_CLASSIC) {
 		return alg_status_is_fips_one(
@@ -887,6 +923,14 @@ void alg_status_print(uint64_t flag, char *test_completed,
 		alg_status_one(alg_status_show_kem_pqc,
 			       ARRAY_SIZE(alg_status_show_kem_pqc) - 1, flag,
 			       &lc_alg_status_kem_pqc, &test_completed,
+			       &test_completed_len, &comma_comp, &test_open,
+			       &test_open_len, &comma_pen, &errorbuf,
+			       &errorbuf_len, &comma_err);
+	}
+	if ((flag & LC_ALG_STATUS_TYPE_MASK) & LC_ALG_STATUS_TYPE_KEM_PQC2) {
+		alg_status_one(alg_status_show_kem_pqc2,
+			       ARRAY_SIZE(alg_status_show_kem_pqc2) - 1, flag,
+			       &lc_alg_status_kem_pqc2, &test_completed,
 			       &test_completed_len, &comma_comp, &test_open,
 			       &test_open_len, &comma_pen, &errorbuf,
 			       &errorbuf_len, &comma_err);

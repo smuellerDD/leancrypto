@@ -149,6 +149,11 @@ extern "C" {
 #define LC_ALG_STATUS_FLAG_PBKDF2 (LC_ALG_STATUS_FLAG_MASK_SIZE * 4)
 #define LC_ALG_STATUS_FLAG_LIB (LC_ALG_STATUS_FLAG_MASK_SIZE * 9)
 
+#define LC_ALG_STATUS_TYPE_KEM_PQC2 (1UL << (LC_ALG_STATUS_TYPE_MASK_SHIFT + 9))
+#define LC_ALG_STATUS_FLAG_SNTRUP_KEYGEN (LC_ALG_STATUS_FLAG_MASK_SIZE * 0)
+#define LC_ALG_STATUS_FLAG_SNTRUP_ENC (LC_ALG_STATUS_FLAG_MASK_SIZE * 1)
+#define LC_ALG_STATUS_FLAG_SNTRUP_DEC (LC_ALG_STATUS_FLAG_MASK_SIZE * 2)
+
 /** AEAD Algorithm reference: AES-GCM */
 #define LC_ALG_STATUS_AES_GCM                                                  \
 	(LC_ALG_STATUS_TYPE_AEAD | LC_ALG_STATUS_FLAG_AES_GCM)
@@ -213,6 +218,15 @@ extern "C" {
 /** KEM Algorithm reference: X25515 Shared Secret */
 #define LC_ALG_STATUS_X448_SS                                                  \
 	(LC_ALG_STATUS_TYPE_KEM_CLASSIC | LC_ALG_STATUS_FLAG_X448_SS)
+/** KEM Algorithm reference: SNTRUP Key Generation */
+#define LC_ALG_STATUS_SNTRUP_KEYGEN                                            \
+	(LC_ALG_STATUS_TYPE_KEM_PQC2 | LC_ALG_STATUS_FLAG_SNTRUP_KEYGEN)
+/** KEM Algorithm reference: SNTRUP Encapsulation */
+#define LC_ALG_STATUS_SNTRUP_ENC                                               \
+	(LC_ALG_STATUS_TYPE_KEM_PQC2 | LC_ALG_STATUS_FLAG_SNTRUP_ENC)
+/** KEM Algorithm reference: SNTRUP Decapsulation */
+#define LC_ALG_STATUS_SNTRUP_DEC                                               \
+	(LC_ALG_STATUS_TYPE_KEM_PQC2 | LC_ALG_STATUS_FLAG_SNTRUP_DEC)
 
 /** Signature Algorithm reference: ML-DSA Key Generation */
 #define LC_ALG_STATUS_MLDSA_KEYGEN                                             \
