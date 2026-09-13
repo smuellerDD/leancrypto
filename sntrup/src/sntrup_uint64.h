@@ -67,7 +67,7 @@ sntrup_uint64_signed_negative_mask(int64_t sntrup_uint64_x)
 	return sntrup_uint64_y;
 #else
 	sntrup_uint64_x >>= 64 - 6;
-	sntrup_uint64_x += optimization_blocker_uint64;
+	sntrup_uint64_x += (int64_t)optimization_blocker_uint64;
 	sntrup_uint64_x >>= 5;
 	return sntrup_uint64_x;
 #endif
@@ -142,7 +142,7 @@ static inline uint64_t sntrup_uint64_bottombit_mask(uint64_t sntrup_uint64_x)
 		:);
 	return sntrup_uint64_y;
 #else
-	sntrup_uint64_x &= 1 + sntrup_uint64_signed_optblocker;
+	sntrup_uint64_x &= 1 + optimization_blocker_uint64;
 	return -sntrup_uint64_x;
 #endif
 }
@@ -218,10 +218,11 @@ static inline uint64_t sntrup_uint64_shlmod(uint64_t sntrup_uint64_x,
 	int sntrup_uint64_k, sntrup_uint64_l;
 	for (sntrup_uint64_l = 0, sntrup_uint64_k = 1; sntrup_uint64_k < 64;
 	     ++sntrup_uint64_l, sntrup_uint64_k *= 2)
-		sntrup_uint64_x ^= (sntrup_uint64_x ^
-				    (sntrup_uint64_x << sntrup_uint64_k)) &
-				   sntrup_uint64_bitinrangepublicpos_mask(
-					   sntrup_uint64_s, sntrup_uint64_l);
+		sntrup_uint64_x ^=
+			(sntrup_uint64_x ^
+			 (sntrup_uint64_x << sntrup_uint64_k)) &
+			sntrup_uint64_bitinrangepublicpos_mask(
+				sntrup_uint64_s, (uint64_t)sntrup_uint64_l);
 #endif
 	return sntrup_uint64_x;
 }
@@ -260,10 +261,11 @@ static inline uint64_t sntrup_uint64_shrmod(uint64_t sntrup_uint64_x,
 	int sntrup_uint64_k, sntrup_uint64_l;
 	for (sntrup_uint64_l = 0, sntrup_uint64_k = 1; sntrup_uint64_k < 64;
 	     ++sntrup_uint64_l, sntrup_uint64_k *= 2)
-		sntrup_uint64_x ^= (sntrup_uint64_x ^
-				    (sntrup_uint64_x >> sntrup_uint64_k)) &
-				   sntrup_uint64_bitinrangepublicpos_mask(
-					   sntrup_uint64_s, sntrup_uint64_l);
+		sntrup_uint64_x ^=
+			(sntrup_uint64_x ^
+			 (sntrup_uint64_x >> sntrup_uint64_k)) &
+			sntrup_uint64_bitinrangepublicpos_mask(
+				sntrup_uint64_s, (uint64_t)sntrup_uint64_l);
 #endif
 	return sntrup_uint64_x;
 }
