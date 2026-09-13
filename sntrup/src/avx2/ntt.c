@@ -3540,7 +3540,7 @@ static void ntt512(int16_t *f, int reps, const int16_t *qdata)
 		_mm256_storeu_si256((int16x16 *)(f + 112), e7);
 		f += 128;
 	}
-	f -= 128 * reps;
+	//f -= 128 * reps;
 	// stopntt 512
 }
 
@@ -4335,7 +4335,7 @@ static void invntt512(int16_t *f, int reps, const int16_t *qdata)
 		_mm256_storeu_si256((int16x16 *)(f + 448), e28);
 		f += 512;
 	}
-	f -= 512 * reps;
+	//f -= 512 * reps;
 	// inv startntt 512
 }
 

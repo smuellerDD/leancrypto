@@ -179,7 +179,7 @@ void sntrup_decode_953x2115_avx2(void *v, const uint8_t *s,
 
 	/* ws->R8 ------> ws->R7: reconstruct mod 7*[126]+[69] */
 
-	i = 0;
+	//i = 0;
 	s -= 0;
 	a2 = a0 = ws->R8[3];
 	a0 = mulhi(a0, 16) - mulhi(mullo(a0, -520), 126); /* -63...67 */
@@ -215,7 +215,8 @@ void sntrup_decode_953x2115_avx2(void *v, const uint8_t *s,
 	ws->R6[14] = ws->R7[7];
 	s -= 14;
 	for (i = 6; i >= 0; --i) {
-		a2 = a0 = ws->R7[i];
+		//a2 = a0 = ws->R7[i];
+		a0 = ws->R7[i];
 		a0 = mulhi(a0, 36) -
 		     mulhi(mullo(a0, -5860), 2863); /* -1432...1440 */
 		a0 += s[2 * i + 1]; /* -1432...1695 */

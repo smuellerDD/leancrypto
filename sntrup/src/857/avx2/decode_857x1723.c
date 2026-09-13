@@ -112,7 +112,8 @@ void sntrup_decode_857x1723_avx2(void *v, const uint8_t *s,
 
 	i = 0;
 	s -= 2;
-	a2 = a0 = ws->R10[0];
+	//a2 = a0 = ws->R10[0];
+	a0 = ws->R10[0];
 	a0 = mulhi(a0, 276) - mulhi(mullo(a0, -22580), 743); /* -372...440 */
 	a0 += s[2 * i + 1]; /* -372...695 */
 	a0 = mulhi(a0, 276) - mulhi(mullo(a0, -22580), 743); /* -374...374 */
