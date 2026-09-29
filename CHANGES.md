@@ -1,3 +1,6 @@
+Changes 1.9.2-prerelease
+* Fix X.509 certificate's display of the month value as reported by nzb-tuxxx
+
 Changes 1.9.1
 * Fixes in small compilation support
 
