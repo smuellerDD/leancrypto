@@ -107,7 +107,7 @@ static inline int64_t sntrup_int64_bottombit_mask(int64_t sntrup_int64_x)
 		:);
 	return sntrup_int64_y;
 #else
-	sntrup_int64_x &= 1 + optimization_blocker_uint64;
+	sntrup_int64_x &= 1 + (int64_t)optimization_blocker_uint64;
 	return -sntrup_int64_x;
 #endif
 }
@@ -144,7 +144,7 @@ static inline int64_t sntrup_int64_bottombit_01(int64_t sntrup_int64_x)
 		:);
 	return sntrup_int64_y;
 #else
-	sntrup_int64_x &= 1 + optimization_blocker_uint64;
+	sntrup_int64_x &= 1 + (int64_t)optimization_blocker_uint64;
 	return sntrup_int64_x;
 #endif
 }
@@ -178,7 +178,8 @@ sntrup_int64_bitinrangepublicpos_mask(int64_t sntrup_int64_x,
 		:
 		:);
 #else
-	sntrup_int64_x >>= sntrup_int64_s ^ optimization_blocker_uint64;
+	sntrup_int64_x >>=
+		sntrup_int64_s ^ (int64_t)optimization_blocker_uint64;
 #endif
 	return sntrup_int64_bottombit_mask(sntrup_int64_x);
 }
