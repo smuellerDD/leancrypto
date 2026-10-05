@@ -20,6 +20,7 @@
 #include <sys/auxv.h>
 
 #include "cpufeatures.h"
+#include "cpufeatures_riscv.h"
 #include "visibility.h"
 
 static enum lc_cpu_features features = LC_CPU_FEATURE_UNSET;
@@ -48,6 +49,8 @@ LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 
 	c = getauxval(AT_HWCAP);
 	features = LC_CPU_FEATURE_RISCV;
+
+	features |= lc_cpu_features_riscv_common();
 
 	if (c & (1 << ('v' - 'a'))) {
 		/*

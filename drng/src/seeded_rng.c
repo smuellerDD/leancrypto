@@ -294,8 +294,8 @@ static int lc_seed_seeded_rng(struct lc_seeded_rng_ctx *rng,
 
 	/* Get requested amount of entropy */
 	datasize = get_full_entropy(seed, seedsize);
-	if ((datasize < (ssize_t)seedsize) || (size_t)datasize > sizeof(seed))
-		return -EFAULT;
+	CKRET(((datasize < (ssize_t)seedsize) ||
+	       (size_t)datasize > sizeof(seed)), -EFAULT);
 
 	/*
 	 * If the caller does not provide a personalization string, let us

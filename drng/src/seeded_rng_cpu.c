@@ -17,6 +17,8 @@
  * DAMAGE.
  */
 
+#include "build_bug_on.h"
+#include "ext_headers_riscv.h"
 #include "lc_sha3.h"
 #include "lc_memcpy_secure.h"
 #include "math_helper.h"
@@ -28,9 +30,20 @@ static uint32_t seeded_rng_cpu_data_multiplier = 0;
 static ssize_t seeded_rng_cpu_data(uint8_t *buffer, size_t bufferlen)
 {
 	size_t origlen = bufferlen;
-	unsigned long tmp;
 
+#ifdef LC_CPU_ES_GET_256BITS
 	while (bufferlen) {
+		/* We can only deliver multiples of 256 bits */
+		if (bufferlen & 0x20)
+			break;
+		if (!cpu_es_get_256bits(buffer))
+			break;
+		bufferlen -= 32;
+		buffer += 32;
+	}
+#endif
+	while (bufferlen) {
+		unsigned long tmp;
 		size_t todo = min_size(bufferlen, sizeof(tmp));
 
 		if (!cpu_es_get(&tmp))
@@ -49,7 +62,7 @@ static ssize_t seeded_rng_cpu_data_compress(uint8_t *outbuf, size_t requested,
 {
 	LC_HASH_CTX_ON_STACK(hash, lc_sha3_512);
 	size_t digestsize, full_bytes;
-	unsigned long tmp;
+	uint8_t tmp[64];
 	ssize_t ret = (ssize_t)requested;
 
 	digestsize = lc_hash_digestsize(hash);
@@ -69,12 +82,12 @@ static ssize_t seeded_rng_cpu_data_compress(uint8_t *outbuf, size_t requested,
 	while (full_bytes) {
 		size_t todo = min_size(full_bytes, sizeof(tmp));
 
-		if (!cpu_es_get(&tmp)) {
+		if (seeded_rng_cpu_data(tmp, todo) != todo) {
 			ret = 0;
 			goto out;
 		}
 
-		lc_hash_update(hash, (uint8_t *)&tmp, todo);
+		lc_hash_update(hash, tmp, todo);
 		full_bytes -= todo;
 	}
 
@@ -92,6 +105,7 @@ static ssize_t seeded_rng_cpu_data_compress(uint8_t *outbuf, size_t requested,
 	}
 
 out:
+	lc_memset_secure(tmp, 0, sizeof(tmp));
 	lc_hash_zero(hash);
 	return ret;
 }

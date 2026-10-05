@@ -18,6 +18,7 @@
  */
 
 #include "cpufeatures.h"
+#include "cpufeatures_riscv.h"
 #include "ext_headers_internal.h"
 #include "ext_headers_riscv.h"
 #include "visibility.h"
@@ -45,6 +46,8 @@ LC_INTERFACE_FUNCTION(enum lc_cpu_features, lc_cpu_feature_available, void)
 		return features;
 
 	features = LC_CPU_FEATURE_RISCV;
+
+	features |= lc_cpu_features_riscv_common();
 
 #ifdef LINUX_KERNEL
 	if (riscv_isa_extension_available(NULL, ZBB))

@@ -110,6 +110,20 @@ if (seeded_rng == 1)
 						    required: true)
 	elif (get_option('efi').enabled() or
 	      get_option('seedsource') == 'cpu')
+
+		if (riscv64_asm == true)
+			leancrypto_seeded_rng_riscv_lib = static_library(
+				'leancrypto_seeded_rng_riscv_lib',
+				[ 'es_cpu/cpu_random_riscv.S' ],
+				c_args: cc_riscv64_asm_rvv_args,
+				include_directories: [
+					include_dirs,
+					include_internal_dirs
+				],
+			)
+			leancrypto_support_libs += leancrypto_seeded_rng_riscv_lib
+		endif
+
 		src += files([ 'seeded_rng_cpu.c' ])
 	else
 		if (host_machine.system() == 'linux')

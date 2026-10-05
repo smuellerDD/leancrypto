@@ -38,3 +38,7 @@
 - RHEL8 / 9: Enable github tests after finding out why the linker barfs on the FIPS140 linker script
 
 - Enable Windows-ARM64 once Github provides a usable runner
+
+- RUSC-V: Port lc_cpu_features_riscv_csrseed to OSes other than Linux
+
+- RUSC-V: Check for DTS to hold vesdrbgseed.v / vesdrbg.v support as implemented in lc_cpu_features_riscv_common to OSes other than Linux

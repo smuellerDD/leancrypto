@@ -25,6 +25,7 @@
 #include <stdint.h>
 
 #include "bool.h"
+#include "cpufeatures.h"
 
 #define LC_CPU_ES_IMPLEMENTED
 
@@ -65,10 +66,47 @@ static inline bool riscv_seed16(uint16_t *out)
 	return false;
 }
 
+#ifdef LC_HOST_RISCV64
+#define LC_CPU_ES_GET_256BITS
+void lc_riscv_vesdrbgseed(uint8_t *buffer);
+void lc_riscv_vesdrbg(uint8_t *buffer);
+
+static inline bool cpu_es_get_256bits(uint8_t *buffer)
+{
+	enum lc_cpu_features feat = lc_cpu_feature_available();
+
+	if (feat & LC_CPU_FEATURE_RISCV_VESDRBGSEED) {
+		LC_VECTOR_ENABLE;
+		lc_riscv_vesdrbgseed(buffer);
+		LC_VECTOR_DISABLE;
+	} else if (feat & LC_CPU_FEATURE_RISCV_VESDRBG) {
+		LC_VECTOR_ENABLE;
+		lc_riscv_vesdrbg(buffer);
+		LC_VECTOR_DISABLE;
+	} else if (feat & LC_CPU_FEATURE_RISCV_ZKR) {
+		uint16_t *out = (uint16_t *)buffer;
+		unsigned int i;
+
+		for (i = 0; i < 32 / sizeof(uint16_t); i++) {
+			if (!riscv_seed16(&out[i]))
+				return false;
+		}
+	} else {
+		return false;
+	}
+
+	return true;
+}
+#endif /* LC_HOST_RISCV64 */
+
 static inline bool cpu_es_get(unsigned long *buf)
 {
 	uint16_t *out = (uint16_t *)buf;
 	unsigned int i;
+	enum lc_cpu_features feat = lc_cpu_feature_available();
+
+	if (!(feat & LC_CPU_FEATURE_RISCV_ZKR))
+		return false;
 
 	/*
 	 * Fill exactly one unsigned long with 16-bit ES16 entropy samples. The
@@ -89,6 +127,17 @@ static inline bool cpu_es_get(unsigned long *buf)
 
 static inline unsigned int cpu_es_multiplier(void)
 {
+	enum lc_cpu_features feat = lc_cpu_feature_available();
+
+	/*
+	 * vesdrbg is DRG.4/PTG.2 or RBG2(P)
+	 * vesdrbgseed is PTG.3 or RBG3(RS)
+	 * ... and thus does not need a multiplier.
+	 */
+	if ((feat & LC_CPU_FEATURE_RISCV_VESDRBGSEED) ||
+	    (feat & LC_CPU_FEATURE_RISCV_VESDRBG))
+		return 1;
+
 	/*
 	 * riscv-crypto-spec-scalar-1.0.1.pdf section 4.2 defines
 	 * this requirement.
