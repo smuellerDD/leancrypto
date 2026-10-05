@@ -279,7 +279,7 @@ static int lc_seed_seeded_rng(struct lc_seeded_rng_ctx *rng,
 	/* Seed it with security strength bits of entropy */
 	size_t seedsize = LC_SEEDED_RNG_SECURITY_STRENGTH / 8;
 	ssize_t datasize;
-	int ret;
+	int ret = 0;
 
 	CKNULL(rng, -EINVAL);
 

@@ -82,7 +82,7 @@ static ssize_t seeded_rng_cpu_data_compress(uint8_t *outbuf, size_t requested,
 	while (full_bytes) {
 		size_t todo = min_size(full_bytes, sizeof(tmp));
 
-		if (seeded_rng_cpu_data(tmp, todo) != todo) {
+		if ((size_t)seeded_rng_cpu_data(tmp, todo) != todo) {
 			ret = 0;
 			goto out;
 		}
