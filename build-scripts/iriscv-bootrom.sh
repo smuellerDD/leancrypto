@@ -1,0 +1,158 @@
+#!/bin/bash
+
+#
+# This script defines the option set required for building leancrypto to work
+# for the Shim boot loader.
+#
+# The resulting leancrypto has the following properties
+#
+# * built for EFI environment
+# * all enabled ciphers are compiled with full acceleration
+# * disable all cryptography except:
+#   - SHA2-256
+#   - SHA2-512
+#   - ML-DSA signature verification (all key sizes)
+#   - SLH-DSA signature verification (all sizes)
+#   - Composite ML-DSA and ED25519
+#   - Composite ML-DSA and ED448
+#   - X.509 parser
+#   - PKCS7 parser
+#
+
+DISABLE_AEAD="
+ -Dascon=disabled
+ -Dascon_keccak=disabled
+ -Daes_gcm=disabled
+ -Dchacha20poly1305=disabled
+ -Dhash_crypt=disabled
+"
+
+DISABLE_SYM="
+ -Daes_block=disabled
+ -Daes_cbc=disabled
+ -Daes_ctr=disabled
+ -Daes_kw=disabled
+ -Daes_xts=disabled
+ -Dchacha20=disabled
+"
+
+DISABLE_HASH="
+ -Dsha2-256=disabled
+"
+
+DISABLE_SIGNATURE="
+ -Dslh_dsa_ascon_128s=disabled
+ -Dslh_dsa_ascon_128f=disabled
+
+ -Ddilithium_keygen=disabled
+ -Ddilithium_siggen=disabled
+ -Ddilithium_ed25519=disabled
+ -Ded25519=disabled
+ -Ddilithium_65=disabled
+ -Ddilithium_44=disabled
+
+ -Dsphincs_keygen=disabled
+ -Dsphincs_siggen=disabled
+ -Dsphincs_shake_256s=disabled
+ -Dsphincs_shake_256f=disabled
+ -Dsphincs_shake_192s=disabled
+ -Dsphincs_shake_192f=disabled
+ -Dsphincs_shake_128s=disabled
+ -Dsphincs_shake_128f=disabled
+"
+
+DISABLE_KEM="
+ -Dbike_5=disabled
+ -Dbike_3=disabled
+ -Dbike_1=disabled
+ -Dkyber_1024=disabled
+ -Dkyber_768=disabled
+ -Dkyber_512=disabled
+ -Dkyber_x25519=disabled
+ -Dkyber_x448=disabled
+ -Dhqc_256=disabled
+ -Dhqc_192=disabled
+ -Dhqc_128=disabled
+ -Dx25519=disabled
+ -Dx448=disabled
+ -Dsntrup_1277=disabled
+ -Dsntrup_1013=disabled
+ -Dsntrup_953=disabled
+ -Dsntrup_857=disabled
+ -Dsntrup_761=disabled
+"
+
+DISABLE_DRNG="
+ -Dchacha20_drng=disabled
+ -Ddrbg_hash=disabled
+ -Ddrbg_hmac=disabled
+ -Ddrbg_ctr=disabled
+ -Dkmac_drng=disabled
+ -Dcshake_drng=disabled
+ -Dxdrbg=disabled
+"
+
+DISABLE_KDF="
+ -Dhkdf=disabled
+ -Dkdf_ctr=disabled
+ -Dkdf_fb=disabled
+ -Dkdf_dpi=disabled
+ -Dpbkdf2=disabled
+"
+
+DISABLE_ASN1="
+ -Dx509_generator=disabled
+ -Dpkcs7_generator=disabled
+ -Dpkcs8_generator=disabled
+ -Dx509_parser=disabled
+ -Dpkcs7_parser=disabled
+ -Dpkcs8_parser=disabled
+ -Dx509_csr_generator=disabled
+ -Dx509_csr_parser=disabled
+"
+
+DISABLE_MISC="
+ -Dhmac=disabled
+ -Dkmac=disabled
+ -Dhotp=disabled
+ -Dtotp=disabled
+ -Dapps=disabled
+"
+
+DSIABLE_ASN1="
+ -Dx509_csr_generator=disabled
+ -Dx509_csr_parser=disabled
+"
+
+if [ x"$1" = x"test" ]
+then
+	shift
+else
+	FORCE_SEEDSOURCE="
+	 -Dseedsource=cpu
+	"
+
+	FORCE_EFI="
+	 -Dfreestanding=enabled
+	"
+fi
+
+# Optionally disable unused signatures
+
+meson setup build-iriscv \
+ --cross-file cross-compile/riscv64-suse.txt \
+ -Dbuildtype=release \
+ $DISABLE_AEAD \
+ $DISABLE_SYM \
+ $DISABLE_HASH \
+ $DISABLE_SIGNATURE \
+ $DISABLE_KEM \
+ $DISABLE_DRNG \
+ $DISABLE_KDF \
+ $DISABLE_ASN1 \
+ $DISABLE_MISC \
+ $DSIABLE_ASN1 \
+ $FORCE_SEEDSOURCE \
+ $FORCE_EFI \
+ $@
+

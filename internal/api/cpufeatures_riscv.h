@@ -116,13 +116,21 @@ static inline enum lc_cpu_features lc_cpu_features_riscv_common(void)
 	 * the DTS.
 	 *
 	 * TODO: I would not know how to check for that on other OSes.
+	 *
+	 * NOTE: When compiled for freestanding, it is ASSUMED that the i-RISCV
+	 * is the target which has these two instructions.
 	 */
+#ifdef LC_FREESTANDING_ENVIRONMENT
+	tmp |= LC_CPU_FEATURE_RISCV_VESDRBGSEED;
+	tmp |= LC_CPU_FEATURE_RISCV_VESDRBG;
+#else
 	if (access("/proc/device-tree/cpus/cpu@0/chronox,es-drbg-seed-enabled",
 		   F_OK) == 0)
 		tmp |= LC_CPU_FEATURE_RISCV_VESDRBGSEED;
 	if (access("/proc/device-tree/cpus/cpu@0/chronox,es-drbg-rand-enabled",
 		   F_OK) == 0)
 		tmp |= LC_CPU_FEATURE_RISCV_VESDRBG;
+#endif
 
 	tmp |= lc_cpu_features_riscv_csrseed();
 

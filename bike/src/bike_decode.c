@@ -180,7 +180,7 @@ static inline int find_err1(e_t *e, e_t *black_e, e_t *gray_e,
 		unsigned int j, l;
 
 		// UPC must start from zero at every iteration
-		memset(upc, 0, sizeof(*upc));
+		lc_memset_secure(upc, 0, sizeof(*upc));
 
 		// 1) Right-rotate the syndrome for every secret key set bit index
 		//    Then slice-add it to the UPC array.
@@ -215,8 +215,8 @@ static inline int find_err1(e_t *e, e_t *black_e, e_t *gray_e,
 		// 4) Calculate the gray error array by adding "DELTA" to the UPC array.
 		//    For that we reuse the rotated_syndrome variable setting it to all "1".
 		for (l = 0; l < LC_BIKE_DELTA; l++) {
-			memset((uint8_t *)rotated_syndrome->qw, 0xff,
-			       LC_BIKE_R_BYTES);
+			lc_memset_secure((uint8_t *)rotated_syndrome->qw, 0xff,
+					 LC_BIKE_R_BYTES);
 			ctx->bit_sliced_adder(upc, rotated_syndrome,
 					      LC_BIKE_SLICES);
 		}
@@ -250,7 +250,7 @@ static inline int find_err2(e_t *e, e_t *pos_e, const syndrome_t *syndrome,
 		unsigned int j;
 
 		// UPC must start from zero at every iteration
-		memset(upc, 0, sizeof(*upc));
+		lc_memset_secure(upc, 0, sizeof(*upc));
 
 		// 1) Right-rotate the syndrome, for every index of a set bit in the secret
 		// key. Then slice-add it to the UPC array.
@@ -312,7 +312,7 @@ int bike_decode(e_t *e, const struct lc_bike_ct *ct,
 	ws->ctx.dup(&ws->s);
 
 	// Reset (init) the error because it is xored in the find_err functions.
-	memset(e, 0, sizeof(*e));
+	lc_memset_secure(e, 0, sizeof(*e));
 
 	for (iter = 0; iter < LC_BIKE_MAX_IT; iter++) {
 		const uint8_t threshold = get_threshold(&ws->s);

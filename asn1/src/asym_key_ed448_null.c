@@ -17,7 +17,7 @@
  * DAMAGE.
  */
 
-#include "asym_key_dilithium.h"
+#include "asym_key_ed448.h"
 
 int public_key_verify_signature_ed448(const struct lc_public_key *pkey,
 				      const struct lc_public_key_signature *sig)

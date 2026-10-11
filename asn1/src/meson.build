@@ -248,7 +248,9 @@ endif
 
 # Enable the ASN.1 compiler if one or more of the *.asn1 files were
 # changed and need to be converted into C / H files
-if (get_option('efi').disabled() and  host_machine.system() != 'windows')
+if (get_option('efi').disabled() and
+    get_option('freestanding').disabled() and
+    host_machine.system() != 'windows')
 	asn1_compiler_enabled = true
 else
 	asn1_compiler_enabled = false

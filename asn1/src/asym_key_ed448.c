@@ -23,7 +23,6 @@
 #include "ext_headers_internal.h"
 #include "lc_ed448.h"
 #include "lc_hash.h"
-#include "lc_sphincs.h"
 #include "pkcs7_internal.h"
 #include "ret_checkers.h"
 #include "small_stack_support.h"

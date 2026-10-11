@@ -84,7 +84,10 @@ static inline bool cpu_es_get_256bits(uint8_t *buffer)
 		lc_riscv_vesdrbg(buffer);
 		LC_VECTOR_DISABLE;
 	} else if (feat & LC_CPU_FEATURE_RISCV_ZKR) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
 		uint16_t *out = (uint16_t *)buffer;
+#pragma GCC diagnostic pop
 		unsigned int i;
 
 		for (i = 0; i < 32 / sizeof(uint16_t); i++) {

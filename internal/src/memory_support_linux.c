@@ -24,6 +24,7 @@
 
 #include "build_bug_on.h"
 #include "ext_headers_internal.h"
+#include "helper.h"
 #include "lc_hash.h"
 #include "lc_memory_support.h"
 #include "lc_memset_secure.h"
@@ -41,7 +42,7 @@ struct lc_mem_def {
 /* Syscall may not be known on some system - disable support for it */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wundef"
-#if (SYS_memfd_secret)
+#if ((SYS_memfd_secret) && !defined(LC_FREESTANDING_ENVIRONMENT))
 #define LC_USE_MEMFD_SECURE
 #else
 #undef LC_USE_MEMFD_SECURE
@@ -51,7 +52,7 @@ struct lc_mem_def {
 #ifdef LC_USE_MEMFD_SECURE
 static int lc_alloc_have_memfd_secret = 1;
 #else
-static int lc_alloc_have_memfd_secret = 0;
+static int lc_alloc_have_memfd_secret __maybe_unused = 0;
 #endif
 
 static int alloc_aligned_secure_internal(void **memptr, size_t alignment,
@@ -91,7 +92,7 @@ static int alloc_aligned_secure_internal(void **memptr, size_t alignment,
 	mem->secure = !!secure;
 	*memptr = ((uint8_t *)mem) + LC_MEM_DEF_ALIGNED_OFFSET;
 
-	memset(*memptr, 0, size);
+	lc_memset_secure(*memptr, 0, size);
 
 	return 0;
 }
@@ -147,7 +148,7 @@ LC_INTERFACE_FUNCTION(int, lc_alloc_aligned_secure, void **memptr,
 	mem->secure = 1;
 	*memptr = ((uint8_t *)mem) + LC_MEM_DEF_ALIGNED_OFFSET;
 
-	memset(*memptr, 0, size);
+	lc_memset_secure(*memptr, 0, size);
 
 	return 0;
 

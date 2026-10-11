@@ -32,6 +32,7 @@
 #include "bike_sampling_internal.h"
 #include "ext_headers_internal.h"
 #include "ext_headers_x86.h"
+#include "lc_memset_secure.h"
 
 #define AVX512_INTERNAL
 #include "x86_64_intrinsic.h"
@@ -136,7 +137,8 @@ void sample_error_vec_indices_avx512(idx_t *out, struct lc_hash_ctx *prf_state)
 
 	idx_t wlist[WLIST_SIZE_ADJUSTED_T];
 	// Label all indices as invalid.
-	memset((uint8_t *)wlist, 0xff, WLIST_SIZE_ADJUSTED_T * sizeof(idx_t));
+	lc_memset_secure((uint8_t *)wlist, 0xff,
+			 WLIST_SIZE_ADJUSTED_T * sizeof(idx_t));
 
 	lc_hash_set_digestsize(prf_state, sizeof(idx_t));
 

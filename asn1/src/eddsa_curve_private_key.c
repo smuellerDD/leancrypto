@@ -67,13 +67,17 @@ int lc_x509_eddsa_private_key(void *context, size_t hdrlen, unsigned char tag,
 	(void)hdrlen;
 	(void)tag;
 
-	if (keys->sig_type == LC_SIG_ED25519) {
+#ifdef LC_ED25519
+	if (keys->sig_type == LC_SIG_ED25519)
 		CKINT(lc_ed25519_sk_load(keys->sk.ed25519_sk, value, vlen));
-	} else if (keys->sig_type == LC_SIG_ED448) {
+	else
+#endif
+#ifdef LC_ED448
+	if (keys->sig_type == LC_SIG_ED448)
 		CKINT(lc_ed448_sk_load(keys->sk.ed448_sk, value, vlen));
-	} else {
+	else
+#endif
 		return -EOPNOTSUPP;
-	}
 
 	printf_debug("Loaded Ed25519 private key of size %zu\n", vlen);
 

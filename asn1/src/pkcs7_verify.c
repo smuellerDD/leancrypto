@@ -105,7 +105,7 @@ static int pkcs7_digest(struct lc_pkcs7_message *pkcs7,
 		 * convert the attributes from a CONT.0 into a SET before we
 		 * hash it.
 		 */
-		memset(sig->digest, 0, sig->digest_size);
+		lc_memset_secure(sig->digest, 0, sig->digest_size);
 		CKINT(lc_hash_init(hash_ctx));
 		sig->digest_size = sizeof(sig->digest);
 		CKINT(x509_set_digestsize(&sig->digest_size, hash_ctx));

@@ -269,6 +269,40 @@ as the affected code is either auxiliary code or test code.
 
 After these steps the resulting `leancrypto` library binary is fully optimized.
 
+## Library Build For Freestanding Environments
+
+Leancrypto is flexible to also be used in "freestanding" environments, such as
+a boot ROM where there is no support of any kind.
+
+The following observations must be applied:
+
+- Only stack support is provided with the current freestanding support, i.e.
+  only LC_*_ON_STACK declarations and no small-stack support is offered.
+  All calls to heap allocation functions will return -EOPNOTSUPP as defined
+  in `ext_headers.h`.
+
+- Only a statically linked library is generated as `libleancrypto.a` or
+  `libleancrypto-fips.a`.
+
+- There is no application support (i.e. meson must be configured with
+  `-Dapps=disabled`).
+
+- Test cases are not compiled. If you want to validate the library, an example
+  test is provided in `freestanding/tests/` where the source code comment
+  explains how to compile it.
+
+- The common header files generated and exported during the regular compile
+  run are applicable for generating consuming applications.
+
+- The common options for enabling or disabling mechanism are still fully
+  functional.
+
+An example build script for the [i-RISCV](https://i-riscv.org) boot ROM
+support is available at `build-scripts/iriscv-bootrom.sh` which generates
+the library with only ML-DSA87 and ED448 signature verification support. All
+other options, including key generation or random number generation are
+disabled.
+
 # Cryptographic Algorithms
 
 Leancrypto offers various cryptographic algorithms:

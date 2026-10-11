@@ -17,7 +17,8 @@
  * DAMAGE.
  */
 
-#include "asym_key_dilithium.h"
+#include "asym_key_ed25519.h"
+#include "ext_headers_internal.h"
 
 int public_key_verify_signature_ed25519(
 	const struct lc_public_key *pkey,
@@ -33,37 +34,10 @@ int public_key_generate_signature_ed25519(
 	const struct lc_public_key_signature *sig, uint8_t *sig_data,
 	size_t *available_len)
 {
-	(void)gen_data;
+	(void)keys;
 	(void)sig;
 	(void)sig_data;
 	(void)available_len;
-	return -ENOPKG;
-}
-
-int private_key_encode_ed25519(uint8_t *data, size_t *avail_datalen,
-			       struct x509_generate_privkey_context *ctx)
-{
-	(void)data;
-	(void)avail_datalen;
-	(void)ctx;
-	return -ENOPKG;
-}
-
-int private_key_decode_ed25519(struct lc_x509_key_data *keys,
-			       const uint8_t *data, size_t datalen)
-{
-	(void)keys;
-	(void)data;
-	(void)datalen;
-	return -ENOPKG;
-}
-
-int asym_set_ed25519_keypair(struct lc_x509_key_data *gen_data,
-			     struct lc_ed25519_pk *pk, struct lc_ed25519_sk *sk)
-{
-	(void)gen_data;
-	(void)pk;
-	(void)sk;
 	return -ENOPKG;
 }
 

@@ -20,6 +20,10 @@ if get_option('efi').enabled()
 	internal_src += files([
 		'architecture_efi.c'
 	])
+elif get_option('freestanding').enabled()
+	internal_src += files([
+		'architecture_freestanding.c'
+	])
 elif (host_machine.system() == 'windows' or host_machine.system() == 'cygwin')
 	internal_src += files([
 		'architecture_windows.c'

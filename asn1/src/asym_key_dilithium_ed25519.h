@@ -44,14 +44,14 @@ int public_key_generate_signature_dilithium_ed25519(
 	const struct lc_x509_key_data *gen_data,
 	const struct lc_public_key_signature *sig, uint8_t *sig_data,
 	size_t *available_len);
-int asym_set_dilithium_ed25519_keypair(struct lc_x509_key_data *gen_data,
-				       struct lc_dilithium_ed25519_pk *pk,
-				       struct lc_dilithium_ed25519_sk *sk);
 int asym_keypair_gen_dilithium_ed25519(
 	struct lc_x509_certificate *cert, struct lc_x509_key_data *keys,
 	enum lc_dilithium_type dilithium_key_type);
 
 #ifdef LC_DILITHIUM_ED25519
+int asym_set_dilithium_ed25519_keypair(struct lc_x509_key_data *gen_data,
+				       struct lc_dilithium_ed25519_pk *pk,
+				       struct lc_dilithium_ed25519_sk *sk);
 int public_key_signature_size_dilithium_ed25519(
 	enum lc_dilithium_type dilithium_type, size_t *size);
 int public_key_size_dilithium_ed25519(enum lc_dilithium_type dilithium_type,

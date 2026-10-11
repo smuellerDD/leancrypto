@@ -17,8 +17,7 @@
  * DAMAGE.
  */
 
-#include <inttypes.h>
-#include <stdio.h>
+#include "ext_headers_internal.h"
 
 #define CONVERSION_TEST
 #include "conv_be_le.h"

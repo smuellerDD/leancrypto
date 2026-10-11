@@ -223,6 +223,184 @@ static const int errno_private = 0;
 
 #define noinline __attribute__((__noinline__))
 
+#elif (defined(LC_FREESTANDING_ENVIRONMENT))
+/******************************************************************************
+ * Freestanding support
+ ******************************************************************************/
+
+#include <errno.h>
+#include <inttypes.h>
+#include <limits.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+
+#include "lc_memcmp_secure.h"
+
+#define LC_DEFINE_CONSTRUCTOR(_func)                                           \
+	void __attribute__((constructor)) _func(void)
+#define LC_DEFINE_DESTRUCTOR(_func) void __attribute__((destructor)) _func(void)
+
+typedef int pid_t;
+typedef int64_t time64_t;
+
+#if __WORDSIZE == 64
+
+#ifndef _SSIZE_T
+typedef long ssize_t;
+#define _SSIZE_T
+#endif
+
+#elif __WORDSIZE == 32
+
+#ifndef _SSIZE_T
+typedef int ssize_t;
+#define _SSIZE_T
+#endif
+
+#endif
+
+#define stdout NULL
+#define stderr NULL
+
+#ifndef assert
+#define assert(x)                                                              \
+	do {                                                                   \
+	} while (0)
+#endif
+
+void *memset(void *s, int c, size_t n);
+
+#define memcmp(s1, s2, n) lc_memcmp_secure(s1, n, s2, n)
+
+#ifndef snprintf
+#define lc_snprintf_compile
+int snprintf(char *restrict str, size_t size, const char *restrict format, ...);
+#endif
+
+#ifndef memcpy
+#define memcpy lc_memcpy
+#define lc_memcpy_compile
+void *lc_memcpy(void *d, const void *s, size_t n);
+#endif
+
+#ifndef strlen
+#define lc_strlen_compile
+size_t strlen(const char *str);
+#endif
+
+static inline int printf(const char *restrict format, ...)
+{
+	(void)format;
+	return 0;
+}
+
+#define FILE void
+static inline int fprintf(FILE *stream, const char *format, ...)
+{
+	(void)stream;
+	(void)format;
+	return 0;
+}
+
+static inline void *calloc(size_t n, size_t size)
+{
+	(void)n;
+	(void)size;
+	errno = -EOPNOTSUPP;
+	return NULL;
+}
+
+static inline int posix_memalign(void **memptr, size_t alignment, size_t size)
+{
+	(void)memptr;
+	(void)alignment;
+	(void)size;
+	return -EOPNOTSUPP;
+}
+
+static inline void free(void *p)
+{
+	(void)p;
+}
+
+static inline int mlock(const void *ptr, size_t len)
+{
+	(void)ptr;
+	(void)len;
+	return 0;
+}
+
+static inline pid_t getpid(void)
+{
+	return 0;
+}
+
+static inline int munmap(void *addr, size_t length)
+{
+	(void)addr;
+	(void)length;
+	return -EOPNOTSUPP;
+}
+
+static inline int munlock(const void *addr, size_t size)
+{
+	(void)addr;
+	(void)size;
+	return -EOPNOTSUPP;
+}
+
+static inline int close(int fd)
+{
+	(void)fd;
+	return -EOPNOTSUPP;
+}
+
+static inline char *strstr(const char *haystack, const char *needle)
+{
+	(void)haystack;
+	(void)needle;
+	return NULL;
+}
+
+static inline char *strtok_r(char *str, const char *delim, char **saveptr)
+{
+	(void)str;
+	(void)delim;
+	(void)saveptr;
+	return NULL;
+}
+
+static inline unsigned long strtoul(const char *nptr, char **endptr, int base)
+{
+	(void)nptr;
+	(void)endptr;
+	(void)base;
+	errno = -ERANGE;
+	return ULONG_MAX;
+}
+
+#define SYSV_ABI
+
+/*
+ * See https://gcc.gnu.org/onlinedocs/gcc/Statement-Attributes.html#Statement-Attributes
+ */
+#if __has_attribute(__fallthrough__)
+#define fallthrough __attribute__((__fallthrough__))
+#else
+#define fallthrough                                                            \
+	do {                                                                   \
+	} while (0)
+#endif
+
+#undef errno
+#define errno errno_private
+static const int errno_private = 0;
+
+#define LC_FIPS_RODATA_SECTION
+
+#define noinline __attribute__((__noinline__))
+
 #elif (defined(__CYGWIN__) || defined(_WIN32))
 /******************************************************************************
  * Windows

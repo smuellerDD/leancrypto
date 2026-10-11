@@ -34,6 +34,7 @@
 
 #include "bike_gf2x_internal.h"
 #include "bike_utilities.h"
+#include "lc_memset_secure.h"
 
 #define BITS_IN_BYTE (8)
 
@@ -50,7 +51,7 @@
 int k_sqr_port(pad_r_t *c, const pad_r_t *a, const size_t l_param)
 {
 	size_t i, idx = 0;
-	memset(c->val.raw, 0, sizeof(c->val));
+	lc_memset_secure(c->val.raw, 0, sizeof(c->val));
 
 	// Compute the result byte by byte
 	for (i = 0; i < LC_BIKE_R_BYTES; i++) {

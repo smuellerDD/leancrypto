@@ -17,6 +17,7 @@
  * DAMAGE.
  */
 
+#include "ext_headers_internal.h"
 #include "asym_key_dilithium_ed448.h"
 
 int private_key_encode_dilithium_ed448(uint8_t *data, size_t *avail_datalen,

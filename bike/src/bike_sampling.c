@@ -201,10 +201,11 @@ int generate_error_vector(pad_e_t *e, const seed_t *seed)
 	 */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wattribute-warning"
-	memset(&PE0_RAW(e)[LC_BIKE_R_BYTES], 0,
-	       LC_BIKE_R_PADDED_BYTES - LC_BIKE_R_BYTES);
-	memset(&PE1_RAW(e)[LC_BIKE_R_BYTES], 0,
-	       LC_BIKE_R_PADDED_BYTES - LC_BIKE_R_BYTES);
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
+	lc_memset_secure(&PE0_RAW(e)[LC_BIKE_R_BYTES], 0,
+			 LC_BIKE_R_PADDED_BYTES - LC_BIKE_R_BYTES);
+	lc_memset_secure(&PE1_RAW(e)[LC_BIKE_R_BYTES], 0,
+			 LC_BIKE_R_PADDED_BYTES - LC_BIKE_R_BYTES);
 #pragma GCC diagnostic pop
 
 out:

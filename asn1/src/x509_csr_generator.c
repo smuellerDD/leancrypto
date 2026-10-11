@@ -124,7 +124,6 @@ LC_INTERFACE_FUNCTION(int, lc_x509_csr_encode,
 	CKINT(lc_public_key_generate_signature(&x509->sig_gen_data,
 					       &ws->parsed_x509.sig, sigdstptr,
 					       &ws->parsed_x509.raw_sig_size));
-
 out:
 	LC_RELEASE_MEM(ws);
 	return ret;

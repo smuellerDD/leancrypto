@@ -40,13 +40,16 @@ int public_key_generate_signature_ed448(
 	const struct lc_x509_key_data *gen_data,
 	const struct lc_public_key_signature *sig, uint8_t *sig_data,
 	size_t *available_len);
-int asym_set_ed448_keypair(struct lc_x509_key_data *gen_data,
-			   struct lc_ed448_pk *pk, struct lc_ed448_sk *sk);
+
 int asym_keypair_gen_ed448(struct lc_x509_certificate *cert,
 			   struct lc_x509_key_data *keys);
 
+#ifdef LC_ED448
+int asym_set_ed448_keypair(struct lc_x509_key_data *gen_data,
+			   struct lc_ed448_pk *pk, struct lc_ed448_sk *sk);
 int public_key_decode_ed448(struct lc_ed448_pk *ed448_pk, const uint8_t *data,
 			    size_t datalen);
+#endif
 
 #ifdef __cplusplus
 }

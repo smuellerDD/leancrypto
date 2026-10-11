@@ -41,9 +41,33 @@ int public_key_generate_signature_sphincs(
 	const struct lc_x509_key_data *keys,
 	const struct lc_public_key_signature *sig, uint8_t *sig_data,
 	size_t *available_len, unsigned int fast);
+
+#ifdef LC_SPHINCS
 int asym_set_sphincs_keypair(struct lc_x509_key_data *gen_data,
 			     struct lc_sphincs_pk *pk,
 			     struct lc_sphincs_sk *sk);
+#else
+
+/* For simplification, duplicate it here from lc_sphincs.h */
+enum lc_sphincs_type {
+	/** Unknown key type */
+	LC_SPHINCS_UNKNOWN,
+	/** Sphincs 256s using SHAKE for signature operation */
+	LC_SPHINCS_SHAKE_256s,
+	/** Sphincs 256f using SHAKE for signature operation */
+	LC_SPHINCS_SHAKE_256f,
+	/** Sphincs 192s using SHAKE for signature operation */
+	LC_SPHINCS_SHAKE_192s,
+	/** Sphincs 192f using SHAKE for signature operation */
+	LC_SPHINCS_SHAKE_192f,
+	/** Sphincs 128s using SHAKE for signature operation */
+	LC_SPHINCS_SHAKE_128s,
+	/** Sphincs 128f using SHAKE for signature operation */
+	LC_SPHINCS_SHAKE_128f,
+};
+
+#endif
+
 int asym_keypair_gen_sphincs(struct lc_x509_certificate *cert,
 			     struct lc_x509_key_data *keys,
 			     enum lc_sphincs_type sphincs_key_type);

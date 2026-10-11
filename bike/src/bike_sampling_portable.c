@@ -31,6 +31,7 @@
 #include "bike_sampling_internal.h"
 #include "build_bug_on.h"
 #include "ext_headers_internal.h"
+#include "lc_memset_secure.h"
 #include "small_stack_support.h"
 
 #define MAX_WLIST_SIZE (LC_BIKE_MAX_RAND_INDICES_T)
@@ -95,7 +96,7 @@ void sample_error_vec_indices_port(idx_t *out, struct lc_hash_ctx *prf_state)
 	lc_hash_set_digestsize(prf_state, sizeof(idx_t));
 
 	// Label all output elements as invalid.
-	memset((uint8_t *)out, 0xff, LC_BIKE_T * sizeof(idx_t));
+	lc_memset_secure((uint8_t *)out, 0xff, LC_BIKE_T * sizeof(idx_t));
 
 	// Generate MAX_RAND_INDICES_T random values.
 	for (size_t i = 0; i < LC_BIKE_MAX_RAND_INDICES_T; i++) {

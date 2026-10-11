@@ -514,6 +514,20 @@ This option currently only works without PKCS#7 generator and X.509 generator
 support.
 ''')
 
+option('freestanding', type: 'feature', value: 'disabled',
+       description: '''Enable Freestanding Support
+
+This option enables the freestanding support in leancrypto. I.e. leancrypto is
+compiled without any dependencies to any library, including the C library.
+That implies that ALL memory allocations that is supported is stack only.
+Malloc and similar will fail.
+
+This selection enables the compilation of -ffreestanding and linking with
+-nostdlib. These options are only applied to compiling the library.
+
+NOTE: Applications must not be enabled.
+''')
+
 option('secure_execution', type: 'feature', value: 'disabled',
        description: '''Enable Secure Execution Support
 

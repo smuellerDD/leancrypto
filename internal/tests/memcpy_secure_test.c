@@ -17,10 +17,8 @@
  * DAMAGE.
  */
 
-#include <limits.h>
-#include <time.h>
-
 #include "binhexbin.h"
+#include "ext_headers_internal.h"
 #include "lc_memcmp_secure.h"
 #include "lc_memcpy_secure.h"
 #include "lc_rng.h"

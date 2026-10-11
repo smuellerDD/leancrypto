@@ -544,7 +544,9 @@ else
 endif
 
 # Link for full RELRO
-if (host_machine.system() == 'linux' and not get_option('efi').enabled())
+if (host_machine.system() == 'linux'
+    and not get_option('efi').enabled()
+    and not get_option('freestanding').enabled())
 	add_project_link_arguments('-Wl,-z,relro', language : 'c')
 	add_project_link_arguments('-Wl,-z,now', language : 'c')
 endif
@@ -571,7 +573,8 @@ endif
 
 # Whether to build the shared library alongside the static library
 build_shared = (get_option('default_library') != 'static' and
-		get_option('efi').disabled())
+		get_option('efi').disabled() and
+		get_option('freestanding').disabled())
 if (not build_shared)
 	add_global_arguments([ '-DLC_STATIC' ], language: 'c')
 endif
@@ -581,7 +584,8 @@ fips_integrity_test_enabled = false
 if (build_shared and
     fips_integrity_test_capable and
     host_machine.system() == 'linux' and
-    get_option('efi').disabled())
+    get_option('efi').disabled() and
+    get_option('freestanding').disabled())
 	fips_integrity_test_enabled = true
 	add_global_arguments([ '-DLC_FIPS140_INTEGRITY_CHECKER' ], language: 'c')
 endif
@@ -654,6 +658,26 @@ if get_option('efi').enabled()
 		add_global_arguments([ '-maccumulate-outgoing-args' ],
 				       language: 'c')
 	endif
+endif
+
+################################################################################
+# Freestanding-specific defines
+################################################################################
+
+if get_option('freestanding').enabled()
+	add_global_arguments([
+		'-fno-stack-protector',
+		'-fno-stack-check',
+		'-ffreestanding',
+		'-nostartfiles',
+		'-nodefaultlibs',
+		'-DLC_FREESTANDING_ENVIRONMENT',
+		],
+		language: 'c')
+	add_project_link_arguments([
+		'-nostdlib',
+		],
+		language : 'c')
 endif
 
 ################################################################################
@@ -969,6 +993,11 @@ if (get_option('sphincs_keygen').enabled() and
     get_option('sphincs_siggen').enabled() and
     get_option('sphincs_sigver').enabled())
         sphincs_all_enabled = true
+endif
+
+if (get_option('freestanding').enabled() and
+    get_option('apps').enabled())
+	error('Apps cannot be build when compiling the library freestanding')
 endif
 
 ################################################################################
@@ -1346,7 +1375,7 @@ if (build_shared and host_machine.system() == 'windows')
 	leancrypto_shared_cargs += [ '-DLC_LINK_SHARED' ]
 endif
 
-if get_option('efi').disabled()
+if (get_option('efi').disabled() and get_option('freestanding').disabled())
 	pkgconfig.generate(leancrypto_lib_fips,
 			extra_cflags: leancrypto_shared_cargs,
 			description: 'PQC-resistant cryptographic library with FIPS-140 compliance')
@@ -1357,7 +1386,7 @@ leancrypto_fips = declare_dependency(link_with: leancrypto_lib_fips,
 				     compile_args: leancrypto_shared_cargs,
 				     include_directories: include_dirs)
 
-if get_option('efi').disabled()
+if (get_option('efi').disabled() and get_option('freestanding').disabled())
 	pkgconfig.generate(leancrypto_lib,
 			   extra_cflags: leancrypto_shared_cargs,
 			   description: 'PQC-resistant cryptographic library')
@@ -1398,10 +1427,11 @@ performance = 'performance'
 regression = 'regression'
 
 if (get_option('efi').disabled() and
+    get_option('freestanding').disabled() and
     get_option('tests').enabled())
 	foreach n : testdirs
 		subdir(n)
 	endforeach
-else
+elif get_option('efi').enabled()
 	subdir('efi/tests')
 endif
