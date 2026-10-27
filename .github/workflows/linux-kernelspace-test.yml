@@ -16,9 +16,9 @@ jobs:
     - name: Install GCC
       run: |
         sudo apt-get update
-        sudo apt-get install -y gcc-13
+        sudo apt-get install -y gcc-15
     - name: Linux kernel build
-      run: make -C linux_kernel CC=gcc-13
+      run: make -C linux_kernel CC=gcc-15
     - name: Load leancrypto kernel module
       run: mkdir dmesg-logs && sudo insmod linux_kernel/leancrypto.ko || sudo dmesg > dmesg-logs/leancrypto.dmesg
     - name: Linux kernel test
