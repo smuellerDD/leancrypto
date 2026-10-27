@@ -152,8 +152,11 @@ jobs:
           # exactly and bumped by hand when a service pack lands. One per
           # generation is enough: 15 SP6 and SP7 carry an identical toolchain,
           # as do 16.0 and 16.1.
-          - name: SLES 15 SP7
-            image: registry.suse.com/bci/bci-base:15.7
+
+          # SLES 15 SP7 currently deactivated due to unexplainable BIKE errors
+          #- name: SLES 15 SP7
+          #  image: registry.suse.com/bci/bci-base:15.7
+
           - name: SLES 16.1
             image: registry.suse.com/bci/bci-base:16.1
           # Arch publishes the same image to Docker Hub and to quay.io. The
