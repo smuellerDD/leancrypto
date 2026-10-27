@@ -183,7 +183,9 @@ static int lc_kh_setkey_nocheck(void *state, const uint8_t *key, size_t keylen,
 	struct lc_hash_ctx *hash_ctx = &auth_ctx->hash_ctx;
 	const struct lc_hash *hash_algo = hash_ctx->hash;
 	uint8_t keystream[(256 / 8) * 2];
-	int ret;
+	int ret = 0;
+
+	CKRET(!iv && !key, -EINVAL);
 
 	if (key) {
 		CKINT(lc_kmac_xof(hash_algo, key, keylen, NULL, 0, NULL, 0,

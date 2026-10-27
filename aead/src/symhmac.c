@@ -193,7 +193,9 @@ static int lc_sh_setkey_nocheck(void *state, const uint8_t *key, size_t keylen,
 	struct lc_sym_ctx *sym = &sh->sym;
 	struct lc_hmac_ctx *auth_ctx = &sh->auth_ctx;
 	uint8_t keystream[(256 / 8) * 2];
-	int ret;
+	int ret = 0;
+
+	CKRET(!iv && !key, -EINVAL);
 
 	if (key) {
 		CKINT(lc_hkdf(lc_sha512, key, keylen, NULL, 0, NULL, 0,
