@@ -195,17 +195,21 @@ static int lc_sh_setkey_nocheck(void *state, const uint8_t *key, size_t keylen,
 	uint8_t keystream[(256 / 8) * 2];
 	int ret;
 
-	CKINT(lc_hkdf(lc_sha512, key, keylen, NULL, 0, NULL, 0, keystream,
-		      sizeof(keystream)));
+	if (key) {
+		CKINT(lc_hkdf(lc_sha512, key, keylen, NULL, 0, NULL, 0,
+			      keystream, sizeof(keystream)));
 
-	/* Initialize the symmetric algorithm */
-	CKINT(lc_sym_init(sym));
-	CKINT(lc_sym_setkey(sym, keystream, sizeof(keystream) / 2));
-	CKINT(lc_sym_setiv(sym, iv, ivlen));
+		/* Initialize the symmetric algorithm */
+		CKINT(lc_sym_init(sym));
+		CKINT(lc_sym_setkey(sym, keystream, sizeof(keystream) / 2));
 
-	/* Initialize the authentication algorithm */
-	CKINT(lc_hmac_init(auth_ctx, keystream + sizeof(keystream) / 2,
-			   sizeof(keystream) / 2));
+		/* Initialize the authentication algorithm */
+		CKINT(lc_hmac_init(auth_ctx, keystream + sizeof(keystream) / 2,
+				   sizeof(keystream) / 2));
+	}
+
+	if (iv)
+		CKINT(lc_sym_setiv(sym, iv, ivlen));
 
 out:
 	lc_memset_secure(keystream, 0, sizeof(keystream));

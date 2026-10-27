@@ -2,6 +2,7 @@ Changes 1.9.2-prerelease
 * Fix X.509 certificate's display of the month value as reported by nzb-tuxxx
 * Seeded RNG on RISC-V: add support for vesdrbg.v / vesdrbgseed.v offered by i-RISCV (https://i-riscv.org)
 * Add freestanding support and freestanding build script for i-RISCV secure boot
+* Fix SymHMAC/SymKMAC parallel use of cipher handle
 
 Changes 1.9.1
 * Fixes in small compilation support
