@@ -855,6 +855,9 @@ int cc20_crypt_bytes_avx512(uint32_t *state, const uint8_t *in, uint8_t *out,
 					goto out;
 				}
 
+				CurrentIn += 64;
+				CurrentOut += 64;
+
 				PartialXor(ws->X0_3, CurrentIn, CurrentOut,
 					   RemainingBytes,
 					   ws->BuffForPartialOp);
