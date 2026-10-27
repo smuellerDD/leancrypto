@@ -176,13 +176,17 @@ static void Rq_recip3(Fq *out, const lc_small *in,
 
 #define Hash_bytes 32
 
-static void Hash(uint8_t *out, const uint8_t *in, size_t inlen)
-{
+struct ws_hash {
 	uint8_t h[LC_SHA_MAX_SIZE_DIGEST];
+};
+static void Hash(uint8_t *out, const uint8_t *in, size_t inlen,
+		 struct ws_hash *ws)
+{
 	unsigned int i;
-	lc_hash(lc_sha512, in, inlen, h);
+
+	lc_hash(lc_sha512, in, inlen, ws->h);
 	for (i = 0; i < 32; ++i)
-		out[i] = h[i];
+		out[i] = ws->h[i];
 }
 
 /* ----- higher-level randomness */
@@ -252,7 +256,7 @@ static void Hide(uint8_t *x, uint8_t *c, uint8_t *r_enc, const Inputs r,
 		 struct ws_core_mult *ws_core_mult, struct ws_hide *ws_hide,
 		 struct ws_round_encode *ws_round_encode,
 		 struct ws_small_encode *ws_small_encode,
-		 struct ws_decode *ws_decode)
+		 struct ws_decode *ws_decode, struct ws_hash *ws_hash)
 {
 	unsigned int i;
 
@@ -261,11 +265,11 @@ static void Hide(uint8_t *x, uint8_t *c, uint8_t *r_enc, const Inputs r,
 	Rq_mult_small(ws_hide->h, r, accel, ws_core_mult);
 	accel->round_encode(c, ws_hide->h, ws_round_encode);
 	r_enc[0] = 3;
-	Hash(x + 1, r_enc, 1 + Small_bytes);
+	Hash(x + 1, r_enc, 1 + Small_bytes, ws_hash);
 	for (i = 0; i < Hash_bytes; ++i)
 		x[1 + Hash_bytes + i] = cache[i];
 	x[0] = 2;
-	Hash(c + Ciphertexts_bytes, x, 1 + Hash_bytes * 2);
+	Hash(c + Ciphertexts_bytes, x, 1 + Hash_bytes * 2, ws_hash);
 }
 
 int sntrup_kem_keypair_internal(struct CRYPTO_NAMESPACE(pk) * pk,
@@ -282,6 +286,7 @@ int sntrup_kem_keypair_internal(struct CRYPTO_NAMESPACE(pk) * pk,
 			struct ws_core_inv3 ws_core_inv3;
 			struct ws_small_random ws_small_random;
 			struct ws_short_random ws_short_random;
+			struct ws_hash ws_hash;
 		} u;
 		Fq h[p + 1];
 		lc_small g[p];
@@ -347,7 +352,8 @@ int sntrup_kem_keypair_internal(struct CRYPTO_NAMESPACE(pk) * pk,
 			sk->sk[SecretKeys_bytes + i] = pk->pk[i];
 		sk->sk[SecretKeys_bytes - 1] = 4;
 		Hash(sk->sk + SecretKeys_bytes + PublicKeys_bytes + Small_bytes,
-		     sk->sk + SecretKeys_bytes - 1, 1 + PublicKeys_bytes);
+		     sk->sk + SecretKeys_bytes - 1, 1 + PublicKeys_bytes,
+		     &ws->u.ws_hash);
 		sk->sk[SecretKeys_bytes - 1] = sksave;
 		CKINT(lc_rng_generate(rng_ctx, NULL, 0,
 				      sk->sk + SecretKeys_bytes +
@@ -406,6 +412,7 @@ int sntrup_kem_enc_internal(struct CRYPTO_NAMESPACE(ct) * ct,
 			uint8_t y[1 + PublicKeys_bytes];
 			Inputs r;
 		} union_v;
+		struct ws_hash ws_hash;
 		uint8_t r_enc[Small_bytes + 1];
 		uint8_t x[1 + Hash_bytes + Ciphertexts_bytes + Confirm_bytes];
 	};
@@ -422,7 +429,8 @@ int sntrup_kem_enc_internal(struct CRYPTO_NAMESPACE(ct) * ct,
 		for (i = 0; i < PublicKeys_bytes; ++i)
 			ws->union_v.y[1 + i] = pk->pk[i];
 		ws->union_v.y[0] = 4;
-		Hash(ws->cache, ws->union_v.y, sizeof(ws->union_v.y));
+		Hash(ws->cache, ws->union_v.y, sizeof(ws->union_v.y),
+		     &ws->ws_hash);
 	}
 	{
 		CKINT(Short_random(ws->union_v.r, rng_ctx,
@@ -433,11 +441,12 @@ int sntrup_kem_enc_internal(struct CRYPTO_NAMESPACE(ct) * ct,
 			Hide(ws->x, ct->ct, ws->r_enc, ws->union_v.r, pk->pk,
 			     ws->cache, sntrup_accel, &ws->u.ws_core_mult,
 			     &ws->ws_hide, &ws->u.ws_round_encode,
-			     &ws->u.ws_small_encode, &ws->u.ws_decode);
+			     &ws->u.ws_small_encode, &ws->u.ws_decode,
+			     &ws->ws_hash);
 			for (i = 0; i < Ciphertexts_bytes + Confirm_bytes; ++i)
 				ws->x[1 + Hash_bytes + i] = ct->ct[i];
 			ws->x[0] = 1;
-			Hash(ss->ss, ws->x, sizeof(ws->x));
+			Hash(ss->ss, ws->x, sizeof(ws->x), &ws->ws_hash);
 		}
 	}
 
@@ -494,6 +503,8 @@ int sntrup_kem_dec_internal(struct CRYPTO_NAMESPACE(ss) * ss,
 			uint8_t r_enc[1 + Small_bytes];
 		} union_x;
 
+		struct ws_hash ws_hash;
+
 		Inputs r;
 		uint8_t x[1 + Hash_bytes + Ciphertexts_bytes + Confirm_bytes];
 	};
@@ -533,18 +544,18 @@ int sntrup_kem_dec_internal(struct CRYPTO_NAMESPACE(ss) * ss,
 		Hide(ws->x, ws->union_v.cnew, ws->union_x.r_enc, ws->r, pk,
 		     cache, sntrup_accel, &ws->u.ws_core_mult, &ws->ws_hide,
 		     &ws->u.ws_round_encode, &ws->u.ws_small_encode,
-		     &ws->u.ws_decode);
+		     &ws->u.ws_decode, &ws->ws_hash);
 		mask = sntrup_accel->verify(ct->ct, ws->union_v.cnew);
 		for (i = 0; i < Small_bytes; ++i)
 			ws->union_x.r_enc[i + 1] ^=
 				(uint8_t)(mask &
 					  (ws->union_x.r_enc[i + 1] ^ rho[i]));
 		Hash(ws->x + 1, ws->union_x.r_enc,
-		     1 + Small_bytes); /* XXX: can instead do cmov on cached hash of rho */
+		     1 + Small_bytes, &ws->ws_hash); /* XXX: can instead do cmov on cached hash of rho */
 		for (i = 0; i < Ciphertexts_bytes + Confirm_bytes; ++i)
 			ws->x[1 + Hash_bytes + i] = ct->ct[i];
 		ws->x[0] = (uint8_t)(1 + mask);
-		Hash(ss->ss, ws->x, sizeof(ws->x));
+		Hash(ss->ss, ws->x, sizeof(ws->x), &ws->ws_hash);
 	}
 
 	/* Timecop: ss are not relevant any more for side-channels */
