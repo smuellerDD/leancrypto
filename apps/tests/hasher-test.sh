@@ -86,7 +86,7 @@ fi
 if [ -x "$COMP_HASHER" ]
 then
 	run_hasher $COMP_HASHER $0 | sed -E 's/(\w+\s)\s/\1*/' >$CHKFILE
-	run_hasher $LC_HASHER --status -c $CHKFILE
+	run_hasher $LC_HASHER -c $CHKFILE > /dev/null 2>&1
 	if [ $? -eq 0 ]
 	then
 		echo_pass "Parsing checker file with asterisk with $LC_HASHER"
@@ -97,7 +97,7 @@ else
 	echo_deact "Compare hasher $COMP_HASHER does not exist"
 fi
 
-run_hasher $LC_HASHER $0 | run_hasher $LC_HASHER --status -c -
+run_hasher $LC_HASHER $0 | run_hasher $LC_HASHER -c - > /dev/null 2>&1
 if [ $? -eq 0 ]
 then
 	echo_pass "Checker file '-' interpretation with $LC_HASHER"
