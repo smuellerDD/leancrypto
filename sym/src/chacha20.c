@@ -326,6 +326,14 @@ out:
 
 int cc20_init(struct lc_sym_state *ctx)
 {
+	/*
+	 * ChaCha20 is disabled in FIPS mode (see cc20_setkey). Refuse before
+	 * the self test, which would fail and put the library into degraded
+	 * mode.
+	 */
+	if (fips140_mode_enabled())
+		return -EOPNOTSUPP;
+
 	cc20_selftest();
 	LC_SELFTEST_COMPLETED(lc_chacha20_c->algorithm_type);
 

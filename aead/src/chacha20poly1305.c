@@ -271,6 +271,10 @@ static int lc_chacha20_poly1305_setkey(void *state, const uint8_t *key,
 				       size_t keylen, const uint8_t *iv,
 				       size_t ivlen)
 {
+	/* ChaCha20 is disabled in FIPS mode; see cc20_init. */
+	if (fips140_mode_enabled())
+		return -EOPNOTSUPP;
+
 	lc_chacha20_poly1305_selftest();
 	LC_SELFTEST_COMPLETED(lc_chacha20_poly1305_aead->algorithm_type);
 
