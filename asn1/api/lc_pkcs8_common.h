@@ -21,6 +21,7 @@
 #define LC_PKCS8_COMMON_H
 
 #include "lc_x509_common.h"
+#include "lc_memset_secure.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -79,9 +80,11 @@ struct lc_pkcs8_message {
 	_Pragma("GCC diagnostic push") _Pragma(                                \
 		"GCC diagnostic ignored \"-Wdeclaration-after-statement\"")    \
 		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")             \
-			LC_ALIGNED_BUFFER(name##_ctx_buf, 8);                  \
+			LC_ALIGNED_BUFFER(name##_ctx_buf,                      \
+					  sizeof(struct lc_pkcs8_message), 8); \
 	struct lc_pkcs8_message *name =                                        \
 		(struct lc_pkcs8_message *)name##_ctx_buf;                     \
+	lc_memset_secure(name##_ctx_buf, 0, sizeof(name##_ctx_buf));           \
 	_Pragma("GCC diagnostic pop")
 
 #ifdef __cplusplus
