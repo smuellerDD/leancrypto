@@ -21,6 +21,7 @@
 #define LC_PKCS7_COMMON_H
 
 #include "lc_x509_common.h"
+#include "lc_memset_secure.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -160,7 +161,8 @@ struct lc_pkcs7_message {
  * \p struct lc_pkcs7_message on stack, then for all parsed signers and
  * X.509 certificates, a new memory entry is allocated.
  *
- * Zeroize the data structure with the size provided by \p LC_PKCS7_MSG_SIZE.
+ * The memory is zeroized on allocation. Zeroize the data structure with the
+ * size provided by \p LC_PKCS7_MSG_SIZE after use.
  *
  * @param [in] name Name of stack variable
  * @param [in] num_sinfo Number of preallocated sinfo members (must be less than
@@ -177,6 +179,7 @@ struct lc_pkcs7_message {
 				LC_PKCS7_MSG_SIZE(num_sinfo, num_x509), 8);    \
 	struct lc_pkcs7_message *name =                                        \
 		(struct lc_pkcs7_message *)name##_ctx_buf;                     \
+	lc_memset_secure(name##_ctx_buf, 0, sizeof(name##_ctx_buf));           \
 	(name)->avail_preallocated_sinfo = num_sinfo;                          \
 	(name)->preallocated_sinfo =                                           \
 		(struct lc_pkcs7_signed_info                                   \

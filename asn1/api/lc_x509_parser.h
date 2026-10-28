@@ -22,6 +22,7 @@
 
 #include "ext_headers.h"
 #include "lc_x509_common.h"
+#include "lc_memset_secure.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -160,6 +161,7 @@ int lc_x509_cert_decode(struct lc_x509_certificate *cert, const uint8_t *data,
 				  LC_HASH_COMMON_ALIGNMENT);                   \
 	struct lc_x509_key_data *name =                                        \
 		(struct lc_x509_key_data *)name##_ctx_buf;                     \
+	lc_memset_secure(name##_ctx_buf, 0, sizeof(name##_ctx_buf));           \
 	LC_X509_KEYS_SPHINCS_SET(name);                                        \
 	_Pragma("GCC diagnostic pop")
 
@@ -179,6 +181,7 @@ int lc_x509_cert_decode(struct lc_x509_certificate *cert, const uint8_t *data,
 				  LC_HASH_COMMON_ALIGNMENT);                   \
 	struct lc_x509_key_data *name =                                        \
 		(struct lc_x509_key_data *)name##_ctx_buf;                     \
+	lc_memset_secure(name##_ctx_buf, 0, sizeof(name##_ctx_buf));           \
 	LC_X509_PRIVKEYS_SPHINCS_SET(name);                                    \
 	_Pragma("GCC diagnostic pop")
 
@@ -226,6 +229,7 @@ int lc_x509_cert_decode(struct lc_x509_certificate *cert, const uint8_t *data,
 				  LC_HASH_COMMON_ALIGNMENT);                   \
 	struct lc_x509_key_data *name =                                        \
 		(struct lc_x509_key_data *)name##_ctx_buf;                     \
+	lc_memset_secure(name##_ctx_buf, 0, sizeof(name##_ctx_buf));           \
 	LC_X509_KEYS_DILITHIUM_SET(name);                                      \
 	_Pragma("GCC diagnostic pop")
 
@@ -245,6 +249,7 @@ int lc_x509_cert_decode(struct lc_x509_certificate *cert, const uint8_t *data,
 				  LC_HASH_COMMON_ALIGNMENT);                   \
 	struct lc_x509_key_data *name =                                        \
 		(struct lc_x509_key_data *)name##_ctx_buf;                     \
+	lc_memset_secure(name##_ctx_buf, 0, sizeof(name##_ctx_buf));           \
 	LC_X509_PRIVKEYS_DILITHIUM_SET(name);                                  \
 	_Pragma("GCC diagnostic pop")
 
@@ -335,6 +340,7 @@ int lc_x509_cert_decode(struct lc_x509_certificate *cert, const uint8_t *data,
 					  LC_HASH_COMMON_ALIGNMENT);           \
 	struct lc_x509_key_data *name =                                        \
 		(struct lc_x509_key_data *)name##_ctx_buf;                     \
+	lc_memset_secure(name##_ctx_buf, 0, sizeof(name##_ctx_buf));           \
 	LC_X509_KEYS_DILITHIUM_ED25519_SET(name);                              \
 	_Pragma("GCC diagnostic pop")
 
@@ -356,6 +362,7 @@ int lc_x509_cert_decode(struct lc_x509_certificate *cert, const uint8_t *data,
 				LC_HASH_COMMON_ALIGNMENT);                     \
 	struct lc_x509_key_data *name =                                        \
 		(struct lc_x509_key_data *)name##_ctx_buf;                     \
+	lc_memset_secure(name##_ctx_buf, 0, sizeof(name##_ctx_buf));           \
 	LC_X509_PRIVKEYS_DILITHIUM_ED25519_SET(name);                          \
 	_Pragma("GCC diagnostic pop")
 
@@ -375,6 +382,7 @@ int lc_x509_cert_decode(struct lc_x509_certificate *cert, const uint8_t *data,
 					  LC_HASH_COMMON_ALIGNMENT);           \
 	struct lc_x509_key_data *name =                                        \
 		(struct lc_x509_key_data *)name##_ctx_buf;                     \
+	lc_memset_secure(name##_ctx_buf, 0, sizeof(name##_ctx_buf));           \
 	LC_X509_KEYS_DILITHIUM_ED448_SET(name);                                \
 	_Pragma("GCC diagnostic pop")
 
@@ -396,6 +404,7 @@ int lc_x509_cert_decode(struct lc_x509_certificate *cert, const uint8_t *data,
 				LC_HASH_COMMON_ALIGNMENT);                     \
 	struct lc_x509_key_data *name =                                        \
 		(struct lc_x509_key_data *)name##_ctx_buf;                     \
+	lc_memset_secure(name##_ctx_buf, 0, sizeof(name##_ctx_buf));           \
 	LC_X509_PRIVKEYS_DILITHIUM_ED448_SET(name);                            \
 	_Pragma("GCC diagnostic pop")
 
