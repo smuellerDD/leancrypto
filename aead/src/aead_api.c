@@ -255,6 +255,7 @@ LC_INTERFACE_FUNCTION(int, lc_aead_decrypt, struct lc_aead_ctx *ctx,
 {
 	const struct lc_aead *aead;
 	void *aead_state;
+	int ret;
 
 	if (!ctx)
 		return -EINVAL;
@@ -272,8 +273,14 @@ LC_INTERFACE_FUNCTION(int, lc_aead_decrypt, struct lc_aead_ctx *ctx,
 	if (!ciphertext)
 		ciphertext = plaintext;
 
-	return aead->decrypt(aead_state, ciphertext, plaintext, datalen, aad,
-			     aadlen, tag, taglen);
+	ret = aead->decrypt(aead_state, ciphertext, plaintext, datalen, aad,
+			    aadlen, tag, taglen);
+
+	/* Do not release unauthenticated plaintext (SP800-38D FAIL). */
+	if (ret && plaintext)
+		lc_memset_secure(plaintext, 0, datalen);
+
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_aead_dec_init, struct lc_aead_ctx *ctx,
