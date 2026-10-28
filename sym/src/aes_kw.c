@@ -104,6 +104,11 @@ static int aes_kw_getiv(const struct lc_sym_state *ctx, uint8_t *iv,
 	return lc_mode_kw_c->getiv(&ctx->kw_state, iv, ivlen);
 }
 
+static int aes_kw_has_key(const struct lc_sym_state *ctx)
+{
+	return ctx && ctx->block_ctx.nr;
+}
+
 static const struct lc_sym _lc_aes_kw_c = { .init = aes_kw_init,
 					    .init_nocheck = aes_kw_init_nocheck,
 					    .setkey = aes_kw_setkey,
@@ -119,7 +124,8 @@ static const struct lc_sym _lc_aes_kw_c = { .init = aes_kw_init,
 					    .statesize = LC_AES_KW_BLOCK_SIZE,
 					    .blocksize = AES_BLOCKLEN,
 					    .algorithm_type =
-						    LC_ALG_STATUS_AES_KW };
+						    LC_ALG_STATUS_AES_KW,
+					    .has_key = aes_kw_has_key };
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_kw_c) = &_lc_aes_kw_c;
 
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_kw) = &_lc_aes_kw_c;

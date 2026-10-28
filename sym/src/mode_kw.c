@@ -31,6 +31,7 @@
 #include "lc_memcmp_secure.h"
 #include "mode_kw.h"
 #include "ret_checkers.h"
+#include "sym_internal.h"
 #include "timecop.h"
 #include "visibility.h"
 
@@ -417,6 +418,7 @@ LC_INTERFACE_FUNCTION(int, lc_aes_kw_decrypt, struct lc_sym_ctx *ctx,
 	CKNULL(in, -EINVAL);
 	CKNULL(out, -EINVAL);
 	CKRET(len < AES_KW_SEMIBSIZE, -EINVAL);
+	CKRET(!lc_sym_ctx_has_key(ctx), -ENOKEY);
 
 	state = (struct lc_mode_state *)ctx->sym_state;
 

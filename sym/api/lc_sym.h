@@ -53,6 +53,9 @@ struct lc_sym {
 	uint64_t algorithm_type;
 	unsigned int statesize;
 	unsigned int blocksize;
+
+	/* Optional: returns 0 if no key is set (the cipher is then refused). */
+	int (*has_key)(const struct lc_sym_state *ctx);
 };
 
 struct lc_sym_ctx {

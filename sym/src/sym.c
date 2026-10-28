@@ -22,6 +22,7 @@
 #include "lc_aes.h"
 #include "lc_sym.h"
 #include "status_algorithms.h"
+#include "sym_internal.h"
 #include "visibility.h"
 
 LC_INTERFACE_FUNCTION(int, lc_sym_init, struct lc_sym_ctx *ctx)
@@ -80,6 +81,9 @@ LC_INTERFACE_FUNCTION(int, lc_sym_encrypt, struct lc_sym_ctx *ctx,
 	if (!ctx)
 		return -EINVAL;
 
+	if (!lc_sym_ctx_has_key(ctx))
+		return -ENOKEY;
+
 	sym = ctx->sym;
 	return sym->encrypt(ctx->sym_state, in, out, len);
 }
@@ -91,6 +95,9 @@ LC_INTERFACE_FUNCTION(int, lc_sym_decrypt, struct lc_sym_ctx *ctx,
 
 	if (!ctx)
 		return -EINVAL;
+
+	if (!lc_sym_ctx_has_key(ctx))
+		return -ENOKEY;
 
 	sym = ctx->sym;
 	return sym->decrypt(ctx->sym_state, in, out, len);
@@ -105,6 +112,9 @@ LC_INTERFACE_FUNCTION(int, lc_sym_encrypt_iv, const struct lc_sym_ctx *ctx,
 	if (!ctx)
 		return -EINVAL;
 
+	if (!lc_sym_ctx_has_key(ctx))
+		return -ENOKEY;
+
 	sym = ctx->sym;
 	return sym->encrypt_iv(ctx->sym_state, in, out, len, iv, ivlen);
 }
@@ -117,6 +127,9 @@ LC_INTERFACE_FUNCTION(int, lc_sym_decrypt_iv, const struct lc_sym_ctx *ctx,
 
 	if (!ctx)
 		return -EINVAL;
+
+	if (!lc_sym_ctx_has_key(ctx))
+		return -ENOKEY;
 
 	sym = ctx->sym;
 	return sym->decrypt_iv(ctx->sym_state, in, out, len, iv, ivlen);

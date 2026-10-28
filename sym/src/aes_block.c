@@ -180,6 +180,11 @@ static int aes_decrypt_c_internal(struct lc_sym_state *ctx, const uint8_t *in,
 	return aes_decrypt(ctx, in, out, len, aes_decrypt_c);
 }
 
+static int aes_has_key(const struct lc_sym_state *ctx)
+{
+	return ctx && ctx->block_ctx.nr;
+}
+
 static const struct lc_sym _lc_aes_sbox = {
 	.init = aes_init,
 	.init_nocheck = NULL,
@@ -195,6 +200,7 @@ static const struct lc_sym _lc_aes_sbox = {
 
 	.statesize = LC_AES_BLOCK_SIZE,
 	.blocksize = AES_BLOCKLEN,
+	.has_key = aes_has_key,
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_sbox) = &_lc_aes_sbox;
 
@@ -231,6 +237,7 @@ static const struct lc_sym _lc_aes_ct = {
 
 	.statesize = LC_AES_BLOCK_SIZE,
 	.blocksize = AES_BLOCKLEN,
+	.has_key = aes_has_key,
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_ct) = &_lc_aes_ct;
 
