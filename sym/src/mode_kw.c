@@ -432,8 +432,11 @@ LC_INTERFACE_FUNCTION(int, lc_aes_kw_decrypt, struct lc_sym_ctx *ctx,
 		uint64_t expected = be_bswap64(AES_KW_IV);
 
 		if (lc_memcmp_secure(&state->tag, sizeof(state->tag), &expected,
-				     sizeof(expected)))
+				     sizeof(expected))) {
+			/* Do not release unauthenticated key material. */
+			lc_memset_secure(out, 0, len - AES_KW_SEMIBSIZE);
 			return -EBADMSG;
+		}
 	}
 
 out:
