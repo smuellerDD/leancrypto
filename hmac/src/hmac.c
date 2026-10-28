@@ -20,6 +20,7 @@
 
 #include "compare.h"
 #include "fips_mode.h"
+#include "hmac_internal.h"
 #include "hmac_selftest.h"
 #include "lc_hmac.h"
 #include "ret_checkers.h"
@@ -58,9 +59,9 @@ LC_INTERFACE_FUNCTION(void, lc_hmac_reinit, struct lc_hmac_ctx *hmac_ctx)
 	lc_hash_update(hash_ctx, key->k_ipad, lc_hash_blocksize(hash_ctx));
 }
 
-LC_INTERFACE_FUNCTION(int, lc_hmac_setkey, struct lc_hmac_key *hmac_key,
-		      const struct lc_hash *hash, const uint8_t *key,
-		      size_t keylen)
+static int lc_hmac_setkey_nokeysize(struct lc_hmac_key *hmac_key,
+				    const struct lc_hash *hash,
+				    const uint8_t *key, size_t keylen)
 {
 	uint8_t *k_opad, *k_ipad;
 	unsigned int i;
@@ -72,8 +73,6 @@ LC_INTERFACE_FUNCTION(int, lc_hmac_setkey, struct lc_hmac_key *hmac_key,
 
 	const unsigned int blocksize = hash->sponge_rate;
 	const size_t digestsize = hash->get_digestsize(NULL);
-
-	CKINT(fips140_min_keysize(keylen));
 
 	/* Timecop: key is sensitive. */
 	poison(key, keylen);
@@ -101,8 +100,22 @@ out:
 	return ret;
 }
 
-static int lc_hmac_init_nocheck(struct lc_hmac_ctx *hmac_ctx,
-				const uint8_t *key, size_t keylen)
+LC_INTERFACE_FUNCTION(int, lc_hmac_setkey, struct lc_hmac_key *hmac_key,
+		      const struct lc_hash *hash, const uint8_t *key,
+		      size_t keylen)
+{
+	int ret;
+
+	CKINT(fips140_min_keysize(keylen));
+	CKINT(lc_hmac_setkey_nokeysize(hmac_key, hash, key, keylen));
+
+out:
+	return ret;
+}
+
+static int lc_hmac_init_common(struct lc_hmac_ctx *hmac_ctx,
+			       const uint8_t *key, size_t keylen,
+			       int check_keysize)
 {
 	const struct lc_hash_ctx *hash_ctx;
 	const struct lc_hash *hash;
@@ -120,11 +133,28 @@ static int lc_hmac_init_nocheck(struct lc_hmac_ctx *hmac_ctx,
 	 */
 	hmac_key = (struct lc_hmac_key *)(hmac_ctx->key);
 
-	CKINT(lc_hmac_setkey(hmac_key, hash, key, keylen));
+	if (check_keysize)
+		CKINT(fips140_min_keysize(keylen));
+	CKINT(lc_hmac_setkey_nokeysize(hmac_key, hash, key, keylen));
 	lc_hmac_reinit(hmac_ctx);
 
 out:
 	return ret;
+}
+
+static int lc_hmac_init_nocheck(struct lc_hmac_ctx *hmac_ctx,
+				const uint8_t *key, size_t keylen)
+{
+	return lc_hmac_init_common(hmac_ctx, key, keylen, 1);
+}
+
+int lc_hmac_init_kdf(struct lc_hmac_ctx *hmac_ctx, const uint8_t *key,
+		     size_t keylen)
+{
+	hmac_selftest();
+	LC_SELFTEST_COMPLETED(LC_ALG_STATUS_HMAC);
+
+	return lc_hmac_init_common(hmac_ctx, key, keylen, 0);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_hmac_init, struct lc_hmac_ctx *hmac_ctx,
