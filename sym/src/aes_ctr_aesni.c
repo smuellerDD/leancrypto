@@ -210,6 +210,11 @@ static int aes_aesni_ctr_getiv(const struct lc_sym_state *ctx, uint8_t *iv,
 	return 0;
 }
 
+static int aes_aesni_ctr_has_key(const struct lc_sym_state *ctx)
+{
+	return ctx && ctx->enc_block_ctx.rounds;
+}
+
 static const struct lc_sym _lc_aes_ctr_aesni = {
 	.init = aes_aesni_ctr_init,
 	.init_nocheck = aes_aesni_ctr_init_nocheck,
@@ -225,7 +230,8 @@ static const struct lc_sym _lc_aes_ctr_aesni = {
 
 	.statesize = LC_AES_AESNI_CTR_BLOCK_SIZE,
 	.blocksize = 1,
-	.algorithm_type = LC_ALG_STATUS_AES_CTR
+	.algorithm_type = LC_ALG_STATUS_AES_CTR,
+	.has_key = aes_aesni_ctr_has_key,
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *,
 		    lc_aes_ctr_aesni) = &_lc_aes_ctr_aesni;

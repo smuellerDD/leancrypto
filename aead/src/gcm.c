@@ -56,6 +56,7 @@
 #include "lc_memcmp_secure.h"
 #include "lc_rng.h"
 #include "ret_checkers.h"
+#include "sym_internal.h"
 #include "timecop.h"
 #include "visibility.h"
 #include "xor.h"
@@ -636,6 +637,10 @@ static int gcm_enc_update(void *state, const uint8_t *plaintext,
 		lc_memset_secure(ciphertext, 0, datalen);
 		return -EINVAL;
 	}
+	if (!lc_sym_ctx_has_key(&ctx->sym_ctx)) {
+		lc_memset_secure(ciphertext, 0, datalen);
+		return -ENOKEY;
+	}
 
 	gcm_finalize_aad(ctx);
 
@@ -732,6 +737,10 @@ static int gcm_dec_update(void *state, const uint8_t *ciphertext,
 	if (!ctx) {
 		lc_memset_secure(plaintext, 0, datalen);
 		return -EINVAL;
+	}
+	if (!lc_sym_ctx_has_key(&ctx->sym_ctx)) {
+		lc_memset_secure(plaintext, 0, datalen);
+		return -ENOKEY;
 	}
 
 	gcm_finalize_aad(ctx);
@@ -851,6 +860,11 @@ static int gcm_enc_final(void *state, uint8_t *tag, size_t tag_len)
 	    (fips140_mode_enabled() && ctx->gcm_ctx.external_iv)) {
 		lc_memset_secure(tag, 0, tag_len);
 		return -EINVAL;
+	}
+	/* AAD-only input never reaches the cipher: check the key here too. */
+	if (!lc_sym_ctx_has_key(&ctx->sym_ctx)) {
+		lc_memset_secure(tag, 0, tag_len);
+		return -ENOKEY;
 	}
 
 	gcm_ctx = &ctx->gcm_ctx;
