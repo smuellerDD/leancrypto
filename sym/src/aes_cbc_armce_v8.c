@@ -169,6 +169,11 @@ static int aes_armce_cbc_getiv(const struct lc_sym_state *ctx, uint8_t *iv,
 	return 0;
 }
 
+static int aes_armce_cbc_has_key(const struct lc_sym_state *ctx)
+{
+	return ctx && ctx->enc_block_ctx.rounds && ctx->dec_block_ctx.rounds;
+}
+
 static const struct lc_sym _lc_aes_cbc_armce = {
 	.init = aes_armce_cbc_init,
 	.init_nocheck = aes_armce_cbc_init_nocheck,
@@ -184,7 +189,8 @@ static const struct lc_sym _lc_aes_cbc_armce = {
 
 	.statesize = LC_AES_ARMV8_CBC_BLOCK_SIZE,
 	.blocksize = AES_BLOCKLEN,
-	.algorithm_type = LC_ALG_STATUS_AES_CBC
+	.algorithm_type = LC_ALG_STATUS_AES_CBC,
+	.has_key = aes_armce_cbc_has_key,
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *,
 		    lc_aes_cbc_armce) = &_lc_aes_cbc_armce;

@@ -53,6 +53,21 @@ if get_option('aes_block').enabled()
 	     suite: regression)
 	test('Symmetric AES block decryption', aes_dec_tester,
 	     suite: regression)
+
+	aes_nokey_c_args = [ ]
+	if get_option('aes_ecb').enabled()
+		aes_nokey_c_args += [ '-DLC_TEST_AES_ECB' ]
+	endif
+	aes_nokey_tester = executable('aes_nokey_tester',
+					[ 'aes_nokey_tester.c',
+					internal_src ],
+					include_directories: [ include_internal_dirs,
+							  '../src' ],
+					c_args: aes_nokey_c_args,
+					dependencies: leancrypto
+					)
+	test('Symmetric AES refused without a key', aes_nokey_tester,
+	     suite: regression)
 endif
 
 if get_option('aes_ecb').enabled()

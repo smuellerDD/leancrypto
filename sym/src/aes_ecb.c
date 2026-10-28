@@ -104,6 +104,11 @@ static int aes_ecb_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 	return -EOPNOTSUPP;
 }
 
+static int aes_ecb_has_key(const struct lc_sym_state *ctx)
+{
+	return ctx && ctx->block_ctx.nr;
+}
+
 static struct lc_sym _lc_aes_ecb = {
 	.init = aes_ecb_init,
 	.setkey = aes_ecb_setkey,
@@ -112,5 +117,6 @@ static struct lc_sym _lc_aes_ecb = {
 	.decrypt = aes_ecb_decrypt,
 	.statesize = LC_AES_ECB_BLOCK_SIZE,
 	.blocksize = AES_BLOCKLEN,
+	.has_key = aes_ecb_has_key,
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_ecb) = &_lc_aes_ecb;

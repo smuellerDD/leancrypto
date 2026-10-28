@@ -120,6 +120,16 @@ static int aes_riscv64_getiv(const struct lc_sym_state *ctx, uint8_t *iv,
 	return -EOPNOTSUPP;
 }
 
+static int aes_riscv64_has_key(const struct lc_sym_state *ctx)
+{
+	return ctx && ctx->enc_block_ctx.rounds && ctx->dec_block_ctx.rounds;
+}
+
+static int aes_riscv64_enc_only_has_key(const struct lc_sym_state *ctx)
+{
+	return ctx && ctx->enc_block_ctx.rounds;
+}
+
 static const struct lc_sym _lc_aes_riscv64 = {
 	.init = aes_riscv64_init,
 	.init_nocheck = NULL,
@@ -130,6 +140,7 @@ static const struct lc_sym _lc_aes_riscv64 = {
 	.decrypt = aes_riscv64_decrypt,
 	.statesize = LC_AES_BLOCK_SIZE,
 	.blocksize = AES_BLOCKLEN,
+	.has_key = aes_riscv64_has_key,
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_riscv64) = &_lc_aes_riscv64;
 
@@ -143,5 +154,6 @@ static const struct lc_sym _lc_aes_riscv64_enc_only = {
 	.decrypt = aes_riscv64_decrypt,
 	.statesize = LC_AES_BLOCK_SIZE,
 	.blocksize = AES_BLOCKLEN,
+	.has_key = aes_riscv64_enc_only_has_key,
 };
 const struct lc_sym *lc_aes_riscv64_enc_only = &_lc_aes_riscv64_enc_only;

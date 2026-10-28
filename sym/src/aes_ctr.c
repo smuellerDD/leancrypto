@@ -92,6 +92,11 @@ static int aes_ctr_getiv(const struct lc_sym_state *ctx, uint8_t *iv,
 	return lc_mode_ctr_c->getiv(&ctx->ctr_state, iv, ivlen);
 }
 
+static int aes_ctr_has_key(const struct lc_sym_state *ctx)
+{
+	return ctx && ctx->block_ctx.nr;
+}
+
 static const struct lc_sym _lc_aes_ctr_c = { .init = aes_ctr_init,
 					     .init_nocheck =
 						     aes_ctr_init_nocheck,
@@ -108,7 +113,8 @@ static const struct lc_sym _lc_aes_ctr_c = { .init = aes_ctr_init,
 					     .statesize = LC_AES_CTR_BLOCK_SIZE,
 					     .blocksize = 1,
 					     .algorithm_type =
-						     LC_ALG_STATUS_AES_CTR };
+						     LC_ALG_STATUS_AES_CTR,
+					     .has_key = aes_ctr_has_key };
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_ctr_c) = &_lc_aes_ctr_c;
 
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_ctr) = &_lc_aes_ctr_c;

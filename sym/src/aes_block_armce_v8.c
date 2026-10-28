@@ -95,6 +95,11 @@ out:
 	return ret;
 }
 
+static int aes_armce_has_key(const struct lc_sym_state *ctx)
+{
+	return ctx && ctx->enc_block_ctx.rounds && ctx->dec_block_ctx.rounds;
+}
+
 static const struct lc_sym _lc_aes_armce = {
 	.init = aes_armce_init,
 	.init_nocheck = NULL,
@@ -110,5 +115,6 @@ static const struct lc_sym _lc_aes_armce = {
 
 	.statesize = LC_AES_BLOCK_SIZE,
 	.blocksize = AES_BLOCKLEN,
+	.has_key = aes_armce_has_key,
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *, lc_aes_armce) = &_lc_aes_armce;

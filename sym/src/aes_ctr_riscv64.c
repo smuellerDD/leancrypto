@@ -90,6 +90,11 @@ static int aes_riscv64_ctr_getiv(const struct lc_sym_state *ctx, uint8_t *iv,
 	return lc_mode_ctr_c->getiv(&ctx->ctr_state, iv, ivlen);
 }
 
+static int aes_riscv64_ctr_has_key(const struct lc_sym_state *ctx)
+{
+	return ctx && ctx->enc_block_ctx.rounds;
+}
+
 static const struct lc_sym _lc_aes_ctr_riscv64 = {
 	.init = aes_riscv64_ctr_init,
 	.init_nocheck = aes_riscv64_ctr_init_nocheck,
@@ -105,7 +110,8 @@ static const struct lc_sym _lc_aes_ctr_riscv64 = {
 
 	.statesize = LC_AES_CTR_BLOCK_SIZE,
 	.blocksize = 1,
-	.algorithm_type = LC_ALG_STATUS_AES_CTR
+	.algorithm_type = LC_ALG_STATUS_AES_CTR,
+	.has_key = aes_riscv64_ctr_has_key,
 };
 LC_INTERFACE_SYMBOL(const struct lc_sym *,
 		    lc_aes_ctr_riscv64) = &_lc_aes_ctr_riscv64;
