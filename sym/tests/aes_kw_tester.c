@@ -120,6 +120,9 @@ static int test_encrypt_kw_one(struct lc_sym_ctx *ctx, const uint8_t *key,
 		rc++;
 		printf("AES-KW Decryption error not caught\n");
 	}
+	memset(out + 8, 0, ptlen);
+	rc += lc_compare(out2, out + 8, ptlen,
+			 "AES-KW decrypt error zeroizes plaintext");
 	ret = 0;
 
 out:
