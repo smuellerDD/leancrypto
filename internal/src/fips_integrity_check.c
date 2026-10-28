@@ -54,15 +54,16 @@ int fips_integrity_check(const struct lc_fips_integrity_sections *secs,
 		size_t section_length;
 
 		/* Safety check as a defense-in-depth - should never happen */
-		if (end < start)
-			return -EINVAL;
+		if (end < start) {
+			ret = -EINVAL;
+			goto out;
+		}
 
 		section_length = (size_t)(end - start);
 		lc_hash_update(hash_ctx, start, section_length);
 	}
 
 	lc_hash_final(hash_ctx, act);
-	lc_hash_zero(hash_ctx);
 
 #ifdef LC_FIPS140_DEBUG
 	/*
@@ -81,5 +82,6 @@ int fips_integrity_check(const struct lc_fips_integrity_sections *secs,
 		lc_activate_library_selftest_fini();
 
 out:
+	lc_hash_zero(hash_ctx);
 	return ret;
 }
