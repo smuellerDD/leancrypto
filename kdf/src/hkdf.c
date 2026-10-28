@@ -22,6 +22,7 @@
 #include "compare.h"
 #include "fips_mode.h"
 #include "hash_common.h"
+#include "hmac_internal.h"
 #include "lc_hkdf.h"
 #include "lc_memset_secure.h"
 #include "lc_rng.h"
@@ -110,7 +111,7 @@ static int lc_hkdf_init_expand(struct lc_hkdf_ctx *hkdf_ctx, const uint8_t *prk,
 		return -EINVAL;
 
 	/* Prepare for expand phase */
-	CKINT(lc_hmac_init(hmac_ctx, prk, h));
+	CKINT(lc_hmac_init_kdf(hmac_ctx, prk, h));
 
 	/* (re)initialize the HKDF counter */
 	hkdf_ctx->ctr = 0x01;
@@ -156,9 +157,9 @@ static int lc_hkdf_extract_nocheck(struct lc_hkdf_ctx *hkdf_ctx,
 
 	/* Extract phase */
 	if (salt) {
-		CKINT(lc_hmac_init(hmac_ctx, salt, saltlen));
+		CKINT(lc_hmac_init_kdf(hmac_ctx, salt, saltlen));
 	} else {
-		CKINT(lc_hmac_init(hmac_ctx, null_buffer, h));
+		CKINT(lc_hmac_init_kdf(hmac_ctx, null_buffer, h));
 	}
 
 	lc_hmac_update(hmac_ctx, ikm, ikmlen);

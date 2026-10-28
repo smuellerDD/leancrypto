@@ -24,6 +24,7 @@
 #include "ext_headers_internal.h"
 #include "fips_mode.h"
 #include "hash_common.h"
+#include "hmac_internal.h"
 #include "lc_hmac.h"
 #include "lc_pbkdf2.h"
 #include "lc_memset_secure.h"
@@ -111,7 +112,7 @@ static int lc_pbkdf2_nocheck(const struct lc_hash *hash, const uint8_t *pw,
 	if (count == 0)
 		return -EINVAL;
 
-	CKINT(lc_hmac_init(hmac_ctx, pw, pwlen));
+	CKINT(lc_hmac_init_kdf(hmac_ctx, pw, pwlen));
 	h = lc_hmac_macsize(hmac_ctx);
 
 	memset(key, 0, keylen);
