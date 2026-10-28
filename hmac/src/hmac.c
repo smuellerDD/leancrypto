@@ -40,22 +40,35 @@ static void hmac_selftest(void)
 	hmac_sha3_selftest();
 }
 
-LC_INTERFACE_FUNCTION(void, lc_hmac_reinit, struct lc_hmac_ctx *hmac_ctx)
+/*
+ * Returns the lc_hash_init() error, e.g. when the hash has failed its self
+ * test, so HMAC init doesn't report a success for an unusable hash.
+ */
+static int lc_hmac_reinit_internal(struct lc_hmac_ctx *hmac_ctx)
 {
 	struct lc_hash_ctx *hash_ctx;
 	const struct lc_hmac_key *key;
+	int ret;
 
 	if (!hmac_ctx)
-		return;
+		return -EINVAL;
 
 	hash_ctx = &hmac_ctx->hash_ctx;
-	if (lc_hash_init(hash_ctx))
-		return;
+	ret = lc_hash_init(hash_ctx);
+	if (ret)
+		return ret;
 
 	key = hmac_ctx->key;
 	if (!key)
-		return;
+		return 0;
 	lc_hash_update(hash_ctx, key->k_ipad, lc_hash_blocksize(hash_ctx));
+
+	return 0;
+}
+
+LC_INTERFACE_FUNCTION(void, lc_hmac_reinit, struct lc_hmac_ctx *hmac_ctx)
+{
+	lc_hmac_reinit_internal(hmac_ctx);
 }
 
 LC_INTERFACE_FUNCTION(int, lc_hmac_setkey, struct lc_hmac_key *hmac_key,
@@ -121,7 +134,7 @@ static int lc_hmac_init_nocheck(struct lc_hmac_ctx *hmac_ctx,
 	hmac_key = (struct lc_hmac_key *)(hmac_ctx->key);
 
 	CKINT(lc_hmac_setkey(hmac_key, hash, key, keylen));
-	lc_hmac_reinit(hmac_ctx);
+	CKINT(lc_hmac_reinit_internal(hmac_ctx));
 
 out:
 	return ret;
@@ -146,7 +159,7 @@ lc_hmac_init_with_hmac_key_nocheck(struct lc_hmac_ctx *hmac_ctx,
 	CKNULL(hmac_key, -EINVAL);
 
 	hmac_ctx->key = hmac_key;
-	lc_hmac_reinit(hmac_ctx);
+	CKINT(lc_hmac_reinit_internal(hmac_ctx));
 
 out:
 	return ret;
