@@ -434,8 +434,18 @@ LC_INTERFACE_FUNCTION(int, lc_aes_kw_decrypt, struct lc_sym_ctx *ctx,
 		uint64_t expected = be_bswap64(AES_KW_IV);
 
 		if (lc_memcmp_secure(&state->tag, sizeof(state->tag), &expected,
-				     sizeof(expected)))
+				     sizeof(expected))) {
+			/*
+			 * Unlike the AEAD API, which leaves zeroizing the
+			 * output on error to the caller, AES-KW zeroizes the
+			 * output itself. This is because AES-KW has no stream
+			 * mode that would make the behavior inconsistent, and
+			 * the unauthenticated output is key material that
+			 * must not be released (SP800-38F).
+			 */
+			lc_memset_secure(out, 0, len - AES_KW_SEMIBSIZE);
 			return -EBADMSG;
+		}
 	}
 
 out:

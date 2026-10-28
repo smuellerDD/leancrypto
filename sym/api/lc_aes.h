@@ -92,6 +92,9 @@ int lc_aes_kw_encrypt(struct lc_sym_ctx *ctx, const uint8_t *in, uint8_t *out,
  *
  * NOTE: The output buffer MAY be 8 bytes smaller than the input buffer.
  *
+ * NOTE: On authentication error, the output buffer is zeroized. This differs
+ * from the AEAD API where the caller must zeroize the output on error.
+ *
  * This function is a helper function. It provides the same operation as
  * lc_sym_decrypt. The difference is that it also performs the authentication.
  */
