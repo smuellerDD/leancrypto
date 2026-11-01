@@ -299,6 +299,7 @@ static inline int lc_hqc_dec_impl(
 	unpoison(&result, sizeof(result));
 
 	LC_RELEASE_MEM(ws);
+	lc_hash_zero(shake256);
 	return (result & 1) - 1;
 }
 
