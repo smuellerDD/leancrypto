@@ -85,13 +85,18 @@ fi
 
 if [ -x "$COMP_HASHER" ]
 then
-	run_hasher $COMP_HASHER $0 | sed -E 's/(\w+\s)\s/\1*/' >$CHKFILE
-	run_hasher $LC_HASHER -c $CHKFILE > /dev/null 2>&1
-	if [ $? -eq 0 ]
+	if $(grep -q "NAME=\"Ubuntu\"" /etc/os-release)
 	then
-		echo_pass "Parsing checker file with asterisk with $LC_HASHER"
+		echo_deact "Ubuntu SHA3 tools are broken"
 	else
-		echo_fail "Parsing checker file with asterisk (binary mode) with $LC_HASHER failed"
+		run_hasher $COMP_HASHER $0 | sed -E 's/(\w+\s)\s/\1*/' >$CHKFILE
+		run_hasher $LC_HASHER -c $CHKFILE > /dev/null 2>&1
+		if [ $? -eq 0 ]
+		then
+			echo_pass "Parsing checker file with asterisk with $LC_HASHER"
+		else
+			echo_fail "Parsing checker file with asterisk (binary mode) with $LC_HASHER failed"
+		fi
 	fi
 else
 	echo_deact "Compare hasher $COMP_HASHER does not exist"
