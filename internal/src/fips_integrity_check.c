@@ -54,10 +54,7 @@ int fips_integrity_check(const struct lc_fips_integrity_sections *secs,
 		size_t section_length;
 
 		/* Safety check as a defense-in-depth - should never happen */
-		if (end < start) {
-			ret = -EINVAL;
-			goto out;
-		}
+		CKRET(end < start, -EINVAL);
 
 		section_length = (size_t)(end - start);
 		lc_hash_update(hash_ctx, start, section_length);
