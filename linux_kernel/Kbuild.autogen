@@ -3,6 +3,17 @@
 
 # Generic support files
 
+# Use the target kernel configuration not the build host architecture
+ifdef CONFIG_X86_64
+lc_target_arch := x86_64
+else ifdef CONFIG_ARM
+lc_target_arch := arm
+else ifdef CONFIG_ARM64
+lc_target_arch := aarch64
+else
+lc_target_arch := generic
+endif
+
 clean-files := $(obj)/lc_memory_support.h $(obj)/lc_hash.h
 
 $(obj)/posix_support.o: $(obj)/lc_memory_support.h
@@ -10,16 +21,19 @@ $(obj)/posix_support.o: $(obj)/lc_memory_support.h
 targets += lc_memory_support.h
 
 quiet_cmd_build_lc_memory_support = GEN     $@
-      cmd_build_lc_memory_support = awk -f $(src)/lc_memory_support.awk $< > $@
-$(obj)/lc_memory_support.h: $(src)/../internal/api/lc_memory_support.h.in FORCE
+      cmd_build_lc_memory_support = awk -v target_arch=$(lc_target_arch) \
+	-f $(src)/lc_memory_support.awk $< > $@
+$(obj)/lc_memory_support.h: $(src)/../internal/api/lc_memory_support.h.in \
+			  $(src)/lc_memory_support.awk FORCE
 	$(call if_changed,build_lc_memory_support)
 
 $(obj)/leancrypto_kernel.o: $(obj)/lc_hash.h
 targets += lc_hash.h
 
 quiet_cmd_build_lc_hash = GEN     $@
-      cmd_build_lc_hash = awk -f $(src)/lc_hash.h.awk $< > $@
-$(obj)/lc_hash.h: $(src)/../hash/api/lc_hash.h.in FORCE
+      cmd_build_lc_hash = awk -v target_arch=$(lc_target_arch) \
+	-f $(src)/lc_hash.h.awk $< > $@
+$(obj)/lc_hash.h: $(src)/../hash/api/lc_hash.h.in $(src)/lc_hash.h.awk FORCE
 	$(call if_changed,build_lc_hash)
 
 
@@ -103,8 +117,10 @@ clean-files += $(obj)/lc_ascon_hash.h
 
 
 quiet_cmd_build_lc_ascon_hash = GEN     $@
-      cmd_build_lc_ascon_hash = awk -f $(src)/lc_ascon_hash.awk $< > $@
-$(obj)/lc_ascon_hash.h: $(src)/../hash/api/lc_ascon_hash.h.in FORCE
+      cmd_build_lc_ascon_hash = awk -v target_arch=$(lc_target_arch) \
+	-f $(src)/lc_ascon_hash.awk $< > $@
+$(obj)/lc_ascon_hash.h: $(src)/../hash/api/lc_ascon_hash.h.in \
+		      $(src)/lc_ascon_hash.awk FORCE
 	$(call if_changed,build_lc_ascon_hash)
 
 

@@ -21,6 +21,14 @@ directory `linux_kernel`:
 
 2. the leancrypto library is provided with `leancrypto.ko`
 
+For cross-compilation set `KDIR` to the configured and prepared target kernel
+build directory and pass the kernel architecture and compiler prefix:
+
+```sh
+make KDIR=/path/to/target/kernel/build ARCH=arm64 \
+	CROSS_COMPILE=aarch64-linux-gnu-
+```
+
 ## Build in Tree
 
 When the use of leancrypto as a kernel module is insufficient, e.g. when its

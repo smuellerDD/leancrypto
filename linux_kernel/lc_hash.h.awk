@@ -1,9 +1,6 @@
-# Set the hash alignment value
-BEGIN {
-	"uname -m" | getline host
-}
+# Set the hash alignment value for target_arch
 {
-	if (host=="x86_64") {
+	if (target_arch=="x86_64") {
 		# This value has to be limited to 32 as otherwise the hash
 		# algorithms fail to register since their state is larger than
 		# HASH_MAX_DESCSIZE - this is an arbitrary defined value in
@@ -14,7 +11,7 @@ BEGIN {
 		# implementation as it requires an alignment of the buffer to
 		# 512 bits.
 		gsub("@hash_common_alignment@", "32", $0) ;
-	} else if (host=="arm") {
+	} else if (target_arch=="arm") {
 		gsub("@hash_common_alignment@", "32", $0) ;
 	} else {
 		gsub("@hash_common_alignment@", "8", $0) ;
