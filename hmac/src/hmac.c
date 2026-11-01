@@ -48,22 +48,20 @@ static int lc_hmac_reinit_internal(struct lc_hmac_ctx *hmac_ctx)
 {
 	struct lc_hash_ctx *hash_ctx;
 	const struct lc_hmac_key *key;
-	int ret;
+	int ret = 0;
 
-	if (!hmac_ctx)
-		return -EINVAL;
+	CKNULL(!hmac_ctx, -EINVAL);
 
 	hash_ctx = &hmac_ctx->hash_ctx;
-	ret = lc_hash_init(hash_ctx);
-	if (ret)
-		return ret;
+	CKINT(lc_hash_init(hash_ctx));
 
 	key = hmac_ctx->key;
 	if (!key)
 		return 0;
 	lc_hash_update(hash_ctx, key->k_ipad, lc_hash_blocksize(hash_ctx));
 
-	return 0;
+out:
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(void, lc_hmac_reinit, struct lc_hmac_ctx *hmac_ctx)
