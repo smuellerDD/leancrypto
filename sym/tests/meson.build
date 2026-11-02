@@ -67,7 +67,7 @@ if get_option('aes_block').enabled()
 					dependencies: leancrypto
 					)
 	test('Symmetric AES refused without a key', aes_nokey_tester,
-	     suite: regression)
+	     suite: regression, should_fail: fips140_negative_expect_fail)
 endif
 
 if get_option('aes_ecb').enabled()
