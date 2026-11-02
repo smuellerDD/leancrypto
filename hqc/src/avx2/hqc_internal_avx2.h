@@ -218,6 +218,7 @@ struct hqc_pke_encrypt_ws {
 struct hqc_pke_decrypt_ws {
 	__m256i y_256[LC_HQC_VEC_N_256_SIZE_64 >> 2];
 	__m256i tmp3_256[LC_HQC_VEC_N_256_SIZE_64 >> 2];
+	__m256i u_256[LC_HQC_VEC_N_256_SIZE_64 >> 2];
 	union {
 		struct vect_set_random_fixed_weight_ws vect_set_f_ws;
 		struct vect_mul_ws vect_mul_ws;

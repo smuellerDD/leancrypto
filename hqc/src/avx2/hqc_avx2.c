@@ -217,18 +217,27 @@ noinline_stack uint8_t hqc_pke_decrypt_avx2(uint8_t *m, uint8_t *sigma,
 
 	LC_FPU_ENABLE;
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-align"
 	/*
-	 * The cast is appropriate because lc_hqc_dec_impl aligns the variable
-	 * u to 256 bits.
+	 * u is sized from LC_HQC_PARAM_N, while vect_mul_avx2() reads an
+	 * operand sized from LC_HQC_PARAM_N_MULT - toom_3_mult() indexes
+	 * A[0 .. 3 * LC_HQC_T_TM3R_3W_256 - 1]. Every other call site passes
+	 * a workspace buffer of the latter size, which is why key generation
+	 * and encryption are correct. Staged into a zero-padded buffer here
+	 * rather than cast in place: what the original cast was missing is
+	 * the extent, not the alignment.
 	 */
-	//TODO
-	vect_mul((uint64_t *)ws->tmp3_256, (uint64_t *)ws->y_256, u,
+	{
+		uint64_t *u_pad = (uint64_t *)ws->u_256;
+		size_t i;
+
+		for (i = 0; i < sizeof(ws->u_256) / sizeof(__m256i); i++)
+			ws->u_256[i] = _mm256_setzero_si256();
+		for (i = 0; i < LC_HQC_VEC_N_SIZE_64; i++)
+			u_pad[i] = u[i];
+	}
+
+	vect_mul_avx2(ws->tmp3_256, ws->y_256, ws->u_256,
 		 &ws->wsu.vect_mul_ws);
-	//vect_mul_avx2(ws->tmp3_256, ws->y_256, (const __m256i *)u,
-	//	 &ws->wsu.vect_mul_ws);
-#pragma GCC diagnostic pop
 
 	vect_add(ws->tmp2, ws->tmp1, (uint64_t *)ws->tmp3_256,
 		 LC_HQC_VEC_N_256_SIZE_64);
