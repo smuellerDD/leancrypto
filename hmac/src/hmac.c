@@ -51,7 +51,7 @@ static int lc_hmac_reinit_internal(struct lc_hmac_ctx *hmac_ctx)
 	const struct lc_hmac_key *key;
 	int ret = 0;
 
-	CKNULL(!hmac_ctx, -EINVAL);
+	CKNULL(hmac_ctx, -EINVAL);
 
 	hash_ctx = &hmac_ctx->hash_ctx;
 	CKINT(lc_hash_init(hash_ctx));
