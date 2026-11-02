@@ -94,6 +94,18 @@ struct reed_decode_ws {
 #define LC_HQC_tTM3R ((LC_HQC_T_TM3R) / LC_HQC_WORD)
 #define LC_HQC_T_TM3R_3W_256 ((LC_HQC_T_TM3R_3W + 128) / (4 * LC_HQC_WORD))
 #define LC_HQC_T_TM3R_3W_64 (LC_HQC_T_TM3R_3W_256 << 2)
+
+/*
+ * Extent of a vect_mul_avx2 input operand: toom_3_mult reads each operand
+ * as three blocks of LC_HQC_T_TM3R_3W_256. One element more than
+ * LC_HQC_VEC_N_256_SIZE_64 >> 2 on HQC-128 and HQC-192, equal on HQC-256.
+ */
+#define LC_HQC_VECT_MUL_OPERAND_256 (3 * LC_HQC_T_TM3R_3W_256)
+
+/* Both sizes derive from LC_HQC_PARAM_N_MULT by different routes, and
+ * neither forces the other. An operand must still hold the data. */
+_Static_assert(LC_HQC_VECT_MUL_OPERAND_256 >= (LC_HQC_VEC_N_256_SIZE_64 >> 2),
+	       "vect_mul_avx2 operand extent is smaller than the data");
 #define LC_HQC_T_5W 4096
 #define LC_HQC_T_5W_256 (LC_HQC_T_5W >> 8)
 #define LC_HQC_T2_5W_256 (2 * LC_HQC_T_5W_256)
@@ -199,9 +211,9 @@ struct vect_set_random_ws {
 };
 
 struct hqc_pke_encrypt_ws {
-	__m256i h_256[LC_HQC_VEC_N_256_SIZE_64 >> 2];
-	__m256i s_256[LC_HQC_VEC_N_256_SIZE_64 >> 2];
-	__m256i r2_256[LC_HQC_VEC_N_256_SIZE_64 >> 2];
+	__m256i h_256[LC_HQC_VECT_MUL_OPERAND_256];
+	__m256i s_256[LC_HQC_VECT_MUL_OPERAND_256];
+	__m256i r2_256[LC_HQC_VECT_MUL_OPERAND_256];
 	__m256i r1_256[LC_HQC_VEC_N_256_SIZE_64 >> 2];
 	__m256i e_256[LC_HQC_VEC_N_256_SIZE_64 >> 2];
 	__m256i tmp1_256[LC_HQC_VEC_N_256_SIZE_64 >> 2];
@@ -216,9 +228,9 @@ struct hqc_pke_encrypt_ws {
 };
 
 struct hqc_pke_decrypt_ws {
-	__m256i y_256[LC_HQC_VEC_N_256_SIZE_64 >> 2];
+	__m256i y_256[LC_HQC_VECT_MUL_OPERAND_256];
 	__m256i tmp3_256[LC_HQC_VEC_N_256_SIZE_64 >> 2];
-	__m256i u_256[LC_HQC_VEC_N_256_SIZE_64 >> 2];
+	__m256i u_256[LC_HQC_VECT_MUL_OPERAND_256];
 	union {
 		struct vect_set_random_fixed_weight_ws vect_set_f_ws;
 		struct vect_mul_ws vect_mul_ws;

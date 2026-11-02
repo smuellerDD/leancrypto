@@ -59,8 +59,8 @@ int hqc_pke_keygen_avx2(struct lc_hqc_pk *pk, struct lc_hqc_sk *sk,
 			struct lc_rng_ctx *rng_ctx)
 {
 	struct workspace {
-		__m256i h_256[LC_HQC_VEC_N_256_SIZE_64 >> 2];
-		__m256i y_256[LC_HQC_VEC_N_256_SIZE_64 >> 2];
+		__m256i h_256[LC_HQC_VECT_MUL_OPERAND_256];
+		__m256i y_256[LC_HQC_VECT_MUL_OPERAND_256];
 		__m256i x_256[LC_HQC_VEC_N_256_SIZE_64 >> 2];
 		__m256i tmp_256[LC_HQC_VEC_N_256_SIZE_64 >> 2];
 		uint64_t s[LC_HQC_VEC_N_256_SIZE_64];
