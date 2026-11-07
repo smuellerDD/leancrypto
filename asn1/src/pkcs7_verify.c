@@ -387,6 +387,13 @@ int lc_pkcs7_verify_sig_chain(struct lc_x509_certificate *certificate_chain,
 			return -EKEYREJECTED;
 		}
 
+		/* RFC 5280 section 6.1.4 (k): an issuer must be a CA */
+		CKINT(lc_x509_policy_is_ca(p));
+		if (ret != LC_X509_POL_TRUE) {
+			printf_debug(&quot;- issuer is no CA\n&quot;);
+			return -EKEYREJECTED;
+		}
+
 		CKINT(lc_x509_policy_is_root_ca(p));
 		if (ret == LC_X509_POL_TRUE) {
 			printf_debug("- root CA\n");
