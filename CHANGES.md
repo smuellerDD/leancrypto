@@ -3,7 +3,7 @@ Changes 1.9.2-prerelease
 * Seeded RNG on RISC-V: add support for vesdrbg.v / vesdrbgseed.v offered by i-RISCV (https://i-riscv.org)
 * Add freestanding support and freestanding build script for i-RISCV secure boot
 * Fix SymHMAC/SymKMAC parallel use of cipher handle
-* PKCS7 certificate chain validation: check for CA of intermediate certificate
+* PKCS7 certificate chain validation: check for CA of intermediate certificate reported by Bhabani Sankar Das
 
 Changes 1.9.1
 * Fixes in small compilation support
