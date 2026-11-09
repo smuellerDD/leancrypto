@@ -1216,8 +1216,11 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_verify,
 	/* Verify the signer validity is appropriate */
 	CKINT_POL(lc_x509_policy_time_valid_now(signer_cert));
 
-	/* Do we have a valid certificate? */
-	CKINT_POL(lc_x509_policy_cert_valid(signer_cert));
+	/*
+	 * Do we have a valid CA certificate? Only a CA (not necessaryly a
+	 * root CA) is allowed to verify the signature.
+	 */
+	CKINT_POL(lc_x509_policy_is_ca(signer_cert));
 
 	/*
 	 * The signature of the signer_cert is explicitly not checked as we
