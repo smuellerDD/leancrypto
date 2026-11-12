@@ -51,8 +51,6 @@ struct lc_mem_def {
 
 #ifdef LC_USE_MEMFD_SECURE
 static int lc_alloc_have_memfd_secret = 1;
-#else
-static int lc_alloc_have_memfd_secret __maybe_unused = 0;
 #endif
 
 static int alloc_aligned_secure_internal(void **memptr, size_t alignment,
@@ -202,11 +200,15 @@ static void lc_free_internal(void *ptr)
 	fd = mem->fd;
 	secure = mem->secure;
 
+	/*
+	 * Only the fd tells how this memory was allocated: a failing
+	 * memfd_secret (EMFILE suffices) clears lc_alloc_have_memfd_secret
+	 * for later allocations, not for those already mapped.
+	 */
 	if (fd >= 0) {
 		lc_memset_secure(mem, 0, size);
 		munmap(mem, size);
-		if (fd != -1)
-			close(fd);
+		close(fd);
 	} else {
 		if (secure) {
 			lc_memset_secure(mem, 0, size);
