@@ -30,6 +30,41 @@
 	if (ascon_impl)                                                        \
 	ret += ascon_128_tester(ascon_impl, #ascon_impl)
 
+/*
+ * Incremental updates must produce the one-shot digest for every split
+ * point, including updates that end exactly on a rate boundary.
+ */
+static int ascon_split_tester(const struct lc_hash *ascon)
+{
+	uint8_t msg[24], exp[LC_ASCON_HASH_DIGESTSIZE];
+	uint8_t act[LC_ASCON_HASH_DIGESTSIZE];
+	size_t len, split;
+	int ret = 0;
+	LC_ASCON_CTX_ON_STACK(ascon_stack, ascon);
+
+	for (len = 0; len < sizeof(msg); len++)
+		msg[len] = (uint8_t)len;
+
+	for (len = 0; len <= sizeof(msg); len++) {
+		if (lc_hash(ascon, msg, len, exp))
+			return 1;
+
+		for (split = 0; split <= len; split++) {
+			if (lc_hash_init(ascon_stack))
+				return 1;
+			lc_hash_update(ascon_stack, msg, split);
+			lc_hash_update(ascon_stack, msg + split, len - split);
+			lc_hash_final(ascon_stack, act);
+			ret += lc_compare(act, exp, sizeof(act),
+					  "Ascon 256 split update");
+		}
+	}
+
+	lc_hash_zero(ascon_stack);
+
+	return ret;
+}
+
 static int ascon_128_tester(const struct lc_hash *ascon, const char *name)
 {
 	/*
@@ -60,6 +95,8 @@ static int ascon_128_tester(const struct lc_hash *ascon, const char *name)
 	lc_hash_final(ascon_stack, act);
 	lc_hash_zero(ascon_stack);
 	ret += lc_compare(act, exp, sizeof(act), "Ascon 128 stack");
+
+	ret += ascon_split_tester(ascon);
 
 	return ret;
 }

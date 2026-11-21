@@ -145,7 +145,11 @@ ascon_absorb_common(void *_state, const uint8_t *in, size_t inlen,
 		in += todo;
 	}
 
-	if (partial && inlen)
+	/*
+	 * A partial block that was completed above must be permuted even if
+	 * no further input follows.
+	 */
+	if (partial)
 		permutation(ctx->state, ctx->roundb);
 
 	/* Perform a transformation of full block-size messages */
