@@ -134,7 +134,7 @@ static int lc_test_sigver(const char *algname,
 	sg_init_one(&src[1], vector->msg, sizeof(vector->msg));
 
 	akcipher_request_set_crypt(
-		req, src, NULL, sizeof(vector->sig) + sizeof(vector->msg), 0);
+		req, src, NULL, sizeof(vector->sig), sizeof(vector->msg));
 
 	err = crypto_akcipher_verify(req);
 

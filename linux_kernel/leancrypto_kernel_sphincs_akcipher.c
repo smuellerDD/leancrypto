@@ -168,7 +168,7 @@ static int lc_kernel_sphincs_verify(struct akcipher_request *req)
 
 	/* Forward SGL to the message */
 	msg_sgl = scatterwalk_ffwd(msg_sg_src, req->src, sig_len);
-	msg_len = req->src_len - sig_len;
+	msg_len = req->dst_len;
 
 	lc_sphincs_verify_init(sphincs_ctx, &ctx->pk);
 

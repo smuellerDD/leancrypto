@@ -187,7 +187,7 @@ static int lc_kernel_dilithium_ed25519_verify(struct akcipher_request *req)
 	/* Forward SGL to the message */
 	ffwd_src = scatterwalk_ffwd(ffwd_sg_src, req->src,
 				    sig_len + sig_ed25519_len);
-	msg_len = req->src_len - sig_len - sig_ed25519_len;
+	msg_len = req->dst_len;
 
 	lc_dilithium_ed25519_verify_init(dilithium_ed25519_ctx, &ctx->pk);
 

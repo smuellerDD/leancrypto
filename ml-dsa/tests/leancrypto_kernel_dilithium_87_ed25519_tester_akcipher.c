@@ -133,7 +133,7 @@ static int lc_test_sigver(const char *algname,
 
 	akcipher_request_set_crypt(
 		req, src, NULL,
-		lc_dilithium_ed25519_sig_size(DILITHIUM_TYPE) + msglen, 0);
+		lc_dilithium_ed25519_sig_size(DILITHIUM_TYPE), msglen);
 
 	err = crypto_akcipher_verify(req);
 
