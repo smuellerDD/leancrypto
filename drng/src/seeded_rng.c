@@ -584,6 +584,12 @@ void lc_seeded_rng_status(char *buf, size_t len)
 	lc_memcpy_secure(buf, len, "  \"entropySource\": \"\0", 21);
 	seeded_rng_status(buf + 20, len - 20);
 
+	/*
+	 * Both copies above truncate silently without a terminating NUL if
+	 * the buffer is too small. Always terminate before using strlen.
+	 */
+	buf[len - 1] = '\0';
+
 	size_t len2 = strlen(buf);
 	if (len2 > len - 4)
 		return;

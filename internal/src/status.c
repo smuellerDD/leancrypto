@@ -185,6 +185,8 @@ LC_INTERFACE_FUNCTION(int, lc_status, char *outbuf, size_t outlen)
 	len = strlen(outbuf);
 	lc_seeded_rng_status(outbuf + len, outlen - len);
 
+	/* Keep len below outlen so that outlen - len cannot wrap */
+	outbuf[outlen - 1] = '\0';
 	len = strlen(outbuf);
 	snprintf(
 		outbuf + len, outlen - len,
