@@ -25,8 +25,18 @@
 #include <asm/vector.h>
 #include <asm/simd.h>
 
+#ifdef CONFIG_RISCV_ISA_V
 #define LC_VECTOR_ENABLE kernel_vector_begin()
 #define LC_VECTOR_DISABLE kernel_vector_end()
+#else
+/*
+ * Without CONFIG_RISCV_ISA_V the kernel does not provide
+ * kernel_vector_begin/end, and may_use_simd() always returns false, so the
+ * RVV code paths are never selected.
+ */
+#define LC_VECTOR_ENABLE
+#define LC_VECTOR_DISABLE
+#endif
 
 #else /* LINUX_KERNEL */
 
