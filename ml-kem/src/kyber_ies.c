@@ -358,8 +358,8 @@ int lc_kyber_ies_enc_internal(const struct lc_kyber_pk *pk,
 	CKINT(lc_kyber_enc_kdf_internal(ct, ss, sizeof(ss), pk, rng_ctx));
 	CKINT(lc_aead_setkey(aead, ies_key, LC_KYBER_IES_SYM_KEYSIZE, ies_iv,
 			     LC_KYBER_IES_SYM_IVSIZE));
-	lc_aead_encrypt(aead, plaintext, ciphertext, datalen, aad, aadlen, tag,
-			taglen);
+	CKINT(lc_aead_encrypt(aead, plaintext, ciphertext, datalen, aad, aadlen,
+			      tag, taglen));
 
 out:
 	lc_memset_secure(ss, 0, sizeof(ss));
