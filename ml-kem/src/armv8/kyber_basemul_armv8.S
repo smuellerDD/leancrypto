@@ -86,6 +86,7 @@
 SYM_FUNC_START(kyber_basemul_armv8)
 SYM_FUNC_ENTER(kyber_basemul_armv8)
 .align	4
+	push_d8_d15
 	mov w4, 3329
   	mov v15.h[0], w4				// v15.s[0] = q = 3329 = 0D01
   	mov w4, 62209
@@ -97,6 +98,7 @@ SYM_FUNC_ENTER(kyber_basemul_armv8)
 	basemul4
 	basemul4
 
+	pop_d8_d15
 	RET
 SYM_FUNC_END(kyber_basemul_armv8)
 

@@ -68,6 +68,7 @@
 SYM_FUNC_START(kyber_cbd2_armv8)
 SYM_FUNC_ENTER(kyber_cbd2_armv8)
 .align	4
+	push_d8_d15
 	// Load the masking values to v0 - v3
 	movi	v0.16b, #0x55
 	movi	v1.16b, #0x33
@@ -101,6 +102,7 @@ SYM_FUNC_ENTER(kyber_cbd2_armv8)
 	st1 {v28.8h-v31.8h}, [x0], #64
 	
 	//
+	pop_d8_d15
 	RET
 SYM_FUNC_END(kyber_cbd2_armv8)
 
@@ -184,6 +186,7 @@ SYM_FUNC_END(kyber_cbd2_armv8)
 SYM_FUNC_START(kyber_cbd3_armv8)
 SYM_FUNC_ENTER(kyber_cbd3_armv8)
 .align	4
+	push_d8_d15
 
 	// Load the masking values
 	adr   	x2, .cbd3Consts
@@ -261,6 +264,7 @@ SYM_FUNC_ENTER(kyber_cbd3_armv8)
 	st1		{v28.4s-v31.4s}, [x0], #64
 
 	//
+	pop_d8_d15
 	RET
 SYM_FUNC_END(kyber_cbd3_armv8)
 

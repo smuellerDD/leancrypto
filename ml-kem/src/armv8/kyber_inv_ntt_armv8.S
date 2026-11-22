@@ -224,6 +224,7 @@
 SYM_FUNC_START(kyber_inv_ntt_armv8)
 SYM_FUNC_ENTER(kyber_inv_ntt_armv8)
 .align	4
+	push_d8_d15
 	// pre-operations
 	mov		w4, 3329
   	mov		v15.h[0], w4		// v15.s[0] = q = 3329 = 0D01
@@ -237,6 +238,7 @@ SYM_FUNC_ENTER(kyber_inv_ntt_armv8)
 	sub		x0, x0, #512		// after: x0 at r0
 	level7
 
+	pop_d8_d15
 	RET
 SYM_FUNC_END(kyber_inv_ntt_armv8)
 
