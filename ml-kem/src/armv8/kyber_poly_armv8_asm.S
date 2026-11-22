@@ -2,6 +2,7 @@
 
 #include "assembler_support.h"
 #include "kyber_type.h"
+#include "macros.inc"
 
 
 // poly_tobytes
