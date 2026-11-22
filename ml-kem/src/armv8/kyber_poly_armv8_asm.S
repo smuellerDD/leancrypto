@@ -52,6 +52,7 @@
 SYM_FUNC_START(kyber_poly_tobytes_armv8)
 SYM_FUNC_ENTER(kyber_poly_tobytes_armv8)
 .align	4
+	push_d8_d15
 	mov w4, #3329
 	mov v0.h[0], w4
 	dup v0.8h, v0.h[0]
@@ -94,12 +95,14 @@ SYM_FUNC_ENTER(kyber_poly_tobytes_armv8)
 	st3		{v11.16b, v12.16b, v13.16b}, [x0], #48
 	st3		{v14.16b, v15.16b, v16.16b}, [x0], #48
 
+	pop_d8_d15
 	RET
 SYM_FUNC_END(kyber_poly_tobytes_armv8)
 
 SYM_FUNC_START(kyber_poly_frombytes_armv8)
 SYM_FUNC_ENTER(kyber_poly_frombytes_armv8)
 .align	4
+	push_d8_d15
 	mov w4, 0xFFF
   	mov v0.h[0], w4
   	dup v0.8h, v0.h[0]
@@ -142,6 +145,7 @@ SYM_FUNC_ENTER(kyber_poly_frombytes_armv8)
 	st2	{v13.8h, v14.8h}, [x0], #32
 	st2	{v15.8h, v16.8h}, [x0], #32
 
+	pop_d8_d15
 	RET
 SYM_FUNC_END(kyber_poly_frombytes_armv8)
 

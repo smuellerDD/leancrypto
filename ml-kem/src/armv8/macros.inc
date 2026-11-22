@@ -155,3 +155,26 @@
 	mov   v\A7\().16b, v8.16b
 	mov   v\B7\().16b, v9.16b
 .endm
+
+/*************************************************
+*	Macro Name:		push_d8_d15 / pop_d8_d15
+*	Description:	Save/restore the AAPCS64 callee-saved SIMD registers.
+*					AAPCS64 requires a callee to preserve the low 64 bits of
+*					v8-v15, which the routines here use freely as scratch.
+*					The frame is 64 bytes, keeping sp 16-byte aligned.
+**************************************************/
+.macro push_d8_d15
+	sub		sp, sp, #(16*4)
+	stp		 d8,  d9, [sp, #16*0]
+	stp		d10, d11, [sp, #16*1]
+	stp		d12, d13, [sp, #16*2]
+	stp		d14, d15, [sp, #16*3]
+.endm
+
+.macro pop_d8_d15
+	ldp		 d8,  d9, [sp, #16*0]
+	ldp		d10, d11, [sp, #16*1]
+	ldp		d12, d13, [sp, #16*2]
+	ldp		d14, d15, [sp, #16*3]
+	add		sp, sp, #(16*4)
+.endm

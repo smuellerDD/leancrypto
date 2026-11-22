@@ -17,6 +17,7 @@
 SYM_FUNC_START(kyber_barret_red_armv8)
 SYM_FUNC_ENTER(kyber_barret_red_armv8)
 .align	4
+	push_d8_d15
 	// load a
 	ld1   {v16.8h-v19.8h}, [x0], #64
 	ld1   {v20.8h-v23.8h}, [x0], #64
@@ -33,6 +34,7 @@ SYM_FUNC_ENTER(kyber_barret_red_armv8)
 	st1   {v24.8h-v27.8h}, [x0], #64
 	st1   {v28.8h-v31.8h}, [x0], #64
 
+	pop_d8_d15
 	RET
 SYM_FUNC_END(kyber_barret_red_armv8)
 	
@@ -47,6 +49,7 @@ SYM_FUNC_END(kyber_barret_red_armv8)
 SYM_FUNC_START(kyber_tomont_armv8)
 SYM_FUNC_ENTER(kyber_tomont_armv8)
 .align	4
+	push_d8_d15
 
 	// load a
 	ld1   {v16.4s-v19.4s}, [x0], #64
@@ -87,6 +90,7 @@ SYM_FUNC_ENTER(kyber_tomont_armv8)
 	st1   {v24.8h-v27.8h}, [x0], #64
 	st1   {v28.8h-v31.8h}, [x0], #64
 
+	pop_d8_d15
     	RET
 SYM_FUNC_END(kyber_tomont_armv8)
 	
@@ -96,6 +100,7 @@ SYM_FUNC_END(kyber_tomont_armv8)
 SYM_FUNC_START(kyber_sub_reduce_armv8)
 SYM_FUNC_ENTER(kyber_sub_reduce_armv8)
 .align	4
+	push_d8_d15
 
 	// load a
 	ld1   {v16.8h-v19.8h}, [x1], #64
@@ -136,6 +141,7 @@ SYM_FUNC_ENTER(kyber_sub_reduce_armv8)
 	st1   {v24.8h-v27.8h}, [x0], #64
 	st1   {v28.8h-v31.8h}, [x0], #64
 	
+	pop_d8_d15
 	RET
 SYM_FUNC_END(kyber_sub_reduce_armv8)
 	
@@ -145,6 +151,7 @@ SYM_FUNC_END(kyber_sub_reduce_armv8)
 SYM_FUNC_START(kyber_add_reduce_armv8)
 SYM_FUNC_ENTER(kyber_add_reduce_armv8)
 .align	4
+	push_d8_d15
 
 	// load a
 	ld1   {v16.8h-v19.8h}, [x1], #64
@@ -185,6 +192,7 @@ SYM_FUNC_ENTER(kyber_add_reduce_armv8)
 	st1   {v24.8h-v27.8h}, [x0], #64
 	st1   {v28.8h-v31.8h}, [x0], #64
 	
+	pop_d8_d15
 	RET
 SYM_FUNC_END(kyber_add_reduce_armv8)
 	
@@ -195,6 +203,7 @@ SYM_FUNC_END(kyber_add_reduce_armv8)
 SYM_FUNC_START(kyber_add_add_reduce_armv8)
 SYM_FUNC_ENTER(kyber_add_add_reduce_armv8)
 .align	4
+	push_d8_d15
 
 	// load a
 	ld1   {v16.8h-v19.8h}, [x1], #64
@@ -259,6 +268,7 @@ SYM_FUNC_ENTER(kyber_add_add_reduce_armv8)
 	st1   {v24.8h-v27.8h}, [x0], #64
 	st1   {v28.8h-v31.8h}, [x0], #64
 	
+	pop_d8_d15
 	RET
 SYM_FUNC_END(kyber_add_add_reduce_armv8)
 
