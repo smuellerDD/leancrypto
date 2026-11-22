@@ -143,10 +143,9 @@ ascon_absorb_common(void *_state, const uint8_t *in, size_t inlen,
 		ascon_fill_state_bytes(ctx->state, in, partial, todo);
 		inlen -= todo;
 		in += todo;
-	}
 
-	if (partial && inlen)
 		permutation(ctx->state, ctx->roundb);
+	}
 
 	/* Perform a transformation of full block-size messages */
 	if (lc_mem_aligned(in, sizeof(uint64_t) - 1)) {
