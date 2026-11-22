@@ -577,7 +577,7 @@ out:
 
 void lc_seeded_rng_status(char *buf, size_t len)
 {
-	if (len < 20 || !buf)
+	if (len < 21 || !buf)
 		return;
 
 	/* Add the \0 as a safety-measure */
