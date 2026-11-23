@@ -158,7 +158,9 @@ static int aes_aesni_xts_init_iv(const struct lc_sym_state *ctx, uint8_t *iv,
 	if (!ctx || ivlen != AES_BLOCKLEN)
 		return -EINVAL;
 
+	LC_FPU_ENABLE;
 	aesni_encrypt(iv, iv, &ctx->tweak_ctx);
+	LC_FPU_DISABLE;
 
 	return 0;
 }
@@ -170,7 +172,9 @@ static int aes_aesni_xts_setiv(struct lc_sym_state *ctx, const uint8_t *iv,
 		return -EINVAL;
 
 	memcpy(ctx->iv, iv, AES_BLOCKLEN);
+	LC_FPU_ENABLE;
 	aesni_encrypt(ctx->iv, ctx->iv, &ctx->tweak_ctx);
+	LC_FPU_DISABLE;
 
 	return 0;
 }
