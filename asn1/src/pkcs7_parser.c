@@ -410,7 +410,12 @@ int lc_pkcs7_extract_cert(void *context, size_t hdrlen, unsigned char tag,
 
 	CKINT(lc_pkcs7_x509_get(&x509, pkcs7));
 
-	CKINT(lc_x509_cert_decode(x509, value, vlen));
+	ret = lc_x509_cert_decode(x509, value, vlen);
+	if (ret) {
+		/* Not linked anywhere yet */
+		lc_pkcs7_x509_free(x509);
+		goto out;
+	}
 
 	x509->index = ++ctx->x509_index;
 	printf_debug("Got cert %u for %s\n", x509->index,
@@ -812,7 +817,7 @@ LC_INTERFACE_FUNCTION(void, lc_pkcs7_message_clear,
 		while (pkcs7->crl) {
 			cert = pkcs7->crl;
 			pkcs7->crl = cert->next;
-			lc_x509_cert_clear(cert);
+			lc_pkcs7_x509_free(cert);
 		}
 		lc_pkcs7_sinfo_free(pkcs7);
 
@@ -846,7 +851,23 @@ LC_INTERFACE_FUNCTION(int, lc_pkcs7_decode_ctx,
 	ctx->ppcerts = &ctx->certs;
 
 	/* Attempt to decode the signature */
-	CKINT(lc_asn1_ber_decoder(&lc_pkcs7_decoder, ctx, data, datalen));
+	ret = lc_asn1_ber_decoder(&lc_pkcs7_decoder, ctx, data, datalen);
+
+	/*
+	 * Certificates still in the parse context were never moved into the
+	 * message: those from the crls field, or those collected before a
+	 * decoding error.  Nothing refers to them, so release them.
+	 */
+	while (ctx->certs) {
+		struct lc_x509_certificate *cert = ctx->certs;
+
+		ctx->certs = cert->next;
+		lc_pkcs7_x509_free(cert);
+	}
+	ctx->ppcerts = &ctx->certs;
+
+	if (ret)
+		goto out;
 
 	CKINT(pkcs7_check_authattrs(ctx->msg));
 
