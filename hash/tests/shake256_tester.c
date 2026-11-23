@@ -151,6 +151,61 @@ out:
 	return ret;
 }
 
+/*
+ * Absorbing after a squeeze must feed the new data into the next output:
+ * update(m1), final(8), update(m2), final(8) must not return bytes 8..15 of
+ * SHAKE256(m1), and every implementation must agree with the C one.
+ */
+static int shake_256_absorb_after_squeeze(const struct lc_hash *shake_256,
+					  const char *name)
+{
+	static const uint8_t m1[] = { 'a' }, m2[] = { 'b' };
+	uint8_t first[8], second[8], ref[8], cont[16];
+	int ret = 0;
+	LC_HASH_CTX_ON_STACK(ctx, shake_256);
+	LC_HASH_CTX_ON_STACK(cctx, lc_shake256_c);
+
+	if (lc_hash_init(ctx) || lc_hash_init(cctx))
+		return 1;
+	lc_hash_update(ctx, m1, sizeof(m1));
+	CKINT(lc_hash_set_digestsize(ctx, sizeof(first)));
+	lc_hash_final(ctx, first);
+	lc_hash_update(ctx, m2, sizeof(m2));
+	lc_hash_final(ctx, second);
+
+	lc_hash_update(cctx, m1, sizeof(m1));
+	CKINT(lc_hash_set_digestsize(cctx, sizeof(first)));
+	lc_hash_final(cctx, ref);
+	lc_hash_update(cctx, m2, sizeof(m2));
+	lc_hash_final(cctx, ref);
+	ret += lc_compare(second, ref, sizeof(ref),
+			  "SHAKE256 absorb after squeeze matches C");
+
+	lc_hash_zero(cctx);
+	if (lc_hash_init(cctx))
+		return 1;
+	lc_hash_update(cctx, m1, sizeof(m1));
+	CKINT(lc_hash_set_digestsize(cctx, sizeof(cont)));
+	lc_hash_final(cctx, cont);
+	if (!memcmp(second, cont + sizeof(first), sizeof(second))) {
+		printf("SHAKE256 %s: data absorbed after squeeze ignored\n",
+		       name);
+		ret++;
+	}
+
+out:
+	lc_hash_zero(ctx);
+	lc_hash_zero(cctx);
+	return ret;
+}
+
+#undef LC_EXEC_ONE_TEST
+#define LC_EXEC_ONE_TEST(sha3_impl)                                            \
+	if (sha3_impl) {                                                       \
+		ret += _shake_256_tester(sha3_impl, #sha3_impl);               \
+		ret += shake_256_absorb_after_squeeze(sha3_impl, #sha3_impl);  \
+	}
+
 static int shake256_tester(void)
 {
 	int ret = 0;
