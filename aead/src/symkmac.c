@@ -324,7 +324,7 @@ static int lc_kh_decrypt(void *state, const uint8_t *ciphertext,
 	}
 
 out:
-	return 0;
+	return ret;
 }
 
 static int lc_kh_encrypt_oneshot(void *state, const uint8_t *plaintext,

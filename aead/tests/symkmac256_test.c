@@ -173,6 +173,19 @@ static int kh_nonaligned(void)
 	if (!lc_aead_decrypt(sh, ct, ct, sizeof(ct), NULL, 0, tag, sizeof(tag)))
 		return 1;
 
+	/*
+	 * The cipher's error must be returned by the stream decryption too:
+	 * AES-CBC refuses a length that is not a multiple of the block size.
+	 */
+	if (lc_aead_setkey(sh, in, 32, iv, sizeof(iv)))
+		return 1;
+	if (lc_aead_dec_init(sh, NULL, 0))
+		return 1;
+	if (!lc_aead_dec_update(sh, ct, ct, sizeof(ct))) {
+		printf("SymKMAC: CBC decryption error not reported\n");
+		return 1;
+	}
+
 	return 0;
 }
 
