@@ -504,11 +504,16 @@ static int lc_x509_policy_verify_general(const struct lc_public_key *pkey,
 					 const struct lc_x509_certificate *cert,
 					 uint64_t flags)
 {
+	lc_x509_pol_ret_t ret_pol;
 	int ret;
 
 	(void)flags;
 
-	CKINT(lc_x509_policy_time_valid_now(cert));
+	/*
+	 * An expired or not yet valid certificate is rejected, not only an
+	 * error while checking the time.
+	 */
+	CKINT_POL(lc_x509_policy_time_valid_now(cert));
 
 	/*
 	 * Certificate validation: Check signature
