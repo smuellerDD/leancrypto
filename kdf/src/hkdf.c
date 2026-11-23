@@ -253,20 +253,61 @@ out:
 	return 0;
 }
 
+/*
+ * Repeated calls continue the RFC 5869 output stream: T(n) = HMAC(PRK,
+ * T(n-1) || info || n).  Between calls hkdf_ctx->partial holds the whole last
+ * block T(n-1) and hkdf_ctx->partial_ptr the number of its bytes already
+ * returned.  The remaining bytes are returned first; then T(n-1) is fed to
+ * the next block.  The HKDF RNG keeps its own construction and does not use
+ * this function.
+ */
 LC_INTERFACE_FUNCTION(int, lc_hkdf_expand, struct lc_hkdf_ctx *hkdf_ctx,
 		      const uint8_t *info, size_t infolen, uint8_t *dst,
 		      size_t dlen)
 {
 	struct lc_hmac_ctx *hmac_ctx;
+	size_t h;
+	int ret;
 
 	if (!hkdf_ctx)
 		return -EINVAL;
 
 	hmac_ctx = &hkdf_ctx->hmac_ctx;
-	if (hkdf_ctx->ctr > 1)
-		lc_hmac_reinit(hmac_ctx);
+	h = lc_hmac_macsize(hmac_ctx);
 
-	return hkdf_expand_internal(hkdf_ctx, info, infolen, dst, dlen);
+	if (hkdf_ctx->ctr > 1) {
+		/* Unused rest of the last block */
+		if (hkdf_ctx->partial_ptr < h) {
+			size_t todo = min_size(dlen, h - hkdf_ctx->partial_ptr);
+
+			memcpy(dst, hkdf_ctx->partial + hkdf_ctx->partial_ptr,
+			       todo);
+			hkdf_ctx->partial_ptr += todo;
+			dst += todo;
+			dlen -= todo;
+		}
+		if (!dlen)
+			return 0;
+
+		/* Next block starts with T(n-1) */
+		lc_hmac_reinit(hmac_ctx);
+		lc_hmac_update(hmac_ctx, hkdf_ctx->partial, h);
+	}
+
+	ret = hkdf_expand_internal(hkdf_ctx, info, infolen, dst, dlen);
+	if (ret)
+		return ret;
+
+	/*
+	 * hkdf_expand_internal keeps a final partial block in partial; when
+	 * the output ended on a block boundary, keep that block instead.
+	 */
+	if (dlen && !(dlen % h)) {
+		memcpy(hkdf_ctx->partial, dst + dlen - h, h);
+		hkdf_ctx->partial_ptr = h;
+	}
+
+	return 0;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_hkdf_expand_prk, struct lc_hkdf_ctx *hkdf_ctx,

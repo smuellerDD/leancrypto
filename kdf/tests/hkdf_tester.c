@@ -158,6 +158,46 @@ static int hkdf_tester(void)
 	ret += lc_compare(act, exp, sizeof(exp), "HKDF SHA-256 heap");
 	lc_hkdf_zero_free(hkdf_heap);
 
+	/*
+	 * Repeated expand calls continue the RFC 5869 output: split the
+	 * 42-byte output at every point, and in single bytes.
+	 */
+	for (i = 0; i <= sizeof(exp); i++) {
+		size_t done;
+
+		if (lc_hkdf_extract(hkdf, ikm, sizeof(ikm), salt,
+				    sizeof(salt)))
+			return 1;
+		lc_memset_secure(act, 0, sizeof(act));
+		if (lc_hkdf_expand(hkdf, info, sizeof(info), act, i) ||
+		    lc_hkdf_expand(hkdf, info, sizeof(info), act + i,
+				   sizeof(act) - i)) {
+			printf("HKDF split expand failed\n");
+			return 1;
+		}
+		if (memcmp(act, exp, sizeof(exp))) {
+			printf("HKDF expand split at %u differs from RFC 5869\n",
+			       i);
+			ret++;
+		}
+
+		if (i)
+			continue;
+
+		if (lc_hkdf_extract(hkdf, ikm, sizeof(ikm), salt,
+				    sizeof(salt)))
+			return 1;
+		lc_memset_secure(act, 0, sizeof(act));
+		for (done = 0; done < sizeof(act); done++) {
+			if (lc_hkdf_expand(hkdf, info, sizeof(info), act + done,
+					   1))
+				return 1;
+		}
+		ret += lc_compare(act, exp, sizeof(exp),
+				  "HKDF SHA-256 expand in single bytes");
+	}
+	lc_hkdf_zero(hkdf);
+
 	return ret;
 }
 #pragma GCC diagnostic pop
