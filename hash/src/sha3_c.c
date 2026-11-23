@@ -556,6 +556,14 @@ static void keccak_absorb(void *_state, const uint8_t *in, size_t inlen)
 		return;
 
 	partial = ctx->partial;
+
+	/*
+	 * Absorbing after a squeeze: the next squeeze must start a new output
+	 * block from the state that includes the new data, not continue at
+	 * the old squeeze offset.
+	 */
+	if (ctx->squeeze_more)
+		ctx->offset = 0;
 	ctx->squeeze_more = 0;
 
 	/* Sponge absorbing phase */
