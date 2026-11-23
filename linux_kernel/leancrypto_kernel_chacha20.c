@@ -66,7 +66,8 @@ static int lc_chacha20_common(struct skcipher_request *req,
 	 * each individual call to the _iv function and thus makes this code
 	 * more performant.
 	 */
-	vola_ctx = kzalloc(LC_SYM_CTX_SIZE_LEN(LC_CC20_STATE_SIZE), GFP_KERNEL);
+	vola_ctx = kzalloc(LC_SYM_CTX_SIZE_LEN(LC_CC20_STATE_SIZE),
+			   LC_KERNEL_REQ_GFP(req->base.flags));
 	if (!vola_ctx)
 		return -ENOMEM;
 

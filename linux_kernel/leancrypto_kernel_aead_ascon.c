@@ -205,6 +205,7 @@ static int lc_aead_init_ascon128(struct crypto_aead *aead)
 	struct lc_aead_ctx *ctx = crypto_aead_ctx(aead);
 
 	LC_AEAD_CTX_NO_STATE(ctx, lc_ascon_aead);
+	crypto_aead_set_reqsize(aead, LC_KERNEL_REQCTX_SIZE(LC_AL_CTX_SIZE));
 
 	return 0;
 }
@@ -218,9 +219,7 @@ static int lc_aead_ascon_call_ascon128(
 	struct lc_aead_ctx *vola_ctx;
 	int ret;
 
-	vola_ctx = kzalloc(LC_AL_CTX_SIZE, GFP_KERNEL);
-	if (!vola_ctx)
-		return -ENOMEM;
+	vola_ctx = lc_kernel_reqctx(aead_request_ctx(areq), LC_AL_CTX_SIZE);
 
 	/*
 	 * Note, lc_ascon_128a is used as it provides the proper round counts
@@ -237,7 +236,7 @@ static int lc_aead_ascon_call_ascon128(
 	ret = encdec(areq, vola_ctx);
 
 	lc_aead_zero(vola_ctx);
-	kfree(vola_ctx);
+	memzero_explicit(vola_ctx, LC_AL_CTX_SIZE);
 	return ret;
 }
 
@@ -260,6 +259,7 @@ static int lc_aead_init_ascon_keccak256(struct crypto_aead *aead)
 	struct lc_aead_ctx *ctx = crypto_aead_ctx(aead);
 
 	LC_AEAD_CTX_NO_STATE(ctx, lc_ascon_keccak_aead);
+	crypto_aead_set_reqsize(aead, LC_KERNEL_REQCTX_SIZE(LC_AK_CTX_SIZE));
 
 	return 0;
 }
@@ -273,9 +273,7 @@ static int lc_aead_ascon_call_keccak256(
 	struct lc_aead_ctx *vola_ctx;
 	int ret;
 
-	vola_ctx = kzalloc(LC_AK_CTX_SIZE, GFP_KERNEL);
-	if (!vola_ctx)
-		return -ENOMEM;
+	vola_ctx = lc_kernel_reqctx(aead_request_ctx(areq), LC_AK_CTX_SIZE);
 
 	LC_ASCON_SET_CTX(vola_ctx, lc_sha3_256, lc_ascon_keccak_aead);
 	ascon_crypto = vola_ctx->aead_state;
@@ -287,7 +285,7 @@ static int lc_aead_ascon_call_keccak256(
 	ret = encdec(areq, vola_ctx);
 
 	lc_aead_zero(vola_ctx);
-	kfree(vola_ctx);
+	memzero_explicit(vola_ctx, LC_AK_CTX_SIZE);
 	return ret;
 }
 
@@ -306,6 +304,7 @@ static int lc_aead_init_ascon_keccak512(struct crypto_aead *aead)
 	struct lc_aead_ctx *ctx = crypto_aead_ctx(aead);
 
 	LC_AEAD_CTX_NO_STATE(ctx, lc_ascon_keccak_aead);
+	crypto_aead_set_reqsize(aead, LC_KERNEL_REQCTX_SIZE(LC_AK_CTX_SIZE));
 
 	return 0;
 }
@@ -319,9 +318,7 @@ static int lc_aead_ascon_call_keccak512(
 	struct lc_aead_ctx *vola_ctx;
 	int ret;
 
-	vola_ctx = kzalloc(LC_AK_CTX_SIZE, GFP_KERNEL);
-	if (!vola_ctx)
-		return -ENOMEM;
+	vola_ctx = lc_kernel_reqctx(aead_request_ctx(areq), LC_AK_CTX_SIZE);
 
 	LC_ASCON_SET_CTX(vola_ctx, lc_sha3_512, lc_ascon_keccak_aead);
 	ascon_crypto = vola_ctx->aead_state;
@@ -333,7 +330,7 @@ static int lc_aead_ascon_call_keccak512(
 	ret = encdec(areq, vola_ctx);
 
 	lc_aead_zero(vola_ctx);
-	kfree(vola_ctx);
+	memzero_explicit(vola_ctx, LC_AK_CTX_SIZE);
 	return ret;
 }
 

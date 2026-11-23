@@ -137,7 +137,7 @@ static int lc_cc20p1305_enc(struct aead_request *areq)
 
 	vola_ctx =
 		kzalloc(LC_CHACHA20_POLY1305_CTX_SIZE + LC_MEM_COMMON_ALIGNMENT,
-			GFP_KERNEL);
+			LC_KERNEL_REQ_GFP(areq->base.flags));
 	if (!vola_ctx)
 		return -ENOMEM;
 
@@ -201,7 +201,7 @@ static int lc_cc20p1305_dec(struct aead_request *areq)
 
 	vola_ctx =
 		kzalloc(LC_CHACHA20_POLY1305_CTX_SIZE + LC_MEM_COMMON_ALIGNMENT,
-			GFP_KERNEL);
+			LC_KERNEL_REQ_GFP(areq->base.flags));
 	if (!vola_ctx)
 		return -ENOMEM;
 
