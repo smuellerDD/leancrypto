@@ -38,6 +38,9 @@
 #include "leancrypto_kernel_aead_helper.h"
 
 /* Implement the walking of a scatter-gather list for AAD. */
+#define LC_AES_GCM_REQ_STATE_SIZE                                              \
+	LC_AES_GCM_CTX_SIZE_LEN(LC_AES_AESNI_MAX_BLOCK_SIZE)
+
 static int lc_aes_gcm_aad(struct aead_request *areq,
 			  struct lc_aead_ctx *vola_ctx, size_t nbytes)
 {
@@ -109,10 +112,8 @@ static int lc_aes_gcm_enc(struct aead_request *areq)
 	struct lc_aead_ctx *vola_ctx = NULL;
 	int ret;
 
-	vola_ctx = kzalloc(LC_AES_GCM_CTX_SIZE_LEN(LC_AES_AESNI_MAX_BLOCK_SIZE),
-			   GFP_KERNEL);
-	if (!vola_ctx)
-		return -ENOMEM;
+	vola_ctx = lc_kernel_reqctx(aead_request_ctx(areq),
+				    LC_AES_GCM_REQ_STATE_SIZE);
 
 	LC_AES_GCM_SET_CTX(vola_ctx);
 
@@ -134,7 +135,7 @@ static int lc_aes_gcm_enc(struct aead_request *areq)
 
 out:
 	lc_aead_zero(vola_ctx);
-	kfree(vola_ctx);
+	memzero_explicit(vola_ctx, LC_AES_GCM_REQ_STATE_SIZE);
 	return ret;
 }
 
@@ -170,10 +171,8 @@ static int lc_aes_gcm_dec(struct aead_request *areq)
 	if (areq->cryptlen < crypto_aead_authsize(aead))
 		return -EBADMSG;
 
-	vola_ctx = kzalloc(LC_AES_GCM_CTX_SIZE_LEN(LC_AES_AESNI_MAX_BLOCK_SIZE),
-			   GFP_KERNEL);
-	if (!vola_ctx)
-		return -ENOMEM;
+	vola_ctx = lc_kernel_reqctx(aead_request_ctx(areq),
+				    LC_AES_GCM_REQ_STATE_SIZE);
 
 	LC_AES_GCM_SET_CTX(vola_ctx);
 
@@ -195,7 +194,7 @@ static int lc_aes_gcm_dec(struct aead_request *areq)
 
 out:
 	lc_aead_zero(vola_ctx);
-	kfree(vola_ctx);
+	memzero_explicit(vola_ctx, LC_AES_GCM_REQ_STATE_SIZE);
 	return ret;
 }
 
@@ -249,6 +248,8 @@ static int lc_aes_gcm_init(struct crypto_aead *aead)
 	struct lc_aead_ctx *ctx = crypto_aead_ctx(aead);
 
 	LC_AEAD_CTX_NO_STATE(ctx, lc_aes_gcm_aead);
+	crypto_aead_set_reqsize(aead,
+				LC_KERNEL_REQCTX_SIZE(LC_AES_GCM_REQ_STATE_SIZE));
 
 	/*
 	 * Verification that the setting of .cra_ctxsize is appropriate
@@ -326,6 +327,8 @@ static int lc_rfc4106_aes_gcm_init(struct crypto_aead *aead)
 	struct lc_aead_ctx *ctx = &rfc4106_ctx->ctx;
 
 	LC_AEAD_CTX_NO_STATE(ctx, lc_aes_gcm_aead);
+	crypto_aead_set_reqsize(aead,
+				LC_KERNEL_REQCTX_SIZE(LC_AES_GCM_REQ_STATE_SIZE));
 
 	return 0;
 }
@@ -355,10 +358,8 @@ static int lc_rfc4106_aes_gcm_enc(struct aead_request *areq)
 		return -EINVAL;
 	assoclen -= LC_RFC4106_AES_GCM_IV_INVOCATION_FIELD_LEN;
 
-	vola_ctx = kzalloc(LC_AES_GCM_CTX_SIZE_LEN(LC_AES_AESNI_MAX_BLOCK_SIZE),
-			   GFP_KERNEL);
-	if (!vola_ctx)
-		return -ENOMEM;
+	vola_ctx = lc_kernel_reqctx(aead_request_ctx(areq),
+				    LC_AES_GCM_REQ_STATE_SIZE);
 
 	LC_AES_GCM_SET_CTX(vola_ctx);
 
@@ -379,7 +380,7 @@ static int lc_rfc4106_aes_gcm_enc(struct aead_request *areq)
 
 out:
 	lc_aead_zero(vola_ctx);
-	kfree(vola_ctx);
+	memzero_explicit(vola_ctx, LC_AES_GCM_REQ_STATE_SIZE);
 	return ret;
 }
 
@@ -397,10 +398,8 @@ static int lc_rfc4106_aes_gcm_dec(struct aead_request *areq)
 		return -EINVAL;
 	assoclen -= LC_RFC4106_AES_GCM_IV_INVOCATION_FIELD_LEN;
 
-	vola_ctx = kzalloc(LC_AES_GCM_CTX_SIZE_LEN(LC_AES_AESNI_MAX_BLOCK_SIZE),
-			   GFP_KERNEL);
-	if (!vola_ctx)
-		return -ENOMEM;
+	vola_ctx = lc_kernel_reqctx(aead_request_ctx(areq),
+				    LC_AES_GCM_REQ_STATE_SIZE);
 
 	LC_AES_GCM_SET_CTX(vola_ctx);
 
@@ -421,7 +420,7 @@ static int lc_rfc4106_aes_gcm_dec(struct aead_request *areq)
 
 out:
 	lc_aead_zero(vola_ctx);
-	kfree(vola_ctx);
+	memzero_explicit(vola_ctx, LC_AES_GCM_REQ_STATE_SIZE);
 	return ret;
 }
 

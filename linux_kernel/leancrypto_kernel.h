@@ -20,15 +20,46 @@
 #ifndef LEANCRYPTO_KERNEL_H
 #define LEANCRYPTO_KERNEL_H
 
+#include <crypto/algapi.h>
+#include <linux/crypto.h>
+#include <linux/kernel.h>
 #include <linux/module.h>
+#include <linux/string.h>
 #include <linux/types.h>
 #include <linux/version.h>
+
+#include "lc_memory_support.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #define LC_KERNEL_DEFAULT_PRIO 5000
+
+/*
+ * Per-request state kept in the request context instead of being allocated
+ * in the request path: ESP calls AEADs from softirq and dm-crypt can call
+ * them from bio completion, where the request handler must not sleep.  The
+ * tfm init sets the request size with LC_KERNEL_REQCTX_SIZE(); the handler
+ * obtains zeroed, aligned state with lc_kernel_reqctx() and wipes it after
+ * use.
+ */
+#define LC_KERNEL_REQCTX_SIZE(size) ((size) + LC_MEM_COMMON_ALIGNMENT)
+
+static inline void *lc_kernel_reqctx(void *reqctx, size_t size)
+{
+	void *ctx = PTR_ALIGN(reqctx, LC_MEM_COMMON_ALIGNMENT);
+
+	memset(ctx, 0, size);
+	return ctx;
+}
+
+/*
+ * Allocation flags for a request handler that still allocates: a caller in
+ * atomic context does not set CRYPTO_TFM_REQ_MAY_SLEEP.
+ */
+#define LC_KERNEL_REQ_GFP(req_flags)                                           \
+	(((req_flags) & CRYPTO_TFM_REQ_MAY_SLEEP) ? GFP_KERNEL : GFP_ATOMIC)
 
 #define LC_HASH_GET_ALIGNED_CTX(ptr)                                           \
 	PTR_ALIGN(ptr, LC_HASH_COMMON_ALIGNMENT - 1)
