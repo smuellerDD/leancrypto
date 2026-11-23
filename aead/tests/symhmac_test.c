@@ -222,6 +222,37 @@ static int sh_key_iv(void)
 	return 0;
 }
 
+static int sh_zero_key(void)
+{
+	static const uint8_t key[] = {
+		0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+		0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+		0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+		0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
+	};
+	static const uint8_t iv[16] = { 0 };
+	const uint8_t *hmac_key;
+	struct lc_sh_cryptor *cryptor;
+	unsigned int i;
+	LC_SH_CTX_ON_STACK(sh, lc_aes_cbc, lc_sha512);
+
+	if (lc_aead_setkey(sh, key, sizeof(key), iv, sizeof(iv)))
+		return 1;
+
+	/* Zeroization must also clear the HMAC key pads */
+	lc_aead_zero(sh);
+	cryptor = sh->aead_state;
+	hmac_key = (const uint8_t *)cryptor->auth_ctx.key;
+	for (i = 0; i < LC_HMAC_KEY_SIZE; i++) {
+		if (hmac_key[i]) {
+			printf("SymHMAC: HMAC key not zeroized\n");
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
 static int sh_tester(void)
 {
 	int ret = 0;
@@ -300,6 +331,8 @@ static int sh_tester(void)
 	ret += sh_nonaligned();
 
 	ret += sh_key_iv();
+
+	ret += sh_zero_key();
 
 	return ret;
 }

@@ -412,6 +412,15 @@ static void lc_sh_zero(void *state)
 
 	if (!sh)
 		return;
+
+	/*
+	 * lc_hmac_zero only clears a key buffer placed directly behind the
+	 * HMAC context. Here the key follows the symmetric cipher state, so
+	 * clear the HMAC key pads explicitly.
+	 */
+	if (sh->auth_ctx.key)
+		lc_memset_secure((uint8_t *)sh->auth_ctx.key, 0,
+				 LC_HMAC_KEY_SIZE);
 	lc_hmac_zero(&sh->auth_ctx);
 	lc_sym_zero(&sh->sym);
 }
