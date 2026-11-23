@@ -41,6 +41,11 @@ struct x509_parse_context {
 	const uint8_t *raw_akid; /* Raw authorityKeyId in ASN.1 */
 	const uint8_t *akid_raw_issuer; /* Raw directoryName in authorityKeyId */
 	size_t akid_raw_issuer_size;
+	/*
+	 * Where name attributes go while a GeneralName directoryName in an
+	 * extension is decoded (NULL: issuer, then subject)
+	 */
+	struct lc_x509_certificate_name *name_segments;
 	unsigned int extension_critical : 1;
 	enum OID key_algo; /* Algorithm used by the cert's key */
 	enum OID last_oid; /* Last OID encountered */
