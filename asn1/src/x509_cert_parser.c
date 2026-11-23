@@ -257,6 +257,13 @@ int lc_x509_extract_name_segment(void *context, size_t hdrlen,
 	if (cert->is_csr)
 		name = &cert->subject_segments;
 
+	/*
+	 * A directoryName in the SubjectAltName or AuthorityKeyIdentifier
+	 * extension is decoded after the subject and must not overwrite it.
+	 */
+	if (ctx->name_segments)
+		name = ctx->name_segments;
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wswitch-enum"
 	switch (ctx->last_oid) {
@@ -735,8 +742,12 @@ int lc_x509_process_extension(void *context, size_t hdrlen, unsigned char tag,
 	}
 
 	if (ctx->last_oid == OID_subjectAltName) {
-		CKINT(lc_asn1_ber_decoder(&lc_x509_san_decoder, ctx, value,
-					  vlen));
+		ctx->name_segments = &ctx->cert->san_directory_name_segments;
+		ret = lc_asn1_ber_decoder(&lc_x509_san_decoder, ctx, value,
+					  vlen);
+		ctx->name_segments = NULL;
+		if (ret)
+			goto out;
 	}
 
 	if (ctx->last_oid == OID_nameConstraints) {
@@ -1093,10 +1104,21 @@ LC_INTERFACE_FUNCTION(int, lc_x509_cert_decode,
 
 	/* Decode the AuthorityKeyIdentifier */
 	if (ctx.raw_akid) {
+		/*
+		 * authorityCertIssuer names the issuer's issuer; only its raw
+		 * form is used, so its attributes are parsed into a scratch
+		 * structure instead of the certificate's subject.
+		 */
+		struct lc_x509_certificate_name akid_issuer_segments = { 0 };
+
 		bin2print_debug(ctx.raw_akid, ctx.raw_akid_size, stdout,
 				"AKID");
-		CKINT(lc_asn1_ber_decoder(&lc_x509_akid_decoder, &ctx,
-					  ctx.raw_akid, ctx.raw_akid_size));
+		ctx.name_segments = &akid_issuer_segments;
+		ret = lc_asn1_ber_decoder(&lc_x509_akid_decoder, &ctx,
+					  ctx.raw_akid, ctx.raw_akid_size);
+		ctx.name_segments = NULL;
+		if (ret)
+			goto out;
 	}
 
 	x509->pub.key = ctx.key;
