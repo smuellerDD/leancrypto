@@ -290,10 +290,23 @@ int lc_x509_cert_decode(struct lc_x509_certificate *cert, const uint8_t *data,
 #endif
 
 #ifdef LC_DILITHIUM_ED448_SIG
+/*
+ * The "any key type" storage (LC_X509_*KEYS_ON_STACK, lc_x509_*keys_alloc)
+ * uses the Dilithium-ED448 layout.  Its secret key, the last member, must also
+ * hold the Dilithium-ED25519 secret key, which is 4 bytes larger.
+ */
+#ifdef LC_DILITHIUM_ED25519_SIG
+#define LC_X509_DILITHIUM_ED448_SK_ROOM                                        \
+	(sizeof(struct lc_dilithium_ed25519_sk) >                              \
+			 sizeof(struct lc_dilithium_ed448_sk) ?                \
+		 sizeof(struct lc_dilithium_ed25519_sk) :                      \
+		 sizeof(struct lc_dilithium_ed448_sk))
+#else
+#define LC_X509_DILITHIUM_ED448_SK_ROOM sizeof(struct lc_dilithium_ed448_sk)
+#endif
 #define LC_X509_KEYS_DILITHIUM_ED448_SIZE                                      \
 	(sizeof(struct lc_dilithium_ed448_pk) +                                \
-	 sizeof(struct lc_dilithium_ed448_sk) +                                \
-	 sizeof(struct lc_x509_key_data))
+	 LC_X509_DILITHIUM_ED448_SK_ROOM + sizeof(struct lc_x509_key_data))
 #define LC_X509_KEYS_DILITHIUM_ED448_SET(name)                                 \
 	_Pragma("GCC diagnostic push")                                         \
 		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")(name)       \
@@ -310,7 +323,7 @@ int lc_x509_cert_decode(struct lc_x509_certificate *cert, const uint8_t *data,
 	_Pragma("GCC diagnostic pop")
 
 #define LC_X509_PRIVKEYS_DILITHIUM_ED448_SIZE                                  \
-	(sizeof(struct lc_dilithium_ed448_sk) + sizeof(struct lc_x509_key_data))
+	(LC_X509_DILITHIUM_ED448_SK_ROOM + sizeof(struct lc_x509_key_data))
 #define LC_X509_PRIVKEYS_DILITHIUM_ED448_SET(name)                             \
 	_Pragma("GCC diagnostic push")                                         \
 		_Pragma("GCC diagnostic ignored \"-Wcast-align\"")(name)       \
