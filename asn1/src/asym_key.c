@@ -1034,10 +1034,83 @@ out:
  *
  * NOTE, only pointers to the DER data stream are set.
  */
+/* Size of the secret key structure the decoder writes for a key type */
+static size_t lc_privkey_sk_size(enum lc_sig_types sig_type)
+{
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-enum"
+	switch (sig_type) {
+#ifdef LC_DILITHIUM
+	case LC_SIG_DILITHIUM_44:
+	case LC_SIG_DILITHIUM_65:
+	case LC_SIG_DILITHIUM_87:
+		return sizeof(struct lc_dilithium_sk);
+#endif
+#ifdef LC_DILITHIUM_ED25519
+	case LC_SIG_DILITHIUM_44_ED25519:
+	case LC_SIG_DILITHIUM_65_ED25519:
+	case LC_SIG_DILITHIUM_87_ED25519:
+		return sizeof(struct lc_dilithium_ed25519_sk);
+	case LC_SIG_ED25519:
+		return sizeof(struct lc_ed25519_sk);
+#endif
+#ifdef LC_DILITHIUM_ED448
+	case LC_SIG_DILITHIUM_44_ED448:
+	case LC_SIG_DILITHIUM_65_ED448:
+	case LC_SIG_DILITHIUM_87_ED448:
+		return sizeof(struct lc_dilithium_ed448_sk);
+	case LC_SIG_ED448:
+		return sizeof(struct lc_ed448_sk);
+#endif
+#ifdef LC_SPHINCS
+	case LC_SIG_SPHINCS_SHAKE_256S:
+	case LC_SIG_SPHINCS_SHAKE_192S:
+	case LC_SIG_SPHINCS_SHAKE_128S:
+	case LC_SIG_SPHINCS_SHAKE_256F:
+	case LC_SIG_SPHINCS_SHAKE_192F:
+	case LC_SIG_SPHINCS_SHAKE_128F:
+		return sizeof(struct lc_sphincs_sk);
+#endif
+	default:
+		return 0;
+	}
+#pragma GCC diagnostic pop
+}
+
+/*
+ * The key type comes from the encoded key's OID, not from the caller.  When
+ * the secret key buffer lies inside the allocation described by
+ * data_struct_size (the lc_x509_*keys*_alloc functions and ON_STACK macros),
+ * refuse a key type whose secret key does not fit in it.  A buffer linked in
+ * from elsewhere (LC_PKCS8_LINK_PRIVKEY_DATA) carries no size and is not
+ * checked here.
+ */
+static int lc_privkey_sk_fits(const struct lc_x509_key_data *keys)
+{
+	uintptr_t base = (uintptr_t)keys;
+	uintptr_t sk = (uintptr_t)keys->sk.dilithium_sk;
+	uintptr_t end = base + keys->data_struct_size;
+	size_t needed = lc_privkey_sk_size(keys->sig_type);
+
+	if (!needed || keys->data_struct_size <= sizeof(*keys) ||
+	    sk < base + sizeof(*keys) || sk >= end)
+		return 0;
+
+	if (end - sk < needed) {
+		printf_debug("Secret key buffer too small for key type %u\n",
+			     keys->sig_type);
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
 int lc_privkey_key_decode(struct lc_x509_key_data *keys, const uint8_t *data,
 			  size_t datalen)
 {
 	int ret = 0;
+
+	CKINT(lc_privkey_sk_fits(keys));
 
 	switch (keys->sig_type) {
 	case LC_SIG_DILITHIUM_44:
