@@ -269,8 +269,7 @@ LC_INTERFACE_FUNCTION(int, lc_hkdf_expand, struct lc_hkdf_ctx *hkdf_ctx,
 	size_t h;
 	int ret;
 
-	if (!hkdf_ctx)
-		return -EINVAL;
+	CKNULL(hkdf_ctx, -EINVAL);
 
 	hmac_ctx = &hkdf_ctx->hmac_ctx;
 	h = lc_hmac_macsize(hmac_ctx);
@@ -294,9 +293,7 @@ LC_INTERFACE_FUNCTION(int, lc_hkdf_expand, struct lc_hkdf_ctx *hkdf_ctx,
 		lc_hmac_update(hmac_ctx, hkdf_ctx->partial, h);
 	}
 
-	ret = hkdf_expand_internal(hkdf_ctx, info, infolen, dst, dlen);
-	if (ret)
-		return ret;
+	CKINT(hkdf_expand_internal(hkdf_ctx, info, infolen, dst, dlen));
 
 	/*
 	 * hkdf_expand_internal keeps a final partial block in partial; when
@@ -307,7 +304,8 @@ LC_INTERFACE_FUNCTION(int, lc_hkdf_expand, struct lc_hkdf_ctx *hkdf_ctx,
 		hkdf_ctx->partial_ptr = h;
 	}
 
-	return 0;
+out:
+	return ret;
 }
 
 LC_INTERFACE_FUNCTION(int, lc_hkdf_expand_prk, struct lc_hkdf_ctx *hkdf_ctx,
