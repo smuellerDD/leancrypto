@@ -5,7 +5,8 @@ Changes 1.9.2-prerelease
 * Fix SymHMAC/SymKMAC parallel use of cipher handle
 * PKCS7 certificate chain validation: check for CA of intermediate certificate reported by Bhabani Sankar Das
 * Fix a footgun for Kyber IES encrypt: a failure in the encryption (e.g. caller provided non-muliple of blocks for SymHMAC) is not relayed to the caller potentially leaving plaintext in the buffer (in case of input/output buffer pointers are identical), the output buffer remains having plaintext. Reported by Liheng Ji
-* 
+* Various fixes by Jake Maynard
+* GCM: enforce internal IV generation for FIPS only on encrypt as reported by Jayson Sao <jaysonsao@gmail.com>
 
 Changes 1.9.1
 * Fixes in small compilation support

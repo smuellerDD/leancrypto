@@ -835,37 +835,31 @@ out:
  *
  * This is called once after all calls to GCM_UPDATE to finalize the GCM.
  * It performs the final GHASH to produce the resulting authentication TAG.
- *
  */
-static int gcm_enc_final(void *state, uint8_t *tag, size_t tag_len)
+static int gcm_compute_tag(struct lc_aes_gcm_cryptor *ctx, uint8_t *tag,
+			   size_t tag_len)
 {
-	struct lc_aes_gcm_cryptor *ctx = state;
 	struct lc_gcm_ctx *gcm_ctx;
 	uint64_t orig_len, orig_aad_len;
 	unsigned int min_taglen = 32 / 8;
-
-	gcm_finalize_aad(ctx);
 
 	/* The Linxu kernel wants 32 bit tag sizes */
 	if (fips140_mode_enabled())
 		min_taglen = 64 / 8;
 
-	/*
-	 * In FIPS mode, only the internal IV generation is allowed where the
-	 * IV is generated and set by lc_aes_gcm_generate_iv.
-	 *
-	 * Enforce minimum tag size of 64 bits.
-	 */
-	if (!ctx || (tag_len < min_taglen || tag_len > AES_BLOCKSIZE) ||
-	    (fips140_mode_enabled() && ctx->gcm_ctx.external_iv)) {
+	/* Enforce minimum tag size of 64 bits. */
+	if (!ctx || (tag_len < min_taglen || tag_len > AES_BLOCKSIZE)) {
 		lc_memset_secure(tag, 0, tag_len);
 		return -EINVAL;
 	}
+
 	/* AAD-only input never reaches the cipher: check the key here too. */
 	if (!lc_sym_ctx_has_key(&ctx->sym_ctx)) {
 		lc_memset_secure(tag, 0, tag_len);
 		return -ENOKEY;
 	}
+
+	gcm_finalize_aad(ctx);
 
 	gcm_ctx = &ctx->gcm_ctx;
 	orig_len = gcm_ctx->len * 8;
@@ -897,6 +891,23 @@ static int gcm_enc_final(void *state, uint8_t *tag, size_t tag_len)
 	return 0;
 }
 
+static int gcm_enc_final(void *state, uint8_t *tag, size_t tag_len)
+{
+	struct lc_aes_gcm_cryptor *ctx = state;
+
+	/*
+	 * In FIPS mode, only the internal IV generation is allowed where the IV
+	 * is generated and set by lc_aes_gcm_generate_iv. This only applies
+	 * to encryption: the decryptor always receives the IV from the sender.
+	*/
+	if (!ctx || (fips140_mode_enabled() && ctx->gcm_ctx.external_iv)) {
+		lc_memset_secure(tag, 0, tag_len);
+		return -EINVAL;
+	}
+
+	return gcm_compute_tag(ctx, tag, tag_len);
+}
+
 /*
  * GCM_AUTH_DECRYPT
  *
@@ -911,11 +922,12 @@ static int gcm_dec_final(void *state, const uint8_t *tag, size_t taglen)
 {
 	/* the tag generated and returned by decryption */
 	uint8_t check_tag[AES_BLOCKSIZE] __align(8);
+	struct lc_aes_gcm_cryptor *ctx = state;
 	int ret = 0;
 
 	CKRET(taglen > sizeof(check_tag), -EINVAL);
 
-	CKINT(gcm_enc_final(state, check_tag, taglen));
+	CKINT(gcm_compute_tag(ctx, check_tag, taglen));
 
 	/* now we verify the authentication tag in 'constant time' */
 	CKRET_HARDENED(lc_memcmp_secure(tag, taglen, check_tag, taglen),
