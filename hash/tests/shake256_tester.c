@@ -178,8 +178,10 @@ static int shake_256_absorb_after_squeeze(const struct lc_hash *shake_256,
 	lc_hash_final(cctx, ref);
 	lc_hash_update(cctx, m2, sizeof(m2));
 	lc_hash_final(cctx, ref);
-	ret += lc_compare(second, ref, sizeof(ref),
-			  "SHAKE256 absorb after squeeze matches C");
+	ret = lc_compare(second, ref, sizeof(ref),
+			 "SHAKE256 absorb after squeeze matches C");
+	if (ret)
+		goto out;
 
 	lc_hash_zero(cctx);
 	if (lc_hash_init(cctx))
