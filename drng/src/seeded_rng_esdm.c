@@ -160,8 +160,14 @@ void seeded_rng_status(char *buf, size_t len)
 	if (!esdm_rpcc_status)
 		seeded_rng_noise_init();
 
+	/*
+	 * The ESDM produces multi-line output which would need to be escaped
+	 * to serve as valid JSON text.
+	 */
+#if 0
 	if (esdm_rpcc_status)
 		esdm_rpcc_status(buf, len);
 	else
+#endif
 		lc_memcpy_secure(buf, len, "ESDM\n\0", 6);
 }
