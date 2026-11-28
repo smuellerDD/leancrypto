@@ -1196,6 +1196,7 @@ if (host_machine.cpu_family() == 'aarch64')
 endif
 
 fips_integrity_hasher_dep = []
+fips_integrity_hasher_src = []
 # Build FIPS 140 library
 if build_shared
 	link_args_fips140 = [ ]
@@ -1318,18 +1319,18 @@ if build_shared
 		# anybody links to leancrypto_lib_fips
 		fips_integrity_hasher = custom_target(
 			'fips_integrity_hasher',
-			build_always_stale: true,
 			build_by_default: true,
 			install: false,
-			depends: [ leancrypto_lib_fips, integrity_generator ],
 			input: [ leancrypto_lib_fips, integrity_generator ],
-			output: leancrypto_lib_fips.name(),
+			output: 'libleancrypto-fips.integrity_stamp.h',
 			command: [
-				fips_integrity_checker_script.full_path(),
+				fips_integrity_checker_script,
 				leancrypto_lib_fips.full_path(),
-				integrity_generator.full_path() ]
+				integrity_generator.full_path(),
+				'@OUTPUT@' ]
 			)
 		fips_integrity_hasher_dep = declare_dependency(sources: fips_integrity_hasher)
+		fips_integrity_hasher_src = [ fips_integrity_hasher ]
 	endif
 else
 	leancrypto_raw_static_lib = static_library('leancrypto-raw',
@@ -1382,6 +1383,7 @@ if (get_option('efi').disabled() and get_option('freestanding').disabled())
 endif
 
 leancrypto_fips = declare_dependency(link_with: leancrypto_lib_fips,
+				     sources: fips_integrity_hasher_src,
 				     dependencies: [ leancrypto_ssp_link ],
 				     compile_args: leancrypto_shared_cargs,
 				     include_directories: include_dirs)

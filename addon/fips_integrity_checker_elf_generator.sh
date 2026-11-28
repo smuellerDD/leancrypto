@@ -2,6 +2,7 @@
 
 SOFILE="$1"
 HASHER="$2"
+STAMP="$3"
 
 TEXTSEGMENT=".text"
 INITSEGMENT=".init"
@@ -48,16 +49,18 @@ $OBJCOPY							\
  $SOFILE 2>/dev/null
 if [ $? -ne 0 ]
 then
-	echo "ERROR: $OBJCOPY command failed: $?"
-	exit $?
+	err=$?
+	echo "ERROR: $OBJCOPY command failed: $err"
+	exit $err
 fi
 
 # Merge sections into file and create digest
 $CAT $TEXTSEGMENT $INITSEGMENT $RODATASEGMENT | $HASHER -b - > $SECOUTFILE 2>/dev/null
 if [ $? -ne 0 ]
 then
-	echo "ERROR: $CAT command failed: $?"
-	exit $?
+	err=$?
+	echo "ERROR: $CAT command failed: $err"
+	exit $err
 fi
 
 # Insert data into library file using an atomic operation
@@ -66,7 +69,10 @@ cp $SOFILE $SOFILE.$$
 $OBJCOPY --update-section $FIPSDATASEGMENT="$SECOUTFILE" $SOFILE.$$
 if [ $? -ne 0 ]
 then
-	echo "ERROR: $OBJCOPY command failed: $?"
-	exit $?
+	err=$?
+	echo "ERROR: $OBJCOPY command failed: $err"
+	exit $err
 fi
 mv -f $SOFILE.$$ $SOFILE
+
+touch "$STAMP"
